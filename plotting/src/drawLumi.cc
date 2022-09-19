@@ -1,4 +1,4 @@
-#include "drawLumi.h"
+#include "../interface/drawLumi.h"
 
 //include ROOT classes
 #include "TLatex.h"

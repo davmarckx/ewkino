@@ -9,8 +9,8 @@
 #include "TF1.h"
 
 //include other parts of code 
-#include "../../plotting/plotCode.h"
-#include "../../plotting/tdrStyle.h"
+#include "../../plotting/interface/plotCode.h"
+#include "../../plotting/interface/tdrStyle.h"
 #include "../../Tools/interface/stringTools.h"
 
 

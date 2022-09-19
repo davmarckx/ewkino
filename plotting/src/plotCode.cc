@@ -1,4 +1,3 @@
-
 //include c++ library classes
 #include <algorithm>
 #include <math.h>
@@ -13,10 +12,10 @@
 #include "TGraphAsymmErrors.h"
 
 //Include other parts of the code
-#include "plotCode.h"
-#include "drawLumi.h"
-#include "tdrStyle.h"
-#include "../Tools/interface/stringTools.h"
+#include "../interface/plotCode.h"
+#include "../interface/drawLumi.h"
+#include "../interface/tdrStyle.h"
+#include "../../Tools/interface/stringTools.h"
 
 
 //fraction of height of canvas allocated to the ratio plot

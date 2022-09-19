@@ -18,8 +18,8 @@ Perform a charge flip measurement in data
 #include "../Tools/interface/systemTools.h"
 #include "../Tools/interface/mt2.h"
 #include "../Event/interface/Event.h"
-#include "../plotting/tdrStyle.h"
-#include "../plotting/plotCode.h"
+#include "../plotting/interface/tdrStyle.h"
+#include "../plotting/interface/plotCode.h"
 
 // include dedicated tools
 #include "interface/chargeFlipSelection.h"

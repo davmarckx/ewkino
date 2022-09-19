@@ -51,9 +51,9 @@
 #include "TreeReader/src/TreeReaderErrors.cc"
 
 //include plotting code 
-#include "plotting/drawLumi.cc"
-#include "plotting/tdrStyle.cc"
-#include "plotting/plotCode.cc"
+#include "plotting/src/drawLumi.cc"
+#include "plotting/src/tdrStyle.cc"
+#include "plotting/src/plotCode.cc"
 
 //include Reweighter code 
 #include "weights/bTagSFCode/BTagCalibrationStandaloneUL.cc"

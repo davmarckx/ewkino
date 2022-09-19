@@ -8,8 +8,8 @@
 //include other parts of framework
 #include "../TreeReader/interface/TreeReader.h"
 #include "../Event/interface/Event.h"
-#include "../plotting/plotCode.h"
-#include "../plotting/tdrStyle.h"
+#include "../plotting/interface/plotCode.h"
+#include "../plotting/interface/tdrStyle.h"
 #include "interface/fakeRateTools.h"
 #include "../Tools/interface/systemTools.h"
 

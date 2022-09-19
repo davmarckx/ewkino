@@ -17,8 +17,8 @@ Perform a charge flip measurement in MC
 #include "../Tools/interface/stringTools.h"
 #include "../Tools/interface/histogramTools.h"
 #include "../Tools/interface/analysisTools.h"
-#include "../plotting/plotCode.h"
-#include "../plotting/tdrStyle.h"
+#include "../plotting/interface/plotCode.h"
+#include "../plotting/interface/tdrStyle.h"
 
 // include dedicated tools
 #include "interface/chargeFlipSelection.h"

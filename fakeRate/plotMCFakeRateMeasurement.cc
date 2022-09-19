@@ -8,8 +8,8 @@
 
 // include framework
 #include "interface/fakeRateTools.h"
-#include "../plotting/plotCode.h"
-#include "../plotting/tdrStyle.h"
+#include "../plotting/interface/plotCode.h"
+#include "../plotting/interface/tdrStyle.h"
 #include "interface/fakeRateMeasurementTools.h"
 
 int main( int argc, char* argv[] ){

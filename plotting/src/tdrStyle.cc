@@ -1,5 +1,4 @@
-#include "TStyle.h"
-
+#include "../interface/tdrStyle.h"
 
 void setTDRStyle() {
 

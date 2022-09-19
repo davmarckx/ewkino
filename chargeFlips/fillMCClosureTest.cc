@@ -13,8 +13,8 @@ Perform a closure test for the MC charge flip rates
 #include "../TreeReader/interface/TreeReader.h"
 #include "../Event/interface/Event.h"
 #include "../Tools/interface/HistInfo.h"
-#include "../plotting/plotCode.h"
-#include "../plotting/tdrStyle.h"
+#include "../plotting/interface/plotCode.h"
+#include "../plotting/interface/tdrStyle.h"
 #include "../Tools/interface/systemTools.h"
 #include "../Tools/interface/stringTools.h"
 
