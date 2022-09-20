@@ -43,6 +43,10 @@ namespace histogram{
 
     double totalUncertainty( const TH1* );
     std::pair< double, double > sumOfWeightsRatioAndUncertainty( const TH1*, const TH1* );
+
+    void clipHistogram( TH1* histPtr );
+    void copyHistogram( std::shared_ptr<TH1D> histlhs, std::shared_ptr<TH1D> histrhs);
+
 }
 
 #endif

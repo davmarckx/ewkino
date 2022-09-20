@@ -45,6 +45,9 @@
 #include "Tools/src/SampleCrossSections.cc"
 #include "Tools/src/QuantileBinner.cc"
 #include "Tools/src/mt2.cc"
+#include "Tools/src/variableTools.cc"
+#include "Tools/src/rootFileTools.cc"
+#include "Tools/src/readFakeRateTools.cc"
 
 //include TreeReader code 
 #include "TreeReader/src/TreeReader.cc"

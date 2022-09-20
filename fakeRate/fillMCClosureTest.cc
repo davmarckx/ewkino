@@ -11,6 +11,7 @@
 #include "../Tools/interface/systemTools.h"
 #include "../Tools/interface/stringTools.h"
 #include "../Tools/interface/analysisTools.h"
+#include "../Tools/interface/readFakeRateTools.h"
 
 std::vector< HistInfo > makeDistributionInfoDefault(){
     std::vector< HistInfo > histInfoVec = {
@@ -41,30 +42,22 @@ std::vector< HistInfo > makeDistributionInfoDefault(){
     return histInfoVec;
 }
 
-std::shared_ptr< TH2D > readFRMap( const std::string& flavor, const std::string& year, 
-				    const bool isMCFRMap, const bool use_mT ){
+std::string frMapFile( const std::string& flavor, const std::string& year, 
+		       const bool isMCFRMap, const bool use_mT ){
     std::string file_name = "fakeRateMaps/fakeRateMap";
     file_name.append(isMCFRMap ? "_MC" : "_data");
     file_name.append("_"+flavor+"_"+year);
     file_name.append(use_mT ? "_mT" : "");
     file_name.append(".root");
-    std::cout<<"fake rate map file name: "<<file_name<<std::endl;
-    TFile* frFile = TFile::Open( file_name.c_str() );
-    std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( frFile->Get( ( 
-			    "fakeRate_" + flavor + "_" + year ).c_str() ) ) );
-    frMap->SetDirectory( gROOT );
-    frFile->Close();
+    return file_name;
+}
 
-    // printout for testing
-    /*std::cout<<"values:"<<std::endl;
-    for(unsigned xbin=1; xbin<=5; ++xbin){
-        for(unsigned ybin=1; ybin<=3; ++ybin){
-            std::cout<<"bin: "<<xbin<<" "<<ybin<<std::endl;
-            std::cout<<frMap->GetBinContent(xbin,ybin)<<std::endl;
-        }
-    }*/
-
-    return frMap;
+std::shared_ptr< TH2D > readFRMap(  const std::string& flavor, 
+				    const std::string& year,
+				    const bool isMCFRMap,
+				    const bool use_mT ){
+    std::string pathToFile = frMapFile( flavor, year, isMCFRMap, use_mT );
+    return readFakeRateTools::readFRMap( pathToFile, flavor, year );
 }
 
 bool passClosureTestEventSelection( Event& event, const bool requireMuon = false, 
@@ -91,33 +84,6 @@ bool passClosureTestEventSelection( Event& event, const bool requireMuon = false
     if( numberOfNonPromptLeptons < 1 ) return false;
     if( ( numberOfNonPromptLeptons + numberOfPromptLeptons ) != 3 ) return false;
     return true;
-}
-
-double fakeRateWeight( const Event& event, const std::shared_ptr< TH2D >& frMap_muon,  
-			const std::shared_ptr< TH2D >& frMap_electron ){
-    double weight = -1.;
-    for( const auto& leptonPtr : event.lightLeptonCollection() ){
-        if( leptonPtr->isFO() && !leptonPtr->isTight() ){
-
-            double croppedPt = std::min( leptonPtr->pt(), 99. );
-	    //double croppedPt = std::min( leptonPtr->pt(), 44.9 );
-	    // (test, to be more consistent with fake rate application in data)
-            double croppedAbsEta = std::min( leptonPtr->absEta(), (leptonPtr->isMuon() ? 2.4 : 2.5) );
-
-            double fr;
-            if( leptonPtr->isMuon() ){
-                fr = frMap_muon->GetBinContent( frMap_muon->FindBin( croppedPt, croppedAbsEta ) );
-            } else {
-                fr = frMap_electron->GetBinContent( frMap_electron->FindBin( croppedPt, croppedAbsEta ) );
-            }
-
-	    //std::cout<<"isMuon: "<<leptonPtr->isMuon()<<", pt: "<<leptonPtr->pt()<<std::endl;
-	    //std::cout<<fr<<std::endl;
-
-            weight *= ( - fr / ( 1. - fr ) );
-        }
-    }
-    return weight;
 }
 
 std::tuple<int,int,int> eventOriginFlavour( const Event& event ){
@@ -280,7 +246,9 @@ int main( int argc, char* argv[] ){
             } else {
 
 		//compute event weight with fake-rate
-		weight = weight*fakeRateWeight( event, fakeRateMap_muon, fakeRateMap_electron );
+		double frweight = readFakeRateTools::fakeRateWeight( event, 
+				    fakeRateMap_muon, fakeRateMap_electron );
+		weight = weight * frweight;
 		for( std::vector< double >::size_type v = 0; v < variables.size(); ++v ){
                     predictedHists[v]->Fill( std::min( variables[v],  histInfoVec[v].maxBinCenter() ), 
 						weight );
