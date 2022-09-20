@@ -81,8 +81,8 @@ class SampleCollection(object):
 		    # strip
 		    line = line.strip(' \t\n')
 		    # ignore blank or commented lines
-		    if(line[0] == '#'): continue
 		    if(len(line)<=1): continue
+		    if(line[0] == '#'): continue
 		    # make a sample
 		    sample = Sample()
 		    sample.read_from_line(line, **kwargs)
