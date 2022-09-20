@@ -107,9 +107,9 @@ else: os.makedirs(output_directory_base)
 print('Extracting sample names from the provided sample list...')
 samples_to_use = []
 useall = False
-samples_dict = readsamplelist(sample_list)
-for sample in samples_dict:
-    samples_to_use.append(sample['sample_name'])
+sample_collection = readsamplelist(sample_list)
+for sample in sample_collection.get_samples():
+    samples_to_use.append(sample.name)
 if(len(samples_to_use)==1 and samples_to_use[0]=='all'):
     useall = True
 
@@ -133,14 +133,18 @@ if version_name is not None:
             sample_sub_directories.append( subdirectory )
 # case 2: version name is extracted from the sample list
 else:
-    for sample in samples_dict:
-	fullpath = os.path.join(input_directory, sample['sample_name'], sample['version_name'])
+    for sample in sample_collection.get_samples():
+	if sample.version is None:
+	    raise Exception('ERROR: sample version was not specified as a command line argument,'
+			+' so it should be specified in the sample list, but found None'
+			+' for sample {}'.format(sample.name))
+	fullpath = os.path.join(input_directory, sample.name, sample.version)
         if os.path.exists(fullpath):
-            sample_directories.append(os.path.join(input_directory,sample['sample_name']))
-            sample_sub_directories.append(sample['version_name'])
+            sample_directories.append(os.path.join(input_directory,sample.name))
+            sample_sub_directories.append(sample.version)
         else:
             print('WARNING: sample {} not found in input directory {}'.format(
-		    os.path.join(sample['sample_name'],sample['version_name']), input_directory))
+		    os.path.join(sample.name,sample.version), input_directory))
             print('Continue without? (y/n)')
             go = raw_input()
             if not go=='y': sys.exit()
