@@ -8,6 +8,8 @@ import os
 import numpy as np
 import json
 import plottools as pt
+sys.path.append('../../Tools/python')
+import histtools as ht
 
 def orderhistograms(histlist,ascending=True):
     # order a list of histograms according to sumOfWeights
@@ -32,13 +34,6 @@ def stackcol(hist,color):
     hist.SetFillColor(color)
     hist.SetLineWidth(1)
     hist.SetLineColor(ROOT.kBlack)
-
-def clip(hist):
-    # set minimum value for all bins to zero (no net negative weight)
-    for i in range(hist.GetNbinsX()+1):
-	if hist.GetBinContent(i)<0:
-	    hist.SetBinContent(i,0.)
-	    hist.SetBinError(i,0)
 
 def getminmax(datahist,mchist,yaxlog):
     # get suitable minimum and maximum values for plotting a given data hist and summed mc hist
@@ -181,7 +176,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     mchiststack = ROOT.THStack("mchiststack","")
     for hist in mchistlist:
         stackcol( hist, colormap.get(hist.GetTitle(), ROOT.kBlack) )
-	clip(hist) # set negative bins to zero!
+	ht.cliphistogram(hist)
         mchistsum.Add(hist)
         mchiststack.Add(hist)
 
@@ -321,9 +316,9 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # draw mcerror first to get range correct
     mcerror.Draw("e2")
     # now draw in correct order
-    mchiststack.Draw("hist same")
-    mcerror.Draw("e2 same")
-    datahist.Draw("pe e1 x0 same") 
+    #mchiststack.Draw("hist same")
+    #mcerror.Draw("e2 same")
+    #datahist.Draw("pe e1 x0 same") 
     # (note: e1 draws error bars, x0 suppresses horizontal error bars)
     legend.Draw("same")
     # draw some extra info if needed
