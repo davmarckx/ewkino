@@ -1,0 +1,67 @@
+# Sample list for ttW measurement, 2016PostVFP simulation.
+# So far based on AN2019-127-v13, with modification indicated as comments below.
+# The samples are located in /pnfs/iihe/cms/store/user/nivanden/skims_v4;
+# hopefully Niels's skims are ok for usage in this analysis as well.
+
+# Signal
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.17693
+# note: additional custom samples probably needed, see AN2019-127-v13.
+
+# Backgrounds with top quarks
+ttX  ttHJetToNonbb_M125_TuneCP5_13TeV_amcatnloFXFX_madspin_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.21123
+# note: different from AN2019-127-v13, but probably ok (see 2017 and 2018)
+ttX  TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.28817
+# note: missing sample TTZToLL_M-1to10
+ttX  TTGamma_Dilept_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  2.22037
+ttX  TTGamma_SingleLept_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  7.50917
+# note: missing sample TGJets
+ttX  tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.07358
+# note: different sample, to check cross-section
+ttX  THQ_ctcvcp_4f_Hincl_TuneCP5_13TeV_madgraph_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  0.07096
+# note: different sample, to check cross-section
+ttX  THW_ctcvcp_HToGG_M125_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  0.01561
+# note: different sample, to check cross-section
+ttX  TTWW_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.01150
+# note: different tune, but probably ok (see 2017 and 2018)
+ttX  TTWZ_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.0038229
+# note: different tune, but probably ok (see 2017 and 2018)
+ttX  TTTT_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_2016_ULpostVFPv6.root  0.008213
+# note: different tune, but probably ok (see 2017 and 2018)
+
+# Backgrounds with multibosons
+multiboson  WWTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  12.178
+# note: different sample, to check cross-section
+# note: missing sample WWTo2L2Nu_DoubleScattering
+multiboson  ZZTo2L2Nu_TuneCP5_13TeV_powheg_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_2016_ULpostVFPv6.root  0.5644
+# note: different sample, to check cross-section
+multiboson  ZZTo4L_TuneCP5_13TeV_powheg_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_additions_reduced.root  1.256
+# note: different sample, to check cross-section
+multiboson  WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  4.42965
+# note: different tune, but probably ok (see 2017 and 2018)
+multiboson  VHToNonbb_M125_TuneCP5_13TeV-amcatnloFXFX_madspin_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  0.9425
+# note: different sample, to check cross-section
+multiboson  WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.2086
+# note: different tune, but probably ok (see 2017 and 2018)
+multiboson  WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.1651
+# note: different sample, but probably ok (see 2017 and 2018)
+multiboson  WZZ_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.05565
+# note: different tune, but probably ok (see 2017 and 2018)
+multiboson  ZZZ_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.01398
+# note: different tune, but probably ok (see 2017 and 2018)
+multiboson  GluGluHToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  0.013089
+# note: different sample, to check cross-section
+multiboson  VBF_HToZZTo4L_M125_TuneCP5_13TeV_powheg2_JHUGenV7011_pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_2016_ULpostVFPv6.root  0.001
+# note: different sample, to check cross-section
+# note: missing sample WpWpJJ
+
+# Backgrounds with nonprompt leptons
+nonprompt  DYJetsToLL_M-10to50_TuneCP5_13TeV-madgraphMLM-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  18610
+nonprompt  DYJetsToLL_M-50_TuneCP5_13TeV-amcatnloFXFX-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  6077.22
+nonprompt  TTTo2L2Nu_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  88.3419
+nonprompt  TTToHadronic_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  377.9607
+nonprompt  TTToSemiLeptonic_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  365.4574
+nonprompt  ST_t-channel_antitop_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  80.95
+nonprompt  ST_t-channel_top_4f_InclusiveDecays_TuneCP5_13TeV-powheg-madspin-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v3_singlelepton_MC_2016_ULpostVFPv6.root  136.02
+nonprompt  ST_tW_antitop_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_2016_ULpostVFPv6.root  35.85
+nonprompt  ST_tW_top_5f_NoFullyHadronicDecays_TuneCP5_13TeV-powheg-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v1_singlelepton_MC_2016_ULpostVFPv6.root  35.85
+nonprompt  ST_s-channel_4f_leptonDecays_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  3.36329
