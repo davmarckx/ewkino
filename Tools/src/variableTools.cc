@@ -29,21 +29,35 @@ HistogramVariable::HistogramVariable(	const std::string& name,
     _xhigh = std::stod(xhigh);
 }
 
+std::string HistogramVariable::toString() const{
+    std::string res = "HistogramVariable(";
+    res.append( " name: " + name() + "," );
+    res.append( " title: " + title() + "," );
+    res.append( " nbins: " + std::to_string(nbins()) + "," );
+    res.append( " xlow: " + std::to_string(xlow()) + "," );
+    res.append( " xhigh: " + std::to_string(xhigh()) + " )" );
+    return res;
+}
+
 std::vector<HistogramVariable> variableTools::readVariables( const std::string& txtFile ){
     // read a vector of HistogramVariable objects from a txt file.
     // the txt files is assumed to be formatted as follows:
-    // name [tab] title [tab] nbins [tab] xlow [tab] xhigh [newline]
+    // name [spaces] title [spaces] nbins [spaces] xlow [spaces] xhigh
     std::vector<HistogramVariable> res;
     // read the file line by line
     std::ifstream infile(txtFile);
     std::string line;
     while( std::getline(infile, line) ){
-	// split the line by tab characters and make a vector
-	std::vector<std::string> elems;
 	std::stringstream ss;
 	ss.str(line);
+	// skip empty or commented lines
+	if( line.size()<=1 ){ continue; }
+	if( line[0]=='#' || line[0]=='/' ){ continue; }
+	// split the line by space characters and make a vector
+	std::vector<std::string> elems;
 	std::string elem;
-	while( std::getline(ss, elem, '\t') ){
+	while( std::getline(ss, elem, ' ') ){
+	    if( elem.size()==0 ){ continue; }
 	    elems.push_back(elem);
 	}
 	// check the length

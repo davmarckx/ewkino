@@ -38,6 +38,7 @@ class HistogramVariable{
 	int nbins() const{ return _nbins; }
 	double xlow() const{ return _xlow; }
 	double xhigh() const{ return _xhigh; }
+	std::string toString() const;
 
     private:
 	std::string _name;
