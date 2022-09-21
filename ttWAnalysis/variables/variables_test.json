@@ -1,0 +1,16 @@
+[
+{ "name":    "_Mjj_max",
+  "title":   "_Mjj_max",
+  "nbins":   20,
+  "xlow":    0.0,
+  "xhigh":   1200.0,
+  "axtitle": "Maximum dijet mass",
+  "unit":    "GeV" },
+
+{ "name":    "_lW_asymmetry",
+  "title":   "_lW_asymmetry",
+  "nbins":   20,
+  "xlow":    -2.5,
+  "xhigh":   2.5,
+  "axtitle": "W lepton asymmetry" }
+]

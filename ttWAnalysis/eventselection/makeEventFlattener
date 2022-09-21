@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed,-lTMVA
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= eventflattener.cc src/eventSelections.cc src/eventFlattening.cc ../../codeLibrary.o 
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=eventflattener
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+        
+clean:
+	rm -rf *o $(EXECUTABLE)

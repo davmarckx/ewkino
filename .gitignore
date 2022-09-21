@@ -22,3 +22,6 @@ sampleXSec/output_*
 
 # some sample lists
 sampleXSec/sampleLists
+
+# analysis specific output folders
+ttWAnalysis/*/output_*

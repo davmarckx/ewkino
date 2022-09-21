@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= eventselector.cc src/eventSelections.cc ../../codeLibrary.o 
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=eventselector
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+	
+clean:
+	rm -rf *o $(EXECUTABLE)
