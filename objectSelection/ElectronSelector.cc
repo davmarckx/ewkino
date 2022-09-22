@@ -13,19 +13,20 @@ loose electron selection
 
 
 double leptonMVACutElectron(){
-    return 0.8;
+    return 0.81;
 }
 
 
 bool ElectronSelector::isLooseBase() const{
-    if( electronPtr->uncorrectedPt() < 7 ) return false;
+    if( electronPtr->uncorrectedPt() < 10 ) return false;
     if( electronPtr->absEta() >= 2.5 ) return false;
     if( fabs( electronPtr->dxy() ) >= 0.05 ) return false;
     if( fabs( electronPtr->dz() ) >= 0.1 ) return false;
     if( electronPtr->sip3d() >= 8 ) return false;
     if( electronPtr->numberOfMissingHits() >= 2 ) return false;
     if( electronPtr->miniIso() >= 0.4 ) return false;
-    if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    if( std::abs(electronPtr->etaSuperCluster()) > 1.4442 
+        && std::abs(electronPtr->etaSuperCluster()) < 1.566) return false;
     return true;
 }
 
@@ -62,52 +63,58 @@ FO electron selection
 
 bool ElectronSelector::isFOBase() const{
     if( !isLoose() ) return false;
-    if( electronPtr->uncorrectedPt() <= 10 ) return false;
-    if( electronPtr->numberOfMissingHits() > 0 ) return false;
-    if( electronPtr->hOverE() >= 0.1 ) return false;
-    if( electronPtr->inverseEMinusInverseP() <= -0.04 ) return false;
-    if( electronPtr->etaSuperCluster() <= 1.479 ){
-        if( electronPtr->sigmaIEtaEta() >= 0.011 ) return false;
-    } else {
-        if( electronPtr->sigmaIEtaEta() >= 0.030 ) return false;
-    }
-    if( electronPtr->leptonMVAttH() <= leptonMVACutElectron() ){
-        if( !electronPtr->passElectronMVAFall17NoIsoWP80() ) return false;
-        if( electronPtr->ptRatio() <= 0.7 ) return false;
-    }
     if( !electronPtr->passConversionVeto() ) return false;
+    if( !electronPtr->passChargeConsistency() ) return false;
     return true;
 }
 
 
 bool ElectronSelector::isFO2016() const{
-    if( electronPtr->closestJetDeepFlavor() >= bTagWP::mediumDeepFlavor2016() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ){
+        if( electronPtr->closestJetDeepFlavor() > 0.1 ) return false;
+        if( electronPtr->ptRatio() < 0.5 ) return false;
+        if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    }
     return true;
 }
 
 
 bool ElectronSelector::isFO2016PreVFP() const{
-    // note: for now, this is just a copy of isFO2016()
-    if( electronPtr->closestJetDeepFlavor() >= bTagWP::mediumDeepFlavor2016() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ){
+        if( electronPtr->closestJetDeepFlavor() > 0.1 ) return false;
+        if( electronPtr->ptRatio() < 0.5 ) return false;
+        if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    }
     return true;
 }
 
 
 bool ElectronSelector::isFO2016PostVFP() const{
-    // note: for now, this is just a copy of isFO2016()
-    if( electronPtr->closestJetDeepFlavor() >= bTagWP::mediumDeepFlavor2016() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ){
+        if( electronPtr->closestJetDeepFlavor() > 0.1 ) return false;
+        if( electronPtr->ptRatio() < 0.5 ) return false;
+        if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    }
     return true;
 }
 
 
 bool ElectronSelector::isFO2017() const{
-    if( electronPtr->closestJetDeepFlavor() >= bTagWP::mediumDeepFlavor2017() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ){
+        if( electronPtr->closestJetDeepFlavor() > 0.1 ) return false;
+        if( electronPtr->ptRatio() < 0.4 ) return false;
+        if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    }
     return true;
 }
 
 
 bool ElectronSelector::isFO2018() const{
-    if( electronPtr->closestJetDeepFlavor() >= bTagWP::mediumDeepFlavor2018() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ){
+        if( electronPtr->closestJetDeepFlavor() > 0.1 ) return false;
+        if( electronPtr->ptRatio() < 0.4 ) return false;
+        if( !electronPtr->passElectronMVAFall17NoIsoLoose() ) return false;
+    }
     return true;
 }
 
@@ -118,7 +125,7 @@ tight electron selection
 
 bool ElectronSelector::isTightBase() const{
     if( !isFO() ) return false;
-    if( electronPtr->leptonMVAttH() <= leptonMVACutElectron() ) return false;
+    if( electronPtr->leptonMVATOPUL() <= leptonMVACutElectron() ) return false;
     return true;
 }
 
@@ -153,5 +160,5 @@ cone correction
 */
 
 double ElectronSelector::coneCorrection() const{
-    return ( 0.9 / electronPtr->ptRatio() );
+    return ( 0.72 / electronPtr->ptRatio() );
 }
