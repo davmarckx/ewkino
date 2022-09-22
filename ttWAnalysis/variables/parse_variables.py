@@ -16,7 +16,7 @@ import sys
 import os
 import json
 sys.path.append(os.path.abspath('../../Tools/python'))
-from variabletools import HistogramVariable, write_variables_json
+from variabletools import HistogramVariable, read_variables, write_variables_json
 
 
 def parse_variable_cppline( line ):
@@ -181,4 +181,15 @@ if __name__=='__main__':
         var.unit = vardict['unit']
 
   # write to json
-  write_variables_json( variables, 'variables_autoparse.json' )
+  fname = 'variables_autoparse.json'
+  write_variables_json( variables, fname )
+
+  # test if readable
+  try:
+    vartest = read_variables( fname )
+    for var in vartest: print(var)
+  except: 
+    msg = 'WARNING: the produced json file could not be read properly!'
+    msg += ' Here is the stack trace:'
+    print(msg)
+    read_variables( fname )

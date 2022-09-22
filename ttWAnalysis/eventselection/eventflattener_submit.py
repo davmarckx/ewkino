@@ -14,8 +14,8 @@ for r in ['nonprompt_dilepton']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 selection_types = []
-selection_types.append('3tight')
-selection_types.append('3prompt')
+selection_types.append('tight')
+selection_types.append('prompt')
 selection_types.append('fakerate')
 
 variations = []

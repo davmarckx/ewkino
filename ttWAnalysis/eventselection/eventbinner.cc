@@ -91,7 +91,6 @@ void fillHistograms(const std::string& inputDirectory,
     treeReader.initSample();
     for(int idx=1; idx<=sampleIndex; ++idx){
         treeReader.initSample();
-	std::cout << treeReader.currentSamplePtr()->fileName() << std::endl;
     }
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();

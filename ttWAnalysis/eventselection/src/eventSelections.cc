@@ -226,7 +226,7 @@ bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
         if(event.isMC() and !allLeptonsArePrompt(event)) return false;
     } else return false;
     // Z candidate veto
-    if( event.hasZTollCandidate(halfwindow) ) return false;
+    if( event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow) ) return false;
     // HT cut
     if( event.jetCollection().scalarPtSum()<300 ) return false;
     // number of jets and b-jets
