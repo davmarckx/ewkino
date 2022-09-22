@@ -1,0 +1,365 @@
+[
+{
+  "name": "_abs_eta_recoil",
+  "title": "_abs_eta_recoil",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\left|\eta\right|_{recoil}",
+  "unit": ""
+},
+{
+  "name": "_Mjj_max",
+  "title": "_Mjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1200.0",
+  "axtitle": "m_{jet+jet}^{max}",
+  "unit": "GeV"
+},
+{
+  "name": "_lW_asymmetry",
+  "title": "_lW_asymmetry",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Asymmetry (lepton from W)",
+  "unit": ""
+},
+{
+  "name": "_deepCSV_max",
+  "title": "_deepCSV_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Highest b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_deepFlavor_max",
+  "title": "_deepFlavor_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Highest b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_lT",
+  "title": "_lT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "L_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_MT",
+  "title": "_MT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "200.0",
+  "axtitle": "Transverse W boson mass",
+  "unit": "GeV"
+},
+{
+  "name": "_coarseBinnedMT",
+  "title": "_coarseBinnedMT",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "200.0",
+  "axtitle": "Transverse W boson mass",
+  "unit": "GeV"
+},
+{
+  "name": "_smallRangeMT",
+  "title": "_smallRangeMT",
+  "nbins": "15",
+  "xlow": "0.0",
+  "xhigh": "150.0",
+  "axtitle": "Transverse W boson mass",
+  "unit": "GeV"
+},
+{
+  "name": "_pTjj_max",
+  "title": "_pTjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "p_{T}^{max}(jet+jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dRlb_min",
+  "title": "_dRlb_min",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.15",
+  "axtitle": "\Delta R(l,bjet)_{min}",
+  "unit": ""
+},
+{
+  "name": "_dPhill_max",
+  "title": "_dPhill_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.15",
+  "axtitle": "\Delta \Phi (l,l)_{max}",
+  "unit": ""
+},
+{
+  "name": "_HT",
+  "title": "_HT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "H_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_nJets",
+  "title": "_nJets",
+  "nbins": "7",
+  "xlow": "-0.5",
+  "xhigh": "6.5",
+  "axtitle": "Number of jets",
+  "unit": ""
+},
+{
+  "name": "_nBJets",
+  "title": "_nBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "unit": ""
+},
+{
+  "name": "_dRlWrecoil",
+  "title": "_dRlWrecoil",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "10.0",
+  "axtitle": "\Delta R(l_{W},jet_{recoil})",
+  "unit": ""
+},
+{
+  "name": "_dRlWbtagged",
+  "title": "_dRlWbtagged",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "7.0",
+  "axtitle": "\Delta R(l_{W},jet_{b-tagged})",
+  "unit": ""
+},
+{
+  "name": "_M3l",
+  "title": "_M3l",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "600.0",
+  "axtitle": "m_{3l}",
+  "unit": "GeV"
+},
+{
+  "name": "_altBinnedM3l",
+  "title": "_altBinnedM3l",
+  "nbins": "20",
+  "xlow": "100.0",
+  "xhigh": "400.0"
+},
+{
+  "name": "_fineBinnedM3l",
+  "title": "_fineBinnedM3l",
+  "nbins": "20",
+  "xlow": "75.0",
+  "xhigh": "105.0",
+  "axtitle": "m_{3l}",
+  "unit": "GeV"
+},
+{
+  "name": "_abs_eta_max",
+  "title": "_abs_eta_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\left|\eta\right|_{max}",
+  "unit": ""
+},
+{
+  "name": "_eventBDT",
+  "title": "_eventBDT",
+  "nbins": "15",
+  "xlow": "-1.0",
+  "xhigh": "1.0",
+  "axtitle": "Event BDT discriminant",
+  "unit": ""
+},
+{
+  "name": "_fineBinnedeventBDT",
+  "title": "_fineBinnedeventBDT",
+  "nbins": "1000",
+  "xlow": "-1.0",
+  "xhigh": "1.0"
+},
+{
+  "name": "_nMuons",
+  "title": "_nMuons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of muons in event",
+  "unit": ""
+},
+{
+  "name": "_nElectrons",
+  "title": "_nElectrons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of electrons in event",
+  "unit": ""
+},
+{
+  "name": "_yield",
+  "title": "_yield",
+  "nbins": "1",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Total yield",
+  "unit": ""
+},
+{
+  "name": "_leptonPtLeading",
+  "title": "_leptonPtLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "Leading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtSubLeading",
+  "title": "_leptonPtSubLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "180.0",
+  "axtitle": "Subleading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtTrailing",
+  "title": "_leptonPtTrailing",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "120.0",
+  "axtitle": "Trailing lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_fineBinnedleptonPtTrailing",
+  "title": "_fineBinnedleptonPtTrailing",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "50.0",
+  "axtitle": "Trailing lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonEtaLeading",
+  "title": "_leptonEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading lepton \eta",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaSubLeading",
+  "title": "_leptonEtaSubLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading lepton \eta",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaTrailing",
+  "title": "_leptonEtaTrailing",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Trailing lepton \eta",
+  "unit": ""
+},
+{
+  "name": "_jetPtLeading",
+  "title": "_jetPtLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "Leading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_jetPtSubLeading",
+  "title": "_jetPtSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "Subleading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_numberOfVertices",
+  "title": "_numberOfVertices",
+  "nbins": "71",
+  "xlow": "-0.5",
+  "xhigh": "70.5"
+},
+{
+  "name": "_bestZMass",
+  "title": "_bestZMass",
+  "nbins": "15",
+  "xlow": "0.0",
+  "xhigh": "150.0",
+  "axtitle": "Mass of OSSF pai",
+  "unit": "GeV"
+},
+{
+  "name": "_lW_pt",
+  "title": "_lW_pt",
+  "nbins": "14",
+  "xlow": "10.0",
+  "xhigh": "150.0",
+  "axtitle": "Lepton from W boson p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_coarseBinnedlW_pt",
+  "title": "_coarseBinnedlW_pt",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "105.0",
+  "axtitle": "Lepton from W boson p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_Z_pt",
+  "title": "_Z_pt",
+  "nbins": "15",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "Z boson p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_coarseBinnedZ_pt",
+  "title": "_coarseBinnedZ_pt",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "275.0",
+  "axtitle": "Z boson p_{T}",
+  "unit": "GeV"
+}
+]

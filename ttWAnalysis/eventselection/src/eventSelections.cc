@@ -206,10 +206,6 @@ bool passMllMassVeto( const Event& event ){
 
 // dedicated functions to check if event passes certain conditions //
 
-// ---------------------------------------------------
-// signal regions (supposed to be in sync with Niels)
-// ---------------------------------------------------
-
 bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     cleanLeptonsAndJets(event);
@@ -235,7 +231,6 @@ bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
     if( event.jetCollection().scalarPtSum()<300 ) return false;
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    // to check with Niels: medium or loose working point for b-tagging?
     if( njetsnbjets.second < 2 ) return false;
     if( njetsnbjets.first < 4 ) return false;
     if(variation=="dummy") return true; // dummy to avoid unused parameter warning
