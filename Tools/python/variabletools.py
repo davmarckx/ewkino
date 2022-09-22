@@ -9,7 +9,7 @@ import json
 class HistogramVariable(object):
 
   def __init__( self, name, title, nbins, xlow, xhigh, 
-                axtitle=None, unit=None ):
+                axtitle=None, unit=None, comments=None ):
     self.name = name
     self.title = title
     self.nbins = int(nbins)
@@ -17,6 +17,15 @@ class HistogramVariable(object):
     self.xhigh = float(xhigh)
     self.axtitle = axtitle
     self.unit = unit
+    self.comments = comments
+    self.ordered_keys = (['name','title','nbins','xlow','xhigh',
+                          'axtitle','unit','comments'])
+
+  def __str__( self ):
+    res = 'HistogramVariable( '
+    res += ', '.join(['{}: {}'.format(key,getattr(self,key)) for key in self.ordered_keys])
+    res += ' )'
+    return res
 
 
 def check_json( jsonobj, verbose=True ):
@@ -59,7 +68,8 @@ def read_variables( jsonfile ):
     res.append( HistogramVariable( var['name'], var['title'], var['nbins'],
                 var['xlow'], var['xhigh'],
                 axtitle=var.get('axtitle',None),
-                unit=var.get('unit',None) ) )
+                unit=var.get('unit',None),
+                comments=var.get('comments',None) ) )
   return res
 
 def write_variables_txt( variables, txtfile ):
@@ -77,3 +87,38 @@ def write_variables_txt( variables, txtfile ):
   with open(txtfile, 'w') as f:
     for line in lines:
       f.write(line+'\n')
+
+def write_variables_json( variables, jsonfile, builtin=False ):
+  ### write a collection of variables to json format
+  varlist = []
+  for var in variables:
+    vardict = ({ 'name' : var.name,
+                 'title' : var.title,
+                 'nbins': var.nbins,
+                 'xlow': var.xlow,
+                 'xhigh': var.xhigh })
+    if var.axtitle is not None: vardict['axtitle'] = var.axtitle
+    if var.unit is not None: vardict['unit'] = var.unit
+    if var.comments is not None: vardict['comments'] = var.comments
+    varlist.append( vardict )
+  if builtin:
+    # use builtin json.dump
+    # easier, but not easily readable
+    with open(jsonfile, 'w') as f:
+      json.dump(varlist, f)
+  else:
+    # manual parsing
+    ordered_keys = (['name','title','nbins','xlow','xhigh',
+                     'axtitle','unit','comments'])
+    lines = []
+    lines.append('[')
+    for vardict in varlist:
+      lines.append('{')
+      for key in ordered_keys:
+        if key in vardict: lines.append('  "{}": "{}",'.format(key,vardict[key]))
+      lines[-1] = lines[-1].rstrip(',')
+      lines.append('},')
+    lines[-1] = lines[-1].rstrip(',')
+    lines.append(']')
+    with open(jsonfile, 'w') as f:
+      for line in lines: f.write(line+'\n')
