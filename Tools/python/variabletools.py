@@ -115,7 +115,10 @@ def write_variables_json( variables, jsonfile, builtin=False ):
     for vardict in varlist:
       lines.append('{')
       for key in ordered_keys:
-        if key in vardict: lines.append('  "{}": "{}",'.format(key,vardict[key]))
+        if key not in vardict: continue
+        value = vardict[key]
+        if( isinstance(value,str) and '\\' in value ): value = value.replace('\\','\\\\')
+        lines.append('  "{}": "{}",'.format(key,value))
       lines[-1] = lines[-1].rstrip(',')
       lines.append('},')
     lines[-1] = lines[-1].rstrip(',')
