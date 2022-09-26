@@ -9,22 +9,35 @@ Tools related to fake rate measurement
 std::shared_ptr< TH2D > readFakeRateTools::readFRMap( 
 				    const std::string& pathToFile,
 				    const std::string& histName ){
-    // read a TH2D fake rate map from specified file and hsitogram name
+    // read a TH2D fake rate map from specified file and histogram name
+    if( !systemTools::fileExists(pathToFile) ){
+	std::string msg = "ERROR in readFakeRateTools::readFRMap:";
+	msg.append( " file " + pathToFile + " does not exist." );
+	throw std::runtime_error(msg); 
+    }
     TFile* frFile = TFile::Open( pathToFile.c_str() );
-    std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( frFile->Get( histName.c_str() ) ) );
-    frMap->SetDirectory( gROOT );
-    frFile->Close();
+    try{
+	std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( 
+	    frFile->Get( histName.c_str() ) ) );
+	frMap->SetDirectory( gROOT );
+	frFile->Close();
 
-    /* // printouts for testing
-    std::cout<<"values:"<<std::endl;
-    for(unsigned xbin=1; xbin<=5; ++xbin){
-        for(unsigned ybin=1; ybin<=3; ++ybin){
-            std::cout<<"bin: "<<xbin<<" "<<ybin<<std::endl;
-            std::cout<<frMap->GetBinContent(xbin,ybin)<<std::endl;
-        }
-    }*/
+	/* // printouts for testing
+	std::cout<<"values:"<<std::endl;
+	for(unsigned xbin=1; xbin<=5; ++xbin){
+	    for(unsigned ybin=1; ybin<=3; ++ybin){
+		std::cout<<"bin: "<<xbin<<" "<<ybin<<std::endl;
+		std::cout<<frMap->GetBinContent(xbin,ybin)<<std::endl;
+	    }
+	}*/
 
-    return frMap;
+	return frMap;
+    } catch(...){
+	std::string msg = "ERROR in readFakeRateTools::readFRMap:";
+	msg.append( " could not retrieve histogram " + histName );
+	msg.append( " from file " + pathToFile );
+	throw std::runtime_error(msg);
+    }
 }
 
 

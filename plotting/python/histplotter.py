@@ -316,9 +316,9 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # draw mcerror first to get range correct
     mcerror.Draw("e2")
     # now draw in correct order
-    #mchiststack.Draw("hist same")
-    #mcerror.Draw("e2 same")
-    #datahist.Draw("pe e1 x0 same") 
+    mchiststack.Draw("hist same")
+    mcerror.Draw("e2 same")
+    datahist.Draw("pe e1 x0 same") 
     # (note: e1 draws error bars, x0 suppresses horizontal error bars)
     legend.Draw("same")
     # draw some extra info if needed
