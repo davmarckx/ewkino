@@ -231,12 +231,26 @@ int main( int argc, char* argv[] ){
     std::string& electronfrmap = argvStr[10];
     unsigned long nevents = std::stoul(argvStr[11]);
 
+    // print arguments
+    std::cout << "Found following arguments:" << std::endl;
+    std::cout << "  - input directory: " << input_directory << std::endl;
+    std::cout << "  - sample list: " << sample_list << std::endl;
+    std::cout << "  - sample index: " << std::to_string(sample_index) << std::endl;
+    std::cout << "  - output_directory: " << output_directory << std::endl;
+    std::cout << "  - variable file: " << variable_file << std::endl;
+    std::cout << "  - event selection: " << event_selection << std::endl;
+    std::cout << "  - selection type: " << selection_type << std::endl;
+    std::cout << "  - variation: " << variation << std::endl;
+    std::cout << "  - muon FR map: " << muonfrmap << std::endl;
+    std::cout << "  - electron FR map: " << electronfrmap << std::endl;
+    std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
+
     // read variables
     std::vector<HistogramVariable> histvars = variableTools::readVariables( variable_file );
-    std::cout << "found following variables (from " << variable_file << "):" << std::endl;
+    /*std::cout << "found following variables (from " << variable_file << "):" << std::endl;
     for( HistogramVariable var: histvars ){
 	std::cout << var.toString() << std::endl;	
-    }
+    }*/
 
     // check variables
     std::map<std::string,double> emptymap = eventFlattening::initVarMap();

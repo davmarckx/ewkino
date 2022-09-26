@@ -36,8 +36,12 @@ istest = False
 for year in years:
   for dtype in dtypes:
     inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
-    if dtype=='data': inputdir = inputdir.replace('_v4','_v5')
-    inputdir = os.path.join(inputdir, year)
+    inputdiryear = year
+    if dtype=='data':
+      inputdir = inputdir.replace('_v4','_v5')
+      if( year=='2016PreVFP' or year=='2016PostVFP' ):
+        inputdiryear = '2016'
+    inputdir = os.path.join(inputdir, inputdiryear)
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
     outputdir = 'output_20220922'
     outputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))

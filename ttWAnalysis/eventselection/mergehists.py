@@ -8,8 +8,13 @@ import sys
 import os
 import ROOT
 import argparse
+import json
+sys.path.append('../../jobSubmission')
+import condorTools as ct
+from jobSettings import CMSSW_VERSION
 sys.path.append('../../Tools/python')
 import histtools as ht
+import argparsetools as apt
 
 
 if __name__=='__main__':
@@ -19,6 +24,8 @@ if __name__=='__main__':
   parser.add_argument('--directory', required=True, type=os.path.abspath)
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
   parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata'])
+  parser.add_argument('--rename', default=None, type=apt.path_or_none)
+  parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()
 
   # print arguments
@@ -29,6 +36,20 @@ if __name__=='__main__':
   # argument checking
   if not os.path.exists(args.directory):
     raise Exception('ERROR: input directory {} does not exist.'.format(args.directory))
+  if( args.rename is not None and not os.path.exists(args.rename) ):
+    raise Exception('ERROR: rename file {} does not exist.'.format(args.rename))
+
+  # handle job submission if requested
+  if args.runmode=='condor':
+    cmd = 'python mergehists.py'
+    cmd += ' --directory '+args.directory
+    cmd += ' --outputfile '+args.outputfile
+    cmd += ' --npmode '+args.npmode
+    if args.rename is not None: cmd += ' --rename '+args.rename
+    cmd += ' --runmode local'
+    ct.submitCommandAsCondorJob( 'cjob_mergehists', cmd,
+                                 cmssw_version=CMSSW_VERSION )
+    sys.exit()
 
   # get files to merge
   selfiles = ([os.path.join(args.directory,f) for f in os.listdir(args.directory) 
@@ -44,11 +65,44 @@ if __name__=='__main__':
   if not os.path.exists(outputdirname):
     os.makedirs(outputdirname)
 
-  # first do hadd to merge histograms
+  # make a temporary directory to store intermediate results
+  tempdir = os.path.join(args.directory, 'temp_{}'.format(args.npmode))
+  if not os.path.exists(tempdir):
+    os.makedirs(tempdir)
+
+  # copy all files to temporary directory
+  tempfiles = []
+  for f in selfiles:
+    filename = os.path.split(f)[1]
+    tempfile = os.path.join(tempdir,filename)
+    os.system('cp {} {}'.format(f, tempfile))
+    tempfiles.append(tempfile)
+
+  # rename processes if requested
+  if args.rename is not None:
+    with open(args.rename,'r') as f:
+      renamedict = json.load(f)
+    for f in tempfiles:
+      histlist = ht.loadallhistograms(f)
+      for hist in histlist:
+        histname = hist.GetName()
+        pname,rem = histname.split('_',1)
+        newpname = renamedict.get(pname,pname)
+        newhistname = '_'.join([newpname,rem])
+        hist.SetTitle(newpname)
+        hist.SetName(newhistname)
+      rf = ROOT.TFile.Open(f,'recreate')
+      for hist in histlist: hist.Write()
+      rf.Close()
+
+  # do hadd to merge histograms
   # with same process, event selection, selection type and variable.
   cmd = 'hadd -f {}'.format(args.outputfile)
-  for f in selfiles: cmd += ' {}'.format(f)
+  for f in tempfiles: cmd += ' {}'.format(f)
   os.system(cmd)
+
+  # delete temporary files
+  os.system('rm -r {}'.format(tempdir))
 
   # load the histograms
   histlist = ht.loadallhistograms(args.outputfile)
@@ -63,7 +117,7 @@ if __name__=='__main__':
       hist.SetName( hist.GetName().replace('_tight_','_') )
   if args.npmode=='npfromdata':
     histlist = ht.selecthistograms(histlist, mustcontainone=['_prompt_','_fakerate_'])[1]
-    if len(histlist==0):
+    if len(histlist)==0:
       print('WARNING: list of selected histograms is empty!')
     for hist in histlist: 
       hist.SetName( hist.GetName().replace('_prompt_','_').replace('_fakerate_','_') )

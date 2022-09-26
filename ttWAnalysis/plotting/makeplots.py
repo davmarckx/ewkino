@@ -41,7 +41,7 @@ if __name__=="__main__":
   # parse arguments
   parser = argparse.ArgumentParser(description='Make plots')
   parser.add_argument('--inputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--year', required=True, type=os.path.abspath)
+  parser.add_argument('--year', required=True)
   parser.add_argument('--region', required=True)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
@@ -84,7 +84,8 @@ if __name__=="__main__":
     datahists = []
     simhists = []
     for hist in thishists:
-      if 'data' in hist.GetName(): datahists.append(hist)
+      if( hist.GetName().startswith('data') or hist.GetName().startswith('Data') ): 
+        datahists.append(hist)
       else: simhists.append(hist)
     if len(datahists)==0:
       print('WARNING: no data histogram found, plotting simulation only.')

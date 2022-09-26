@@ -68,8 +68,9 @@ if __name__=='__main__':
   # check samples
   samples = readsamplelist( args.samplelist, sampledir=args.inputdir )
   nsamples = samples.number()
-  print('Found {} samples:'.format(nsamples))
-  print(samples)
+  print('Found {} samples.'.format(nsamples))
+  #print('Full list of samples:')
+  #print(samples)
 
   # convert variables to txt for reading in c++
   varlist = read_variables( args.variables )
@@ -104,5 +105,5 @@ if __name__=='__main__':
   if args.runmode=='local':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
-    ct.submitCommandsAsCondorCluster( 'cjob_eventflattener', commands,
+    ct.submitCommandsAsCondorCluster( 'cjob_eventbinner', commands,
                                       cmssw_version=CMSSW_VERSION ) 

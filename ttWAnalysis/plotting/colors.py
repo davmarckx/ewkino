@@ -9,6 +9,7 @@ def getcolormap( style='default' ):
   ### get a color map (see definitions below)
   style=style.lower()
   if(style=='default'): return getcolormap_default()
+  if(style=='tttt'): return getcolormap_tttt()
   else: print('WARNING in getcolormap: style not recognized, returning None')
   return None
 
@@ -29,13 +30,13 @@ def getcolormap_default():
     # map of histogram titles to colors
     cmap = {}
     cmap['nonprompt'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt'] = cmap['nonprompt']
     cmap['DY'] = define_color_hex('#ffd22e')[0]
     cmap['TT'] = define_color_hex('#ffbd80')[0]
     cmap['TTX'] = define_color_hex('#4e09be')[0]
     cmap['TTZ'] = define_color_hex('#336fce')[0]
     cmap['TTW'] = define_color_hex('#2f8ceb')[0]
     cmap['TTTT'] = define_color_hex('#ff0000')[0]
-    #cmap['tZq'] = define_color_hex('#ff0000')[0]
     cmap['WZ'] = define_color_hex('#81efd7')[0]
     cmap['ZZ'] = define_color_hex('#2fbc6c')[0]
     cmap['ZZH'] = cmap['ZZ']
@@ -43,5 +44,22 @@ def getcolormap_default():
     cmap['XG'] = cmap['ZG']
     cmap['triboson'] = define_color_hex('#c6ff00')[0]
     cmap['Triboson'] = cmap['triboson']
-    cmap['Other'] = define_color_hex('#ccccaa')[0]
+    cmap['other'] = define_color_hex('#ccccaa')[0]
+    cmap['Other'] = cmap['other']
+    return cmap
+
+def getcolormap_tttt():
+    # color map synchronizing with Niels's sample lists
+    cmap = {}
+    cmap['nonprompt'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt'] = cmap['nonprompt']
+    cmap['TT+X'] = define_color_hex('#4e09be')[0]
+    cmap['TTZ'] = define_color_hex('#336fce')[0]
+    cmap['TTW'] = define_color_hex('#2f8ceb')[0]
+    cmap['TTH'] = define_color_hex('#ccccaa')[0] 
+    cmap['TTTT'] = define_color_hex('#ff0000')[0]
+    cmap['WZ'] = define_color_hex('#81efd7')[0]
+    cmap['ZZ-H'] = define_color_hex('#2fbc6c')[0]
+    cmap['XG'] = define_color_hex('#9c88ff')[0]
+    cmap['VVV'] = define_color_hex('#c6ff00')[0]
     return cmap
