@@ -15,6 +15,7 @@ regions = []
 for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
+for r in ['nonprompt_trilepton']: regions.append(r)
 for r in ['nonprompt_dilepton']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']

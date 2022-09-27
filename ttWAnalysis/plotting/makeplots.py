@@ -61,6 +61,12 @@ if __name__=="__main__":
   if len(histlist)==0:
     raise Exception('ERROR: histogram list is empty, cannot make plots.')
 
+  # hard-coded fixes for overlapping region names...
+  if( args.region=='nonprompt_trilepton' ):
+    histlist = ht.selecthistograms(histlist,maynotcontainone=['noz','noossf'])[1]
+  if len(histlist)==0:
+    raise Exception('ERROR: histogram list is empty, cannot make plots.')
+
   # make output directory
   if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
 
