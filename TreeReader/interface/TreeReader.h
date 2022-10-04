@@ -44,6 +44,12 @@ class TreeReader {
         Float_t         _prefireWeight;
         Float_t         _prefireWeightDown;
         Float_t         _prefireWeightUp;
+	Float_t         _prefireWeightMuon;
+        Float_t         _prefireWeightMuonDown;
+        Float_t         _prefireWeightMuonUp;
+	Float_t         _prefireWeightECAL;
+        Float_t         _prefireWeightECALDown;
+        Float_t         _prefireWeightECALUp;
 	// generator info
         Double_t        _weight;
         UInt_t          _nLheWeights;
@@ -265,7 +271,9 @@ class TreeReader {
 			    bool includeJECGrouped = true, 
 			    bool includeTauInfo = true,
 			    bool includeGeneratorInfo = true,
-			    bool includeGenParticles = true );
+			    bool includeGenParticles = true,
+			    bool includePrefire = true,
+			    bool includePrefireComponents = true );
 
         //initialize the next sample
         void initSample();
@@ -310,6 +318,8 @@ class TreeReader {
         bool containsTauInfo() const;
 	bool containsGeneratorInfo() const;
 	bool containsGenParticles() const;
+	bool containsPrefire() const;
+	bool containsPrefireComponents() const;
 
         //check whether SUSY mass info is present in the current sample
 	// ( this is the case for SUSY signal scans )
@@ -410,6 +420,12 @@ class TreeReader {
         TBranch        *b__prefireWeight;
         TBranch        *b__prefireWeightDown;
         TBranch        *b__prefireWeightUp;
+	TBranch        *b__prefireWeightMuon;
+        TBranch        *b__prefireWeightMuonDown;
+        TBranch        *b__prefireWeightMuonUp;
+	TBranch        *b__prefireWeightECAL;
+        TBranch        *b__prefireWeightECALDown;
+        TBranch        *b__prefireWeightECALUp;
         TBranch        *b__weight;   
         TBranch        *b__nLheWeights;   
         TBranch        *b__nPsWeights;

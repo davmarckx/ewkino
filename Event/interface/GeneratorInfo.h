@@ -47,6 +47,12 @@ class GeneratorInfo{
         double prefireWeight() const{ return _prefireWeight; }
         double prefireWeightDown() const{ return _prefireWeightDown; }
         double prefireWeightUp() const{ return _prefireWeightUp; }
+	double prefireWeightMuon() const{ return _prefireWeightMuon; }
+        double prefireWeightMuonDown() const{ return _prefireWeightMuonDown; }
+        double prefireWeightMuonUp() const{ return _prefireWeightMuonUp; }
+	double prefireWeightECAL() const{ return _prefireWeightECAL; }
+        double prefireWeightECALDown() const{ return _prefireWeightECALDown; }
+        double prefireWeightECALUp() const{ return _prefireWeightECALUp; }
 
         const GenMet& genMet() const{ return *_genMetPtr; }
 
@@ -57,9 +63,15 @@ class GeneratorInfo{
         static constexpr unsigned maxNumberOfPsWeights = 46;
         unsigned _numberOfPsWeights;
         double _psWeights[maxNumberOfPsWeights];
-        double _prefireWeight;
-        double _prefireWeightDown;
-        double _prefireWeightUp;
+        double _prefireWeight = 0;
+        double _prefireWeightDown = 0;
+        double _prefireWeightUp = 0;
+	double _prefireWeightMuon = 0;
+        double _prefireWeightMuonDown = 0;
+        double _prefireWeightMuonUp = 0;
+	double _prefireWeightECAL = 0;
+        double _prefireWeightECALDown = 0;
+        double _prefireWeightECALUp = 0;
 
         unsigned _ttgEventType;
         unsigned _zgEventType;
