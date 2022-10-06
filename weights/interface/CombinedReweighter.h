@@ -16,11 +16,22 @@ class CombinedReweighter{
     public:
         CombinedReweighter() = default;
 
+	// add or remove reweighters
         void addReweighter( const std::string&, const std::shared_ptr< Reweighter >& );
         void eraseReweighter( const std::string& );
 
+	// get reweighter
         const Reweighter* operator[]( const std::string& ) const;
+
+	// get weights
         double totalWeight( const Event& ) const;
+	double weight( const Event& event ) const { return totalWeight(event); }
+	// ( weight(event) is just a convenient alias for totalWeight(event) )
+	double weightUp( const Event& event ) const;
+	double weightDown( const Event& event ) const;
+	double weightWithout( const Event& event, const std::string& reweighter ) const;
+	double weightUp( const Event& event, const std::string& reweighter ) const;
+	double weightDown( const Event& event, const std::string& reweighter ) const;
 
     private:
         std::map< std::string, std::shared_ptr< Reweighter > > reweighterMap;

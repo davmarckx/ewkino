@@ -70,6 +70,13 @@ def selecthistograms(histlist,mustcontainone=[],mustcontainall=[],
 	maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall)
     return (indlist,selhistlist)
 
+def findhistogram(histlist, name):
+    ### find a histogram with a given name in a list
+    # returns None if no histogram with the requested name is found
+    for hist in histlist:
+	if hist.GetName()==name: return hist
+    return None
+
 
 ### histogram clipping ###
 

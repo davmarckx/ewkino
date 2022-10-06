@@ -41,6 +41,14 @@ def geterrorhist( hist ):
 	    errorhist.SetBinContent(i,j,error)
     return errorhist
 
+def getzeroerrorhist( hist ):
+    # get a copy of the histogram with errors set to zero
+    res = hist.Clone()
+    for i in range(0,hist.GetNbinsX()+2):
+        for j in range(0,hist.GetNbinsY()+2):
+            res.SetBinError(i,j,0)
+    return res
+
 def getsmallouterflowhist( hist ):
     # return a copy of the histogram with small (empty) under- and overflow bins
     # seems to be necessary to get the axis labels right in log scale
@@ -95,12 +103,16 @@ def print2dhist( hist ):
 
 
 def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
-		    histtitle=None, logx=False, logy=False, 
+		    histtitle=None, logx=False, logy=False,
+                    xtitle=None, ytitle=None, ztitle=None,
+                    xtitleoffset=None, ytitleoffset=None, ztitleoffset=None,
+                    axtitlefont=None, axtitlesize=None,
+                    titlefont=None, titlesize=None,
 		    drawoptions='colztexte', cmin=None, cmax=None,
 		    docmstext=False, cms_in_grid=True, 
 		    cmstext_size_factor=0.3, extracmstext='', lumitext='',
 		    topmargin=None, bottommargin=None, leftmargin=None, rightmargin=None,
-		    extrainfos=[], infosize=None, infoleft=None, infotop=None ):
+		    extrainfos=[], infofont=None, infosize=None, infoleft=None, infotop=None ):
     # options:
     # - cmin and cmax: minimum and maximum values for the color scales
     #   note: in default "colz" behaviour, bins above cmax are colored as cmax,
@@ -114,13 +126,16 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     # set global properties
     cheight = 500 # height of canvas
     cwidth = 700 # width of canvas
-    titlefont = 4; titlesize = 22
-    axtitlefont = 4; axtitlesize = 22
-    infofont = 4
+    if titlefont is None: titlefont = 4
+    if titlesize is None: titlesize = 22
+    if axtitlefont is None: axtitlefont = 4
+    if axtitlesize is None: axtitlesize = 22
+    if infofont is None: infofont = 4
     if infosize is None: infosize = 15
     # title offset
-    ytitleoffset = 1.5
-    xtitleoffset = 1.5
+    if xtitleoffset is None: xtitleoffset = 1.5
+    if ytitleoffset is None: ytitleoffset = 1.5
+    if ztitleoffset is None: ztitleoffset = 1.5
     # margins:
     if topmargin is None: topmargin = 0.15
     if bottommargin is None: bottommargin = 0.15
@@ -132,22 +147,13 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     ymax = hist.GetYaxis().GetXmax()
     zmin = hist.GetMinimum()
     zmax = hist.GetMaximum()
-<<<<<<< HEAD
-=======
-<<<<<<< Updated upstream
-=======
->>>>>>> e585fef6b66460abf71d2e8920957e9f80e3471f
     if cmin is not None: zmin = cmin
     if cmax is not None: zmax = cmax
     hist.SetMinimum(zmin)
     hist.SetMaximum(zmax)
-<<<<<<< HEAD
-=======
     # extra info box parameters
     if infoleft is None: infoleft = leftmargin+0.05
     if infotop is None: infotop = 1-topmargin-0.1 
->>>>>>> Stashed changes
->>>>>>> e585fef6b66460abf71d2e8920957e9f80e3471f
 
     # create canvas
     c1 = ROOT.TCanvas("c1","c1")
@@ -164,12 +170,18 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
         hist.SetMaximum(zmax)
 
     # set title and label properties
+    if xtitle is not None: hist.GetXaxis().SetTitle(xtitle)
     hist.GetXaxis().SetTitleOffset(xtitleoffset)
     hist.GetXaxis().SetTitleFont(axtitlefont*10+3)
     hist.GetXaxis().SetTitleSize(axtitlesize)
+    if ytitle is not None: hist.GetYaxis().SetTitle(ytitle)
     hist.GetYaxis().SetTitleOffset(ytitleoffset)
     hist.GetYaxis().SetTitleFont(axtitlefont*10+3)
     hist.GetYaxis().SetTitleSize(axtitlesize)
+    if ztitle is not None: hist.GetZaxis().SetTitle(ztitle)
+    hist.GetZaxis().SetTitleOffset(ztitleoffset)
+    hist.GetZaxis().SetTitleFont(axtitlefont*10+3)
+    hist.GetZaxis().SetTitleSize(axtitlesize)
 
     if logx:
 	c1.SetLogx()
@@ -186,20 +198,11 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
 
     # draw
     hist.Draw( drawoptions )
-<<<<<<< Updated upstream
-    ttitle.DrawLatexNDC(leftmargin,0.9,histtitle)
-<<<<<<< HEAD
-=======
-=======
     if histtitle is not None: ttitle.DrawLatexNDC(leftmargin,0.9,histtitle)
->>>>>>> e585fef6b66460abf71d2e8920957e9f80e3471f
     if docmstext: pt.drawLumi(c1, extratext=extracmstext, 
 				cmstext_size_factor=cmstext_size_factor,
 				cms_in_grid=cms_in_grid,
 				lumitext=lumitext)
-<<<<<<< HEAD
-=======
->>>>>>> Stashed changes
 
     # draw extra info
     tinfo = ROOT.TLatex()
@@ -208,7 +211,6 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     for i,info in enumerate(extrainfos):
         vspace = 0.07*(float(infosize)/20)
         tinfo.DrawLatexNDC(infoleft,infotop-(i+1)*vspace, info)
->>>>>>> e585fef6b66460abf71d2e8920957e9f80e3471f
 
     # save the plot
     c1.Update()
