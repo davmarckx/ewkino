@@ -29,9 +29,12 @@ class ReweighterBTagShape: public Reweighter{
 	bool hasSystematic( const std::string systematic ) const;
 	bool considerVariation( const Jet& jet, const std::string& variation ) const;
 
-	void setNormFactors( const Sample& sample, std::map<int,double> normFactors );
-	double getNormFactor( const Event&, const std::string& jecVariation="nominal" ) const;
-	std::map<std::string,std::map<int,double>> getNormFactors() const;
+	void setNormFactors( const Sample& sample, std::map<std::string, std::map<int,double>> normFactors );
+	double getNormFactor( const Event&, const std::string& systematic="nominal",
+			      const std::string& jecVariation="nominal" ) const;
+	double getNormFactor( const std::string& sampleName, int njets, 
+			      const std::string& systematic="nominal" ) const;
+	std::map< std::string, std::map< std::string, std::map<int,double >>> getNormFactors() const;
 	void printNormFactors() const;
 	
 	double weight( const Jet& jet ) const;
@@ -47,7 +50,10 @@ class ReweighterBTagShape: public Reweighter{
 	std::vector<std::string> availableSystematics() const{ return _systematics; }
 	// following functions are needed for correct inheritance, but meaningless
 	double weightUp( const Event& ) const{ return 0.; } 
-        double weightDown( const Event& ) const{ return 0.; } 
+        double weightDown( const Event& ) const{ return 0.; }
+	std::map< std::string, std::map< int, double >> calcAverageOfWeights(
+                                    const Sample& sample,
+                                    long unsigned numberOfEntries=0 ) const;
 
     private:
 
@@ -58,12 +64,10 @@ class ReweighterBTagShape: public Reweighter{
 	std::string _bTagAlgo;
 	std::vector<std::string> _variations;
 	std::vector<std::string> _systematics;
-	std::map<std::string,std::map<int,double>> _normFactors;
+	std::map< std::string, std::map< std::string, std::map<int,double >>> _normFactors;
 
 	double weight( const Jet& jet, const std::string& variation ) const;
 	double weight( const Event& event, const std::string& variation ) const;
-	std::map< int, double > calcAverageOfWeights( const Sample& sample,
-				    long unsigned numberOfEntries=0 ) const;
 };
 
 #endif

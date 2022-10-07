@@ -97,9 +97,14 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
     // initialize normalization factors
     for( Sample sample: samples){
         std::string sampleName = sample.fileName();
-        _normFactors[sampleName][0] = 1.;
+	_normFactors[sampleName]["central"][0] = 1.;
 	// (initialize one element at 0 jets for each sample;
-	// events with higher jet multiplicities will fall back to this default value)
+        // events with higher jet multiplicities will fall back to this default value)
+	for( std::string sys: _systematics ){
+	    _normFactors[sampleName]["up_"+sys][0] = 1.;
+	    _normFactors[sampleName]["down_"+sys][0] = 1.;
+	    // same as above but also normalize systematics
+	}
     }
  
     // set the the working point to "reshaping"
@@ -161,8 +166,8 @@ void ReweighterBTagShape::initialize( const std::vector<Sample>& samples,
         std::string sampleName = sample.fileName();
         // calculate the sum of weights for this sample (per jet multiplicity)
         // and update the normalization factor
-        std::map<int, double> averageOfWeights = this->calcAverageOfWeights( sample, 
-									     numberOfEntries );
+        std::map<std::string, std::map<int, double>> averageOfWeights;
+	averageOfWeights = this->calcAverageOfWeights( sample, numberOfEntries );
         this->setNormFactors( sample, averageOfWeights );
     }
     std::cout << "done initializing ReweighterBTagShape" << std::endl;
@@ -218,62 +223,106 @@ bool ReweighterBTagShape::considerVariation( const Jet& jet,
 /// help functions for getting and setting normalization factors ///
 
 void ReweighterBTagShape::setNormFactors( const Sample& sample, 
-			    const std::map<int,double> normFactors ){
+			    const std::map<std::string, std::map<int,double>> normFactors ){
     // set the normalization factors
     // input arguments:
     // - sample: a Sample object for which to set the normalization
     // - normFactors: a map of jet multiplicity to averages-of-weights
     //                note: it is initialized to {0: 1.} in the constructor,
     //		      which implies the normalization factor will be 1 for each event.
+    //                update: a separate map should be given for each systematic + "central"!
+    //                example: {"central": {0: 1.}, "up_cferr1": {0: 1.}, etc.}
     std::string sampleName = sample.fileName();
     if( _normFactors.find(sampleName)==_normFactors.end() ){
 	throw std::invalid_argument(std::string("ERROR: ")
 	    + "ReweighterBTagShape was not initialized for this sample!");
     }
-    _normFactors[sampleName] = normFactors;
+    for( const auto el: normFactors ){
+	if( _normFactors[sampleName].find(el.first)==_normFactors[sampleName].end() ){
+	    throw std::invalid_argument( std::string("ERROR:")
+		    +"ReweighterBTagShape.setNormFactors got an unexpected systematic key: "
+		    +el.first );
+	}
+	_normFactors[sampleName][el.first] = el.second;
+    }
 }
 
 double ReweighterBTagShape::getNormFactor( const Event& event, 
+					    const std::string& systematic,
 					    const std::string& jecVariation ) const{
     // get the normalization factor for an event
-    // note: the normalization factor depends on the sample to which the event belongs
-    //       and on the jet multiplicity of the event.
+    // note: systematic has a default value: 'central', i.e. no systematic variation.
+    //       its value is used to select the proper norm factor (split by systematic).
     // note: jecVariation has a default value: 'nominal', i.e. no variation of JEC
+    //       its value is only used here to determine the number of jets!
     std::string sampleName = event.sample().fileName();
+    int njets = event.getJetCollection( jecVariation ).goodJetCollection().size();
+    return this->getNormFactor(sampleName, njets, systematic);
+}
+
+double ReweighterBTagShape::getNormFactor( const std::string& sampleName,
+					    int njets,
+					    const std::string& systematic ) const{
+    // get the appropriate normalization factor
+    // note: the normalization factor depends on the sample to which the event belongs,
+    //	     the systematic variation considered,
+    //       and on the jet multiplicity of the event.
+    // note: systematic has a default value: 'central', i.e. no systematic variation.
+    //       its value is used to select the proper norm factor (split by systematic).
     // check validity of sample to which event belongs
     if( _normFactors.find(sampleName)==_normFactors.end() ){
         throw std::invalid_argument(std::string("ERROR: ")
-            + "ReweighterBTagShape was not initialized for this sample!");
+            + "ReweighterBTagShape was not initialized for this sample!"
+	    + " (found sample name "+sampleName+" which is not in the _normFactors map.)");
     }
-    // determine number of jets
-    int njets = event.getJetCollection( jecVariation ).size();
+    // check validity of systematic
+    if( _normFactors.at(sampleName).find(systematic)==_normFactors.at(sampleName).end() ){
+        throw std::invalid_argument(std::string("ERROR: ")
+            + "ReweighterBTagShape was not initialized for this systematic!"
+	    + " (found systematic name "+systematic+" which is not in the _normFactors map.)");
+    }
     // retrieve the normalization factor
     // note: if no normalization factor was initialized for this jet multiplicity,
     //	     the value for lower jet multiplicities is retrieved instead.
     for( int n=njets; n>=0; n-- ){
-	if(_normFactors.at(sampleName).find(n)!=_normFactors.at(sampleName).end()){
-	    return _normFactors.at(sampleName).at(n);
+	if( _normFactors.at(sampleName).at(systematic).find(n)
+	    !=_normFactors.at(sampleName).at(systematic).end() ){
+	    return _normFactors.at(sampleName).at(systematic).at(n);
 	}
     }
     throw std::invalid_argument(std::string("ERROR: ")
 	    + "ReweighterBTagShape got event for which no norm factor could be retrieved.");
 }
 
-std::map<std::string,std::map<int,double>> ReweighterBTagShape::getNormFactors() const{
+std::map< std::string, std::map< std::string, std::map<int,double >>> ReweighterBTagShape::getNormFactors() const{
     return _normFactors;
 }
 
 void ReweighterBTagShape::printNormFactors() const{
+    std::cout << "Printing ReweighterBTagShape normalization factors:" << std::endl;
     for( auto el: _normFactors ){
-        std::cout << el.first << ": " << std::endl;
+        std::cout << "  Sample: " << el.first << std::endl;
         for( auto el2: el.second ){
-            std::cout << " - " << el2.first << " -> " << el2.second << std::endl;
+	    std::cout << "    systematic: " << el2.first << std::endl;
+	    for( auto el3: el2.second ){
+		std::cout << "      - " << el3.first << " -> " << el3.second << std::endl;
+	    }
         }
     }
 }
 
 
 /// member functions for weights ///
+
+double getDummyScaleFactor( const Jet& jet ){
+    // dummy scale factor, for testing purposes only!
+    if( jet.pt() < 30 ){ return 0.95; }
+    else if( jet.pt() < 50 ){ return 1.1; }
+    else if( jet.pt() < 80 ){ return 1.3; }
+    else if( jet.pt() < 120 ){ return 1.5; }
+    else if( jet.pt() < 200 ){ return 1.7; }
+    return 1.;
+}
 
 double ReweighterBTagShape::weight( const Jet& jet, const std::string& variation ) const{
     // get the weight for a single jet
@@ -308,7 +357,10 @@ double ReweighterBTagShape::weight( const Jet& jet, const std::string& variation
     // this page recommends to use absolute value of eta, but BTagCalibrationStandalone.cc
     // seems to handle negative values of eta more correctly (only taking abs when needed)
     double scaleFactor = bTagSFReader->eval_auto_bounds( sys, jetFlavorEntry( jet ),
-    					jet.eta(), jet.pt(), bTagScore );
+    				                         jet.eta(), jet.pt(), bTagScore );
+    //double scaleFactor = 0.5;
+    //double scaleFactor = getDummyScaleFactor(jet);
+
     // printouts for testing
     /*if( scaleFactor==0 ){
 	std::cout << "found scale factor 0 ..." << std::endl;
@@ -344,7 +396,7 @@ double ReweighterBTagShape::weight( const Event& event, const std::string& varia
 	weight *= this->weight( *jetPtr, variation );
     }
     // take into account normalization
-    double normweight = weight/getNormFactor(event);
+    double normweight = weight/getNormFactor(event, variation);
     // prints for testing
     //std::cout << "raw weight: " << weight << std::endl;
     //std::cout << "normalized weight: " << normweight << std::endl;
@@ -384,6 +436,8 @@ double ReweighterBTagShape::weightJecVar( const Event& event,
     // same as weight but with propagation of jec variations
     // jecvar is expected to be of the form e.g. AbsoluteScaleUp or AbsoluteScaleDown
     // special case JECUp and JECDown (for single variations) are also allowed
+
+    // first do some name parsing
     std::string jecVar = stringTools::removeOccurencesOf(jecVariation,"JEC");
     std::string varName;
     bool isup = true;
@@ -393,26 +447,32 @@ double ReweighterBTagShape::weightJecVar( const Event& event,
         varName = "jes"+jecVar.substr(0, jecVar.size()-4);
 	isup = false;
     }
+    // check if variation is valid
     if( !hasVariation(varName) ){
-	std::string msg = "### ERROR ### in ReweighterBTagShape::weightJecVar:";
+	std::string msg = "ERROR in ReweighterBTagShape::weightJecVar:";
 	msg += " jec variation '"+jecVariation+"' (corresponding to '"+varName+"') not valid";
 	throw std::invalid_argument(msg);
     }
+    // determine weight by multiplying jet weights
     double weight = 1.;
     for( const auto& jetPtr: event.getJetCollection(jecVariation) ){
         if(isup) weight *= this->weightUp( *jetPtr, varName );
 	else weight *= this->weightDown( *jetPtr, varName );
     }
-    return weight;
+    // take into account normalization
+    double normweight = weight/getNormFactor(event);
+    // return weight
+    return normweight;
 }
 
 
 /// help function for calculating normalization factors ///
 
-std::map< int, double > ReweighterBTagShape::calcAverageOfWeights( const Sample& sample,
-					      long unsigned numberOfEntries ) const{
+std::map<std::string, std::map<int,double>> ReweighterBTagShape::calcAverageOfWeights( 
+						const Sample& sample,
+						long unsigned numberOfEntries ) const{
     // calculate the average of b-tag weights in a given sample
-    // the return type is a map of jet multiplicity to average of weights
+    // the return type is a map of systematics to jet multiplicity to average of weights
     // input arguments:
     // - sample: a Sample object
     // - numberOfEntries: number of entries to consider for the average of weights
@@ -427,7 +487,12 @@ std::map< int, double > ReweighterBTagShape::calcAverageOfWeights( const Sample&
     treeReader.initSampleFromFile( inputFilePath );
 
     // initialize the output map
-    std::map< int, double > averageOfWeights;
+    std::map<std::string, std::map< int, double>> averageOfWeights;
+    averageOfWeights["central"][0] = 0.;
+    for( std::string sys: _systematics ){
+	averageOfWeights["up_"+sys][0] = 0.;
+	averageOfWeights["down_"+sys][0] = 0.;
+    }
     std::map< int, int > nEntries;
 
     // loop over events
@@ -438,29 +503,77 @@ std::map< int, double > ReweighterBTagShape::calcAverageOfWeights( const Sample&
     for( long unsigned entry = 0; entry < numberOfEntries; ++entry ){
         Event event = treeReader.buildEvent( entry );
 
+	// printouts for testing
+	/*std::cout << "--- event ---" << std::endl;
+	std::cout << "njets before any cleaning: " << event.jetCollection().size() << std::endl;
+	for( auto jet: event.jetCollection() ){
+            jet->print( std::cout );
+	    std::cout << std::endl;
+        }
+	std::cout << "number of FO leptons: " << event.numberOfFOLeptons() << std::endl;
+	for( auto lepton: event.FOLeptonCollection() ){
+            lepton->print( std::cout );
+            std::cout << std::endl;
+        }*/
+
         // do basic jet cleaning
-        event.cleanJetsFromFOLeptons();
+	event.removeTaus();
+        event.cleanJetsFromLooseLeptons();
         event.jetCollection().selectGoodJets();
 
-        // determine (nominal) b-tag reweighting and number of jets
-        double btagreweight = this->weight( event );
-	int njets = event.jetCollection().goodJetCollection().size();	
+	// determine number of jets
+	int njets = event.jetCollection().size();
 
-        // add it to the map
-	if(averageOfWeights.find(njets)==averageOfWeights.end()){ 
-	    averageOfWeights[njets] = btagreweight;
+	// printouts for testing
+        /*std::cout << "--- event ---" << std::endl;
+        std::cout << "njets after cleaning: " << njets << std::endl;
+        for( auto jet: event.jetCollection() ){
+            jet->print( std::cout );
+	    std::cout << std::endl;
+        }*/
+
+        // determine nominal and systematic b-tag reweighting factors
+        double btagreweight = this->weight( event );
+	std::map<std::string, double> btagreweightssysup;
+	std::map<std::string, double> btagreweightssysdown;
+	for( std::string sys: _systematics ){ 
+	    btagreweightssysup[sys] = this->weightUp(event, sys);
+	    btagreweightssysdown[sys] = this->weightDown(event, sys); 
+	}
+
+        // add them to the map
+	if(nEntries.find(njets)==nEntries.end()){
 	    nEntries[njets] = 1;
+	    averageOfWeights.at("central")[njets] = btagreweight;
+	    for( std::string sys: _systematics ){
+		averageOfWeights.at("up_"+sys)[njets] = btagreweightssysup.at(sys);
+		averageOfWeights.at("down_"+sys)[njets] = btagreweightssysdown.at(sys);
+	    }
 	}
 	else{
-	    averageOfWeights[njets] += btagreweight;
-	    nEntries[njets] += 1;
+	    nEntries.at(njets) += 1;
+	    averageOfWeights.at("central").at(njets) += btagreweight;
+	    for( std::string sys: _systematics ){
+                averageOfWeights.at("up_"+sys).at(njets) += btagreweightssysup.at(sys);
+                averageOfWeights.at("down_"+sys).at(njets) += btagreweightssysdown.at(sys);
+	    }
 	}
-    } 
+    }
+
+    // printouts for testing
+    /*std::cout << "--- maps ---" << std::endl;
+    for( std::map<int,int>::iterator it = nEntries.begin(); it != nEntries.end(); ++it){
+	std::cout << it->first << " " << it->second;
+	std::cout << " " << averageOfWeights.at("central").at(it->first) << std::endl;
+    }*/
 
     // divide sum by number to get average
-    for( std::map<int,double>::iterator it = averageOfWeights.begin(); 
-	    it != averageOfWeights.end(); ++it){
-	averageOfWeights[it->first] = it->second / nEntries[it->first];
+    for( std::map<int,int>::iterator it = nEntries.begin(); it != nEntries.end(); ++it){
+	averageOfWeights.at("central").at(it->first) /= it->second;
+	for( std::string sys: _systematics ){
+	    averageOfWeights.at("up_"+sys).at(it->first) /= it->second;
+            averageOfWeights.at("down_"+sys).at(it->first) /= it->second;
+	}
     }
 
     return averageOfWeights;

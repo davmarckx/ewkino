@@ -1,3 +1,7 @@
+// note: kept for reference but not updated since a long time,
+//       since the b-tag shape reweighter instead of fixed WP reweighter must be used.
+//       will need (at least) to fix relative imports and change the file paths for this to work again.
+
 #include "../../weights/interface/ReweighterBTag.h"
 #include "../../weights/interface/ConcreteReweighterBTag.h"
 

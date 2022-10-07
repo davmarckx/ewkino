@@ -214,7 +214,7 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     // pT below 20 GeV
     TFile* eleRecoSFFile_pTBelow20 = TFile::Open( 
 	( stringTools::formatDirectoryName( weightDirectory ) 
-	+ "weightFilesUL/leptonSF/electronRECO_SF_" + year + "_ptBelow20.root" ).c_str() );
+	+ "weightFilesUL/electronRecoSF/electronRECO_SF_" + year + "_ptBelow20.root" ).c_str() );
     std::shared_ptr< TH2 > electronRecoSFHist_pTBelow20( 
 	dynamic_cast< TH2* >( eleRecoSFFile_pTBelow20->Get( "EGamma_SF2D" ) ) );
     electronRecoSFHist_pTBelow20->SetDirectory( gROOT );
@@ -228,7 +228,7 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     // pT above 20 GeV
     TFile* eleRecoSFFile_pTAbove20 = TFile::Open( 
 	( stringTools::formatDirectoryName( weightDirectory ) 
-	+ "weightFilesUL/leptonSF/electronRECO_SF_" + year + "_ptAbove20.root" ).c_str() );
+	+ "weightFilesUL/electronRecoSF/electronRECO_SF_" + year + "_ptAbove20.root" ).c_str() );
     std::shared_ptr< TH2 > electronRecoSFHist_pTAbove20( 
 	dynamic_cast< TH2* >( eleRecoSFFile_pTAbove20->Get( "EGamma_SF2D" ) ) );
     electronRecoSFHist_pTAbove20->SetDirectory( gROOT );
@@ -324,7 +324,7 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     
     // make the b-tag shape reweighter
     // step 1: set correct csv file
-    std::string bTagSFFileName = "bTagReshaping_unc_"+year+".root";
+    std::string bTagSFFileName = "bTagReshaping_unc_"+year+".csv";
     std::string sfFilePath = "weightFilesUL/bTagSF/"+bTagSFFileName;
     // step 2: set other parameters
     std::string flavor = "all";
