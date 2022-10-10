@@ -196,9 +196,6 @@ CombinedReweighter EwkinoReweighterFactory::buildReweighter(
 //       (e.g. different lepton ID, special b-tagging, updated prefire scale factors, etc)
 // note: for the latest recommendations, see here: 
 //       https://twiki.cern.ch/twiki/bin/viewauth/CMS/PdmVRun2LegacyAnalysis
-// note: json files for pileup are coming from here:
-//       https://gitlab.cern.ch/cms-nanoAOD/jsonpog-integration/-/tree/master/POG/LUM,
-//       not sure where (or when) to get them 'officially'.
 
 CombinedReweighter Run2ULReweighterFactory::buildReweighter( 
 	const std::string& weightDirectory, 
@@ -237,7 +234,19 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
 	new LooseMinPtSelector< 20 > );
     combinedReweighter.addReweighter( "electronReco_pTAbove20", 
 	std::make_shared< ReweighterElectronsID >( electronRecoReweighter_pTAbove20 ) );
-    
+
+    // muon reco reweighter
+    TFile* muonRecoSFFile = TFile::Open(
+        ( stringTools::formatDirectoryName( weightDirectory )
+	+ "weightFilesUL/muonRecoSF/muonRECO_SF_" + year + ".root" ).c_str() );
+    std::shared_ptr< TH2 > muonRecoSFHist(
+        dynamic_cast< TH2* >( muonRecoSFFile->Get( "nominal" ) ) );
+    muonRecoSFHist->SetDirectory( gROOT );
+    muonRecoSFFile->Close();
+    MuonReweighter muonRecoReweighter( muonRecoSFHist, new LooseSelector );
+    combinedReweighter.addReweighter( "muonReco",
+	std::make_shared< ReweighterMuons >( muonRecoReweighter ) );  
+ 
     // make muon ID reweighter
     std::string muonSFFileName = stringTools::formatDirectoryName( weightDirectory )
         + "weightFilesUL/leptonSF/leptonMVAUL_SF_muons_Medium_"+year+".root";

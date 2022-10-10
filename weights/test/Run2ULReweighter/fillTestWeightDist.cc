@@ -88,6 +88,12 @@ int main( int argc, char* argv[] ){
     std::shared_ptr<TH1D> electronRecoPtSWeightDown = histInfo.makeHist( "electronRecoPtSWeightDown" );
     std::shared_ptr<TH1D> totWeightElectronRecoUp = histInfo.makeHist( "totWeightElectronRecoUp" );
     std::shared_ptr<TH1D> totWeightElectronRecoDown = histInfo.makeHist( "totWeightElectronRecoDown" );
+    // muon reco
+    std::shared_ptr<TH1D> muonRecoWeightNom = histInfo.makeHist( "muonRecoWeightNom" );
+    std::shared_ptr<TH1D> muonRecoWeightUp = histInfo.makeHist( "muonRecoWeightUp" );
+    std::shared_ptr<TH1D> muonRecoWeightDown = histInfo.makeHist( "muonRecoWeightDown" );
+    std::shared_ptr<TH1D> totWeightMuonRecoUp = histInfo.makeHist( "totWeightMuonRecoUp" );
+    std::shared_ptr<TH1D> totWeightMuonRecoDown = histInfo.makeHist( "totWeightMuonRecoDown" );
     // lepton ID
     std::shared_ptr<TH1D> electronIDWeightNom = histInfo.makeHist( "electronIDWeightNom" );
     std::shared_ptr<TH1D> electronIDWeightStatUp = histInfo.makeHist( "electronIDWeightStatUp" );
@@ -183,6 +189,12 @@ int main( int argc, char* argv[] ){
 		    std::cout << lep->uncorrectedPt() << "  " << lep->etaSuperCluster() << std::endl;
 		}
 	    }*/
+	    // muon reco
+            muonRecoWeightNom->Fill( reweighter.singleWeight(event,"muonReco") );
+            muonRecoWeightUp->Fill( reweighter.singleWeightUp(event,"muonReco") );
+            muonRecoWeightDown->Fill( reweighter.singleWeightDown(event,"muonReco") );
+            totWeightMuonRecoUp->Fill( reweighter.weightUp(event,"muonReco") );
+            totWeightMuonRecoDown->Fill( reweighter.weightDown(event,"muonReco") );
 	    // lepton ID
 	    electronIDWeightNom->Fill( reweighter.singleWeight(event,"electronID") );
 	    electronIDWeightStatUp->Fill( reweighter.singleWeight(event,"electronID")
@@ -239,6 +251,11 @@ int main( int argc, char* argv[] ){
     electronRecoPtSWeightDown->Write();
     totWeightElectronRecoUp->Write();
     totWeightElectronRecoDown->Write();
+    muonRecoWeightNom->Write();
+    muonRecoWeightUp->Write();
+    muonRecoWeightDown->Write();
+    totWeightMuonRecoUp->Write();
+    totWeightMuonRecoDown->Write();
     electronIDWeightNom->Write();
     electronIDWeightStatUp->Write();
     electronIDWeightStatDown->Write();

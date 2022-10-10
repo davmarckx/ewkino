@@ -18,6 +18,7 @@ if __name__=='__main__':
             'electronRecoPtLWeight': 'Electron RECO (high pT)',
 	    'electronRecoPtSWeight': 'Electron RECO (low pT)',
 	    'electronIDWeight': 'Electron ID',
+            'muonRecoWeight': 'Muon RECO',
 	    'muonIDWeight': 'Muon ID',
 	    'pileupWeight': 'Pileup',
 	    'prefireWeight': 'Prefire' })
