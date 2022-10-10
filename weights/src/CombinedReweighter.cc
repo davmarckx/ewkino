@@ -84,6 +84,21 @@ double CombinedReweighter::weightDown( const Event& event ) const{
     return weight;
 }
 
+double CombinedReweighter::singleWeight( const Event& event, const std::string& reweighter ) const{
+    // get the weight for one of the reweighters
+    return (*this)[reweighter]->weight(event);
+}
+
+double CombinedReweighter::singleWeightUp( const Event& event, const std::string& reweighter ) const{
+    // get the up weight for one of the reweighters
+    return (*this)[reweighter]->weightUp(event);
+}
+
+double CombinedReweighter::singleWeightDown( const Event& event, const std::string& reweighter ) const{
+    // get the down weight for one of the reweighters
+    return (*this)[reweighter]->weightDown(event);
+}
+
 double CombinedReweighter::weightWithout( const Event& event, const std::string& reweighter ) const{
     // helper function for weightUp and weightDown.
     // get the total weight divided by the weight of one of the reweighters

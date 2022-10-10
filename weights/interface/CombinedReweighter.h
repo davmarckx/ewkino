@@ -29,6 +29,9 @@ class CombinedReweighter{
 	// ( weight(event) is just a convenient alias for totalWeight(event) )
 	double weightUp( const Event& event ) const;
 	double weightDown( const Event& event ) const;
+	double singleWeight( const Event& event, const std::string& reweighter ) const;
+	double singleWeightUp( const Event& event, const std::string& reweighter ) const;
+	double singleWeightDown( const Event& event, const std::string& reweighter ) const;
 	double weightWithout( const Event& event, const std::string& reweighter ) const;
 	double weightUp( const Event& event, const std::string& reweighter ) const;
 	double weightDown( const Event& event, const std::string& reweighter ) const;
