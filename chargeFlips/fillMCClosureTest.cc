@@ -25,24 +25,21 @@ Perform a closure test for the MC charge flip rates
 
 // help function for initializing the histograms
 std::vector< HistInfo > makeDistributionInfo( const std::string& process ){
-	std::vector< HistInfo > histInfoVec = {
-		HistInfo( "leptonPtLeading", "p_{T}^{leading lepton} (GeV)", 10, 25, 200 ),
-		HistInfo( "leptonPtSubLeading", "p_{T}^{subleading lepton} (GeV)", 10, 15, 150 ),
-
-		HistInfo( "leptonEtaLeading", "|#eta|^{leading lepton}", 10, 0, 2.5 ),
-		HistInfo( "leptonEtaSubLeading", "|#eta|^{subleading lepton}", 10, 0, 2.5 ),
-		
-		HistInfo( "met", "E_{T}^{miss} (GeV)", 10, 0, 300 ),
-		( ( process == "DY" ) ? 
-		    HistInfo( "mll", "M_{ll} (GeV)", 10, 70, 120 ) : 
-		    HistInfo( "mll", "M_{ll} (GeV)", 10, 0, 200 ) ),
-		HistInfo( "ltmet", "L_{T} + E_{T}^{miss} (GeV)", 10, 0, 300 ),
-		HistInfo( "ht", "H_{T} (GeV)", 10, 0, 600 ),
-		HistInfo( "mt2l", "M_{T}^{2l} (GeV)", 10, 0, 300 ),
-
-		HistInfo( "nJets", "number of jets", 8, 0, 8 ),
-		HistInfo( "nBJets", "number of b-jets (medium deep CSV)", 4, 0, 4 ),
-		HistInfo( "nVertex", "number of vertices", 10, 0, 70 )
+    std::vector< HistInfo > histInfoVec = {
+	HistInfo( "leptonPtLeading", "p_{T}^{leading lepton} (GeV)", 10, 25, 200 ),
+	HistInfo( "leptonPtSubLeading", "p_{T}^{subleading lepton} (GeV)", 10, 15, 150 ),
+	HistInfo( "leptonEtaLeading", "|#eta|^{leading lepton}", 10, 0, 2.5 ),
+	HistInfo( "leptonEtaSubLeading", "|#eta|^{subleading lepton}", 10, 0, 2.5 ),	
+	HistInfo( "met", "E_{T}^{miss} (GeV)", 10, 0, 300 ),
+	( ( process == "DY" ) ? 
+	    HistInfo( "mll", "M_{ll} (GeV)", 10, 70, 120 ) : 
+	    HistInfo( "mll", "M_{ll} (GeV)", 10, 0, 200 ) ),
+	HistInfo( "ltmet", "L_{T} + E_{T}^{miss} (GeV)", 10, 0, 300 ),
+	HistInfo( "ht", "H_{T} (GeV)", 10, 0, 600 ),
+	HistInfo( "mt2l", "M_{T}^{2l} (GeV)", 10, 0, 300 ),
+	HistInfo( "nJets", "number of jets", 8, 0, 8 ),
+	HistInfo( "nBJets", "number of b-jets (medium deep CSV)", 4, 0, 4 ),
+	HistInfo( "nVertex", "number of vertices", 10, 0, 70 )
     };
     return histInfoVec;
 }
@@ -51,7 +48,8 @@ std::vector< HistInfo > makeDistributionInfo( const std::string& process ){
 // help function for reading the charge flip map
 std::shared_ptr< TH2D > readChargeFlipMap( const std::string& year ){
     TFile* frFile = TFile::Open( ("chargeFlipMaps/chargeFlipMap_MC_" + year + ".root" ).c_str() );
-    std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( frFile->Get( ( "chargeFlipRate_electron_" + year ).c_str() ) ) );
+    std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( 
+	frFile->Get( ( "chargeFlipRate_electron_" + year ).c_str() ) ) );
     frMap->SetDirectory( gROOT );
     frFile->Close();
     return frMap;
@@ -157,27 +155,21 @@ void closureTest_MC( const std::string& process,
         }
     }
 
-    // make plot output directory
-    std::string outputDirectory_name = "./closurePlots_chargeFlips_MC_" + process + "_" + year; 
-    systemTools::makeDirectory( outputDirectory_name );
-    
-    // make plots 
+    // write file
+    std::string fileName = "closurePlots_MC_" + process + "_" + year + ".root";
+    TFile* outputFilePtr = TFile::Open( fileName.c_str(), "RECREATE" );
+    outputFilePtr->cd();
     for( std::vector< HistInfo >::size_type v = 0; v < histInfoVec.size(); ++v ){
-		std::string names[2] = {"MC observed", "charge-flip rate prediction"};
-        std::vector< TH1D* > predicted = { predictedHists[v].get() };
-        std::string header;
-        if( year == "2016" ){
-            header = "35.9 fb^{-1}";
-        } else if( year == "2017" ){
-            header = "41.5 fb^{-1}";
-        } else{
-            header = "59.7 fb^{-1}";
-        }
-       	plotDataVSMC( observedHists[v].get(), &predicted[0], names, 1, 
-	    stringTools::formatDirectoryName( outputDirectory_name ) + histInfoVec[v].name() 
-	    + "_closureTest_chargeFlips_MC_" + process + "_" + year + ".pdf", "", 
-	    false, false, header );
+        TH1D* predicted = predictedHists[v].get();
+        TH1D* observed = observedHists[v].get();
+        std::string pName = histInfoVec[v].name() + "_" + process + "_" + year + "_predicted";
+        std::string oName = histInfoVec[v].name() + "_" + process + "_" + year + "_observed";
+        predicted->SetName( pName.c_str() );
+        observed->SetName( oName.c_str() );
+        predicted->Write();
+        observed->Write();
     }
+    outputFilePtr->Close();
 }
 
 int main( int argc, char* argv[] ){
@@ -203,8 +195,7 @@ int main( int argc, char* argv[] ){
     std::string sampleDirectory = argvStr[5];
     long nEntries = std::stol(argvStr[6]);
     setTDRStyle();
-    closureTest_MC(
-        process, year, sampleList, sampleDirectory, nEntries);
+    closureTest_MC(process, year, sampleList, sampleDirectory, nEntries);
     std::cerr << "###done###" << std::endl;
     return 0; 
 }
