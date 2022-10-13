@@ -1,7 +1,7 @@
 /*
 Test script for b-tag shape reweighter.
-More specifically: test if the normalization factors are initialized and applied properly,
-both for nominal and for systematically varied b-tag scale factors.
+More specifically: test if the normalization factors are initialized and applied properly
+for the JEC-varied b-tag scale factors.
 */
 
 // include b-tag shape reweighter
@@ -59,6 +59,8 @@ int main( int argc, char* argv[] ){
     // note: in this simple test no check is done to assure all samples in the list are of same year!
     if( modeSampleList ) treeReader.initSample();
     std::string year = treeReader.getYearString();
+    std::string bTagYear = year;
+    if( bTagYear=="2016PreVFP" || bTagYear=="2016PostVFP" ){ bTagYear = "2016"; }
 
     // initialize some histograms
     HistInfo histInfo = HistInfo( "", "Number of jets", 10, -0.5, 9.5 );
@@ -67,8 +69,25 @@ int main( int argc, char* argv[] ){
 					    "unweightedpostselection",
 					    "weightedprenorm","weightedpostnorm",
 					    "weightedpostselection"};
-    std::vector<std::string> variations = { "hf","lf","hfstats1","hfstats2",
-					    "lfstats1","lfstats2","cferr1","cferr2" };
+    std::vector<std::string> variations = { "jes",
+					// split jec uncertainties
+                                        //"jesAbsoluteMPFBias", "jesAbsoluteScale", "jesAbsoluteStat",
+                                        //"jesRelativeBal", "jesRelativeFSR", "jesRelativeJEREC1",
+                                        //"jesRelativeJEREC2", "jesRelativeJERHF",
+                                        //"jesRelativePtBB", "jesRelativePtEC1", "jesRelativePtEC2",
+                                        //"jesRelativePtHF",
+                                        //"jesRelativeStatEC","jesRelativeStatFSR","jesRelativeStatHF",
+                                        //"jesPileUpDataMC", "jesPileUpPtBB", "jesPileUpPtEC1",
+                                        //"jesPileUpPtEC2", "jesPileUpPtHF", "jesPileUpPtRef",
+                                        //"jesFlavorQCD", "jesFragmentation", "jesSinglePionECAL",
+                                        //"jesSinglePionHCAL", "jesTimePtEta",
+					// grouped jec uncertainties
+					"jesAbsolute_"+bTagYear, "jesAbsolute",
+                                        "jesBBEC1_"+bTagYear, "jesBBEC1",
+                                        "jesEC2_"+bTagYear, "jesEC2",
+                                        "jesFlavorQCD",
+                                        "jesHF_"+bTagYear, "jesHF",
+                                        "jesRelativeBal", "jesRelativeSample_"+bTagYear };
     for( std::string snapshot: snapshots ){
 	histograms[snapshot]["nominal"] = histInfo.makeHist( snapshot + "_nominal" );
 	for( std::string var: variations ){
@@ -99,7 +118,7 @@ int main( int argc, char* argv[] ){
         else nEvents = std::min(nEvents, numberOfEntries);
         std::cout << "starting event loop for " << nEvents << " events..." << std::endl;
         for( long unsigned entry = 0; entry < nEvents; ++entry ){
-            Event event = treeReader.buildEvent( entry );
+            Event event = treeReader.buildEvent( entry, false, false, true, true );
             // do basic jet cleaning
 	    event.removeTaus();
             event.cleanJetsFromLooseLeptons();
@@ -139,7 +158,7 @@ int main( int argc, char* argv[] ){
         averageOfWeights = reweighterBTagShape->calcAverageOfWeights( samples[i], nEvents );
         std::cout << "averages of weights after rerunning: " << std::endl;
         for( auto el: averageOfWeights ){
-            std::cout << "    systematic: " << el.first << std::endl;
+            std::cout << "    variation: " << el.first << std::endl;
             for( auto el2: el.second ){
                 std::cout << "      - " << el2.first << " -> " << el2.second << std::endl;
             }
@@ -155,7 +174,7 @@ int main( int argc, char* argv[] ){
         else nEvents = std::min(nEvents, numberOfEntries);
 	std::cout << "starting event loop for " << nEvents << " events..." << std::endl;
 	for( long unsigned entry = 0; entry < nEvents; ++entry ){
-	    Event event = treeReader.buildEvent( entry );
+	    Event event = treeReader.buildEvent( entry, false, false, true, true );
 	    // do basic jet cleaning
 	    event.removeTaus();
 	    event.cleanJetsFromLooseLeptons();

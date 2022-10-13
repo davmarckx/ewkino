@@ -63,8 +63,15 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
     //	     (needed only to propagate jet energy variations to central b-tag weights!)
     // note: maybe find a way to read these from the csv file 
     //       instead of copying them from the twiki mentioned above?
-    std::vector<std::string> allowedvar = {"jes","hf","lf","hfstats1","hfstats2",
+    std::string year = samples[0].year();
+    if( year=="2016PreVFP" || year=="2016PostVFP" ){ year = "2016"; }
+    std::vector<std::string> allowedvar = {
+					// systematics
+					"hf","lf","hfstats1","hfstats2",
 					"lfstats1","lfstats2","cferr1","cferr2",
+					// combined JEC
+					"jes",
+					// split JEC
 					"jesAbsoluteMPFBias", "jesAbsoluteScale", "jesAbsoluteStat",
 					"jesRelativeBal", "jesRelativeFSR", "jesRelativeJEREC1", 
 					"jesRelativeJEREC2", "jesRelativeJERHF", 
@@ -74,7 +81,14 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
 					"jesPileUpDataMC", "jesPileUpPtBB", "jesPileUpPtEC1", 
 					"jesPileUpPtEC2", "jesPileUpPtHF", "jesPileUpPtRef",
 					"jesFlavorQCD", "jesFragmentation", "jesSinglePionECAL", 
-					"jesSinglePionHCAL", "jesTimePtEta" };
+					"jesSinglePionHCAL", "jesTimePtEta",
+					// grouped JEC (might be not present in older files!)
+					"jesAbsolute_"+year, "jesAbsolute", 
+					"jesBBEC1_"+year, "jesBBEC1",
+					"jesEC2_"+year, "jesEC2",
+					"jesFlavorQCD",
+					"jesHF_"+year, "jesHF",
+					"jesRelativeBal", "jesRelativeSample_"+year };
     std::vector<std::string> allowedsys = {"hf","lf","hfstats1","hfstats2",
 					"lfstats1","lfstats2","cferr1","cferr2"};
     // (note: allowedsys must be a subcollection of allowedvar, excluding jec variations)
@@ -100,9 +114,9 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
 	_normFactors[sampleName]["central"][0] = 1.;
 	// (initialize one element at 0 jets for each sample;
         // events with higher jet multiplicities will fall back to this default value)
-	for( std::string sys: _systematics ){
-	    _normFactors[sampleName]["up_"+sys][0] = 1.;
-	    _normFactors[sampleName]["down_"+sys][0] = 1.;
+	for( std::string var: _variations ){
+	    _normFactors[sampleName]["up_"+var][0] = 1.;
+	    _normFactors[sampleName]["down_"+var][0] = 1.;
 	    // same as above but also normalize systematics
 	}
     }
@@ -176,17 +190,51 @@ void ReweighterBTagShape::initialize( const std::vector<Sample>& samples,
 
 /// help functions for checking a variation or systematic ///
 
+std::string jecToVarName( const std::string& jecVariation ){
+    // convert a string of the form (JEC)AbsoluteScaleUp to up_jesAbsoluteScale
+    std::string varName = stringTools::removeOccurencesOf(jecVariation,"JEC");
+    if( stringTools::stringEndsWith(varName,"Up") ){
+        varName = "up_jes"+varName.substr(0, varName.size()-2);
+    } else if( stringTools::stringEndsWith(varName,"Down") ){
+        varName = "down_jes"+varName.substr(0, varName.size()-4);
+    }
+    return varName;
+}
+
+std::string varToJecName( const std::string& variation ){
+    // convert a string of the form up_jesAbsoluteScale to AbsoluteScaleUp
+    std::string jecName = stringTools::removeOccurencesOf(variation,"jes");
+    if( stringTools::stringStartsWith(jecName,"up_") ){
+	jecName = stringTools::removeOccurencesOf(jecName,"up_")+"Up";
+    } else if( stringTools::stringStartsWith(jecName,"down_") ){
+	jecName = stringTools::removeOccurencesOf(jecName,"down_")+"Down";
+    }
+    //jecName = "JEC"+jecName;
+    return jecName;
+}
+
+std::string varNameClip( const std::string& upDownVariation ){
+    // remove up_ and down_ from a string to get the pure variation name
+    std::string varName = stringTools::removeOccurencesOf(upDownVariation,"up_");
+    varName = stringTools::removeOccurencesOf(varName,"down_");
+    return varName;
+}
+
 bool ReweighterBTagShape::hasVariation( const std::string& variation ) const{
     // determine whether this instance has a given variation
     // note: the variation could be either a systematic uncertainty or a JEC variation
-    if( std::find(_variations.begin(),_variations.end(),variation)
+    // note: expected format of variation name: see _variations attribute!
+    //       (but can start with up_ or down_ as well.)
+    if( std::find(_variations.begin(), _variations.end(), varNameClip(variation))
 	==_variations.end() ) return false;
     return true;
 }
 
 bool ReweighterBTagShape::hasSystematic( const std::string systematic ) const{
     // determine whether this instance has a given systematic uncertainty
-    if( std::find(_systematics.begin(),_systematics.end(),systematic)
+    // note: expected format of systematic name: see _systematics attribute!
+    //       (but can start with up_ or down_ as well.)
+    if( std::find(_systematics.begin(), _systematics.end(), varNameClip(systematic))
         ==_systematics.end() ) return false;
     return true;
 }
@@ -197,6 +245,8 @@ bool ReweighterBTagShape::considerVariation( const Jet& jet,
     // see the recommendations: some systematics should only be applied to b-jets and light jets,
     //                          and others only to c-jets; 
     //                          the jec variations should not be applied to c-jets.
+    // note: expected format of variation name: see _variations attribute!
+    //       (but can start with up_ or down_ as well.)
     std::vector<std::string> forbidden_variations;
     if( jet.hadronFlavor()==5 || jet.hadronFlavor()==0 ){
 	forbidden_variations = {"cferr1", "cferr2"};
@@ -214,7 +264,7 @@ bool ReweighterBTagShape::considerVariation( const Jet& jet,
                                 "jesSinglePionHCAL", "jesTimePtEta"};
     }
     for( std::string var: forbidden_variations ){
-        if( variation==var || variation=="up_"+var || variation=="down_"+var ) return false;
+        if( varNameClip(variation)==var ) return false;
     }
     return true;
 }
@@ -230,8 +280,8 @@ void ReweighterBTagShape::setNormFactors( const Sample& sample,
     // - normFactors: a map of jet multiplicity to averages-of-weights
     //                note: it is initialized to {0: 1.} in the constructor,
     //		      which implies the normalization factor will be 1 for each event.
-    //                update: a separate map should be given for each systematic + "central"!
-    //                example: {"central": {0: 1.}, "up_cferr1": {0: 1.}, etc.}
+    //                update: a separate map should be given for each variation + "central"!
+    //                example: {"central": {0: 1.}, "up_cferr1": {0: 1.}, "down_jesFlavorQCD": {0: 1.}, etc.}
     std::string sampleName = sample.fileName();
     if( _normFactors.find(sampleName)==_normFactors.end() ){
 	throw std::invalid_argument(std::string("ERROR: ")
@@ -247,28 +297,46 @@ void ReweighterBTagShape::setNormFactors( const Sample& sample,
     }
 }
 
+int ReweighterBTagShape::getNJets( const Event& event, 
+				    const std::string& variation ) const{ 
+    // get appropriate number of jets
+    // note: expected format of variation: either "central", 
+    //       or "up_" or "down_" + a variation from _variations!
+    if( this->hasVariation(variation) && !this->hasSystematic(variation) ){
+	// return JEC-varied number of jets
+	return event.getJetCollection( varToJecName(variation) ).goodJetCollection().size();
+    } else{
+	// else return nominal number of jets
+	return event.jetCollection().goodJetCollection().size();
+    }
+}
+
+int ReweighterBTagShape::getNJets( const Event& event ) const{
+    // get nominal number of jets
+    return this->getNJets( event, "central" );
+}
+
 double ReweighterBTagShape::getNormFactor( const Event& event, 
-					    const std::string& systematic,
-					    const std::string& jecVariation ) const{
+					    const std::string& variation ) const{
     // get the normalization factor for an event
-    // note: systematic has a default value: 'central', i.e. no systematic variation.
-    //       its value is used to select the proper norm factor (split by systematic).
-    // note: jecVariation has a default value: 'nominal', i.e. no variation of JEC
-    //       its value is only used here to determine the number of jets!
+    // note: variation is used to determine both the appropriate number of jets and norm factor!
+    // note: expected format of variation: either "central", 
+    //       or "up_" or "down_" + a variation from _variations!
     std::string sampleName = event.sample().fileName();
-    int njets = event.getJetCollection( jecVariation ).goodJetCollection().size();
-    return this->getNormFactor(sampleName, njets, systematic);
+    int njets = this->getNJets(event, variation);
+    return this->getNormFactor(sampleName, njets, variation);
 }
 
 double ReweighterBTagShape::getNormFactor( const std::string& sampleName,
 					    int njets,
-					    const std::string& systematic ) const{
+					    const std::string& variation ) const{
     // get the appropriate normalization factor
     // note: the normalization factor depends on the sample to which the event belongs,
-    //	     the systematic variation considered,
+    //	     the (systematic or JEC) variation considered,
     //       and on the jet multiplicity of the event.
-    // note: systematic has a default value: 'central', i.e. no systematic variation.
-    //       its value is used to select the proper norm factor (split by systematic).
+    // note: expected format of variation: either "central", 
+    //       or "up_" or "down_" + a variation from _variations!
+    
     // check validity of sample to which event belongs
     if( _normFactors.find(sampleName)==_normFactors.end() ){
         throw std::invalid_argument(std::string("ERROR: ")
@@ -276,18 +344,18 @@ double ReweighterBTagShape::getNormFactor( const std::string& sampleName,
 	    + " (found sample name "+sampleName+" which is not in the _normFactors map.)");
     }
     // check validity of systematic
-    if( _normFactors.at(sampleName).find(systematic)==_normFactors.at(sampleName).end() ){
+    if( _normFactors.at(sampleName).find(variation)==_normFactors.at(sampleName).end() ){
         throw std::invalid_argument(std::string("ERROR: ")
             + "ReweighterBTagShape was not initialized for this systematic!"
-	    + " (found systematic name "+systematic+" which is not in the _normFactors map.)");
+	    + " (found systematic name "+variation+" which is not in the _normFactors map.)");
     }
     // retrieve the normalization factor
     // note: if no normalization factor was initialized for this jet multiplicity,
     //	     the value for lower jet multiplicities is retrieved instead.
     for( int n=njets; n>=0; n-- ){
-	if( _normFactors.at(sampleName).at(systematic).find(n)
-	    !=_normFactors.at(sampleName).at(systematic).end() ){
-	    return _normFactors.at(sampleName).at(systematic).at(n);
+	if( _normFactors.at(sampleName).at(variation).find(n)
+	    !=_normFactors.at(sampleName).at(variation).end() ){
+	    return _normFactors.at(sampleName).at(variation).at(n);
 	}
     }
     throw std::invalid_argument(std::string("ERROR: ")
@@ -303,7 +371,7 @@ void ReweighterBTagShape::printNormFactors() const{
     for( auto el: _normFactors ){
         std::cout << "  Sample: " << el.first << std::endl;
         for( auto el2: el.second ){
-	    std::cout << "    systematic: " << el2.first << std::endl;
+	    std::cout << "    variation: " << el2.first << std::endl;
 	    for( auto el3: el2.second ){
 		std::cout << "      - " << el3.first << " -> " << el3.second << std::endl;
 	    }
@@ -392,7 +460,14 @@ double ReweighterBTagShape::weight( const Event& event, const std::string& varia
     // note: the nominal jet collection in the event is used;
     //       for the JEC variations: see below
     double weight = 1.;
-    for( const auto& jetPtr: event.jetCollection().goodJetCollection() ){ 
+    // get the appropriate jet collection
+    JetCollection jetCollection = event.jetCollection().goodJetCollection();
+    if( this->hasVariation(variation) && !this->hasSystematic(variation) ){
+        // return JEC-varied jet collection
+        jetCollection = event.getJetCollection( varToJecName(variation) ).goodJetCollection();
+    }
+    // loop over jets and multiply weights
+    for( const auto& jetPtr: jetCollection ){ 
 	weight *= this->weight( *jetPtr, variation );
     }
     // take into account normalization
@@ -409,60 +484,24 @@ double ReweighterBTagShape::weight( const Event& event ) const{
 }
 
 double ReweighterBTagShape::weightUp( const Event& event,
-                                        const std::string& systematic ) const{
+                                        const std::string& variation ) const{
     // get up weight for event and given systematic 
-    return this->weight( event, "up_"+systematic );
+    return this->weight( event, "up_"+variation );
 }
 
 double ReweighterBTagShape::weightDown( const Event& event,
-                                        const std::string& systematic ) const{
+                                        const std::string& variation ) const{
     // get down weight for event and given systematic
-    return this->weight( event, "down_"+systematic );
+    return this->weight( event, "down_"+variation );
 }
 
-
 double ReweighterBTagShape::weightNoNorm( const Event& event ) const{
-    // same as weight but no normalization factor (mainly for testing)
+    // only nominal weight and no normalization factor (mainly for testing)
     double weight = 1.;
     for( const auto& jetPtr: event.jetCollection().goodJetCollection() ){
         weight *= this->weight( *jetPtr );
     }
     return weight;
-}
-
-
-double ReweighterBTagShape::weightJecVar( const Event& event, 
-					    const std::string& jecVariation ) const{
-    // same as weight but with propagation of jec variations
-    // jecvar is expected to be of the form e.g. AbsoluteScaleUp or AbsoluteScaleDown
-    // special case JECUp and JECDown (for single variations) are also allowed
-
-    // first do some name parsing
-    std::string jecVar = stringTools::removeOccurencesOf(jecVariation,"JEC");
-    std::string varName;
-    bool isup = true;
-    if( stringTools::stringEndsWith(jecVar,"Up") ){
-        varName = "jes"+jecVar.substr(0, jecVar.size()-2);
-    } else if( stringTools::stringEndsWith(jecVar,"Down") ){
-        varName = "jes"+jecVar.substr(0, jecVar.size()-4);
-	isup = false;
-    }
-    // check if variation is valid
-    if( !hasVariation(varName) ){
-	std::string msg = "ERROR in ReweighterBTagShape::weightJecVar:";
-	msg += " jec variation '"+jecVariation+"' (corresponding to '"+varName+"') not valid";
-	throw std::invalid_argument(msg);
-    }
-    // determine weight by multiplying jet weights
-    double weight = 1.;
-    for( const auto& jetPtr: event.getJetCollection(jecVariation) ){
-        if(isup) weight *= this->weightUp( *jetPtr, varName );
-	else weight *= this->weightDown( *jetPtr, varName );
-    }
-    // take into account normalization
-    double normweight = weight/getNormFactor(event);
-    // return weight
-    return normweight;
 }
 
 
@@ -488,12 +527,15 @@ std::map<std::string, std::map<int,double>> ReweighterBTagShape::calcAverageOfWe
 
     // initialize the output map
     std::map<std::string, std::map< int, double>> averageOfWeights;
+    std::map<std::string, std::map< int, int >> nEntries;
     averageOfWeights["central"][0] = 0.;
-    for( std::string sys: _systematics ){
-	averageOfWeights["up_"+sys][0] = 0.;
-	averageOfWeights["down_"+sys][0] = 0.;
+    nEntries["central"][0] = 0;
+    for( std::string var: _variations ){
+	averageOfWeights["up_"+var][0] = 0.;
+	averageOfWeights["down_"+var][0] = 0.;
+	nEntries["up_"+var][0] = 0;
+        nEntries["down_"+var][0] = 0;
     }
-    std::map< int, int > nEntries;
 
     // loop over events
     long unsigned availableEntries = treeReader.numberOfEntries();
@@ -501,7 +543,7 @@ std::map<std::string, std::map<int,double>> ReweighterBTagShape::calcAverageOfWe
     else numberOfEntries = std::min(numberOfEntries, availableEntries);
     std::cout << "starting event loop for " << numberOfEntries << " events..." << std::endl;
     for( long unsigned entry = 0; entry < numberOfEntries; ++entry ){
-        Event event = treeReader.buildEvent( entry );
+        Event event = treeReader.buildEvent( entry, false, false, true, true );
 
 	// printouts for testing
 	/*std::cout << "--- event ---" << std::endl;
@@ -519,44 +561,44 @@ std::map<std::string, std::map<int,double>> ReweighterBTagShape::calcAverageOfWe
         // do basic jet cleaning
 	event.removeTaus();
         event.cleanJetsFromLooseLeptons();
-        event.jetCollection().selectGoodJets();
 
-	// determine number of jets
-	int njets = event.jetCollection().size();
-
-	// printouts for testing
-        /*std::cout << "--- event ---" << std::endl;
-        std::cout << "njets after cleaning: " << njets << std::endl;
-        for( auto jet: event.jetCollection() ){
-            jet->print( std::cout );
-	    std::cout << std::endl;
-        }*/
-
-        // determine nominal and systematic b-tag reweighting factors
+        // add nominal b-tag reweighting factors
         double btagreweight = this->weight( event );
-	std::map<std::string, double> btagreweightssysup;
-	std::map<std::string, double> btagreweightssysdown;
-	for( std::string sys: _systematics ){ 
-	    btagreweightssysup[sys] = this->weightUp(event, sys);
-	    btagreweightssysdown[sys] = this->weightDown(event, sys); 
+	int njets = this->getNJets( event );
+	if( nEntries.at("central").find(njets)==nEntries.at("central").end() ){
+	    averageOfWeights.at("central")[njets] = btagreweight;
+	    nEntries.at("central")[njets] = 1;
+	} else{
+	    averageOfWeights.at("central").at(njets) += btagreweight;
+	    nEntries.at("central").at(njets) += 1;
 	}
 
-        // add them to the map
-	if(nEntries.find(njets)==nEntries.end()){
-	    nEntries[njets] = 1;
-	    averageOfWeights.at("central")[njets] = btagreweight;
-	    for( std::string sys: _systematics ){
-		averageOfWeights.at("up_"+sys)[njets] = btagreweightssysup.at(sys);
-		averageOfWeights.at("down_"+sys)[njets] = btagreweightssysdown.at(sys);
+	// add varied b-tag reweighting factors
+	for( std::string var: _variations ){ 
+	    // get up weight
+	    double btagup = this->weightUp(event, var);
+	    int njetsup = this->getNJets(event, "up_"+var);
+	    if( nEntries.at("up_"+var).find(njetsup)==nEntries.at("up_"+var).end() ){
+		averageOfWeights.at("up_"+var)[njetsup] = btagup;
+		nEntries.at("up_"+var)[njetsup] = 1;
+	    } else{
+		averageOfWeights.at("up_"+var).at(njetsup) += btagup;
+		nEntries.at("up_"+var).at(njetsup) += 1;
 	    }
-	}
-	else{
-	    nEntries.at(njets) += 1;
-	    averageOfWeights.at("central").at(njets) += btagreweight;
-	    for( std::string sys: _systematics ){
-                averageOfWeights.at("up_"+sys).at(njets) += btagreweightssysup.at(sys);
-                averageOfWeights.at("down_"+sys).at(njets) += btagreweightssysdown.at(sys);
-	    }
+	    // printouts for testing
+	    //std::cout << var << "  up: " << njetsup << "  " << btagup << std::endl;
+	    // get down weight
+	    double btagdown = this->weightDown(event, var);
+	    int njetsdown = this->getNJets(event, "down_"+var);
+	    if( nEntries.at("down_"+var).find(njetsdown)==nEntries.at("down_"+var).end() ){
+		averageOfWeights.at("down_"+var)[njetsdown] = btagdown;
+		nEntries.at("down_"+var)[njetsdown] = 1;
+            } else{
+		averageOfWeights.at("down_"+var).at(njetsdown) += btagdown;
+		nEntries.at("down_"+var).at(njetsdown) += 1;
+            }
+	    // printouts for testing
+            //std::cout << var << "  down: " << njetsdown << "  " << btagdown << std::endl;
 	}
     }
 
@@ -568,11 +610,21 @@ std::map<std::string, std::map<int,double>> ReweighterBTagShape::calcAverageOfWe
     }*/
 
     // divide sum by number to get average
-    for( std::map<int,int>::iterator it = nEntries.begin(); it != nEntries.end(); ++it){
+    for( std::map<int,int>::iterator it = nEntries.at("central").begin(); 
+	it != nEntries.at("central").end(); ++it ){
 	averageOfWeights.at("central").at(it->first) /= it->second;
-	for( std::string sys: _systematics ){
-	    averageOfWeights.at("up_"+sys).at(it->first) /= it->second;
-            averageOfWeights.at("down_"+sys).at(it->first) /= it->second;
+	if( it->second==0 ){ averageOfWeights.at("central").at(it->first) = 1; }
+    }
+    for( std::string var: _variations ){
+	for( std::map<int,int>::iterator it = nEntries.at("up_"+var).begin(); 
+	    it != nEntries.at("up_"+var).end(); ++it ){
+	    averageOfWeights.at("up_"+var).at(it->first) /= it->second;
+	    if( it->second==0 ){ averageOfWeights.at("up_"+var).at(it->first) = 1; }
+	}
+	for( std::map<int,int>::iterator it = nEntries.at("down_"+var).begin();
+            it != nEntries.at("down_"+var).end(); ++it ){
+            averageOfWeights.at("down_"+var).at(it->first) /= it->second;
+	    if( it->second==0 ){ averageOfWeights.at("down_"+var).at(it->first) = 1; }
 	}
     }
 

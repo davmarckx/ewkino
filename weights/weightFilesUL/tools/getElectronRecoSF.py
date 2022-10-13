@@ -10,6 +10,7 @@
 # Note: does not yet work!
 # Wget seems to download a webpage with a redirect link
 # instead of the actual file...
+# Probably due to login required.
 # For now, download and copy the files here manually,
 # then run this script to perform the proper moving and name change.
 
@@ -30,7 +31,7 @@ if __name__=='__main__':
 		'ptBelow20': 'ptBelow20',
 		'ptAbove20': 'ptAbove20'
 	    })
-    targetdir = '../leptonSF'
+    targetdir = '../electronRecoSF'
 
     # loop over years and ptbins
     for yearin, yearout in years.items():

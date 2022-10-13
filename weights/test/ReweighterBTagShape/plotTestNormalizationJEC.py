@@ -12,7 +12,7 @@ import multihistplotter as mhp
 if __name__=='__main__':
 
   years = ['2016PreVFP','2016PostVFP','2017','2018']
-  inputfiles = ['output_ttw_{}_norm.root'.format(year) for year in years]
+  inputfiles = ['output_ttw_{}_jec.root'.format(year) for year in years]
   tags = ({ 'unweightedpreselection': 'Unweighted pre-selection',
             'unweightedpostselection': 'Unweighted post-selection',
             'weightedprenorm': 'Weighted pre-norm',
