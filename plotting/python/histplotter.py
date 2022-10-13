@@ -8,7 +8,7 @@ import os
 import numpy as np
 import json
 import plottools as pt
-sys.path.append('../../Tools/python')
+sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 
 def orderhistograms(histlist,ascending=True):

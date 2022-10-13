@@ -70,6 +70,13 @@ def selecthistograms(histlist,mustcontainone=[],mustcontainall=[],
 	maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall)
     return (indlist,selhistlist)
 
+def findhistogram(histlist, name):
+    ### find a histogram with a given name in a list
+    # returns None if no histogram with the requested name is found
+    for hist in histlist:
+	if hist.GetName()==name: return hist
+    return None
+
 
 ### histogram clipping ###
 
@@ -129,6 +136,14 @@ def getminmaxmargin(histlist,clip=False):
 
 ### histogram conversion ###
 
+def histtoarray( hist ):
+    ### get numpy array with bin contents (bin errors are ignored)
+    nbins = hist.GetNbinsX()
+    res = np.zeros( nbins+2 )
+    for i in range(0, nbins+2):
+	res[i] = hist.GetBinContent(i)
+    return res
+
 def tgraphtohist( graph ):
 
     # get list of x values and sort them
@@ -169,6 +184,49 @@ def binperbinmaxvar( histlist, nominalhist ):
 	    varvals[j] = abs(histlist[j].GetBinContent(i)-nomval)
 	maxhist.SetBinContent(i,np.amax(varvals))
     return maxhist
+
+def envelope( histlist, returntype='tuple' ):
+    ### return two histograms that form the envelope of all histograms in histlist.
+    # arguments:
+    # - returntype: if 'tuple', returns tuple of two histograms (lower bound and upper bound);
+    #               if 'hist', returns a single histogram with same lower and upper bounds
+    #               (and bin contents chosen symmetrically between them).
+    if( len(histlist)<2 ):
+	msg = 'ERROR in histtools.envelope: at least two histograms required.'
+        raise Exception(msg)
+    nbins = histlist[0].GetNbinsX()
+    minhist = histlist[0].Clone()
+    maxhist = histlist[0].Clone()
+    for hist in histlist:
+        if( hist.GetNbinsX()!=nbins ):
+	    msg = 'ERROR in histtools.envelope: '
+	    msg += ' provided histograms have different number of bins.'
+            raise Exception(msg)
+        for i in range(0,nbins+2):
+	    bincontent = hist.GetBinContent(i)
+	    if bincontent < minhist.GetBinContent(i):
+              minhist.SetBinContent(i, bincontent)
+            if bincontent > maxhist.GetBinContent(i):
+              maxhist.SetBinContent(i, bincontent)
+    for i in range(0,nbins+2):
+        minhist.SetBinError(i,0)
+        maxhist.SetBinError(i,0)
+    if returntype=='tuple': return (minhist,maxhist)
+    elif returntype=='hist':
+	res = minhist.Clone()
+	res.Reset()
+	for i in range(0,nbins+2):
+	    minc = minhist.GetBinContent(i)
+	    maxc = maxhist.GetBinContent(i)
+	    binc = (maxc+minc)/float(2)
+	    err = (maxc-minc)/float(2)
+	    res.SetBinContent(i, binc)
+	    res.SetBinError(i, err)
+	return res
+    else:
+	msg = 'ERROR in histtools.envelope:'
+	msg += ' return type {} not recognized.'.format(returntype)
+	raise Exception(msg)
     
 def rootsumsquare( histlist ):
     ### return a histogram that is the root-sum-square of all histograms in histlist.

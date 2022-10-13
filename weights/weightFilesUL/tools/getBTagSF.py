@@ -7,6 +7,10 @@
 # The implementation here will not work anymore if the location
 # of the scale factor files is changed in the future.
 
+# Note: it seems the BTV Twiki pages have been superseded by this GitLab page:
+# https://gitlab.cern.ch/groups/cms-btv/-/wikis/Subgroups/PerformanceCalibration/ScaleFactorRecommendations
+# Get new scale factors from there! (but this script was not yet updated.)
+
 # Note: does not yet work!
 # Wget seems to download a webpage with a redirect link
 # instead of the actual file...

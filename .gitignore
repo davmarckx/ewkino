@@ -15,6 +15,8 @@ codeLibrary.o
 fakeRate/output_*
 fakeRateExtra/output_*
 sampleXSec/output_*
+weights/test/output_*
+weights/test/*/output_*
 
 # output files
 **/cjob_*

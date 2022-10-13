@@ -221,7 +221,7 @@ bool treeHasBranchWithName( TTree* treePtr, const std::string& nameToFind ){
 
 
 bool TreeReader::containsTauInfo() const{
-    return treeHasBranchWithName( _currentTreePtr, "_tau_" );
+    return treeHasBranchWithName( _currentTreePtr, "_tau" );
 }
 
 
@@ -235,6 +235,17 @@ bool TreeReader::containsGeneratorInfo() const{
 
 bool TreeReader::containsGenParticles() const{
     return treeHasBranchWithName( _currentTreePtr, "_gen_" );
+}
+
+
+bool TreeReader::containsPrefire() const{
+    return treeHasBranchWithName( _currentTreePtr, "_prefireWeight" );
+}
+
+
+bool TreeReader::containsPrefireComponents() const{
+    return ( treeHasBranchWithName( _currentTreePtr, "_prefireWeightMuon")
+	     && treeHasBranchWithName( _currentTreePtr, "_prefireWeightECAL") );
 }
 
 
@@ -660,7 +671,11 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
     _currentTreePtr->SetBranchAddress("_metPhi_UnclUp", &_metPhi_UnclUp, &b__metPhi_UnclUp);
     _currentTreePtr->SetBranchAddress("_metSignificance", &_metSignificance, &b__metSignificance);
 
-    if( containsTauInfo() ){
+    if( !containsTauInfo() ){
+	std::string msg = "WARNING: input tree does not seem to contain tau info;";
+	msg.append( " will not read tau branches!" );
+	std::cerr << msg << std::endl;
+    } else{
 	_currentTreePtr->SetBranchAddress("_tauDecayMode", _tauDecayMode, &b__tauDecayMode);
         _currentTreePtr->SetBranchAddress("_decayModeFinding", _decayModeFinding, &b__decayModeFinding);
 	_currentTreePtr->SetBranchAddress("_decayModeFindingNew", _decayModeFindingNew, &b__decayModeFindingNew);
@@ -691,48 +706,70 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
 	_currentTreePtr->SetBranchAddress("_tauVTightMvaNew2017v2", _tauVTightMvaNew2017v2, &b__tauVTightMvaNew2017v2);
     }
     
-    if( containsGeneratorInfo() ){
-        _currentTreePtr->SetBranchAddress("_weight", &_weight, &b__weight);
-        _currentTreePtr->SetBranchAddress("_nLheWeights", &_nLheWeights, &b__nLheWeights);
-        _currentTreePtr->SetBranchAddress("_lheWeight", _lheWeight, &b__lheWeight);
-        _currentTreePtr->SetBranchAddress("_nPsWeights", &_nPsWeights, &b__nPsWeights);
-        _currentTreePtr->SetBranchAddress("_psWeight", _psWeight, &b__psWeight);
-        _currentTreePtr->SetBranchAddress("_nTrueInt", &_nTrueInt, &b__nTrueInt);
-        _currentTreePtr->SetBranchAddress("_lheHTIncoming", &_lheHTIncoming, &b__lheHTIncoming);
-        _currentTreePtr->SetBranchAddress("_lIsPrompt", _lIsPrompt, &b__lIsPrompt);
-        _currentTreePtr->SetBranchAddress("_lMatchPdgId", _lMatchPdgId, &b__lMatchPdgId);
-        _currentTreePtr->SetBranchAddress("_lMatchCharge", _lMatchCharge, &b__lMatchCharge);
-        _currentTreePtr->SetBranchAddress("_lMomPdgId",  _lMomPdgId, &b__lMomPdgId);
-        _currentTreePtr->SetBranchAddress("_lProvenance", _lProvenance, &b__lProvenance);
-        _currentTreePtr->SetBranchAddress("_lProvenanceCompressed", _lProvenanceCompressed, &b__lProvenanceCompressed);
-        _currentTreePtr->SetBranchAddress("_lProvenanceConversion", _lProvenanceConversion, &b__lProvenanceConversion);
-        _currentTreePtr->SetBranchAddress("_ttgEventType", &_ttgEventType, &b__ttgEventType);
-        _currentTreePtr->SetBranchAddress("_zgEventType", &_zgEventType, &b__zgEventType);
-    }
-
-    if( containsGenParticles() ){
-        _currentTreePtr->SetBranchAddress("_gen_met", &_gen_met, &b__gen_met);
-        _currentTreePtr->SetBranchAddress("_gen_metPhi", &_gen_metPhi, &b__gen_metPhi);
-        _currentTreePtr->SetBranchAddress("_gen_nL", &_gen_nL, &b__gen_nL);
-        _currentTreePtr->SetBranchAddress("_gen_lPt", _gen_lPt, &b__gen_lPt);
-        _currentTreePtr->SetBranchAddress("_gen_lEta", _gen_lEta, &b__gen_lEta);
-        _currentTreePtr->SetBranchAddress("_gen_lPhi", _gen_lPhi, &b__gen_lPhi);
-        _currentTreePtr->SetBranchAddress("_gen_lE", _gen_lE, &b__gen_lE);
-        _currentTreePtr->SetBranchAddress("_gen_lFlavor", _gen_lFlavor, &b__gen_lFlavor);
-        _currentTreePtr->SetBranchAddress("_gen_lCharge", _gen_lCharge, &b__gen_lCharge);
-        _currentTreePtr->SetBranchAddress("_gen_lMomPdg", _gen_lMomPdg, &b__gen_lMomPdg);
-        _currentTreePtr->SetBranchAddress("_gen_lIsPrompt", _gen_lIsPrompt, &b__gen_lIsPrompt);
-    }
-
     if( isMC() ){
-        _currentTreePtr->SetBranchAddress("_prefireWeight", &_prefireWeight, &b__prefireWeight);
-        _currentTreePtr->SetBranchAddress("_prefireWeightDown", &_prefireWeightDown, &b__prefireWeightDown);
-        _currentTreePtr->SetBranchAddress("_prefireWeightUp", &_prefireWeightUp, &b__prefireWeightUp);
-    }
+	if( !containsGeneratorInfo() ){
+	    std::string msg = "WARNING: input tree does not seem to contain generator info;";
+	    msg.append( " will not read generator info branches!" );
+	    std::cerr << msg << std::endl;
+	} else{
+	    _currentTreePtr->SetBranchAddress("_weight", &_weight, &b__weight);
+	    _currentTreePtr->SetBranchAddress("_nLheWeights", &_nLheWeights, &b__nLheWeights);
+	    _currentTreePtr->SetBranchAddress("_lheWeight", _lheWeight, &b__lheWeight);
+	    _currentTreePtr->SetBranchAddress("_nPsWeights", &_nPsWeights, &b__nPsWeights);
+	    _currentTreePtr->SetBranchAddress("_psWeight", _psWeight, &b__psWeight);
+	    _currentTreePtr->SetBranchAddress("_nTrueInt", &_nTrueInt, &b__nTrueInt);
+	    _currentTreePtr->SetBranchAddress("_lheHTIncoming", &_lheHTIncoming, &b__lheHTIncoming);
+	    _currentTreePtr->SetBranchAddress("_lIsPrompt", _lIsPrompt, &b__lIsPrompt);
+	    _currentTreePtr->SetBranchAddress("_lMatchPdgId", _lMatchPdgId, &b__lMatchPdgId);
+	    _currentTreePtr->SetBranchAddress("_lMatchCharge", _lMatchCharge, &b__lMatchCharge);
+	    _currentTreePtr->SetBranchAddress("_lMomPdgId",  _lMomPdgId, &b__lMomPdgId);
+	    _currentTreePtr->SetBranchAddress("_lProvenance", _lProvenance, &b__lProvenance);
+	    _currentTreePtr->SetBranchAddress("_lProvenanceCompressed", _lProvenanceCompressed, &b__lProvenanceCompressed);
+	    _currentTreePtr->SetBranchAddress("_lProvenanceConversion", _lProvenanceConversion, &b__lProvenanceConversion);
+	    _currentTreePtr->SetBranchAddress("_ttgEventType", &_ttgEventType, &b__ttgEventType);
+	    _currentTreePtr->SetBranchAddress("_zgEventType", &_zgEventType, &b__zgEventType);
+	}
 
-    if( containsSusyMassInfo() ){
-	_currentTreePtr->SetBranchAddress("_mChi1", &_mChi1, &b__mChi1);
-	_currentTreePtr->SetBranchAddress("_mChi2", &_mChi2, &b__mChi2);
+	if( !containsGenParticles() ){
+	    std::string msg = "WARNING: input tree does not seem to contain gen particle info;";
+	    msg.append( " will not read gen particle branches!" );
+	    std::cerr << msg << std::endl;
+	} else{
+	    _currentTreePtr->SetBranchAddress("_gen_met", &_gen_met, &b__gen_met);
+	    _currentTreePtr->SetBranchAddress("_gen_metPhi", &_gen_metPhi, &b__gen_metPhi);
+	    _currentTreePtr->SetBranchAddress("_gen_nL", &_gen_nL, &b__gen_nL);
+	    _currentTreePtr->SetBranchAddress("_gen_lPt", _gen_lPt, &b__gen_lPt);
+	    _currentTreePtr->SetBranchAddress("_gen_lEta", _gen_lEta, &b__gen_lEta);
+	    _currentTreePtr->SetBranchAddress("_gen_lPhi", _gen_lPhi, &b__gen_lPhi);
+	    _currentTreePtr->SetBranchAddress("_gen_lE", _gen_lE, &b__gen_lE);
+	    _currentTreePtr->SetBranchAddress("_gen_lFlavor", _gen_lFlavor, &b__gen_lFlavor);
+	    _currentTreePtr->SetBranchAddress("_gen_lCharge", _gen_lCharge, &b__gen_lCharge);
+	    _currentTreePtr->SetBranchAddress("_gen_lMomPdg", _gen_lMomPdg, &b__gen_lMomPdg);
+	    _currentTreePtr->SetBranchAddress("_gen_lIsPrompt", _gen_lIsPrompt, &b__gen_lIsPrompt);
+	}
+
+	if( !containsPrefire() ){
+	    std::string msg = "WARNING: input tree does not seem to contain prefire info;";
+	    msg.append( " will not read prefire branches!" );
+	    std::cerr << msg << std::endl;
+	} else{
+	    _currentTreePtr->SetBranchAddress("_prefireWeight", &_prefireWeight, &b__prefireWeight);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightDown", &_prefireWeightDown, &b__prefireWeightDown);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightUp", &_prefireWeightUp, &b__prefireWeightUp);
+	}
+
+	if( !containsPrefireComponents() ){
+	    std::string msg = "WARNING: input tree does not seem to contain prefire component info;";
+	    msg.append( " will not read prefire component branches!" );
+	    std::cerr << msg << std::endl;
+	} else{
+	    _currentTreePtr->SetBranchAddress("_prefireWeightMuon", &_prefireWeightMuon, &b__prefireWeightMuon);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightMuonDown", &_prefireWeightMuonDown, &b__prefireWeightMuonDown);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightMuonUp", &_prefireWeightMuonUp, &b__prefireWeightMuonUp);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightECAL", &_prefireWeightECAL, &b__prefireWeightECAL);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightECALDown", &_prefireWeightECALDown, &b__prefireWeightECALDown);
+	    _currentTreePtr->SetBranchAddress("_prefireWeightECALUp", &_prefireWeightECALUp, &b__prefireWeightECALUp);
+	}
     }
 
     //add all individually stored triggers 
@@ -778,7 +815,9 @@ void TreeReader::setOutputTree( TTree* outputTree,
 				bool includeJECGrouped,
 				bool includeTauInfo,
 				bool includeGeneratorInfo,
-				bool includeGenParticles ){
+				bool includeGenParticles,
+				bool includePrefire,
+				bool includePrefireComponents ){
     outputTree->Branch("_runNb",                        &_runNb,                        "_runNb/l");
     outputTree->Branch("_lumiBlock",                    &_lumiBlock,                    "_lumiBlock/l");
     outputTree->Branch("_eventNb",                      &_eventNb,                      "_eventNb/l");
@@ -952,7 +991,7 @@ void TreeReader::setOutputTree( TTree* outputTree,
         }
     }
 
-    if( includeGeneratorInfo ){
+    if( isMC() && includeGeneratorInfo ){
 	if( !containsGeneratorInfo() ){
             std::string msg = "WARNING in TreeReader.setOutputTree:";
             msg.append(" requested to include generator info in output tree,");
@@ -980,7 +1019,7 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	}
     }
 
-    if( includeGenParticles){
+    if( isMC() && includeGenParticles){
 	if( !containsGenParticles() ){
             std::string msg = "WARNING in TreeReader.setOutputTree:";
             msg.append(" requested to include gen particles in output tree,");
@@ -1003,10 +1042,37 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	}
     }
 
-    if( isMC() ){
-       	outputTree->Branch("_prefireWeight",             &_prefireWeight,             "_prefireWeight/F");
-        outputTree->Branch("_prefireWeightUp",           &_prefireWeightUp,           "_prefireWeightUp/F");
-        outputTree->Branch("_prefireWeightDown",         &_prefireWeightDown,         "_prefireWeightDown/F"); 
+    if( isMC() && includePrefire ){
+	if( !containsPrefire() ){
+	    std::string msg = "WARNING in TreeReader.setOutputTree:";
+            msg.append(" requested to include prefire weights in output tree,");
+            msg.append(" but there appear to be no prefire weight branches in the input tree;");
+            msg.append(" will skip writing prefire weights to output tree!");
+            std::cerr << msg << std::endl;
+	}
+	else{
+	    outputTree->Branch("_prefireWeight",             &_prefireWeight,             "_prefireWeight/F");
+	    outputTree->Branch("_prefireWeightUp",           &_prefireWeightUp,           "_prefireWeightUp/F");
+	    outputTree->Branch("_prefireWeightDown",         &_prefireWeightDown,         "_prefireWeightDown/F"); 
+	}
+    }
+
+    if( isMC() && includePrefireComponents ){
+        if( !containsPrefireComponents() ){
+            std::string msg = "WARNING in TreeReader.setOutputTree:";
+            msg.append(" requested to include prefire component weights in output tree,");
+            msg.append(" but there appear to be no prefire component weight branches in the input tree;");
+            msg.append(" will skip writing prefire component weights to output tree!");
+            std::cerr << msg << std::endl;
+        }
+        else{
+            outputTree->Branch("_prefireWeightMuon",             &_prefireWeightMuon,             "_prefireWeightMuon/F");
+            outputTree->Branch("_prefireWeightMuonUp",           &_prefireWeightMuonUp,           "_prefireWeightMuonUp/F");
+            outputTree->Branch("_prefireWeightMuonDown",         &_prefireWeightMuonDown,         "_prefireWeightMuonDown/F");
+	    outputTree->Branch("_prefireWeightECAL",             &_prefireWeightECAL,             "_prefireWeightECAL/F");
+            outputTree->Branch("_prefireWeightECALUp",           &_prefireWeightECALUp,           "_prefireWeightECALUp/F");
+            outputTree->Branch("_prefireWeightECALDown",         &_prefireWeightECALDown,         "_prefireWeightECALDown/F");
+        }
     }
 
     if( containsSusyMassInfo() ){

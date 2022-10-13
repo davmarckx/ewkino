@@ -37,18 +37,25 @@ void determineMCChargeFlipRate( const std::string& year,
     const std::vector< double > etaBins = { 0., 0.8, 1.442, 2.5 };
 
     // initialize 2D histogram for numerator
-    std::string numerator_name = "chargeFlipRate_electron_" + year;
+    std::string numerator_name = "chargeFlipRate_numerator_electron_" + year;
     std::shared_ptr< TH2D > numeratorMap( 
-	new TH2D( numerator_name.c_str(), ( numerator_name+ "; p_{T} (GeV); |#eta|").c_str(), 
+	new TH2D( numerator_name.c_str(), (numerator_name+"; p_{T} (GeV); |#eta|").c_str(), 
 	ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
     numeratorMap->Sumw2();
 
     // initialize 2D histogram for denominator
     std::string denominator_name = "chargeFlipRate_denominator_electron_" + year;
     std::shared_ptr< TH2D > denominatorMap( 
-	new TH2D( denominator_name.c_str(), denominator_name.c_str(), 
+	new TH2D( denominator_name.c_str(), (denominator_name+"; p_{T} (GeV); |#eta|").c_str(), 
 	ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
     denominatorMap->Sumw2();
+
+    // initialize 2D histogram for ratio
+    std::string ratio_name = "chargeFlipRate_electron_" + year;
+    std::shared_ptr< TH2D > ratioMap(
+        new TH2D( ratio_name.c_str(), (ratio_name+"; p_{T} (GeV); |#eta|").c_str(),
+        ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
+    ratioMap->Sumw2();
 
     // make TreeReader and loop over samples
     TreeReader treeReader( sampleListFile, sampleDirectory );
@@ -60,6 +67,7 @@ void determineMCChargeFlipRate( const std::string& year,
 	if( nEntries>0 && (unsigned)nEntries<numberOfEntries ){ 
 	    numberOfEntries = (unsigned) nEntries; 
 	}
+	std::cout << "starting loop over " << numberOfEntries << " events." << std::endl;
         for( long unsigned entry = 0; entry < numberOfEntries; ++entry ){
 
 	    // build the event
@@ -76,7 +84,7 @@ void determineMCChargeFlipRate( const std::string& year,
                 // require prompt leptons
                 if( !( electron.isPrompt() ) ) continue;
 		// require that the lepton does not come from photon conversion
-		// (why?)
+		// (since they are matched to photons so the matched charge is 0)
                 if( electron.matchPdgId() == 22 ) continue;
 
                 // fill denominator histogram 
@@ -85,13 +93,14 @@ void determineMCChargeFlipRate( const std::string& year,
                 //fill numerator histogram
                 if( electron.isChargeFlip() ){
                     histogram::fillValues( numeratorMap.get(), electron.pt(), electron.absEta(), 1. );
+		    histogram::fillValues( ratioMap.get(), electron.pt(), electron.absEta(), 1. );
                 }
             }
         }
     }
 
     // divide numerator by denominator to get charge flip rate
-    numeratorMap->Divide( denominatorMap.get() );
+    ratioMap->Divide( denominatorMap.get() );
 
     // create output directory if it does not exist 
     std::string outputDirectory = "chargeFlipMaps";
@@ -102,13 +111,15 @@ void determineMCChargeFlipRate( const std::string& year,
     gStyle->SetPaintTextFormat( "4.2e" );
     std::string plotOutputPath =  stringTools::formatDirectoryName( outputDirectory );
     plotOutputPath += "chargeFlipMap_MC_" + year + ".pdf";
-    plot2DHistogram( numeratorMap.get(), plotOutputPath );
+    plot2DHistogram( ratioMap.get(), plotOutputPath );
 
     // write fake-rate map to file 
     std::string rootOutputPath = stringTools::formatDirectoryName( outputDirectory ); 
     rootOutputPath += "chargeFlipMap_MC_" + year + ".root";
     TFile* outputFile = TFile::Open( rootOutputPath.c_str(), "RECREATE" );
+    ratioMap->Write();
     numeratorMap->Write();
+    denominatorMap->Write();
     outputFile->Close();
 }
 

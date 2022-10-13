@@ -8,15 +8,25 @@
 GeneratorInfo::GeneratorInfo( const TreeReader& treeReader ) :
     _numberOfLheWeights( treeReader._nLheWeights ),
     _numberOfPsWeights( treeReader._nPsWeights ),
-    _prefireWeight( treeReader._prefireWeight ),
-    _prefireWeightDown( treeReader._prefireWeightDown ),
-    _prefireWeightUp( treeReader._prefireWeightUp ),
     _ttgEventType( treeReader._ttgEventType ),
     _zgEventType( treeReader._zgEventType ),
     _partonLevelHT( treeReader._lheHTIncoming ),
     _numberOfTrueInteractions( treeReader._nTrueInt ),
     _genMetPtr( new GenMet( treeReader ) )
 { 
+    if( treeReader.containsPrefire() ){
+	_prefireWeight = treeReader._prefireWeight;
+	_prefireWeightDown = treeReader._prefireWeightDown;
+	_prefireWeightUp = treeReader._prefireWeightUp;
+    }
+    if( treeReader.containsPrefireComponents() ){
+	_prefireWeightMuon = treeReader._prefireWeightMuon;
+        _prefireWeightMuonDown = treeReader._prefireWeightMuonDown;
+        _prefireWeightMuonUp = treeReader._prefireWeightMuonUp;
+	_prefireWeightECAL = treeReader._prefireWeightECAL;
+        _prefireWeightECALDown = treeReader._prefireWeightECALDown;
+        _prefireWeightECALUp = treeReader._prefireWeightECALUp;
+    }
     if( _numberOfLheWeights > maxNumberOfLheWeights ){
 	std::string message = "ERROR in GeneratorInfo::GeneratorInfo:";
 	message.append( " _numberOfLheWeights is " + std::to_string(_numberOfLheWeights) );
@@ -37,13 +47,6 @@ GeneratorInfo::GeneratorInfo( const TreeReader& treeReader ) :
     }
     for( unsigned i = 0; i < _numberOfPsWeights; ++i ){
         _psWeights[i] = treeReader._psWeight[i];
-    }
-
-    //prefire weights are not defined for 2018 events, set them to unity
-    if( treeReader.is2018() ){
-        _prefireWeight = 1.;
-        _prefireWeightDown = 1.;
-        _prefireWeightUp = 1.;
     }
 }
 

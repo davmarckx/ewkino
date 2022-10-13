@@ -204,12 +204,26 @@ Jet Jet::JetJERUp() const{
 Jet Jet::JetJECDown( const std::string source ) const{
     // note: this function checks both all and grouped variations,
     // need to check if there is no overlap in names between them!
+    // first check case of empty string (total combined JEC)
+    if( source.size()==0 ){ return this->JetJECDown(); }
     double newpt = 0.;
+    bool found = false;
     for( auto mapEl: this->_pt_JECSourcesDown ){
-	if(source==mapEl.first){ newpt = mapEl.second; }
+	if(source==mapEl.first){ 
+	    newpt = mapEl.second;
+	    found = true; 
+	}
     }
     for( auto mapEl: this->_pt_JECGroupedDown ){
-        if(source==mapEl.first) newpt = mapEl.second;
+        if(source==mapEl.first){
+	    newpt = mapEl.second;
+	    found = true;
+	}
+    }
+    if( !found ){
+	std::string msg = "ERROR in Jet.JetJECDown: JEC source " + source;
+	msg.append( " not recognized." );
+	throw std::runtime_error( msg );
     }
     return variedJet( newpt );
 }
@@ -218,13 +232,28 @@ Jet Jet::JetJECDown( const std::string source ) const{
 Jet Jet::JetJECUp( const std::string source ) const{
     // note: this function checks both all and grouped variations,
     // need to check if there is no overlap in names between them!
+    // first check case of empty string (total combined JEC)
+    if( source.size()==0 ){ return this->JetJECUp(); }
     double newpt = 0.;
+    bool found = false;
     for( auto mapEl: this->_pt_JECSourcesUp ){
-        if(source==mapEl.first) newpt = mapEl.second;
+        if(source==mapEl.first){
+	    newpt = mapEl.second;
+	    found = true;
+	}
     }
     for( auto mapEl: this->_pt_JECGroupedUp ){
-        if(source==mapEl.first) newpt = mapEl.second;
+        if(source==mapEl.first){
+	    newpt = mapEl.second;
+	    found = true;
+	}
     }
+    if( !found ){
+        std::string msg = "ERROR in Jet.JetJECUp: JEC source " + source;
+        msg.append( " not recognized." );
+        throw std::runtime_error( msg );
+    }
+
     return variedJet( newpt );
 }
 

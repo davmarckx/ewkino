@@ -9,7 +9,8 @@ sys.path.append('../Tools/python')
 import histtools as ht
 import plottools as pt
 
-def plotmultihistograms(histlist, figname=None, title=None, xaxtitle=None, yaxtitle=None,
+def plotmultihistograms(histlist, 
+	    figname=None, title=None, xaxtitle=None, yaxtitle=None,
 	    normalize=False, normalizefirst=False, 
 	    dolegend=True, labellist=None, 
 	    colorlist=None,
@@ -17,7 +18,8 @@ def plotmultihistograms(histlist, figname=None, title=None, xaxtitle=None, yaxti
 	    drawoptions='', 
 	    lumitext='', extracmstext = '',
 	    doratio=False, ratiorange=None, ylims=None, yminzero=False,
-	    extrainfos=[], infosize=None, infoleft=None, infotop=None ):
+	    extrainfos=[], infosize=None, infoleft=None, infotop=None,
+	    uncertainties=None ):
     ### plot multiple overlaying histograms (e.g. for shape comparison)
     # note: the ratio plot will show ratios w.r.t. the first histogram in the list!
     # arguments:
@@ -41,6 +43,8 @@ def plotmultihistograms(histlist, figname=None, title=None, xaxtitle=None, yaxti
     # - infosize: font size of extra info
     # - infoleft: left border of extra info text (default leftmargin + 0.05)
     # - infotop: top border of extra info text (default 1 - topmargin - 0.1)
+    # - uncertainties: list of TH1, same length as histlist, that contain the uncertainties.
+    #                  note: not yet supported with the normalization option!
 
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -102,6 +106,15 @@ def plotmultihistograms(histlist, figname=None, title=None, xaxtitle=None, yaxti
         for j in range(0,hist.GetNbinsX()+2):
             hist.SetBinContent(j,hist.GetBinContent(j)/scale)
             hist.SetBinError(j,hist.GetBinError(j)/scale)
+
+    ### style operations on uncertainty histograms
+    if uncertainties is not None:
+	for hist in uncertainties:
+	    if hist is not None:
+		hist.SetLineWidth(0)
+		hist.SetMarkerStyle(0)
+		hist.SetFillStyle(3254)
+		hist.SetFillColor(ROOT.kBlack)
 
     ### make ratio histograms
     ratiohistlist = []
@@ -198,6 +211,9 @@ def plotmultihistograms(histlist, figname=None, title=None, xaxtitle=None, yaxti
 
     # histograms
     histlist[0].Draw(drawoptions)
+    if uncertainties is not None:
+	for hist in uncertainties:
+	    if hist is not None: hist.Draw("same e2")
     for hist in histlist[1:]:
         hist.Draw("same "+drawoptions)
     if dolegend:
