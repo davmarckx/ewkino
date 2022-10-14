@@ -86,6 +86,7 @@ class TreeReader {
         Bool_t          _passTrigger_mt;
         Bool_t          _passTrigger_FR;
         Bool_t          _passTrigger_FR_iso;
+	Bool_t		_passTrigger_ref;
         Bool_t          _passMETFilters;
 	// variables related to leptons
         UInt_t          _nL;
@@ -327,6 +328,7 @@ class TreeReader {
 
         //check whether a particular trigger is present 
         bool containsTriggerInfo( const std::string& triggerPath ) const;
+	bool containsRefTriggerInfo() const;
 
         //check which year the current sample belongs to
         bool is2016() const;
@@ -459,6 +461,7 @@ class TreeReader {
         TBranch        *b__passTrigger_mt;
         TBranch        *b__passTrigger_FR;
         TBranch        *b__passTrigger_FR_iso;
+	TBranch	       *b__passTrigger_ref;
         TBranch        *b__passMETFilters;   
         TBranch        *b__nL;   
         TBranch        *b__nMu;   
