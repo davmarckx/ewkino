@@ -259,6 +259,11 @@ bool TreeReader::containsTriggerInfo( const std::string& triggerPath ) const{
 }
 
 
+bool TreeReader::containsRefTriggerInfo() const{
+    return containsTriggerInfo("passTrigger_ref");
+}
+
+
 bool TreeReader::isData() const{
     if( _currentSamplePtr ) return _currentSamplePtr->isData();
     else return !containsGeneratorInfo();
@@ -556,6 +561,13 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
     _currentTreePtr->SetBranchAddress("_passTrigger_mt", &_passTrigger_mt, &b__passTrigger_mt);
     _currentTreePtr->SetBranchAddress("_passTrigger_FR", &_passTrigger_FR, &b__passTrigger_FR);
     _currentTreePtr->SetBranchAddress("_passTrigger_FR_iso", &_passTrigger_FR_iso, &b__passTrigger_FR_iso);
+    if( !containsRefTriggerInfo() ){
+        std::string msg = "WARNING: input tree does not seem to contain reference trigger bool;";
+        msg.append( " will not read this trigger!" );
+        std::cerr << msg << std::endl;
+    } else{
+	_currentTreePtr->SetBranchAddress("_passTrigger_ref", &_passTrigger_ref, &b__passTrigger_ref);
+    }
     _currentTreePtr->SetBranchAddress("_passMETFilters", &_passMETFilters, &b__passMETFilters);
 
     _currentTreePtr->SetBranchAddress("_nL", &_nL, &b__nL);
@@ -836,6 +848,7 @@ void TreeReader::setOutputTree( TTree* outputTree,
     outputTree->Branch("_passTrigger_mt", &_passTrigger_mt, "_passTrigger_mt/O");
     outputTree->Branch("_passTrigger_FR", &_passTrigger_FR, "_passTrigger_FR/O");
     outputTree->Branch("_passTrigger_FR_iso", &_passTrigger_FR_iso, "_passTrigger_FR_iso/O");
+    outputTree->Branch("_passTrigger_ref", &_passTrigger_ref, "_passTrigger_ref/O");
     outputTree->Branch("_passMETFilters", &_passMETFilters, "_passMETFilters/O");
 
     outputTree->Branch("_nL",                           &_nL,                           "_nL/i");

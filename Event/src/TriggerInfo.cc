@@ -34,6 +34,9 @@ TriggerInfo::TriggerInfo( const TreeReader& treeReader, const bool readIndividua
     _passTriggers_FR_iso( treeReader._passTrigger_FR_iso ),
     _passMetFilters( treeReader._passMETFilters )
 {
+    if( treeReader.containsRefTriggerInfo() ){
+	_passTriggers_ref = treeReader._passTrigger_ref;
+    }
     if( readIndividualTriggers ){
         for( const auto& trigger : treeReader._triggerMap ){
             individualTriggerMap.insert( { cleanName( trigger.first ), trigger.second } );

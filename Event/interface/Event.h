@@ -150,6 +150,7 @@ class Event{
         bool passTriggers_mmm() const{ return _triggerInfoPtr->passTriggers_mmm(); }
         bool passTriggers_FR() const{ return _triggerInfoPtr->passTriggers_FR(); }
         bool passTriggers_FR_iso() const{ return _triggerInfoPtr->passTriggers_FR_iso(); }
+	bool passTriggers_ref() const{ return _triggerInfoPtr->passTriggers_ref(); }
         bool passMetFilters() const{ return _triggerInfoPtr->passMetFilters(); }
         bool passTrigger( const std::string& triggerName ) const{ return _triggerInfoPtr->passTrigger( triggerName ); }
         bool passMetFilter( const std::string& filterName ) const{ return _triggerInfoPtr->passMetFilter( filterName ); }
