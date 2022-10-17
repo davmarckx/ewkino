@@ -10,6 +10,8 @@
 # import python library classes 
 import os
 import sys
+import fnmatch
+import argparse
 
 # import other parts of code 
 from jobSubmission import submitQsubJob, initializeJobScript
@@ -45,89 +47,77 @@ def sampleName( directory_name ):
     # note: naming convention depends on skimTuples.py / skimTuplesFromList.py
     # for simulation, the part between "ntuples_skimmed_" and "_version_" is used as sample name;
     # for data, it is extended by an era identifier. 
-    sample_name = directory_name.split( 'ntuples_skimmed_' )[-1]
-    [sample_name, version] = sample_name.split( '_version_' )
+    sample_name = directory_name.replace( 'ntuples_skimmed_','' )
+    if('_version_' in sample_name): [sample_name, version] = sample_name.split( '_version_' )
+    elif('_crab_' in sample_name): [sample_name, version] = sample_name.split( '_crab_' )
+    else: raise Exception('ERROR in sampleName:'
+           +' unrecognized folder structure: {}.'.format(sample_name))
     # in case of simulation: return current sample name
     if not sampleNameIsData(sample_name): return sample_name
     # in case of data: append era identifier
     idx = version.find('Run')
     era = version[idx:idx+8]
+    if 'HIPM' in version: era += '_HIPM'
     sample_name = sample_name+'_'+era
     return sample_name
 
 
-def mergeCommand( sample_directory, output_file ):
-    # make the merge command (i.e. simple hadd command)
-    # input arguments:
-    # - sample_directory: directory containing root files for one sample
-    #                     (the files are assumed to be one level down)
-    # - output_file: path to the output root file
-    output_directory = os.path.dirname( output_file )
-    if not os.path.exists( output_directory ):
-        os.makedirs( output_directory )
-    mergeCommand = 'hadd {} {}'.format( output_file, '{}/*root'.format( sample_directory ) )
-    return mergeCommand 
-
-
-def mergeSample( sample_directory, output_file, runmode='condor', rmunmerged=False ):
-    # submit a merging job for one sample
-    # input arguments:
-    # - sample_directory: directory containing root files for one sample
-    #                     (the files are assumed to be one level down)
-    # - output_file: path to the output root file
-    # - runmode: either "condor", "qsub" or "local"
-    # - rmunmerged: remove the unmerged sample directory
-    cmds = []
-    cmds.append( mergeCommand( sample_directory, output_file ) )
-    if rmunmerged: cmds.append( 'rm -r {}'.format( sample_directory ) )
-    if runmode=='local':
-	for cmd in cmds: os.system(cmd)
-    elif runmode=='qsub':
-	script_name = 'qjob_mergedTuples.sh'
-	with open( script_name, 'w' ) as script:
-	    initializeJobScript( script )
-	    for cmd in cmds: script.write( cmd )
-	submitQsubJob( script_name )
-    elif runmode=='condor':
-	ct.submitCommandsAsCondorJob( 'cjob_mergeTuples', cmds,
-				      cmssw_version=CMSSW_VERSION )
-
 if __name__ == '__main__':
 
-    # read command line arguments
-    if len( sys.argv ) != 3:
-        print( 'Error: mergeTuples requires additional command-line arguments.' )
-        print( 'Use with the following arguments:') 
-	print( '- input directory' )
-	print( '- output_directory' )
-        print( 'where the input directory should be the directory'
-		+' which contains the unmerged samples as subdirectories' )
-        sys.exit()
-    input_directory = sys.argv[1]
-    output_directory = sys.argv[2]
+  # parse arguments
+  parser = argparse.ArgumentParser('Merge tuples')
+  parser.add_argument('--inputdir', required=True, type=os.path.abspath)
+  parser.add_argument('--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('--include_recovery', default=False )
+  parser.add_argument('--runmode', default='condor', choices=['condor','local'])
+  parser.add_argument('--searchkey', default=None)
+  args = parser.parse_args()
 
-    # other arguments (hard-coded for now)
-    runmode = 'condor'
-    rmunmerged = False
+  # print arguments
+  print('Running with following configuration:')
+  for arg in vars(args):
+    print('  - {}: {}'.format(arg,getattr(args,arg)))
 
-    # define the samples to merge
-    inputdirs = []
-    outputfiles = []
-    for sample_directory in listSkimmedSampleDirectories( input_directory ):
-	inputdir = os.path.join( input_directory, sample_directory )
-	outputfile = os.path.join( output_directory, sampleName(sample_directory)+'.root' )
-	inputdirs.append( inputdir )
-	outputfiles.append( outputfile )
+  # argument checks and parsing
+  if not os.path.exists(args.inputdir):
+    raise Exception('ERROR: input directory {} does not exist.'.format(args.inputdir))
+  if os.path.exists(args.outputdir):
+    raise Exception('ERROR: output directory {} already exists.'.format(args.outputdir))
 
-    # print before continuing
-    print('found following tuples to merge:')
-    for inputdir, outputfile in zip(inputdirs, outputfiles):
-	print('{} --> {}'.format(inputdir,outputfile))
-    print('continue? (y/n)')
-    go = raw_input()
-    if go!='y': sys.exit()
+  # define the samples to merge
+  mergedict = {}
+  # loop over all directories in the provided top directory
+  #for sample_directory in listSkimmedSampleDirectories( args.inputdir ):
+  for sample_directory in os.listdir( args.inputdir ):
+    # check if this sample should be taken into account
+    if args.searchkey is not None:
+      if not fnmatch.fnmatch(sample_directory,args.searchkey): continue
+    # make corresponding full path and output file
+    inputdir = os.path.join( args.inputdir, sample_directory )
+    outputfile = os.path.join( args.outputdir, sampleName(sample_directory)+'.root' )
+    # if requested: remove the 'recoveryTask' identifier
+    # (this will have the effect that the original and recovery will be merged together)
+    if( args.include_recovery ): outputfile.replace('recoveryTask','')
+    # add to the merging dict
+    if( outputfile in mergedict.keys() ): mergedict[outputfile].append(inputdir)
+    else: mergedict[outputfile] = [inputdir]
 
-    # continue with the submission
-    for inputdir, outputfile in zip(inputdirs, outputfiles):
-        mergeSample( inputdir, outputfile,
-			runmode=runmode, rmunmerged=rmunmerged )
+  # print before continuing
+  print('Found following tuples to merge:')
+  for key, val in sorted(mergedict.items()):
+    for el in val: print(' - {}'.format(el))
+    print('  --> {}'.format(key))
+  print('Continue? (y/n)')
+  go = raw_input()
+  if go!='y': sys.exit()
+
+  # continue with the submission
+  for outputfile, inputdirs in mergedict.items():
+    cmd = 'hadd'
+    cmd += ' {}'.format(outputfile)
+    for inputdir in inputdirs: cmd += ' {}'.format(os.path.join(inputdir,'*.root'))
+    outputdir = os.path.dirname(outputfile)
+    if not os.path.exists(outputdir): os.makedirs(outputdir)
+    if args.runmode=='local': os.system(cmd)
+    elif args.runmode=='condor':
+      ct.submitCommandAsCondorJob('cjob_mergeTuples', cmd, cmssw_version=CMSSW_VERSION)
