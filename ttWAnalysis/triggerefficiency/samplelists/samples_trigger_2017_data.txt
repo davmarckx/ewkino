@@ -1,0 +1,8 @@
+# samples located in /pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw
+
+data  Merged_Run2017B.root
+data  Merged_Run2017C.root
+data  Merged_Run2017D.root
+data  Merged_Run2017E.root
+data  Merged_Run2017F.root
+data  Merged_Run2017.root

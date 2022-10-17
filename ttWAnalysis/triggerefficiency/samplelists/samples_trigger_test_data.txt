@@ -1,0 +1,6 @@
+# one sample from each year for testing purposes
+
+data  Merged_Run2016PreVFP.root
+data  Merged_Run2016PostVFP.root
+data  Merged_Run2017.root
+data  Merged_Run2018.root

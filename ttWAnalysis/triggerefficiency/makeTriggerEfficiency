@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed,-lTMVA
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= triggerefficiency.cc ../eventselection/src/eventSelections.cc ../eventselection/src/eventFlattening.cc ../../codeLibrary.o 
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=triggerefficiency
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+
+clean:
+	rm -rf *o $(EXECUTABLE)
