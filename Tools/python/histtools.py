@@ -12,22 +12,28 @@ import listtools as lt
 
 ### histogram reading and loading ###
 
-def loadallhistograms(histfile):
+def loadallhistograms(histfile, allow_tgraphs=False, suppress_warnings=False):
     ### read a root file containing histograms and load all histograms to a list
     f = ROOT.TFile.Open(histfile)
     histlist = []
     keylist = f.GetListOfKeys()
     for key in keylist:
         hist = f.Get(key.GetName())
-        # check if histogram is readable
-        try:
-            nentries = hist.GetEntries()
-            nbins = hist.GetNbinsX()
-            hist.SetDirectory(ROOT.gROOT)
-        except:
-            print('### WARNING ###: key "'+str(key.GetName())+'" does not correspond to valid hist.')
-            continue
+        # check the object type
+        ishist = ( isinstance(hist,ROOT.TH1)
+                   or isinstance(hist,ROOT.TH2) )
+        isgraph = ( isinstance(hist,ROOT.TGraph) )
+	if not suppress_warnings:
+	    if( not allow_tgraphs and not ishist ):
+		print('WARNING in histtools.loadallhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram.')
+                continue
+            if( allow_tgraphs and not (ishist or isgraph) ):
+		print('WARNING in histtools.loadallhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
+                continue
 	hist.SetName(key.GetName())
+	if ishist: hist.SetDirectory(ROOT.gROOT)
 	histlist.append(hist)
     f.Close()
     return histlist
