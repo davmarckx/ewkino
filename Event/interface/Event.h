@@ -66,7 +66,8 @@ class Event{
 	    return (*_jetCollectionPtr)[ jetIndex ]; }
 
 
-        void sortLeptonsByPt() const{ _leptonCollectionPtr->sortByPt(); }
+        void sortLeptonsByPt( bool useConeCorrectedPt=true ) const{ 
+	    _leptonCollectionPtr->sortByPt( useConeCorrectedPt ); }
         void sortJetsByPt() const{ _jetCollectionPtr->sortByPt(); }
 
         unsigned numberOfVertices() const{ return _numberOfVertices; }
