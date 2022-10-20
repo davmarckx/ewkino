@@ -1,9 +1,9 @@
 CC=g++ -Wall -Wextra -O3
 CFLAGS= -Wl,--no-as-needed,-lTMVA
 LDFLAGS=`root-config --glibs --cflags`
-SOURCES= triggerefficiency.cc ../eventselection/src/eventSelections.cc ../eventselection/src/eventFlattening.cc ../../codeLibrary.o 
+SOURCES= filltrigger2d.cc src/triggerTools.cc ../eventselection/src/eventSelections.cc ../eventselection/src/eventFlattening.cc ../../codeLibrary.o 
 OBJECTS=$(SOURCES:.cc=.o)
-EXECUTABLE=triggerefficiency
+EXECUTABLE=filltrigger2d
 
 all: 
 	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)

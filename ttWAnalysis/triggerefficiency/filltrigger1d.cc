@@ -2,108 +2,8 @@
 // It is supposed to run on the output file of a skimming procedure
 // and produce a root file containing a histogram of trigger efficiencies.
 
-// inlcude c++ library classes
-#include <string>
-#include <vector>
-#include <exception>
-#include <iostream>
-
-// include ROOT classes 
-#include "TH1D.h"
-#include "TFile.h"
-#include "TTree.h"
-#include "TGraphAsymmErrors.h"
-
-// include other parts of framework
-#include "../../TreeReader/interface/TreeReader.h"
-#include "../../Tools/interface/stringTools.h"
-#include "../../Tools/interface/HistInfo.h"
-#include "../../Tools/interface/rootFileTools.h"
-#include "../../Tools/interface/variableTools.h"
-#include "../../Tools/interface/histogramTools.h"
-#include "../../Event/interface/Event.h"
-#include "../../weights/interface/ConcreteReweighterFactory.h"
-#include "../eventselection/interface/eventSelections.h"
-#include "../eventselection/interface/eventFlattening.h"
-
-
-std::vector<double> ptThresholds( const std::string& id ){
-    // return a vector of lepton pt thresholds
-    // to be extended for ttW measurement
-    std::vector<double> defaultres = {0.};
-    if( id=="tzq" ){ return {25., 15., 10.}; }
-    else if( id=="ttz" ){ return {40., 20., 10.}; }
-    else if( id=="ttwdilep" ){ return {25., 15.}; } // just placeholder values for now
-    else if( id=="ttwtrilep"){ return {25., 15., 10.}; } // just placeholder values for now
-    else{ return defaultres; }
-}
-
-bool passPtThresholds( const std::vector<double>& pts, const std::vector<double>& thresholds ){
-    // determine whether a given vector of pts passes a given vector of thresholds.
-    // note that both are implicitly assumed to be sorted (in the same way)!
-    unsigned ptssize = pts.size();
-    unsigned thresholdssize = thresholds.size();
-    if( ptssize!=thresholdssize ){
-	std::string msg = "ERROR: vectors of pTs and corresponding pT thresholds";
-	msg.append( " have different lengths." );
-	throw std::runtime_error( msg );
-    }
-    for( unsigned i=0; i<ptssize; i++ ){
-	if( pts[i]<thresholds[i] ){ return false; }
-    }
-    return true;
-}
-
-bool passTriggersRef( const Event& event ){
-    // check whether an event passes reference triggers.
-    // should be equivalent to event.passTriggers_ref(),
-    // but the underlying ntuplizer variable is not in current skimmed samples...
-    // see https://github.com/GhentAnalysis/heavyNeutrino/blob/
-    //     UL_master/multilep/src/TriggerAnalyzer.cc
-    std::vector<std::string> triggerNames;
-    if( event.is2018() ){
-	triggerNames = { "HLT_CaloMET350_HBHECleaned", 
-			 "HLT_CaloJet500_NoJetID", 
-			 "HLT_AK8PFJet500", 
-			 "HLT_AK8PFJet400_TrimMass30",
-			 "HLT_DiJet110_35_Mjj650_PFMET110", 
-			 "HLT_PFHT800_PFMET75_PFMHT75_IDTight", 
-			 "HLT_PFHT700_PFMET85_PFMHT85_IDTight",
-                         "HLT_PFHT500_PFMET100_PFMHT100_IDTight", 
-			 "HLT_PFHT1050", 
-			 "HLT_PFJet500", 
-			 "HLT_PFMET120_PFMHT120_IDTight", 
-			 "HLT_PFMET250_HBHECleaned", 
-			 "HLT_PFMET200_HBHE_BeamHaloCleaned", 
-			 "HLT_PFMETTypeOne140_PFMHT140_IDTight",
-                         "HLT_PFMETTypeOne200_HBHE_BeamHaloCleaned", 
-			 "HLT_TripleJet110_35_35_Mjj650_PFMET110" };
-    } else if( event.is2017() ){
-	triggerNames = { "HLT_PFJet500", 
-			 "HLT_PFMET140_PFMHT140_IDTight", 
-			 "HLT_PFHT500_PFMET100_PFMHT100_IDTight",
-                         "HLT_PFHT700_PFMET85_PFMHT85_IDTight", 
-			 "HLT_PFHT800_PFMET75_PFMHT75_IDTight", 
-			 "HLT_CaloJet500_NoJetID",
-                         "HLT_AK8PFJet500" };
-    } else{
-	triggerNames = { "HLT_MET200", 
-			 "HLT_PFMET300", 
-			 "HLT_PFMET170_HBHECleaned", 
-			 "HLT_PFMET120_PFMHT120_IDTight",
-                         "HLT_PFHT300_PFMET110", 
-			 "HLT_PFHT350_DiPFJetAve90_PFAlphaT0p53", 
-			 "HLT_PFHT400_DiPFJetAve90_PFAlphaT0p52",
-                         "HLT_PFHT400_SixJet30_DoubleBTagCSV_p056", 
-			 "HLT_PFHT900", 
-			 "HLT_PFHT650_WideJetMJJ900DEtaJJ1p5", 
-			 "HLT_CaloJet500_NoJetID" };
-    }
-    for( std::string triggerName: triggerNames ){
-	if( event.passTrigger(triggerName) ) return true;
-    }
-    return false;
-}
+// include tools
+#include "interface/triggerTools.h"
 
 std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms( 
 	const std::string& prefix,
@@ -128,18 +28,17 @@ void fillEvent(const Event& event, double weight,
 		std::map<std::string,std::shared_ptr<TH1D>> histMap){
     // do all calculations and set variables locally.
     // make sure the naming convention in 'allvars' matches the one in 'variables'!
-    std::vector<double> recopt;
-    for( auto lepton: event.leptonCollection() ){
-	recopt.push_back(lepton->uncorrectedPt());
-    }
-    std::sort(recopt.begin(),recopt.end(),std::greater<double>());
+    event.sortLeptonsByPt(false);
     std::map< std::string,double > allvars;
     allvars["leptonptleading"] = 0;
     allvars["leptonptsubleading"] = 0;
     allvars["leptonpttrailing"] = 0;
-    if( recopt.size()>0 ) allvars["leptonptleading"] = recopt[0];
-    if( recopt.size()>1 ) allvars["leptonptsubleading"] = recopt[1];
-    if( recopt.size()>2 ) allvars["leptonpttrailing"] = recopt[2];
+    if( event.leptonCollection().size()>0 ){ 
+	allvars["leptonptleading"] = event.leptonCollection()[0].uncorrectedPt(); }
+    if( event.leptonCollection().size()>1 ){
+	allvars["leptonptsubleading"] = event.leptonCollection()[1].uncorrectedPt(); }
+    if( event.leptonCollection().size()>2 ){
+	allvars["leptonpttrailing"] = event.leptonCollection()[2].uncorrectedPt(); }
     allvars["yield"] = 0.5;
     // fill denominator
     for(unsigned i=0; i<variables.size(); ++i){
@@ -288,22 +187,26 @@ void fillTriggerEfficiencyHistograms(
 
 	// additional selection: reco pt cuts
 	if(std::find(selectionTags.begin(),selectionTags.end(),"recoptcuts")!=selectionTags.end()){
+	    event.sortLeptonsByPt(false);
 	    std::vector<double> recopt;
+	    std::string flavourStr = triggerTools::getFlavourString(event);
 	    for( auto lepton: event.leptonCollection() ){
 		recopt.push_back(lepton->uncorrectedPt());
 	    }
-	    std::sort(recopt.begin(),recopt.end(),std::greater<double>());
-	    if( !passPtThresholds( recopt, ptThresholds(ptThresholdId) )) continue;
+	    if( !triggerTools::passPtThresholds( recopt, 
+		triggerTools::ptThresholds(ptThresholdId,flavourStr) )) continue;
 	}
 
 	// additional selection: cone pt cuts
 	if(std::find(selectionTags.begin(),selectionTags.end(),"coneptcuts")!=selectionTags.end()){
 	    event.sortLeptonsByPt();
 	    std::vector<double> conept;
+	    std::string flavourStr = triggerTools::getFlavourString(event);
 	    for( auto lepton: event.leptonCollection() ){
                 conept.push_back(lepton->pt());
 	    }
-	    if( !passPtThresholds( conept, ptThresholds(ptThresholdId) )) continue;
+	    if( !triggerTools::passPtThresholds( conept, 
+		triggerTools::ptThresholds(ptThresholdId,flavourStr) )) continue;
 	}
 
 	double weight = event.weight();
@@ -312,7 +215,7 @@ void fillTriggerEfficiencyHistograms(
 	    // builtin reference trigger boolean (not present in current samples)
             //bool passreftrigger = event.passTriggers_ref();
 	    // equivalent alternative: custom function checking individual triggers
-	    bool passreftrigger = passTriggersRef(event);
+	    bool passreftrigger = triggerTools::passTriggersRef(event);
             if(!passreftrigger) continue;
             std::tuple<long,long,long> evtid = std::make_tuple(event.runNumber(), 
 						event.luminosityBlock(),
@@ -415,7 +318,7 @@ int main( int argc, char* argv[] ){
     std::cerr << "###starting###" << std::endl;
     int nargs = 5;
     if( argc != nargs+1 ){
-        std::cerr << "ERROR: triggerefficiency.cc requires " << nargs << " arguments: " << std::endl;
+        std::cerr << "ERROR: filltrigger1d.cc requires " << nargs << " arguments: " << std::endl;
         std::cerr << "- path to input file" << std::endl;
 	std::cerr << "- path to output file" << std::endl;
 	std::cerr << "- event selection" << std::endl;

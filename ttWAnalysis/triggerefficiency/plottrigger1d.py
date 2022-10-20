@@ -1,7 +1,6 @@
-###################################################################
-# merge and plot the output of the trigger efficiency measurement #
-###################################################################
-# note: proper merging depends on file naming and structuring conventions.
+#########################################################
+# plot the output of the trigger efficiency measurement #
+#########################################################
 
 import os
 import sys
@@ -48,8 +47,6 @@ if __name__=='__main__':
   # parse arguments
   parser = argparse.ArgumentParser('Plot results of trigger efficiency measurement')
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--skipmerge', action='store_true')
-  parser.add_argument('--skipplot', action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -61,19 +58,17 @@ if __name__=='__main__':
   if not os.path.exists(args.inputdir):
     raise Exception('ERROR: input directory {} does not exist.'.format(args.inputdir))
 
-  # first find directories to run on
-  directories = []
+  # first find files to run on
+  mergedfilename = 'combined_trigger_histograms.root'
+  mergedfiles = []
   for root,dirs,files in os.walk(args.inputdir):
-    for dirname in dirs:
-      contents = os.listdir(os.path.join(root,dirname))
-      if( 'sim' in contents and 'data' in contents ):
-        directories.append(os.path.join(root,dirname))
+    for f in files:
+      if( f==mergedfilename ):
+        mergedfiles.append(os.path.join(root,f))
 
-  # loop over all directories
-  for directory in directories:
-    # define the merged file containing all histograms to plot
-    mergedfilename = 'combined_trigger_histograms.root'
-    mergedfilepath = os.path.join(directory,mergedfilename)
+  # loop over all files
+  for mergedfilepath in mergedfiles:
+    directory = os.path.dirname(mergedfilepath)
     figdir = os.path.join(directory,'plots')
     if not os.path.exists(figdir): os.makedirs(figdir)
 
@@ -84,48 +79,35 @@ if __name__=='__main__':
     elif '2017' in directory: year = '2017'
     elif '2018' in directory: year = '2018'
 
-    # do merging if requested
-    if not args.skipmerge:
-      if os.path.exists(mergedfilepath): os.system('rm '+mergedfilepath)
-      datadir = os.path.join(directory,'data')
-      simdir = os.path.join(directory,'sim')
-      datafiles = [os.path.join(datadir,f) for f in os.listdir(datadir) if f[-5:]=='.root']
-      simfiles = [os.path.join(simdir,f) for f in os.listdir(simdir) if f[-5:]=='.root']
-      command = 'hadd '+mergedfilepath
-      for f in datafiles+simfiles:
-        command += ' '+os.path.join(f)
-      os.system(command)
-
-    # plotting
-    if not args.skipplot:
-      variables = [
+    # set variables
+    variables = [
         {'name':'leptonptleading','xaxtitle':r'lepton p_{T}^{leading} (GeV)'},
         {'name':'leptonptsubleading','xaxtitle':r'lepton p_{T}^{subleading} (GeV)'},
         {'name':'leptonpttrailing','xaxtitle':r'lepton p_{T}^{trailing} (GeV)'},
         {'name':'yield','xaxtitle':r'total efficiency'}
-      ]
-      objlist = ht.loadallhistograms(mergedfilepath, allow_tgraphs=True)
-      for variable in variables:
-        simgraphlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_eff'])[1]
-        datagraphlist = ht.selecthistograms(objlist,mustcontainall=['Run201',variable['name']+'_eff'])[1]
-        simhistlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_tot'])[1]
-        datahistlist = ht.selecthistograms(objlist,mustcontainall=['Run201',variable['name']+'_tot'])[1]
-	# make sure the order in datagraphlist and datahistlist corresponds
-        datagraphlist.sort(key = lambda x: x.GetName())
-        datahistlist.sort(key = lambda x: x.GetName())
-        # check number of simulation contributions
-        if len(simgraphlist)!=1:
-          raise Exception('ERROR: wrong number of simulated efficiency graphs.')
-        if len(simhistlist)!=1:
-          raise Exception('ERROR: wrong number of simulated efficiency hists.')
-	# set plot properties
-        yaxtitle = 'Trigger efficiency'
-        xaxtitle = variable['xaxtitle']
-        lumi = lumidict[year]
-        datacolorlist = [getcolor(graph,'singleyear') for graph in datagraphlist]
-        datalabellist = [formathistname(graph.GetName()) for graph in datagraphlist]
-        figname = os.path.join(directory,'plots',variable['name']+'.png')
-        plotefficiencies( datagraphlist, figname, 
+    ]
+    objlist = ht.loadallhistograms(mergedfilepath, allow_tgraphs=True)
+    for variable in variables:
+      simgraphlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_eff'])[1]
+      datagraphlist = ht.selecthistograms(objlist,mustcontainall=['Run201',variable['name']+'_eff'])[1]
+      simhistlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_tot'])[1]
+      datahistlist = ht.selecthistograms(objlist,mustcontainall=['Run201',variable['name']+'_tot'])[1]
+      # make sure the order in datagraphlist and datahistlist corresponds
+      datagraphlist.sort(key = lambda x: x.GetName())
+      datahistlist.sort(key = lambda x: x.GetName())
+      # check number of simulation contributions
+      if len(simgraphlist)!=1:
+        raise Exception('ERROR: wrong number of simulated efficiency graphs.')
+      if len(simhistlist)!=1:
+        raise Exception('ERROR: wrong number of simulated efficiency hists.')
+      # set plot properties
+      yaxtitle = 'Trigger efficiency'
+      xaxtitle = variable['xaxtitle']
+      lumi = lumidict[year]
+      datacolorlist = [getcolor(graph,'singleyear') for graph in datagraphlist]
+      datalabellist = [formathistname(graph.GetName()) for graph in datagraphlist]
+      figname = os.path.join(figdir,variable['name']+'.png')
+      plotefficiencies( datagraphlist, figname, 
 			  datahistlist=datahistlist, 
 			  datacolorlist=datacolorlist,
                           datalabellist=datalabellist,

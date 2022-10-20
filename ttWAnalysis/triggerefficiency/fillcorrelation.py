@@ -1,6 +1,6 @@
-####################################################
-# Submit the triggerefficiency executable as a job #
-####################################################
+#######################################################
+# Submit the trigger correlation measurement as a job #
+#######################################################
 
 import sys
 import os
@@ -18,8 +18,6 @@ if __name__=='__main__':
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--event_selection', required=True )
-  parser.add_argument('--pt_threshold_id', required=True )
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
@@ -41,7 +39,7 @@ if __name__=='__main__':
     os.system('rm -r '+args.outputdir)
 
   # check if executable is present
-  exe = './triggerefficiency'
+  exe = './fillcorrelation'
   if not os.path.exists(exe):
     raise Exception('ERROR: {} executable was not found.'.format(exe))
 
@@ -61,13 +59,12 @@ if __name__=='__main__':
   for inputfile in inputfiles:
     output_file_name = inputfile.split('/')[-1].rstrip('.root')+'_trigger_histograms.root'
     output_file_path = os.path.join(args.outputdir,output_file_name)
-    command = '{} {} {} {} {} {}'.format(exe, inputfile, output_file_path, 
-              args.event_selection, args.pt_threshold_id, args.nevents)
+    command = '{} {} {} {}'.format(exe, inputfile, output_file_path, args.nevents)
     commands.append(command)
 
   # run jobs
   if args.runmode=='local':
     for cmd in commands: os.system(cmd)
   elif args.runmode=='condor':
-    ct.submitCommandsAsCondorCluster( 'cjob_triggerefficiency', commands,
+    ct.submitCommandsAsCondorCluster( 'cjob_triggercorrelation', commands,
                                       cmssw_version=CMSSW_VERSION )
