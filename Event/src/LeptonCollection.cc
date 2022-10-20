@@ -417,3 +417,15 @@ LeptonCollection LeptonCollection::electronResUpCollection() const{
     return buildVariedElectronCollection( &Electron::electronResUp );
 }
 
+// sorting
+void LeptonCollection::sortByPt( bool useConeCorrectedPt ){
+    if( useConeCorrectedPt ){
+	return sortByAttribute( [](const std::shared_ptr< Lepton >& lhs, 
+				   const std::shared_ptr< Lepton >& rhs){ 
+	    return lhs->pt() > rhs->pt(); } ); 
+    } else{
+	return sortByAttribute( [](const std::shared_ptr< Lepton >& lhs, 
+                                   const std::shared_ptr< Lepton >& rhs){ 
+            return lhs->uncorrectedPt() > rhs->uncorrectedPt(); } );
+    }
+}
