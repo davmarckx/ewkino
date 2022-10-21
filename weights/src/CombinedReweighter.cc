@@ -47,6 +47,17 @@ void CombinedReweighter::eraseReweighter( const std::string& name ){
 
 // get a specific reweighter
 
+bool CombinedReweighter::hasReweighter( const std::string& name ) const{
+    if( reweighterMap.find( name )!=reweighterMap.end() ) return true;
+    return false;   
+}
+
+std::vector<std::string> CombinedReweighter::getReweighterNames() const{
+    std::vector<std::string> res;
+    for(auto el: reweighterMap){ res.push_back( el.first ); }
+    return res;
+}
+
 const Reweighter* CombinedReweighter::operator[]( const std::string& name ) const{
     auto it = findAndCheckReweighter( name, reweighterMap );
     return it->second.get();
