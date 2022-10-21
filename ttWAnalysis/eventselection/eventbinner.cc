@@ -26,19 +26,6 @@
 #include "interface/eventFlattening.h"
 
 
-double getVarValue(const std::string varname, std::map<std::string,double> varmap){
-    // retrieve a value from a map of all variables associated to the event
-    std::string modvarname = stringTools::removeOccurencesOf(varname,"fineBinned");
-    modvarname = stringTools::removeOccurencesOf(modvarname,"coarseBinned");
-    modvarname = stringTools::removeOccurencesOf(modvarname,"smallRange");
-    modvarname = stringTools::removeOccurencesOf(modvarname,"altBinned");
-    // find this variable in the list of available variables
-    std::map<std::string,double>::iterator it = varmap.find(modvarname);
-    if(it == varmap.end()) return -9999; 
-    else return it->second;
-}
-
-
 std::map< std::string,std::map< std::string,std::shared_ptr<TH1D>> > initHistMap(
 				const std::vector<HistogramVariable> histvars,
 				const std::string processName,
@@ -95,13 +82,6 @@ void fillHistograms(const std::string& inputDirectory,
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();
     std::string processName = treeReader.currentSample().processName();
-
-    // make flat vector of variable names (often more convenient then argument structure)
-    std::vector<std::string> variables;
-    for(unsigned int i=0; i<histvars.size(); ++i){
-	std::string variable = histvars[i].name();
-	variables.push_back(variable);
-    }
 
     // load fake rate maps if needed
     std::shared_ptr<TH2D> frmap_muon;
@@ -163,9 +143,11 @@ void fillHistograms(const std::string& inputDirectory,
 		    std::cout << reweighter["pileup"]->weight(event) << std::endl;*/
 	    
 		    double weight = varmap["_normweight"];
-		    for(std::string variable : variables){
-			histogram::fillValue(histMap[instanceName][variable].get(),
-				    getVarValue(variable,varmap), weight);
+		    for(HistogramVariable histVar: histvars){
+			std::string variableName = histVar.name();
+			std::string variable = histVar.variable();
+			histogram::fillValue( histMap.at(instanceName).at(variableName).get(),
+				              varmap.at(variable), weight);
 		    }
 		}
 	    } // end loop over selection types
@@ -181,14 +163,15 @@ void fillHistograms(const std::string& inputDirectory,
 	for(std::string st: selection_types){
 	    std::string instanceName = es+"_"+st;
 	    // loop over variables
-	    for(std::string variable : variables){
+	    for(HistogramVariable histVar: histvars){
+		std::string variableName = histVar.name();
 		// fine binned histograms and fake rate histograms should not be clipped,
 		// as negative values are allowed at this stage.
 		bool doClip = true;
-		if( stringTools::stringContains(variable,"fineBinned") ) doClip = false;
+		if( stringTools::stringContains(variableName,"fineBinned") ) doClip = false;
 		if( st == "fakerate") doClip = false;
 		// find the histogram for this variable
-		std::shared_ptr<TH1D> hist = histMap[instanceName][variable];
+		std::shared_ptr<TH1D> hist = histMap[instanceName][variableName];
 		// if histogram is empty, fill with dummy value (needed for combine);
 		if( hist->GetEntries()==0 ){
 		    hist->SetBinContent(1,1e-6); 
@@ -254,9 +237,14 @@ int main( int argc, char* argv[] ){
 
     // check variables
     std::map<std::string,double> emptymap = eventFlattening::initVarMap();
-    for(unsigned int i=0; i<histvars.size(); ++i){
-        std::string varname = histvars[i].name();
-        if(getVarValue(varname,emptymap)==-9999) return -1;
+    for(HistogramVariable histVar: histvars){
+	std::string variableName = histVar.name();
+        std::string variable = histVar.variable();
+        if( emptymap.find(variable)==emptymap.end() ){
+	    std::string msg = "ERROR: variable "+variable+" ("+variableName+")";
+	    msg.append(" not recognized.");
+	    throw std::invalid_argument(msg);
+	}
     }
 
     // fill the histograms

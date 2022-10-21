@@ -239,6 +239,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_numberOfVertices"] = event.numberOfVertices();
 
     // event weight
+    varmap["_weight"] = event.weight();
     varmap["_normweight"] = event.weight();
     if(event.isMC()){ 
 	varmap["_normweight"] *= reweighter.totalWeight(event);
