@@ -11,7 +11,17 @@ class GeneratorInfo{
         GeneratorInfo( const TreeReader& );
 
         unsigned numberOfLheWeights() const{ return _numberOfLheWeights; }
-        double relativeWeightScaleVar( const unsigned scaleIndex ) const;
+	unsigned firstScaleIndex() const{ return _firstScaleIndex; }
+	unsigned numberOfScaleVariations() const{ return _numberOfScaleVariations; }
+	unsigned firstPdfIndex() const{ return _firstPdfIndex; }
+	unsigned numberOfPdfVariations() const{ return _numberOfPdfVariations; }
+
+	        
+	double relativeWeightScaleVar( const unsigned scaleIndex ) const;
+	// for the number and order of the weights,
+        // see the ntuplizer: https://github.com/GhentAnalysis/heavyNeutrino/blob/UL_master/multilep/src/LheAnalyzer.cc,
+        // and here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HowToPDF.
+	// note: make sure to synchronize with Tools/interface/SampleCrossSections!
         double relativeWeight_MuR_1_MuF_1() const{ return relativeWeightScaleVar( 0 ); }
         double relativeWeight_MuR_1_MuF_2() const{ return relativeWeightScaleVar( 1 ); }
         double relativeWeight_MuR_1_MuF_0p5() const{ return relativeWeightScaleVar( 2 ); }
@@ -26,18 +36,22 @@ class GeneratorInfo{
 
         unsigned numberOfPsWeights() const{ return _numberOfPsWeights; }
         double relativeWeightPsVar( const unsigned psIndex ) const;
-        double relativeWeight_ISR_InverseSqrt2() const{ return relativeWeightPsVar( 2 ); }
-        double relativeWeight_FSR_InverseSqrt2() const{ return relativeWeightPsVar( 3 ); }
-        double relativeWeight_ISR_Sqrt2() const{ return relativeWeightPsVar( 4 ); }
-        double relativeWeight_FSR_Sqrt2() const{ return relativeWeightPsVar( 5 ); }
-        double relativeWeight_ISR_0p5() const{ return relativeWeightPsVar( 6 ); }
-        double relativeWeight_FSR_0p5() const{ return relativeWeightPsVar( 7 ); }
-        double relativeWeight_ISR_2() const{ return relativeWeightPsVar( 8 ); }
-        double relativeWeight_FSR_2() const{ return relativeWeightPsVar( 9 ); }
-        double relativeWeight_ISR_0p25() const{ return relativeWeightPsVar( 10 ); }
-        double relativeWeight_FSR_0p25() const{ return relativeWeightPsVar( 11 ); }
-        double relativeWeight_ISR_4() const{ return relativeWeightPsVar( 12 ); }
-        double relativeWeight_FSR_4() const{ return relativeWeightPsVar( 13 ); }
+	// for the number and order of the weights,
+        // see the ntuplizer: https://github.com/GhentAnalysis/heavyNeutrino/blob/UL_master/multilep/src/LheAnalyzer.cc,
+        // and here: https://twiki.cern.ch/twiki/bin/viewauth/CMS/HowToPDF.
+	// note: make sure to synchronize with Tools/interface/SampleCrossSections!
+        double relativeWeight_ISR_InverseSqrt2() const{ return relativeWeightPsVar( 24 ); }
+        double relativeWeight_FSR_InverseSqrt2() const{ return relativeWeightPsVar( 2 ); }
+        double relativeWeight_ISR_Sqrt2() const{ return relativeWeightPsVar( 25 ); }
+        double relativeWeight_FSR_Sqrt2() const{ return relativeWeightPsVar( 3 ); }
+        double relativeWeight_ISR_0p5() const{ return relativeWeightPsVar( 26 ); }
+        double relativeWeight_FSR_0p5() const{ return relativeWeightPsVar( 4 ); }
+        double relativeWeight_ISR_2() const{ return relativeWeightPsVar( 27 ); }
+        double relativeWeight_FSR_2() const{ return relativeWeightPsVar( 5 ); }
+        double relativeWeight_ISR_0p25() const{ return relativeWeightPsVar( 28 ); }
+        double relativeWeight_FSR_0p25() const{ return relativeWeightPsVar( 6 ); }
+        double relativeWeight_ISR_4() const{ return relativeWeightPsVar( 29 ); }
+        double relativeWeight_FSR_4() const{ return relativeWeightPsVar( 7 ); }
 
         unsigned ttgEventType() const{ return _ttgEventType; }
         unsigned zgEventType() const{ return _zgEventType; }
@@ -72,6 +86,11 @@ class GeneratorInfo{
 	double _prefireWeightECAL = 0;
         double _prefireWeightECALDown = 0;
         double _prefireWeightECALUp = 0;
+
+	unsigned _firstScaleIndex;
+	unsigned _numberOfScaleVariations;
+	unsigned _firstPdfIndex;
+	unsigned _numberOfPdfVariations;    
 
         unsigned _ttgEventType;
         unsigned _zgEventType;

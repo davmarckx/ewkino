@@ -6,24 +6,24 @@ Tools for reading collections of histogram variables in txt format
 #include "../interface/variableTools.h"
 
 HistogramVariable::HistogramVariable(	const std::string& name,
-					const std::string& title,
+					const std::string& variable,
 					int nbins,
 					double xlow,
 					double xhigh ):
     _name( name ),
-    _title( title ),
+    _variable( variable ),
     _nbins( nbins ),
     _xlow( xlow ),
     _xhigh( xhigh )
     {}
 
 HistogramVariable::HistogramVariable(	const std::string& name,
-                                        const std::string& title,
+                                        const std::string& variable,
                                         const std::string& nbins,
                                         const std::string& xlow,
                                         const std::string& xhigh ){
     _name = name;
-    _title = title;
+    _variable = variable;
     _nbins = std::stoi(nbins);
     _xlow = std::stod(xlow);
     _xhigh = std::stod(xhigh);
@@ -32,7 +32,7 @@ HistogramVariable::HistogramVariable(	const std::string& name,
 std::string HistogramVariable::toString() const{
     std::string res = "HistogramVariable(";
     res.append( " name: " + name() + "," );
-    res.append( " title: " + title() + "," );
+    res.append( " variable: " + variable() + "," );
     res.append( " nbins: " + std::to_string(nbins()) + "," );
     res.append( " xlow: " + std::to_string(xlow()) + "," );
     res.append( " xhigh: " + std::to_string(xhigh()) + " )" );
@@ -42,7 +42,7 @@ std::string HistogramVariable::toString() const{
 std::vector<HistogramVariable> variableTools::readVariables( const std::string& txtFile ){
     // read a vector of HistogramVariable objects from a txt file.
     // the txt files is assumed to be formatted as follows:
-    // name [spaces] title [spaces] nbins [spaces] xlow [spaces] xhigh
+    // name [spaces] variable [spaces] nbins [spaces] xlow [spaces] xhigh
     std::vector<HistogramVariable> res;
     // read the file line by line
     std::ifstream infile(txtFile);
@@ -80,7 +80,7 @@ std::vector<HistInfo> variableTools::makeHistInfoVec(
     // make a vector of HistInfo objects from a vector of HistogramVariable objects
     std::vector<HistInfo> histInfoVec;
     for( HistogramVariable var: vars ){
-	histInfoVec.push_back( HistInfo(var.name(), var.title(), var.nbins(), 
+	histInfoVec.push_back( HistInfo(var.name(), var.variable(), var.nbins(), 
 					var.xlow(), var.xhigh()) );
     }
     return histInfoVec;

@@ -21,6 +21,8 @@ class CombinedReweighter{
         void eraseReweighter( const std::string& );
 
 	// get reweighter
+	bool hasReweighter( const std::string& name ) const;
+	std::vector<std::string> getReweighterNames() const;
         const Reweighter* operator[]( const std::string& ) const;
 
 	// get weights
