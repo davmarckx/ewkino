@@ -38,8 +38,10 @@ def loadallhistograms(histfile, allow_tgraphs=False, suppress_warnings=False):
     f.Close()
     return histlist
 
-def loadhistograms(histfile,mustcontainall=[],mustcontainone=[],
-	        maynotcontainall=[],maynotcontainone=[]):
+def loadhistograms(histfile, 
+                   mustcontainall=[], mustcontainone=[],
+	           maynotcontainall=[],maynotcontainone=[],
+                   allow_tgraphs=False, suppress_warnings=False ):
     ### read a root file containing histograms and load all histograms to a list
     # with selection already included at this stage
     # (instead of loading all and then selecting with methods below)
@@ -52,15 +54,21 @@ def loadhistograms(histfile,mustcontainall=[],mustcontainone=[],
 	    mustcontainone=mustcontainone,mustcontainall=mustcontainall,
 	    maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
         hist = f.Get(key.GetName())
-        # check if histogram is readable
-        try:
-            nentries = hist.GetEntries()
-            nbins = hist.GetNbinsX()
-            hist.SetDirectory(0)
-        except:
-            print('WARNING in loadhistograms: key "'+str(key.GetName())
-	    +'" does not correspond to valid hist.')
-            continue
+	# check the object type
+        ishist = ( isinstance(hist,ROOT.TH1)
+                   or isinstance(hist,ROOT.TH2) )
+        isgraph = ( isinstance(hist,ROOT.TGraph) )
+        if not suppress_warnings:
+            if( not allow_tgraphs and not ishist ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram.')
+                continue
+            if( allow_tgraphs and not (ishist or isgraph) ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
+                continue
+        hist.SetName(key.GetName())
+        if ishist: hist.SetDirectory(ROOT.gROOT)
         histlist.append(hist)
     f.Close()
     return histlist
