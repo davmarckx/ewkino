@@ -24,7 +24,8 @@ Perform a charge flip measurement in MC
 #include "interface/chargeFlipSelection.h"
 
 
-void determineMCChargeFlipRate( const std::string& year, 
+void determineMCChargeFlipRate( const std::string& year,
+				const std::string& flavour, 
 				const std::string& sampleListFile, 
 				const std::string& sampleDirectory,
 				const long nEntries ){
@@ -32,26 +33,34 @@ void determineMCChargeFlipRate( const std::string& year,
     // simple check on provided year identifier
     analysisTools::checkYearString( year );
 
+    // simple check on provided flavour identifier
+    if( flavour!="electron" && flavour!="muon" ){
+	throw std::invalid_argument("ERROR: flavour '"+flavour+"' not recognized.");
+    }
+
     // initialize bins
-    const std::vector< double > ptBins = {10., 20., 30., 45., 65., 100., 200.};
-    const std::vector< double > etaBins = { 0., 0.8, 1.442, 2.5 };
+    //const std::vector< double > ptBins = {10., 20., 30., 45., 65., 100., 200.};
+    //const std::vector< double > etaBins = { 0., 0.8, 1.442, 2.5 };
+    // for syncing with TT:
+    const std::vector< double > ptBins = {10., 30., 45., 65., 100., 200.};
+    const std::vector< double > etaBins = { 0., 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5 };
 
     // initialize 2D histogram for numerator
-    std::string numerator_name = "chargeFlipRate_numerator_electron_" + year;
+    std::string numerator_name = "chargeFlipRate_numerator_" + flavour + "_" + year;
     std::shared_ptr< TH2D > numeratorMap( 
 	new TH2D( numerator_name.c_str(), (numerator_name+"; p_{T} (GeV); |#eta|").c_str(), 
 	ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
     numeratorMap->Sumw2();
 
     // initialize 2D histogram for denominator
-    std::string denominator_name = "chargeFlipRate_denominator_electron_" + year;
+    std::string denominator_name = "chargeFlipRate_denominator_" + flavour + "_" + year;
     std::shared_ptr< TH2D > denominatorMap( 
 	new TH2D( denominator_name.c_str(), (denominator_name+"; p_{T} (GeV); |#eta|").c_str(), 
 	ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
     denominatorMap->Sumw2();
 
     // initialize 2D histogram for ratio
-    std::string ratio_name = "chargeFlipRate_electron_" + year;
+    std::string ratio_name = "chargeFlipRate_" + flavour + "_" + year;
     std::shared_ptr< TH2D > ratioMap(
         new TH2D( ratio_name.c_str(), (ratio_name+"; p_{T} (GeV); |#eta|").c_str(),
         ptBins.size() - 1, &ptBins[0], etaBins.size() - 1, &etaBins[0] ) );
@@ -63,6 +72,7 @@ void determineMCChargeFlipRate( const std::string& year,
         treeReader.initSample();
     
 	// loop over entries
+	long unsigned numberOfPassingLeptons = 0;
 	long unsigned numberOfEntries = treeReader.numberOfEntries();
 	if( nEntries>0 && (unsigned)nEntries<numberOfEntries ){ 
 	    numberOfEntries = (unsigned) nEntries; 
@@ -78,25 +88,36 @@ void determineMCChargeFlipRate( const std::string& year,
             if( ! chargeFlips::passChargeFlipEventSelection(event, false, false, false) ) continue;
 
 	    // loop over electrons in the event
-            for( auto& electronPtr : event.electronCollection() ){
-                Electron& electron = *electronPtr;
+            for( auto& lightLeptonPtr : event.lightLeptonCollection() ){
+                LightLepton& lepton = *lightLeptonPtr;
+
+		// require correct flavour
+		if( flavour=="electron" && !lepton.isElectron() ) continue;
+		if( flavour=="muon" && !lepton.isMuon() ) continue;
             
                 // require prompt leptons
-                if( !( electron.isPrompt() ) ) continue;
+                if( !( lepton.isPrompt() ) ) continue;
 		// require that the lepton does not come from photon conversion
 		// (since they are matched to photons so the matched charge is 0)
-                if( electron.matchPdgId() == 22 ) continue;
+                if( lepton.matchPdgId() == 22 ) continue;
+
+		// printouts for testing
+		/*std::cout << "lepton:" << std::endl;
+		std::cout << "measured charge: " << lepton.charge() << std::endl;
+		std::cout << "matched charge: " << lepton.matchCharge() << std::endl;*/
 
                 // fill denominator histogram 
-                histogram::fillValues( denominatorMap.get(), electron.pt(), electron.absEta(), 1. );
+		numberOfPassingLeptons++;
+                histogram::fillValues( denominatorMap.get(), lepton.pt(), lepton.absEta(), 1. );
     
                 //fill numerator histogram
-                if( electron.isChargeFlip() ){
-                    histogram::fillValues( numeratorMap.get(), electron.pt(), electron.absEta(), 1. );
-		    histogram::fillValues( ratioMap.get(), electron.pt(), electron.absEta(), 1. );
+                if( lepton.isChargeFlip() ){
+                    histogram::fillValues( numeratorMap.get(), lepton.pt(), lepton.absEta(), 1. );
+		    histogram::fillValues( ratioMap.get(), lepton.pt(), lepton.absEta(), 1. );
                 }
             }
         }
+	std::cout << "number of leptons passing selections: " << numberOfPassingLeptons << std::endl;
     }
 
     // divide numerator by denominator to get charge flip rate
@@ -110,12 +131,12 @@ void determineMCChargeFlipRate( const std::string& year,
     // write numbers in exponential notation because charge flip rates tend to be very small
     gStyle->SetPaintTextFormat( "4.2e" );
     std::string plotOutputPath =  stringTools::formatDirectoryName( outputDirectory );
-    plotOutputPath += "chargeFlipMap_MC_" + year + ".pdf";
+    plotOutputPath += "chargeFlipMap_MC_" + flavour + "_" + year + ".pdf";
     plot2DHistogram( ratioMap.get(), plotOutputPath );
 
     // write fake-rate map to file 
     std::string rootOutputPath = stringTools::formatDirectoryName( outputDirectory ); 
-    rootOutputPath += "chargeFlipMap_MC_" + year + ".root";
+    rootOutputPath += "chargeFlipMap_MC_" + flavour + "_" + year + ".root";
     TFile* outputFile = TFile::Open( rootOutputPath.c_str(), "RECREATE" );
     ratioMap->Write();
     numeratorMap->Write();
@@ -139,14 +160,14 @@ int main( int argc, char* argv[] ){
 	std::cerr << "  - number of entries" << std::endl;
         return 1;
     }
-    std::string flavor = argvStr[1];
+    std::string flavour = argvStr[1];
     std::string year = argvStr[2];
     std::string sampleList = argvStr[3];
     std::string sampleDirectory = argvStr[4];
     long nEntries = std::stol(argvStr[5]);
     setTDRStyle();
     determineMCChargeFlipRate(
-	year, sampleList, sampleDirectory, nEntries);
+	year, flavour, sampleList, sampleDirectory, nEntries);
     std::cerr << "###done###" << std::endl;
     return 0;
 }
