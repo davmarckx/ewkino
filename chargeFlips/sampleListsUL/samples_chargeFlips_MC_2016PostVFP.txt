@@ -1,0 +1,8 @@
+DY  DYFX0J50_Summer20UL16MiniAOD.root  
+DY  DYMLM10_Summer20UL16MiniAOD.root
+DY  DYFX1J50_Summer20UL16MiniAOD.root  
+DY  DYMLM50_Summer20UL16MiniAOD.root
+DY  DYFX2J50_Summer20UL16MiniAOD.root
+DY  DYFXFX50_Summer20UL16MiniAOD.root
+TT  TTJets_Summer20UL16MiniAOD.root 
+TT  TT_Dil_Summer20UL16MiniAOD.root

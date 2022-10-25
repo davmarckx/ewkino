@@ -358,7 +358,9 @@ long unsigned TreeReader::numberOfEntries() const{
 }
 
 
-void TreeReader::initSample( const Sample& samp ){ 
+void TreeReader::initSample( const Sample& samp, 
+			     const bool doInitTree, 
+			     const bool doInitHCounter ){ 
 
     //update current sample
     // old comment from Willem:
@@ -379,9 +381,12 @@ void TreeReader::initSample( const Sample& samp ){
     // The previous TFile is closed by the std::shared_ptr destructor, 
     // implicitly called above when opening a new TFile."
     _currentTreePtr = (TTree*) _currentFilePtr->Get( "blackJackAndHookers/blackJackAndHookersTree" );
+    // temporary addition to read Gianny's files for charge misid. measurement,
+    // where the tree is stored in the root directory...
+    if( !_currentTreePtr ) _currentTreePtr = (TTree*) _currentFilePtr->Get( "blackJackAndHookersTree" );
     checkCurrentTree();
-    initTree();
-    if( !samp.isData() ){
+    if( doInitTree) initTree();
+    if( !samp.isData() && doInitHCounter ){
 
         //read sum of simulated event weights
         TH1D* hCounter = new TH1D( "hCounter", "Events counter", 1, 0, 1 );
@@ -406,8 +411,9 @@ void TreeReader::initSample( const Sample& samp ){
 
 
 //initialize the next sample in the list
-void TreeReader::initSample(){
-    initSample( samples[ ++currentSampleIndex ] );
+void TreeReader::initSample( const bool doInitTree,
+                             const bool doInitHCounter ){
+    initSample( samples[ ++currentSampleIndex ], doInitTree, doInitHCounter );
 }
 
 

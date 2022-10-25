@@ -23,7 +23,12 @@ class TreeReader {
 
         //Constructor
         TreeReader() = default;
-        TreeReader( const std::string&, const std::string& ); 
+        TreeReader( const std::string&, const std::string& );
+
+	//TTree associated to current sample 
+	// note: was originally private, but moved here
+	//       in order to be able to set the branch addresses outside this class.
+        TTree* _currentTreePtr = nullptr; 
 
         //Declare leaf types
 	// constants
@@ -277,8 +282,11 @@ class TreeReader {
 			    bool includePrefireComponents = true );
 
         //initialize the next sample
-        void initSample();
-        void initSample(const Sample&);  
+        void initSample( const bool doInitTree = true,
+                         const bool doInitHCounter = true );
+        void initSample( const Sample&, 
+			 const bool doInitTree = true,
+			 const bool doInitHCounter = true );  
 
         //read sample list from text file
         void readSamples2016(const std::string&, const std::string&);
@@ -377,9 +385,6 @@ class TreeReader {
 
         //TFile associated to current sample
         std::shared_ptr< TFile > _currentFilePtr;
-
-        //TTree associated to current sample 
-        TTree* _currentTreePtr = nullptr;
 
         //cache whether current sample is SUSY to avoid having to check the branch names for each event
         bool _isSusy = false;
