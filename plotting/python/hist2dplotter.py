@@ -109,6 +109,7 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
                     axtitlefont=None, axtitlesize=None,
                     titlefont=None, titlesize=None,
 		    drawoptions='colztexte', cmin=None, cmax=None,
+		    bintextoptions=None,
 		    docmstext=False, cms_in_grid=True, 
 		    cmstext_size_factor=0.3, extracmstext='', lumitext='',
 		    topmargin=None, bottommargin=None, leftmargin=None, rightmargin=None,
@@ -136,7 +137,7 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     if xtitleoffset is None: xtitleoffset = 1.5
     if ytitleoffset is None: ytitleoffset = 1.5
     if ztitleoffset is None: ztitleoffset = 1.5
-    # margins:
+    # margins
     if topmargin is None: topmargin = 0.15
     if bottommargin is None: bottommargin = 0.15
     if leftmargin is None: leftmargin = 0.15
@@ -153,7 +154,9 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     hist.SetMaximum(zmax)
     # extra info box parameters
     if infoleft is None: infoleft = leftmargin+0.05
-    if infotop is None: infotop = 1-topmargin-0.1 
+    if infotop is None: infotop = 1-topmargin-0.1
+    # options for bin texts
+    if bintextoptions is not None: ROOT.gStyle.SetPaintTextFormat( bintextoptions );
 
     # create canvas
     c1 = ROOT.TCanvas("c1","c1")
