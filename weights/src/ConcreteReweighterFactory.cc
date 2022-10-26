@@ -39,15 +39,9 @@ CombinedReweighter EmptyReweighterFactory::buildReweighter(
     combinedReweighter.addReweighter( "electronID", std::make_shared< ReweighterEmpty >() );
     combinedReweighter.addReweighter( "electronIDSyst", std::make_shared< ReweighterEmpty >() );
     combinedReweighter.addReweighter( "electronIDStat", std::make_shared< ReweighterEmpty >() );
-    if( year == "2016" || year == "2017" ){
-	combinedReweighter.addReweighter( "electronReco_pTBelow20",
-        std::make_shared< ReweighterEmpty >() );
-        combinedReweighter.addReweighter( "electronReco_pTAbove20",
-        std::make_shared< ReweighterEmpty >() );
-    } else if( year == "2018" ){
-	combinedReweighter.addReweighter( "electronReco",
-	std::make_shared< ReweighterEmpty >() );
-    }
+    combinedReweighter.addReweighter( "electronReco_pTBelow20", std::make_shared< ReweighterEmpty >() );
+    combinedReweighter.addReweighter( "electronReco_pTAbove20", std::make_shared< ReweighterEmpty >() );
+    combinedReweighter.addReweighter( "muonReco", std::make_shared< ReweighterEmpty >() );
     combinedReweighter.addReweighter( "pileup", std::make_shared<ReweighterEmpty>() );
     combinedReweighter.addReweighter( "bTag_heavy", std::make_shared< ReweighterEmpty >() );
     combinedReweighter.addReweighter( "bTag_light", std::make_shared< ReweighterEmpty >() );

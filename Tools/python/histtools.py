@@ -42,10 +42,10 @@ def loadhistograms(histfile,
                    mustcontainall=[], mustcontainone=[],
 	           maynotcontainall=[],maynotcontainone=[],
                    allow_tgraphs=False, suppress_warnings=False ):
-    ### read a root file containing histograms and load all histograms to a list
-    # with selection already included at this stage
-    # (instead of loading all and then selecting with methods below)
-    # (useful in case of many histograms of which only a few are needed)
+    ### read a root file containing histograms and load histograms to a list.
+    # note: selection already included at this stage
+    #       (instead of loading all and then selecting with methods below)
+    #       (useful in case of many histograms of which only a few are needed)
     f = ROOT.TFile.Open(histfile)
     histlist = []
     keylist = f.GetListOfKeys()
@@ -72,6 +72,22 @@ def loadhistograms(histfile,
         histlist.append(hist)
     f.Close()
     return histlist
+
+def loadhistnames(histfile,
+                  mustcontainall=[], mustcontainone=[],
+                  maynotcontainall=[],maynotcontainone=[]):
+    ### read a root file containing histograms and make a list of histogram names.
+    # note: objects are not loaded (for speed), only a list of names is retrieved.
+    f = ROOT.TFile.Open(histfile)
+    histnames = []
+    keylist = f.GetListOfKeys()
+    for key in keylist:
+        if not lt.subselect_string(key.GetName(),
+            mustcontainone=mustcontainone,mustcontainall=mustcontainall,
+            maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
+        histnames.append(key.GetName())
+    f.Close()
+    return histnames
 
 
 ### histogram subselection ###
@@ -123,6 +139,15 @@ def clipallhistograms(histfile,mustcontainall=[],clipboundary=0):
         hist.Write()
     f.Close()
     os.system('mv '+tempfilename+' '+histfile)
+
+
+### take absolute value ###
+
+def absolute(hist):
+    ### take absolute value of each bin
+    for i in range(0,hist.GetNbinsX()+2):
+        if hist.GetBinContent(i)<0:
+            hist.SetBinContent(i,-hist.GetBinContent(i))
 
 
 ### finding minimum and maximum ###
