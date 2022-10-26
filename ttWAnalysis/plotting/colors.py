@@ -10,6 +10,7 @@ def getcolormap( style='default' ):
   style=style.lower()
   if(style=='default'): return getcolormap_default()
   if(style=='tttt'): return getcolormap_tttt()
+  if(style=='systematics'): return getcolormap_systematics()
   else: print('WARNING in getcolormap: style not recognized, returning None')
   return None
 
@@ -62,4 +63,107 @@ def getcolormap_tttt():
     cmap['ZZ-H'] = define_color_hex('#2fbc6c')[0]
     cmap['XG'] = define_color_hex('#9c88ff')[0]
     cmap['VVV'] = define_color_hex('#c6ff00')[0]
+    return cmap
+
+def getcolormap_systematics():
+    # color map for plotting systematics
+    cmap = {}
+    # nominal in black
+    cmap['nominal'] = ROOT.kBlack
+    # acceptance uncertainties in shades of red
+    cmap['JEC'] = ROOT.kRed
+    cmap['JER'] = ROOT.kRed+3
+    cmap['JER_2016'] = ROOT.kRed+3
+    cmap['JER_2017'] = ROOT.kRed+3
+    cmap['JER_2018'] = ROOT.kRed+3
+    cmap['Uncl'] = ROOT.kRed-9
+    cmap['Uncl_2016'] = ROOT.kRed-9
+    cmap['Uncl_2017'] = ROOT.kRed-9
+    cmap['Uncl_2018'] = ROOT.kRed-9
+    cmap['JECSqSumAll'] = ROOT.kYellow+1
+    cmap['JECSqSumGrouped'] = ROOT.kYellow-7
+    cmap['JECAll'] = ROOT.kGray
+    cmap['JECGrouped'] = ROOT.kGray
+
+    # lepton uncertainties in shades of blue
+    cmap['muonID'] = ROOT.kBlue
+    cmap['muonIDSyst'] = ROOT.kBlue
+    cmap['muonIDStat'] = ROOT.kBlue+2
+    cmap['muonIDStat_2016'] = ROOT.kBlue+2
+    cmap['muonIDStat_2017'] = ROOT.kBlue+2
+    cmap['muonIDStat_2018'] = ROOT.kBlue+2
+    cmap['electronID'] = ROOT.kBlue-9
+    cmap['electronIDSyst'] = ROOT.kBlue-9
+    cmap['electronIDStat'] = ROOT.kBlue-10
+    cmap['electronIDStat_2016'] = ROOT.kBlue-10
+    cmap['electronIDStat_2017'] = ROOT.kBlue-10
+    cmap['electronIDStat_2018'] = ROOT.kBlue-10
+    cmap['electronReco'] = ROOT.kBlue-6
+    cmap['electronScale'] = ROOT.kBlue
+    cmap['electronRes'] = ROOT.kBlue-10
+    cmap['muonReco'] = ROOT.kBlue
+
+    # other weights in shades of green
+    cmap['pileup'] = ROOT.kGreen-6
+    cmap['bTag_heavy'] = ROOT.kGreen+1
+    cmap['bTag_light'] = ROOT.kGreen+3
+    cmap['prefire'] = ROOT.kGreen+3
+
+    # btag weights also in green
+    cmap['bTag_shape_lf'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats1'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats2'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats1_2016'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats2_2016'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats1_2017'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats2_2017'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats1_2018'] = ROOT.kGreen+1
+    cmap['bTag_shape_lfstats2_2018'] = ROOT.kGreen+1
+    cmap['bTag_shape_hf'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats1'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats2'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats1_2016'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats2_2016'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats1_2017'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats2_2017'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats1_2018'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats2_2018'] = ROOT.kGreen+1
+    cmap['bTag_shape_cferr1'] = ROOT.kSpring+6
+    cmap['bTag_shape_cferr2'] = ROOT.kGreen+6
+
+    # scales in shaded of purple
+    # first three are obsolete and replaced by qcdScalesShapeEnv and qcdScalesNorm
+    # last two are obsolete and replaced by isrShape and isrNorm
+    cmap['fScale'] = ROOT.kMagenta
+    cmap['rScale'] = ROOT.kMagenta+2
+    cmap['rfScales'] = ROOT.kMagenta-9
+    cmap['isrScale'] = ROOT.kViolet+1
+    cmap['fsrScale'] = ROOT.kViolet+2
+
+    # isr/fsr in shades of violet
+    cmap['isrShape'] = ROOT.kViolet+1
+    cmap['isrNorm'] = ROOT.kViolet+1
+    cmap['isrShape_Xgamma'] = ROOT.kViolet+1
+    cmap['isrNorm_Xgamma'] = ROOT.kViolet+1
+    cmap['fsrShape'] = ROOT.kViolet+2
+    cmap['fsrNorm'] = ROOT.kViolet+2
+
+    # qcd scale variations in magenta
+    cmap['qcdScalesShapeVar'] = ROOT.kGray
+    cmap['qcdScalesShapeEnv'] = ROOT.kMagenta-9
+    cmap['qcdScalesShapeEnv_tZq'] = ROOT.kMagenta-9
+    cmap['qcdScalesShapeEnv_Xgamma'] = ROOT.kMagenta-9
+    cmap['qcdScalesNorm'] = ROOT.kViolet+6
+
+    # pdf variations in yellow
+    cmap['pdfShapeVar'] = ROOT.kGray
+    cmap['pdfShapeEnv'] = ROOT.kOrange-3
+    cmap['pdfShapeRMS'] = ROOT.kOrange+7
+    cmap['pdfNorm'] = ROOT.kOrange-2
+
+    # underlyiing event and color reconnection in blue
+    cmap['CR_QCD'] = ROOT.kCyan+1
+    cmap['CR_GluonMove'] = ROOT.kCyan+3
+    cmap['UE'] = ROOT.kAzure+7
+
     return cmap
