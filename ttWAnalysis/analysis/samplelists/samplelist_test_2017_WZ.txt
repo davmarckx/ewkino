@@ -1,0 +1,2 @@
+# in folder /pnfs/iihe/cms/store/user/nivanden/skims_v4/2017
+WZ  WZTo3LNu_TuneCP5_13TeV-amcatnloFXFX-pythia8_crab_RunIISummer20UL17MiniAOD-106X_mc2017_realistic_v6-v3_singlelepton_MC_2017_ULv6.root  1
