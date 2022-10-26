@@ -44,7 +44,7 @@ if __name__=='__main__':
 		+' found {} histograms while 1 was expected.'.format(len(histlist)))
     hist = histlist[0]
     # set plot properties
-    title = 'Simulated charge misid. maps for {} {}s'.format(year,flavour)
+    title = 'Simulated charge misid. map for {} {}s'.format(year,flavour)
     figname = 'chargeFlipMap_MC_{}_{}'.format(flavour,year)
     figname = os.path.join(args.inputdir,figname)
     xaxtitle = hist.GetXaxis().GetTitle()
