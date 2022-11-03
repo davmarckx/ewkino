@@ -16,7 +16,9 @@ from efficiencyplotter import plotefficiencies
 def getcolor(hist, cmode):
   tag = hist.GetName().split('_')[1]
   if cmode=='singleyear':
-    if 'A' in tag: return ROOT.kRed-7
+    if tag in ['Run2016PreVFP','Run2016PostVFP','Run2017','Run2018']:
+      return ROOT.kRed
+    elif 'A' in tag: return ROOT.kRed-7
     elif 'B' in tag: return ROOT.kOrange-3
     elif 'C' in tag: return ROOT.kOrange
     elif 'D' in tag: return ROOT.kGreen+1
@@ -24,8 +26,7 @@ def getcolor(hist, cmode):
     elif 'F' in tag: return ROOT.kAzure
     elif 'G' in tag: return ROOT.kViolet
     elif 'H' in tag: return ROOT.kMagenta+3
-    elif 'Run201' in tag: return ROOT.kRed
-  if mode=='allyears':
+  if cmode=='allyears':
     if '2016' in tag: return ROOT.kOrange
     elif '2017' in tag: return ROOT.kGreen+1
     elif '2018' in tag: return ROOT.kAzure

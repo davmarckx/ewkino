@@ -21,9 +21,9 @@ std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms(
 	    std::string fullName = prefix+"_"+flavour+"_"+numdenom;
 	    std::string mapName = flavour+"_"+numdenom;
 	    // define binning for 2D histograms
-	    const std::vector< double > leadingPtBins = {30., 35., 45., 55., 75., 100., 150., 200.};
+	    std::vector< double > leadingPtBins = {30., 35., 45., 55., 75., 100., 150., 200.};
 	    if(flavour=="mm" || flavour=="me"){
-		const std::vector< double > leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.}; }
+		leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.}; }
 	    const std::vector< double > trailingPtBins = {20., 25., 30., 35., 45., 55., 75., 100., 150., 200.};
 	    // initialize histogram
 	    std::shared_ptr< TH2D > hist(

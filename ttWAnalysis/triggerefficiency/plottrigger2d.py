@@ -82,6 +82,7 @@ if __name__=='__main__':
       caxtitle = 'Trigger efficiency'
       extrainfos = []
       extrainfos.append('{} simulation'.format(year))
+      extrainfos.append('{} channel'.format(flavour))
       plot2dhistogram(simeff, figname, outfmts=['.png'],
                     histtitle=None, logx=True, logy=True,
                     xtitle=xaxtitle, ytitle=yaxtitle, ztitle=caxtitle,
@@ -98,6 +99,7 @@ if __name__=='__main__':
       caxtitle = 'Trigger efficiency'
       extrainfos = []
       extrainfos.append('{} data'.format(year))
+      extrainfos.append('{} channel'.format(flavour))
       plot2dhistogram(dataeff, figname, outfmts=['.png'],
                     histtitle=None, logx=True, logy=True,
                     xtitle=xaxtitle, ytitle=yaxtitle, ztitle=caxtitle,
@@ -114,6 +116,7 @@ if __name__=='__main__':
       caxtitle = 'Data / Simulation'
       extrainfos = []
       extrainfos.append('{} scale factor'.format(year))
+      extrainfos.append('{} channel'.format(flavour))
       plot2dhistogram(sf, figname, outfmts=['.png'],
                     histtitle=None, logx=True, logy=True,
                     xtitle=xaxtitle, ytitle=yaxtitle, ztitle=caxtitle,
