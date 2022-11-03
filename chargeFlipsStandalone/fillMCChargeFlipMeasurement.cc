@@ -45,6 +45,7 @@ Bool_t          _lIsPrompt[nL_max];
 Int_t           _lMatchPdgId[nL_max];   
 Int_t           _lMatchCharge[nL_max];
 Int_t           _lMomPdgId[nL_max];
+Float_t		genWeight;
 Bool_t		isEE;
 Bool_t		isEMu;
 Bool_t		isMuMu;
@@ -79,6 +80,7 @@ TBranch        *b__lIsPrompt;
 TBranch        *b__lMatchPdgId;
 TBranch        *b__lMatchCharge;
 TBranch        *b__lMomPdgId;
+TBranch		*b_genWeight;
 TBranch		*b_isEE;
 TBranch		*b_isEMu;
 TBranch		*b_isMuMu;
@@ -114,6 +116,7 @@ void setBranchAddresses( TreeReader treeReader ){
     treeReader._currentTreePtr->SetBranchAddress("_lMatchPdgId", _lMatchPdgId, &b__lMatchPdgId);
     treeReader._currentTreePtr->SetBranchAddress("_lMatchCharge", _lMatchCharge, &b__lMatchCharge);
     treeReader._currentTreePtr->SetBranchAddress("_lMomPdgId",  _lMomPdgId, &b__lMomPdgId);
+    treeReader._currentTreePtr->SetBranchAddress("genWeight", &genWeight, &b_genWeight);
     treeReader._currentTreePtr->SetBranchAddress("isEE",  &isEE, &b_isEE);
     treeReader._currentTreePtr->SetBranchAddress("isEMu",  &isEMu, &b_isEMu);
     treeReader._currentTreePtr->SetBranchAddress("isMuMu",  &isMuMu, &b_isMuMu);
@@ -187,13 +190,15 @@ void determineMCChargeFlipRate( const std::string& year,
 	    treeReader._currentTreePtr->GetEntry(entry);
 
 	    // printouts for testing
-	    /*std::cout << "event ID: " << _runNb << "  " << _lumiBlock << "  " << _eventNb << "  " << std::endl;
-	    std::cout << "  leptons: " << l1 << " " << l2 << std::endl;
+	    std::cout << "event ID: " << _runNb << "  " << _lumiBlock << "  " << _eventNb << "  " << std::endl;
+	    /*std::cout << "  leptons: " << l1 << " " << l2 << std::endl;
 	    std::cout << "  lepton pt: " << l1_pt << " " << l2_pt << std::endl;
 	    std::cout << "  number of leptons: " << _nL << std::endl;
 	    std::cout << "  lFlavor: " << _lFlavor[l1] << " " << _lFlavor[l2] << std::endl;
 	    std::cout << "  lPt: " << _lPt[l1] << " " << _lPt[l2] << std::endl;
 	    std::cout << "  lPtCorr: " << _lPtCorr[l1] << " " << _lPtCorr[l2] << std::endl;*/
+	    std::cout << "  weight: " << _weight << std::endl;
+	    std::cout << "  genWeight: " << genWeight << std::endl;
 
 	    // do event selection
 	    // (none for now)
