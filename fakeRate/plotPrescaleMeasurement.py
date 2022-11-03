@@ -10,7 +10,7 @@ import histplotter as hp
 sys.path.append('../Tools/python')
 import histtools as ht
 
-years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 use_mT = True
 plotmode = 'new'
 # (choose from 'old' (with older c++ plotting function) or 'new' (with newer python version))
@@ -83,12 +83,18 @@ for year in years:
 	datahist = datahists[0]
 	# find prompt histograms (split per process)
 	prompthists = ht.selecthistograms(histlist, mustcontainall=[trigger,'_prompt'],
-					    maynotcontainone=['nonprompt','unc','total'])[1]
+					    maynotcontainone=['nonprompt','unc','total','QCD'])[1]
         print('found {} prompt histograms'.format(len(prompthists)))
+	for hist in prompthists:
+	    print('  - {}'.format(hist.GetName()))
 	# find nonprompt histograms
-	nonprompthists = ht.selecthistograms(histlist, mustcontainall=[trigger,'_nonprompt'],
+	nonprompthists = ht.selecthistograms(histlist, mustcontainall=[trigger,'_nonprompt','QCD'],
 					    maynotcontainone=['unc','total'])[1]
         print('found {} nonprompt histograms'.format(len(nonprompthists)))
+	for hist in nonprompthists:
+            print('  - {}'.format(hist.GetName()))
+	# merge lists of prompt and nonprompt histograms
+	simhists = prompthists + nonprompthists
 	# find systematic uncertainty histogram
 	systunchists = ht.selecthistograms(histlist, mustcontainall=[trigger,'unc'])[1]
         if len(systunchists)>1:
@@ -109,11 +115,13 @@ for year in years:
 	colormap['TT'] = ROOT.kCyan + 1
 	colormap['DY'] = ROOT.kBlue + 1
 	colormap['VV'] = ROOT.kCyan - 7
+	colormap['QCD'] = ROOT.kRed - 7
+        colormap['Other nonprompt'] = ROOT.kRed + 1
 	legendbox = [0.7,0.5,0.9,0.9]
 
 	# make the plot
 	hp.plotdatavsmc( os.path.join(outputdir, trigger), datahist, 
-            prompthists, mcsysthist=systunchist,
+            simhists, mcsysthist=systunchist,
             datalabel='Data', p2yaxtitle='#frac{Data}{Pred.}',
             colormap=colormap, 
 	    #labelmap=labelmap,
