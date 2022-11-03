@@ -27,6 +27,8 @@ std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms(
 void fillTriggerCorrelationHistograms(
 	const std::string& pathToFile, 
 	const std::string& outputFilePath,
+        const std::string& eventSelection,
+        const std::string& ptThresholdId,
 	long unsigned nEvents ){
 
     // initialize TreeReader
@@ -54,6 +56,40 @@ void fillTriggerCorrelationHistograms(
 	event.applyLeptonConeCorrection();
 	double weight = event.weight();
 
+	// split the event selection string into a list
+        std::vector<std::string> selectionTags = stringTools::split(eventSelection,"_");
+
+	// select three tight light leptons
+        if(std::find(selectionTags.begin(),selectionTags.end(),"3tight")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            event.selectTightLeptons();
+            if(event.leptonCollection().size()!=3) continue;
+        }
+
+	// select two SS tight light leptons
+        if(std::find(selectionTags.begin(),selectionTags.end(),"2tightss")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            event.selectTightLeptons();
+            if(event.leptonCollection().size()!=2) continue;
+            if(event.leptonCollection()[0].charge() != event.leptonCollection()[1].charge()) continue;
+        }
+
+	// additional selection: reco pt cuts
+        if(std::find(selectionTags.begin(),selectionTags.end(),"recoptcuts")!=selectionTags.end()){
+            event.sortLeptonsByPt(false);
+            std::vector<double> recopt;
+            std::string flavourStr = triggerTools::getFlavourString(event);
+            for( auto lepton: event.leptonCollection() ){
+                recopt.push_back(lepton->uncorrectedPt());
+            }
+            if( !triggerTools::passPtThresholds( recopt,
+                triggerTools::ptThresholds(ptThresholdId,flavourStr) )) continue;
+        }
+	
 	// check if event passes reference triggers
 	// builtin reference trigger boolean (not present in current samples)
         //bool passreftrigger = event.passTriggers_ref();
@@ -90,24 +126,29 @@ void fillTriggerCorrelationHistograms(
 int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
-    int nargs = 3;
+    int nargs = 5;
     if( argc != nargs+1 ){
         std::cerr << "ERROR: filltrigger2d.cc requires " << nargs << " arguments: " << std::endl;
         std::cerr << "- path to input file" << std::endl;
 	std::cerr << "- path to output file" << std::endl;
-	std::cerr << "- number of events to process" << std::endl;
+	std::cerr << "- event selection" << std::endl;
+        std::cerr << "- pT threshold id" << std::endl;
+        std::cerr << "- number of events to process" << std::endl;
         return -1;
     }
     // parse arguments
     std::vector< std::string > argvStr( &argv[0], &argv[0] + argc );
     std::string& input_file_path = argvStr[1];
     std::string& output_file_path = argvStr[2];
-    long unsigned nevents = std::stoul(argvStr[3]);
+    std::string& event_selection = argvStr[3];
+    std::string& pt_threshold_id = argvStr[4];
+    long unsigned nevents = std::stoul(argvStr[5]);
     // check validity
     bool validInput = rootFileTools::nTupleIsReadable( input_file_path );
     if(!validInput) return -1;
     // fill the histograms
-    fillTriggerCorrelationHistograms(input_file_path, output_file_path, nevents);
+    fillTriggerCorrelationHistograms(input_file_path, output_file_path, 
+	event_selection, pt_threshold_id, nevents);
     std::cerr<<"###done###"<<std::endl;
     return 0;
 }
