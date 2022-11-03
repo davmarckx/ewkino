@@ -9,12 +9,14 @@ sys.path.append('../Tools/python')
 import plottools as pt
 import histtools as ht
 
-def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None, 
+def plotsinglehistogram(hist, figname, 
+                title=None, xaxtitle=None, yaxtitle=None, 
 	        label=None, color=None, logy=False, drawoptions='',
-	        lumitext='', extralumitext='',
+	        do_cms_text=False, lumitext='', extralumitext='',
 	        topmargin=None, bottommargin=None,
 	        leftmargin=None, rightmargin=None,
 	        xaxlabelfont=None, xaxlabelsize=None,
+		yaxmin=None, yaxmax=None,
 	        writebincontent=False, bincontentfont=None, 
 	        bincontentsize=None, bincontentfmt=None,
 		extrainfos=[], infosize=None, infoleft=None, infotop=None ):
@@ -48,11 +50,11 @@ def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None,
     pad1.Draw()
     pad1.cd()
     # set fonts and text sizes
-    titlefont = 6; titlesize = 26
+    titlefont = 4; titlesize = 22
     if xaxlabelfont is None: xaxlabelfont = 4 
     if xaxlabelsize is None: xaxlabelsize = 22
     yaxlabelfont = 4; yaxlabelsize = 22
-    axtitlefont = 4; axtitlesize = 26
+    axtitlefont = 4; axtitlesize = 22
     legendfont = 4
     if bincontentfont is None: bincontentfont = 4
     if bincontentsize is None: bincontentsize = 12
@@ -79,6 +81,7 @@ def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None,
     ### set histogram properties
     hist.SetLineColor(color)
     hist.SetLineWidth(3)
+    hist.SetMarkerSize(0)
     hist.Sumw2()
 
     ### make the legend
@@ -103,14 +106,14 @@ def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None,
 	xax.SetTitleOffset(1.2)
     ### Y-axis layout
     if not logy:
-	print(hist.GetMaximum())
 	hist.SetMaximum(hist.GetMaximum()*1.2)
-	print(hist.GetMaximum())
 	hist.SetMinimum(0.)
     else:
 	c1.SetLogy()
 	hist.SetMaximum(hist.GetMaximum()*10)
 	hist.SetMinimum(hist.GetMaximum()/1e7)
+    if yaxmin is not None: hist.SetMinimum(yaxmin)
+    if yaxmax is not None: hist.SetMaximum(yaxmax)
     yax = hist.GetYaxis()
     yax.SetMaxDigits(3)
     yax.SetNdivisions(8,4,0,ROOT.kTRUE)
@@ -120,7 +123,7 @@ def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None,
 	yax.SetTitle(yaxtitle)
 	yax.SetTitleFont(10*axtitlefont+3)
 	yax.SetTitleSize(axtitlesize)
-	yax.SetTitleOffset(1.5)
+	yax.SetTitleOffset(2.)
     hist.Draw(drawoptions)
 
     # title
@@ -129,12 +132,12 @@ def plotsinglehistogram(hist, figname, title=None, xaxtitle=None, yaxtitle=None,
     	ttitle = ROOT.TLatex()	
     	ttitle.SetTextFont(10*titlefont+3)
     	ttitle.SetTextSize(titlesize)
-    	titlebox = (0.15,0.92)
+    	titlebox = (0.15,0.95)
 
     # draw all objects
     hist.Draw(drawoptions)
     ROOT.gPad.RedrawAxis()
-    pt.drawLumi(pad1, extratext=extralumitext, lumitext=lumitext)
+    if do_cms_text: pt.drawLumi(pad1, extratext=extralumitext, lumitext=lumitext)
     if label is not None: leg.Draw("same")
     if title is not None: ttitle.DrawLatexNDC(titlebox[0],titlebox[1],title)
 
