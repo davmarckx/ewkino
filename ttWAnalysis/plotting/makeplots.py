@@ -2,9 +2,13 @@
 # make plots #
 ##############
 
-# input histograms are supposed to be contained in a single root file.
-# the naming of the histograms should be <process name>_<region>_<variable name>_<systematic>.
-# note that only "nominal" is supported as systematic for now.
+# The input histograms are supposed to be contained in a single ROOT file.
+# The naming of the histograms should be <process name>_<region>_<variable name>.
+
+# Note: use this script to make plots from the output files of event binning
+# (see ../eventselection/eventbinner.cc).
+# Use prefitplots.py instead for output files of full analysis
+# (i.e. with systematics, see ../analysis/runanalysis.cc).
 
 import sys
 import os
@@ -47,7 +51,7 @@ if __name__=="__main__":
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--colormap', default='default')
   parser.add_argument('--extracmstext', default='Preliminary')
-  parser.add_argument('--unblind', default=False)
+  parser.add_argument('--unblind', action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -85,6 +89,9 @@ if __name__=="__main__":
       print('ERROR: histogram list for variable {} is empty,'.format(varname)
             +' skipping this variable.')
       continue
+
+    # printouts for testing
+    #for hist in thishists: print(hist.GetName())
     
     # find data and sim histograms
     datahists = []

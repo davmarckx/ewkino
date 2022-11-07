@@ -77,6 +77,13 @@ class ProcessInfo(object):
     ### disable a given systematic for a given set of processes
     self.enablesys( sysname, '-' )
 
+  def check_systematics( self, systematics ):
+    ### internal helper function to check list of systematics
+    for s in systematics:
+      if not s in self.systematics.keys():
+        raise Exception('ERROR in ProcessInfo.check_systematics:'
+          +' systematic {} not found.'.format(s))
+
   def changename( self, newname ):
     ### change name of this ProcessInfo
     # note: names of systematics that may contain the process name,
@@ -184,7 +191,27 @@ class Process(object):
   def get_difference_down( self, systematic, absolute=False ):
     ### get down-variation for a systematic, nominal subtracted
     return self.get_systematic( systematic, 1, diff=True, absolute=absolute )
-    
+
+  def get_systematics_rss( self, systematics='all' ):
+    ### get root-sum-square of relative systematics
+    # arguments:
+    # - systematics: list of systematics to include.
+    #   use 'all' to include all systematics in the current Process.
+    if( isinstance(systematics,str) and systematics=='all' ): 
+      systematics = self.systematics.keys()
+    self.info.check_systematics(systematics)
+    maxhistlist = []
+    # loop over systematics
+    for systematic in systematics:
+      # find bin-per-bin maximum absolute variation w.r.t nominal
+      uphist = self.get_systematic_up( systematic )
+      downhist = self.get_systematic_down( systematic )
+      maxhist = ht.binperbinmaxvar( [uphist,downhist], self.hist )
+      maxhistlist.append(maxhist)
+    # add resulting histograms in quadrature
+    syshist = ht.rootsumsquare(maxhistlist)
+    return syshist
+
 
 class ProcessInfoCollection(object):
   ### collection of ProcessInfos with addtional info common to all of them
@@ -200,6 +227,20 @@ class ProcessInfoCollection(object):
   def nprocesses( self ):
     ### get current number of processes
     return len(self.plist)
+
+  def check_processes( self, processes ):
+    ### internal helper function to check list of processes
+    for p in processes:
+      if not p in self.plist:
+        raise Exception('ERROR in ProcessInfoCollection.check_processes:'
+          +' process {} not found.'.format(p))
+
+  def check_systematics( self, systematics ):
+    ### internal helper function to check list of systematics
+    for s in systematics:
+      if not s in self.slist:
+        raise Exception('ERROR in ProcessInfoCollection.check_systematics:'
+          +' systematic {} not found.'.format(s))
 
   def addprocess( self, processinfo ):
     ### add a process
@@ -492,13 +533,6 @@ class ProcessCollection(object):
     for pname,pinfo in self.info.pinfos.items():
       self.processes[pname] = Process( pinfo, rootfile )
 
-  def check_processes( self, processes ):
-    ### internal helper function to check list of processes
-    for p in processes:
-      if not p in self.plist:
-        raise Exception('ERROR in ProcessCollection.check_processes:'
-          +' process {} not found.'.format(p))
-
   # to extend this class according to arising needs,
   # e.g. sum of nominal processes, linear sum of systematics,
   #      quadratic sum of systematics, ...
@@ -508,7 +542,7 @@ class ProcessCollection(object):
     if len(histlist)==0:
       raise Exception('ERROR in ProcessCollection.get_hist_sum:'
         +' received empty histogram list.')
-    if len(histlist)==1: return histlist[0]
+    if len(histlist)==1: return histlist[0].Clone()
     sumhist = histlist[0].Clone()
     for hist in histlist[1:]: sumhist.Add(hist)
     return sumhist
@@ -526,7 +560,7 @@ class ProcessCollection(object):
     # note: the up variations for several processes are added linearly.
     histlist = []
     if( isinstance(processes,str) and processes=='all' ): processes = self.plist
-    else: self.check_processes( processes )
+    else: self.info.check_processes( processes )
     for p in self.plist:
       if p in processes: histlist.append( self.processes[p].get_systematic_up(systematic) )
       else: histlist.append( self.processes[p].get_nominal() )
@@ -536,8 +570,58 @@ class ProcessCollection(object):
     ### get down variation for given systematic and process(es)
     histlist = []
     if( isinstance(processes,str) and processes=='all' ): processes = self.plist
-    else: self.check_processes( processes )
+    else: self.info.check_processes( processes )
     for p in self.plist:
       if p in processes: histlist.append( self.processes[p].get_systematic_down(systematic) )
       else: histlist.append( self.processes[p].get_nominal() )
     return self.get_hist_sum( histlist )
+
+  def get_difference_up( self, systematic, processes='all' ):
+    ### same as get_systematic_up but subtract nominal
+    uphist = self.get_systematic_up( systematic, processes=processes )
+    uphist.Add( self.get_nominal(), -1 )
+    return uphist
+
+  def get_difference_down( self, systematic, processes='all' ):
+    ### same as get_systematic_down but subtract nominal
+    downhist = self.get_systematic_down( systematic, processes=processes )
+    downhist.Add( self.get_nominal(), -1 )
+    return downhist
+
+  def get_systematics_rss( self, systematics='all', processes='all',
+                           correlate_processes=False ):
+    ### get root-sum-square of relative systematics
+    # arguments:
+    # - systematics: list of systematics to include.
+    #   use 'all' to include all systematics in the current Process.
+    # - processes: list of processes to take into account.
+    #   use 'all' to use all processes in the ProcessCollection.
+    # - correlate_processes: if True, each systematic will be summed linearly over processes,
+    #   and the resulting total variations are summed quadratically.
+    #   if False, the quadratic sum is performed over both systematics and processes.
+    if( isinstance(systematics,str) and systematics=='all' ): systematics = self.slist
+    else: self.info.check_systematics( systematics )
+    if( isinstance(processes,str) and processes=='all' ): processes = self.plist
+    else: self.info.check_processes( processes )
+    # special case: no systematics
+    if( len(systematics)==0 ):
+      hist = self.get_nominal().Clone()
+      hist.Reset()
+      return hist
+    if not correlate_processes:
+      # case of root sum square over both systematics and processes
+      per_process_rss = []
+      for p in processes: 
+        this_process_rss = self.processes[p].get_systematics_rss(systematics=systematics)
+        per_process_rss.append( this_process_rss )
+      return ht.rootsumsquare( per_process_rss )
+    else:
+      # case of linear sum over processes, quadratic over systematics
+      maxhistlist = []
+      for s in systematics:
+        uphist = self.get_systematic_up( s, processes=processes )
+        downhist = self.get_systematic_down( s, processes=processes )
+        nominalhist = self.get_nominal()
+        maxhist = ht.binperbinmaxvar( [uphist,downhist], nominalhist )
+        maxhistlist.append(maxhist)
+      return ht.rootsumsquare( maxhistlist )

@@ -27,3 +27,6 @@ sampleXSec/sampleLists
 
 # analysis specific output folders
 ttWAnalysis/*/output_*
+
+# analysis specific files
+ttWAnalysis/variables/*.txt

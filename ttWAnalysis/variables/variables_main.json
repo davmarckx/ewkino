@@ -1,0 +1,218 @@
+[
+{
+  "name": "_abs_eta_recoil",
+  "variable": "_abs_eta_recoil",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\\left|\\eta\\right|_{recoil}",
+  "unit": ""
+},
+{
+  "name": "_Mjj_max",
+  "variable": "_Mjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1200.0",
+  "axtitle": "m_{jet+jet}^{max}",
+  "unit": "GeV"
+},
+{
+  "name": "_lW_asymmetry",
+  "variable": "_lW_asymmetry",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Asymmetry (lepton from W)",
+  "unit": ""
+},
+{
+  "name": "_deepFlavor_max",
+  "variable": "_deepFlavor_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Highest b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_lT",
+  "variable": "_lT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "L_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_MT",
+  "variable": "_MT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "200.0",
+  "axtitle": "Transverse W boson mass",
+  "unit": "GeV"
+},
+{
+  "name": "_pTjj_max",
+  "variable": "_pTjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "p_{T}^{max}(jet+jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dPhill_max",
+  "variable": "_dPhill_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.15",
+  "axtitle": "\\Delta \\Phi (l,l)_{max}",
+  "unit": ""
+},
+{
+  "name": "_HT",
+  "variable": "_HT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "H_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_nJets",
+  "variable": "_nJets",
+  "nbins": "7",
+  "xlow": "-0.5",
+  "xhigh": "6.5",
+  "axtitle": "Number of jets",
+  "unit": ""
+},
+{
+  "name": "_nBJets",
+  "variable": "_nBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "unit": ""
+},
+{
+  "name": "_abs_eta_max",
+  "variable": "_abs_eta_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\\left|\\eta\\right|_{max}",
+  "unit": ""
+},
+{
+  "name": "_nMuons",
+  "variable": "_nMuons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of muons in event",
+  "unit": ""
+},
+{
+  "name": "_nElectrons",
+  "variable": "_nElectrons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of electrons in event",
+  "unit": ""
+},
+{
+  "name": "_yield",
+  "variable": "_yield",
+  "nbins": "1",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Total yield",
+  "unit": ""
+},
+{
+  "name": "_leptonPtLeading",
+  "variable": "_leptonPtLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "Leading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtSubLeading",
+  "variable": "_leptonPtSubLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "180.0",
+  "axtitle": "Subleading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtTrailing",
+  "variable": "_leptonPtTrailing",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "120.0",
+  "axtitle": "Trailing lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonEtaLeading",
+  "variable": "_leptonEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading lepton \\eta",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaSubLeading",
+  "variable": "_leptonEtaSubLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading lepton \\eta",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaTrailing",
+  "variable": "_leptonEtaTrailing",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Trailing lepton \\eta",
+  "unit": ""
+},
+{
+  "name": "_jetPtLeading",
+  "variable": "_jetPtLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "Leading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_jetPtSubLeading",
+  "variable": "_jetPtSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "Subleading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_lW_pt",
+  "variable": "_lW_pt",
+  "nbins": "14",
+  "xlow": "10.0",
+  "xhigh": "150.0",
+  "axtitle": "Lepton from W boson p_{T}",
+  "unit": "GeV"
+}
+]
