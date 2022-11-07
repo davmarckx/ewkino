@@ -8,6 +8,7 @@
 
 import sys
 import os
+import ROOT
 import argparse
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
@@ -33,6 +34,7 @@ if __name__=="__main__":
   parser.add_argument('--variables', required=True, type=os.path.abspath,
                       help='Path to json file holding variable definitions.')
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('--datatag', default='data')
   parser.add_argument('--includetags', default=None,
                       help='Comma-separated list of systematic tags to include')
   parser.add_argument('--excludetags', default=None,
@@ -101,15 +103,19 @@ if __name__=="__main__":
   if not doallprocesses: 
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
+  # select regions
+  mustcontainone = ['_{}_'.format(args.region)]
+  histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
   # select variables
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
-  print('Further selection (processes and variables):')
+  print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
   #  is the same for all variables)
-  PIC = ProcessInfoCollection.fromhistlist( histnames, variablenames[0], datatag='data' )
+  splittag = args.region+'_'+variablenames[0]
+  PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
   print('Constructed following ProcessInfoCollection from histogram list:')
   print(PIC)
 
@@ -137,7 +143,8 @@ if __name__=="__main__":
     print('Now running on variable {}...'.format(variablename))
 
     # make a ProcessCollection for this variable
-    PIC = ProcessInfoCollection.fromhistlist( histnames, variablename, datatag='data' )
+    splittag = args.region+'_'+variablename
+    PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
     PC = ProcessCollection( PIC, args.inputfile )
 
     # get the nominal simulated histograms
@@ -149,8 +156,16 @@ if __name__=="__main__":
     mcsysthist = PC.get_systematics_rss()
     
     # get data histogram
-    # to do, only dummy for now
-    datahist = PC.get_nominal()
+    datahistname = '{}_{}_{}_nominal'.format(args.datatag,args.region,variablename)
+    if not datahistname in histnames:
+      print('WARNING: no data histogram found.')
+      dathist = PC.get_nominal()
+      args.unblind = False
+    else:
+      f = ROOT.TFile.Open(args.inputfile,'read')
+      datahist = f.Get(datahistname)
+      datahist.SetDirectory(0) 
+      f.Close()
 
     # blind data histogram
     if not args.unblind:

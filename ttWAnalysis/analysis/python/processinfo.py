@@ -122,6 +122,10 @@ class Process(object):
       raise Exception(msg)
     self.hist = f.Get(self.info.histname)
     self.hist.SetDirectory(0)
+    # set name and title of nominal histogram
+    # (can diverge from the key name if only the key was changed for speed!)
+    self.hist.SetName( self.info.histname )
+    self.hist.SetTitle( self.info.name )
     # read systematic histograms
     for systematic,val in self.info.systematics.items():
       if( isinstance(val,str) and val=='-' ):
@@ -400,7 +404,7 @@ class ProcessInfoCollection(object):
     for n,p in self.pinfos.items():
       res += '  process: {}, pid: {}, yield: {}\n'.format(n,p.pid,p.pyield)
       for s in self.slist:
-        res += '  {}: {}\n'.format(s,p.systematics[s])
+        res += '    {}: {}\n'.format(s,p.systematics[s])
     res = res.strip('\n')
     return res
 

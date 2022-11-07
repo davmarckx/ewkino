@@ -16,7 +16,12 @@ npmodes.append( 'npfromsim' )
 #npmodes.append( 'npfromdata' )
 
 rename = 'processes/rename_processes_tttt.json'
+#rename = None
 renamemode = 'fast'
+
+selectmode = 'fast'
+
+doclip = False
 
 runmode = 'condor'
 
@@ -31,6 +36,8 @@ for year in years:
     if rename is not None:
       cmd += ' --rename '+rename
       cmd += ' --renamemode '+renamemode
+    cmd += ' --selectmode '+selectmode
+    if doclip: cmd += ' --doclip'
     cmd += ' --runmode '+runmode
     print('executing '+cmd)
     os.system(cmd)
