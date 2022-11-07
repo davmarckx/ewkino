@@ -64,11 +64,11 @@ GeneratorInfo::GeneratorInfo( const TreeReader& treeReader ) :
     }
     // check if sample contains less PS weights than expected
     if( _numberOfPsWeights < maxNumberOfPsWeights ){
-        std::string message = "ERROR in GeneratorInfo::GeneratorInfo:";
+        std::string message = "WARNING in GeneratorInfo::GeneratorInfo:";
         message.append( " _numberOfPsWeights is " + std::to_string(_numberOfPsWeights) );
         message.append( " which is smaller than " + std::to_string(maxNumberOfPsWeights) );
         message.append( " (the expected array size of _psWeights)." );
-        throw std::out_of_range( message );
+        //std::cerr << message << std::endl;
     }
     for( unsigned i = 0; i < _numberOfPsWeights; ++i ){
         _psWeights[i] = treeReader._psWeight[i];
@@ -81,7 +81,16 @@ GeneratorInfo::GeneratorInfo( const TreeReader& treeReader ) :
     _firstScaleIndex = paramMap["firstScaleIndex"];
     _numberOfScaleVariations = paramMap["numberOfScaleVariations"];
     _firstPdfIndex = paramMap["firstPdfIndex"];
-    _numberOfPdfVariations = paramMap["numberOfPdfVariations"]; 
+    _numberOfPdfVariations = paramMap["numberOfPdfVariations"];
+
+    // printouts for testing
+    /*std::cout << "INFO from GeneratorInfo constructor:" << std::endl;
+    std::cout << "  number of lhe weights: " << _numberOfLheWeights << std::endl;
+    std::cout << "  first scale index: " << _firstScaleIndex << std::endl;
+    std::cout << "  number of scale variations: " << _numberOfScaleVariations << std::endl;
+    std::cout << "  first pdf index: " << _firstPdfIndex << std::endl;
+    std::cout << "  number of pdf variations: " << _numberOfPdfVariations << std::endl;
+    std::cout << "  number of ps weights: " << _numberOfPsWeights << std::endl;*/
 }
 
 double retrieveWeight( const double* array, const unsigned index, 
