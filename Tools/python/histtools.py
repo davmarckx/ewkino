@@ -73,6 +73,16 @@ def loadhistograms(histfile,
     f.Close()
     return histlist
 
+def loadallhistnames(histfile):
+    ### read a root file containing histograms and make a list of histogram names.
+    # note: objects are not loaded (for speed), only a list of names is retrieved.
+    f = ROOT.TFile.Open(histfile)
+    histnames = []
+    keylist = f.GetListOfKeys()
+    for key in keylist: histnames.append(key.GetName())
+    f.Close()
+    return histnames
+
 def loadhistnames(histfile,
                   mustcontainall=[], mustcontainone=[],
                   maynotcontainall=[],maynotcontainone=[]):

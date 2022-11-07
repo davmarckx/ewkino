@@ -10,46 +10,72 @@
 
 SampleCrossSections::SampleCrossSections( const Sample& sample ){
 
-    //open file
+    // open file and check content
     std::shared_ptr< TFile > sampleFile = sample.filePtr();
 
     std::shared_ptr< TH1 > hCounter( dynamic_cast< TH1* >( sampleFile->Get( "blackJackAndHookers/hCounter" ) ) );
     hCounter->SetDirectory( gROOT );
     if( hCounter == nullptr ){
-        throw std::invalid_argument( "hCounter is not present in file '" + sample.fileName() + "'." );
+        throw std::invalid_argument( std::string("ERROR in SampleCrossSections constructor:")
+	    +" hCounter is not present in file '" + sample.fileName() + "'." );
     } 
 
     std::shared_ptr< TH1 > lheCounter( dynamic_cast< TH1* >( sampleFile->Get( "blackJackAndHookers/lheCounter" ) ) );
     lheCounter->SetDirectory( gROOT );
     if( lheCounter == nullptr ){
-        throw std::invalid_argument( "lheCounter is not present in file '" + sample.fileName() + "'." );
+        throw std::invalid_argument( std::string("ERROR in SampleCrossSections constructor:")
+	    +" lheCounter is not present in file '" + sample.fileName() + "'." );
     } 
 
     std::shared_ptr< TH1 > psCounter( dynamic_cast< TH1* >( sampleFile->Get( "blackJackAndHookers/psCounter" ) ) );
     psCounter->SetDirectory( gROOT );
     if( psCounter == nullptr ){
-        throw std::invalid_argument( "psCounter is not present in file '" + sample.fileName() + "'." );
+        throw std::invalid_argument( std::string("ERROR in SampleCrossSections constructor:")
+	    +" psCounter is not present in file '" + sample.fileName() + "'." );
     }
 
     double nominalSumOfWeights = hCounter->GetBinContent( 1 );
+    int numberOfLheWeights = lheCounter->GetNbinsX();
+    int numberOfPsWeights = psCounter->GetNbinsX();
     
-    //store all lhe variations
+    // printouts for testing
+    std::cout << "INFO from SampleCrossSections constructor:" << std::endl;
+    std::cout << "  number of lhe variations: " << numberOfLheWeights << std::endl;
+    std::cout << "  number of ps variations: " << numberOfPsWeights << std::endl;
+
+    // store all lhe variations
+    bool doLheWarning = true;
     for( int bin = 1; bin < lheCounter->GetNbinsX() + 1; ++bin ){
         double lheVariedSumOfWeights = lheCounter->GetBinContent( bin );
-
-        //0 entries indicate that a sample didn't have the respective weights
-        if( lheVariedSumOfWeights < 1e-6 ) break;
-        
+        // 0 entries indicates that a sample didn't have the respective weights
+        if( lheVariedSumOfWeights < 1e-6 ){
+	    if( doLheWarning ){
+		std::string msg = "WARNING in SampleCrossSection constructor:";
+		msg.append( " some or all of the lhe varied sum-of-weights are zero, " );
+		msg.append( " will use nominal sum-of-weights instead." );
+		std::cerr << msg << std::endl;
+		doLheWarning = false;
+	    }
+	    lheVariedSumOfWeights = nominalSumOfWeights;
+	}
         lheCrossSectionRatios.push_back( lheVariedSumOfWeights / nominalSumOfWeights );
     }
 
-    //store all parton shower variations
-    for( int bin = 1; bin < lheCounter->GetNbinsX() + 1; ++bin ){
+    // store all parton shower variations
+    bool doPsWarning = true;
+    for( int bin = 1; bin < psCounter->GetNbinsX() + 1; ++bin ){
         double psVariedSumOfWeights = psCounter->GetBinContent( bin );
-
-        //0 entries indicate that a sample didn't have the respective weights
-        if( psVariedSumOfWeights < 1e-6 ) break;
-
+        // 0 entries indicates that a sample didn't have the respective weights
+        if( psVariedSumOfWeights < 1e-6 ){
+	    if( doPsWarning ){
+                std::string msg = "WARNING in SampleCrossSection constructor:";
+                msg.append( " some or all of the ps varied sum-of-weights are zero, " );
+                msg.append( " will use nominal sum-of-weights instead." );
+                std::cerr << msg << std::endl;
+                doPsWarning = false;
+            }
+            psVariedSumOfWeights = nominalSumOfWeights;
+	}
         psCrossSectionRatios.push_back( psVariedSumOfWeights / nominalSumOfWeights );
     }
 }
