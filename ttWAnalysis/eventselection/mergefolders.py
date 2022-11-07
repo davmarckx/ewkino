@@ -3,6 +3,7 @@
 ######################################################
 # Run after eventbinner and before mergehists,
 # in order to merge the folders <year>_sim and <year>_data into one.
+# The files in those folders and the histograms they contain are left untouched.
 
 import sys
 import os

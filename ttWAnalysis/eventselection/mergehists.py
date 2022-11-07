@@ -1,8 +1,19 @@
 #######################################
-# merge output files from eventbinner #
+# Merge output files from eventbinner #
 #######################################
-# note: corresponds to new convention with one file per sample
+# Note: corresponds to new convention with one file per sample
 #       (inclusve in event selections and selection types)
+# The input consists of a collection of ROOT files containing histograms
+# with the following naming convention (see also eventbinner.cc):
+# <process tag>_<event selection>_<selection type>_<variable>.
+# The output is a single file that is the hadd of the input files.
+# Apart from the hadding, the following operations are also performed:
+# - renaming processes (happens before merging) (optional)
+# - remove redundant histograms (depending on npmode)
+# - remove selection type from histogram name
+#   (output file contains histograms named <process tag>_<event selection>_<variable>.)
+# - clip all histograms
+
 
 import sys
 import os
@@ -17,6 +28,56 @@ import histtools as ht
 import argparsetools as apt
 
 
+def rename_processes_in_file(renamedict, rfile, mode='custom'):
+  ### rename processes for all histograms in a file
+
+  if mode=='custom':
+    # first implementation
+    # works, but can be slow
+    histlist = ht.loadallhistograms(rfile)
+    for hist in histlist:
+      histname = hist.GetName()
+      pname,rem = histname.split('_',1)
+      newpname = renamedict.get(pname,pname)
+      newhistname = '_'.join([newpname,rem])
+      hist.SetTitle(newpname)
+      hist.SetName(newhistname)
+      rf = ROOT.TFile.Open(rfile,'recreate')
+      for hist in histlist: hist.Write()
+      rf.Close()
+
+  elif mode=='rootmv':
+    # second implementation
+    # experimental, note that histogram titles are not updated!
+    # seems to be even much slower than above.
+    histnamelist = ht.loadallhistnames(rfile)
+    for histname in histnamelist:
+      pname,rem = histname.split('_',1)
+      newpname = renamedict.get(pname,pname)
+      newhistname = '_'.join([newpname,rem])
+      os.system('rootmv {}:{} {}:{}'.format(rfile,histname,rfile,newhistname))
+
+  elif mode=='fast':
+    # third implementation
+    # same as custom, but assume only one process per file
+    # (e.g. in case of one file histogram file per sample),
+    # so can skip this file based on checking first histogram only.
+    firsthistname = ht.loadallhistnames(rfile)[0]
+    pname,rem = firsthistname.split('_',1)
+    if not pname in renamedict.keys(): return
+    newpname = renamedict[pname]
+    histlist = ht.loadallhistograms(rfile)
+    for hist in histlist:
+      histname = hist.GetName()
+      pname,rem = histname.split('_',1)
+      newhistname = '_'.join([newpname,rem])
+      hist.SetTitle(newpname)
+      hist.SetName(newhistname)
+      rf = ROOT.TFile.Open(rfile,'recreate')
+      for hist in histlist: hist.Write()
+      rf.Close()
+
+
 if __name__=='__main__':
 
   # parse arguments
@@ -25,6 +86,7 @@ if __name__=='__main__':
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
   parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata'])
   parser.add_argument('--rename', default=None, type=apt.path_or_none)
+  parser.add_argument('--renamemode', default='custom', choices=['custom','rootmv','fast'])
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()
 
@@ -45,7 +107,9 @@ if __name__=='__main__':
     cmd += ' --directory '+args.directory
     cmd += ' --outputfile '+args.outputfile
     cmd += ' --npmode '+args.npmode
-    if args.rename is not None: cmd += ' --rename '+args.rename
+    if args.rename is not None: 
+      cmd += ' --rename '+args.rename
+      cmd += ' --renamemode '+args.renamemode
     cmd += ' --runmode local'
     ct.submitCommandAsCondorJob( 'cjob_mergehists', cmd,
                                  cmssw_version=CMSSW_VERSION )
@@ -80,23 +144,17 @@ if __name__=='__main__':
 
   # rename processes if requested
   if args.rename is not None:
+    print('Renaming processes in all selected files...')
     with open(args.rename,'r') as f:
       renamedict = json.load(f)
-    for f in tempfiles:
-      histlist = ht.loadallhistograms(f)
-      for hist in histlist:
-        histname = hist.GetName()
-        pname,rem = histname.split('_',1)
-        newpname = renamedict.get(pname,pname)
-        newhistname = '_'.join([newpname,rem])
-        hist.SetTitle(newpname)
-        hist.SetName(newhistname)
-      rf = ROOT.TFile.Open(f,'recreate')
-      for hist in histlist: hist.Write()
-      rf.Close()
+    for i,f in enumerate(tempfiles):
+      print('  - file {}/{}'.format(i+1,len(tempfiles)))
+      sys.stdout.flush()
+      rename_processes_in_file(renamedict, f, mode=args.renamemode)
 
   # do hadd to merge histograms
-  # with same process, event selection, selection type and variable.
+  # with same process, variable, and systematic.
+  print('Running hadd...')
   cmd = 'hadd -f {}'.format(args.outputfile)
   for f in tempfiles: cmd += ' {}'.format(f)
   os.system(cmd)
@@ -109,6 +167,7 @@ if __name__=='__main__':
     
   # select histograms to keep in the output
   # and remove selection type tag, as it is not needed anymore.
+  print('Selecting histograms to keep and removing selection type tag...')
   if args.npmode=='npfromsim':
     histlist = ht.selecthistograms(histlist, mustcontainall=['_tight_'])[1]
     if len(histlist)==0:
@@ -123,6 +182,7 @@ if __name__=='__main__':
       hist.SetName( hist.GetName().replace('_prompt_','_').replace('_fakerate_','_') )
 
   # clip all resulting histograms to minimum zero
+  print('Clipping all histograms to minimum zero...')
   ht.cliphistograms(histlist)
 
   # re-write output file

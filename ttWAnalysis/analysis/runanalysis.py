@@ -58,13 +58,13 @@ systematics = ([
 if __name__=='__main__':
 
   # parse arguments
-  parser = argparse.ArgumentParser('Event flattening')
+  parser = argparse.ArgumentParser('Run main analysis code')
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
-  parser.add_argument('--event_selection', required=True, choices=event_selections)
-  parser.add_argument('--selection_type', default='tight', choices=selection_types)
+  parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
+  parser.add_argument('--selection_type', default='tight', choices=selection_types, nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
@@ -90,6 +90,8 @@ if __name__=='__main__':
   variables_ext = os.path.splitext(args.variables)[1]
   if not variables_ext=='.json':
     raise Exception('ERROR: variable file {} should be .json.'.format(args.variables))
+  event_selections = ','.join(args.event_selection)
+  selection_types = ','.join(args.selection_type)
 
   # check if executable is present
   exe = './runanalysis'
@@ -134,7 +136,7 @@ if __name__=='__main__':
     # make the command
     command = exe + ' {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
-                    variablestxt, args.event_selection, args.selection_type,
+                    variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, args.nevents, systematics )
     commands.append(command)
 

@@ -1,3 +1,12 @@
+/*
+Event binning
+*/
+
+// Takes a ROOT ntuple as an input and produces a ROOT file with histograms,
+// corresponding to the provided event selection and variable definitions.
+// The histograms in the output file are named as follows:
+// <process tag>_<event selection>_<selection type>_<variable>.
+
 // inlcude c++ library classes
 #include <string>
 #include <vector>
