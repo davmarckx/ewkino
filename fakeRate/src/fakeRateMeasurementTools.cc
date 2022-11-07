@@ -212,8 +212,21 @@ void fillFakeRateMeasurementHistograms(const std::string& leptonFlavor, const st
 	if( !fakeRate::passTriggerJetSelection( event, triggerToUse, triggerToJetPtMap ) ) continue;
 
 	// determine correct event weight
-	double weight = event.weight()*nEventsReweight;
-        if( event.isMC() ){
+	double weight = event.weight();
+	    
+	// temp: remove events with unphysical large weights
+        // issue with unknown cause observed in a small number of generator weights 
+        // in UL WJets samples
+        if( weight>1e4 ){
+            std::string msg = "WARNING: vetooing event with large weight.";
+            msg += " (weight is " + std::to_string(weight) + ")";
+            std::cerr << msg << std::endl;
+            continue;
+        }
+
+	weight *= nEventsReweight;
+        
+	if( event.isMC() ){
             const Prescale& prescale = prescaleMap.find( triggerToUse )->second;
             weight *= prescale.value();
             weight *= reweighter.totalWeight( event );

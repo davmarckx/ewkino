@@ -145,10 +145,17 @@ void fillPrescaleMeasurementHistograms(
             if( !fakeRate::passTriggerJetSelection( event, trigger, jetPtCutMap ) ) continue;
 	    // fill correct histogram
             double valueToFill = ( useMT ? mT : event.metPt() );
+	    bool isPrompt = false;
+	    if( event.isMC() ){
+		if( lepton.isPrompt() && treeReader.currentSamplePtr()->processName()!="QCD" ){
+		    // manually set all leptons in QCD samples to nonprompt!
+		    isPrompt = true;
+		}
+	    }
             if( isData ){
                 data_map[ trigger ]->Fill( std::min( valueToFill, histInfo.maxBinCenter() ), weight );
             } else {
-                if( lepton.isPrompt() ){
+                if( isPrompt ){
                     prompt_map[ trigger ]->Fill( std::min( valueToFill, histInfo.maxBinCenter() ),
                                                 weight );
                 } else {
