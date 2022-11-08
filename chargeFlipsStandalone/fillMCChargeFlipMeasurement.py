@@ -15,7 +15,11 @@ from samplelisttools import readsamplelist
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 # (pick any combination from '2016PreVFP', '2016PostVFP', '2017' and '2018')
 flavours = ['electron','muon']
-# (only 'electron supported for now')
+# (pick from 'electron' and 'muon')
+processes = ['DY', 'TT', 'all']
+# (pick process tags present in the sample lists, use 'all' to use all samples)
+binnings = ['Gianny','TuThong']
+# (pick from 'Gianny' and 'TuThong')
 runmode = 'condor'
 # (pick from 'condor' or 'local')
 nentries = 5e6
@@ -23,8 +27,9 @@ nentries = 5e6
 samplelistdirectory = os.path.abspath('../chargeFlips/sampleListsUL')
 samplelist = 'samples_chargeFlips_MC_{}.txt'
 # (see also below in loop to set the correct sample list name per flavour/year!)
-sampledirectory = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_sim/{}'
+sampledirectory = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_chargeflips/sim/{}'
 # (directory where samples are located)
+outputdirectory = 'chargeFlipMaps_v20221108'
 
 # check if executable exists
 exe = './fillMCChargeFlipMeasurement'
@@ -45,10 +50,14 @@ for year in years:
     samples = readsamplelist( thissamplelist, sampledir=thissampledir )
     nsamples = samples.number()
     print('Found {} samples.'.format(nsamples))
-    # make the command and add it to the list
-    command = '{} {} {} {} {} {}'.format(exe,
-              flavour, year, thissamplelist, thissampledir, nentries)
-    cmds.append(command)
+    # loop over other settings
+    for process in processes:
+      for binning in binnings:   
+        # make the command and add it to the list
+        command = '{} {} {} {} {} {} {} {} {}'.format(exe,
+                  flavour, year, process, binning,
+                  thissamplelist, thissampledir, outputdirectory, nentries)
+        cmds.append(command)
 
 # submit the commands as jobs
 if( runmode=='local' ):

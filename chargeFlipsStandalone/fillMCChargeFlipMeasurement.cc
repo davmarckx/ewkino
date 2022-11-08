@@ -131,9 +131,12 @@ void setBranchAddresses( TreeReader treeReader ){
 
 
 void determineMCChargeFlipRate( const std::string& year,
-				const std::string& flavour, 
+				const std::string& flavour,
+				const std::string& process,
+				const std::string& binning,
 				const std::string& sampleListFile, 
 				const std::string& sampleDirectory,
+				const std::string& outputDirectory,
 				const long nEntries ){
 
     // simple check on provided year identifier
@@ -144,12 +147,23 @@ void determineMCChargeFlipRate( const std::string& year,
 	throw std::invalid_argument("ERROR: flavour '"+flavour+"' not recognized.");
     }
 
-    // initialize bins
-    //const std::vector< double > ptBins = {10., 20., 30., 45., 65., 100., 200.};
-    //const std::vector< double > etaBins = { 0., 0.8, 1.442, 2.5 };
-    // for syncing with TT:
-    const std::vector< double > ptBins = {10., 30., 45., 65., 100., 200.};
-    const std::vector< double > etaBins = { 0., 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5 };
+    // simple check on provided process identifier
+    bool doAllProcesses = false;
+    if( process=="all" ){ doAllProcesses = true; }
+
+    // simple check on provided binning identifier
+    if( binning!="Gianny" && binning!="TuThong" ){
+	throw std::invalid_argument("ERROR: binning '"+binning+"' not recognized.");
+    }
+
+    // initialize bins (syncing with Gianny, see AN-21-182)
+    const std::vector< double > ptBins = {10., 30., 45., 60., 100., 200.};
+    const std::vector< double > etaBins = {0., 0.8, 1.1, 1.4, 1.6, 1.9, 2.5};
+    // initialize bins (for syncing with Tu Thong, see AN-19-127)
+    if( binning=="TuThong" ){
+	const std::vector< double > ptBins = {10., 30., 45., 65., 100., 200.};
+	const std::vector< double > etaBins = {0., 0.4, 0.8, 1.1, 1.4, 1.6, 1.9, 2.2, 2.5};
+    }
 
     // initialize 2D histogram for numerator
     std::string numerator_name = "chargeFlipRate_numerator_" + flavour + "_" + year;
@@ -173,11 +187,24 @@ void determineMCChargeFlipRate( const std::string& year,
     ratioMap->Sumw2();
 
     // make TreeReader and loop over samples
+    std::cout << "initializing TreeReader..." << std::endl;
     TreeReader treeReader( sampleListFile, sampleDirectory );
     for( unsigned i = 0; i < treeReader.numberOfSamples(); ++i ){
 	// initSample arguments: doInitTree, doInitHCounter
         treeReader.initSample( false, false );
-	setBranchAddresses(treeReader);	
+
+	// check if this sample needs to be considered
+	std::cout << "current sample: " << treeReader.currentSamplePtr()->fileName() << std::endl;
+	std::string currentProcess = treeReader.currentSamplePtr()->processName();
+	if( !doAllProcesses && currentProcess!=process ){
+	    std::string msg = "  -> skipping this sample since it belongs to the ";
+	    msg.append( currentProcess+" process, and only "+process+" was requested.");
+	    std::cout << msg << std::endl;
+	    continue;
+	}
+
+	// set branch addresses
+	setBranchAddresses(treeReader);
     
 	// loop over entries
 	long unsigned numberOfPassingLeptons = 0;
@@ -190,15 +217,15 @@ void determineMCChargeFlipRate( const std::string& year,
 	    treeReader._currentTreePtr->GetEntry(entry);
 
 	    // printouts for testing
-	    std::cout << "event ID: " << _runNb << "  " << _lumiBlock << "  " << _eventNb << "  " << std::endl;
-	    /*std::cout << "  leptons: " << l1 << " " << l2 << std::endl;
+	    /*std::cout << "event ID: " << _runNb << "  " << _lumiBlock << "  " << _eventNb << "  " << std::endl;
+	    std::cout << "  leptons: " << l1 << " " << l2 << std::endl;
 	    std::cout << "  lepton pt: " << l1_pt << " " << l2_pt << std::endl;
 	    std::cout << "  number of leptons: " << _nL << std::endl;
 	    std::cout << "  lFlavor: " << _lFlavor[l1] << " " << _lFlavor[l2] << std::endl;
 	    std::cout << "  lPt: " << _lPt[l1] << " " << _lPt[l2] << std::endl;
-	    std::cout << "  lPtCorr: " << _lPtCorr[l1] << " " << _lPtCorr[l2] << std::endl;*/
+	    std::cout << "  lPtCorr: " << _lPtCorr[l1] << " " << _lPtCorr[l2] << std::endl;
 	    std::cout << "  weight: " << _weight << std::endl;
-	    std::cout << "  genWeight: " << genWeight << std::endl;
+	    std::cout << "  genWeight: " << genWeight << std::endl;*/
 
 	    // do event selection
 	    // (none for now)
@@ -234,7 +261,11 @@ void determineMCChargeFlipRate( const std::string& year,
 	    // fill histograms
             if(considerL1){
 		numberOfPassingLeptons++;
-		histogram::fillValues( denominatorMap.get(), _lPtCorr[l1], fabs(_lEta[l1]), 1. );
+		// denominator: no charge flip
+		if( !l1IsChargeFlip ){
+		    histogram::fillValues( denominatorMap.get(), _lPtCorr[l1], fabs(_lEta[l1]), 1. );
+		}
+		// numerator: charge flip
 		if( l1IsChargeFlip ){
 		    histogram::fillValues( numeratorMap.get(), _lPtCorr[l1], fabs(_lEta[l1]), 1. );
 		    histogram::fillValues( ratioMap.get(), _lPtCorr[l1], fabs(_lEta[l1]), 1. );
@@ -252,7 +283,11 @@ void determineMCChargeFlipRate( const std::string& year,
 	    // fill histograms
             if(considerL2){
 		numberOfPassingLeptons++;
-                histogram::fillValues( denominatorMap.get(), _lPtCorr[l2], fabs(_lEta[l2]), 1. );
+		// denominator: no charge flip
+		if( !l2IsChargeFlip ){
+		    histogram::fillValues( denominatorMap.get(), _lPtCorr[l2], fabs(_lEta[l2]), 1. );
+		}
+		// numerator: charge flip
                 if( l2IsChargeFlip ){
                     histogram::fillValues( numeratorMap.get(), _lPtCorr[l2], fabs(_lEta[l2]), 1. );
                     histogram::fillValues( ratioMap.get(), _lPtCorr[l2], fabs(_lEta[l2]), 1. );
@@ -266,19 +301,20 @@ void determineMCChargeFlipRate( const std::string& year,
     ratioMap->Divide( denominatorMap.get() );
 
     // create output directory if it does not exist 
-    std::string outputDirectory = "chargeFlipMaps";
     systemTools::makeDirectory( outputDirectory );
+    std::string outputBaseName = "chargeFlipMap_MC_" + flavour + "_" + year;
+    outputBaseName += "_process_" + process + "_binning_" + binning;
     
     // plot fake-rate map
     // write numbers in exponential notation because charge flip rates tend to be very small
     gStyle->SetPaintTextFormat( "4.2e" );
     std::string plotOutputPath =  stringTools::formatDirectoryName( outputDirectory );
-    plotOutputPath += "chargeFlipMap_MC_" + flavour + "_" + year + ".pdf";
+    plotOutputPath += outputBaseName+".pdf";
     plot2DHistogram( ratioMap.get(), plotOutputPath );
 
     // write fake-rate map to file 
     std::string rootOutputPath = stringTools::formatDirectoryName( outputDirectory ); 
-    rootOutputPath += "chargeFlipMap_MC_" + flavour + "_" + year + ".root";
+    rootOutputPath += outputBaseName+".root";
     TFile* outputFile = TFile::Open( rootOutputPath.c_str(), "RECREATE" );
     ratioMap->Write();
     numeratorMap->Write();
@@ -292,24 +328,31 @@ int main( int argc, char* argv[] ){
     std::cerr << "###starting###" << std::endl;
     // check command line arguments
     std::vector< std::string > argvStr( &argv[0], &argv[0] + argc );
-    if( !( argvStr.size() == 6 ) ){
+    long unsigned int nargs = 8;
+    if( argvStr.size() != nargs+1 ){
         std::cerr << "ERROR: found " << argc-1 << " command line args,";
-	std::cerr << " while 5 are needed:" << std::endl;
-        std::cerr << "  - flavour (only 'electron' supported for now)" << std::endl;
+	std::cerr << " while " << nargs << " are needed:" << std::endl;
+        std::cerr << "  - flavour" << std::endl;
 	std::cerr << "  - year" << std::endl;
+	std::cerr << "  - process" << std::endl;
+	std::cerr << "  - binning" << std::endl;
 	std::cerr << "  - sample list" << std::endl;
 	std::cerr << "  - sample directory" << std::endl;
+	std::cerr << "  - output directory" << std::endl;
 	std::cerr << "  - number of entries" << std::endl;
         return 1;
     }
     std::string flavour = argvStr[1];
     std::string year = argvStr[2];
-    std::string sampleList = argvStr[3];
-    std::string sampleDirectory = argvStr[4];
-    long nEntries = std::stol(argvStr[5]);
+    std::string process = argvStr[3];
+    std::string binning = argvStr[4];
+    std::string sampleList = argvStr[5];
+    std::string sampleDirectory = argvStr[6];
+    std::string outputDirectory = argvStr[7];
+    long nEntries = std::stol(argvStr[8]);
     setTDRStyle();
     determineMCChargeFlipRate(
-	year, flavour, sampleList, sampleDirectory, nEntries);
+	year, flavour, process, binning, sampleList, sampleDirectory, outputDirectory, nEntries);
     std::cerr << "###done###" << std::endl;
     return 0;
 }
