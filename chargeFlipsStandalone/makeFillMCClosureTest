@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed,-lpthread
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= fillMCClosureTest.cc ../chargeFlips/src/chargeFlipTools.cc ../codeLibrary.o
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=fillMCClosureTest
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+	
+clean:
+	rm -rf *o $(EXECUTABLE)

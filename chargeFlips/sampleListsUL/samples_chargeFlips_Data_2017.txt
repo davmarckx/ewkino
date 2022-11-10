@@ -1,0 +1,8 @@
+DY  sim/2017/DYMLM10_Summer20UL17MiniAOD.root
+DY  sim/2017/DYFXFX50_Summer20UL17MiniAOD.root
+TT  sim/2017/TTJets_Summer20UL17MiniAOD.root 
+Obs data/2017/DoubleEG_Summer20UL17.root
+Obs data/2017/DoubleMuon_Summer20UL17.root
+Obs data/2017/MuonEG_Summer20UL17.root
+Obs data/2017/SingleElectron_Summer20UL17.root
+Obs data/2017/SingleMuon_Summer20UL17.root

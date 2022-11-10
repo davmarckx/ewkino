@@ -18,18 +18,18 @@ flavours = ['electron','muon']
 # (pick from 'electron' and 'muon')
 processes = ['DY', 'TT', 'all']
 # (pick process tags present in the sample lists, use 'all' to use all samples)
-binnings = ['Gianny','TuThong']
+binnings = ['David','Gianny','TuThong']
 # (pick from 'Gianny' and 'TuThong')
 runmode = 'condor'
 # (pick from 'condor' or 'local')
-nentries = 5e6
+nentries = -1
 # (number of entries to use per file)
 samplelistdirectory = os.path.abspath('../chargeFlips/sampleListsUL')
 samplelist = 'samples_chargeFlips_MC_{}.txt'
 # (see also below in loop to set the correct sample list name per flavour/year!)
 sampledirectory = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_chargeflips/sim/{}'
 # (directory where samples are located)
-outputdirectory = 'chargeFlipMaps_v20221108'
+outputdirectory = 'chargeFlipMaps_v20221109'
 
 # check if executable exists
 exe = './fillMCChargeFlipMeasurement'

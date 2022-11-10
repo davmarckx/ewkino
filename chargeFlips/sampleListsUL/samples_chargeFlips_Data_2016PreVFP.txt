@@ -1,0 +1,8 @@
+DY  sim/2016PreVFP/DYMLM10_Summer20UL16MiniAODAPV.root
+DY  sim/2016PreVFP/DYFXFX50_Summer20UL16MiniAODAPV.root
+TT  sim/2016PreVFP/TTJets_Summer20UL16MiniAODAPV.root 
+Obs data/2016PreVFP/DoubleEG_Summer20UL16MiniAODAPV.root
+Obs data/2016PreVFP/DoubleMuon_Summer20UL16MiniAODAPV.root
+Obs data/2016PreVFP/MuonEG_Summer20UL16MiniAODAPV.root
+Obs data/2016PreVFP/SingleElectron_Summer20UL16MiniAODAPV.root
+Obs data/2016PreVFP/SingleMuon_Summer20UL16MiniAODAPV.root

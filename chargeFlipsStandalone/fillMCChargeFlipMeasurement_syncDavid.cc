@@ -243,10 +243,10 @@ void determineMCChargeFlipRate( const std::string& year,
 	    if( !(_lIsPrompt[l1] && _lIsPrompt[l2]) ) continue;
             // invariant mass must be on-Z (only for DY)
 	    // (turn this cut OFF for syncing with David on 08/11/2022)
-            if( currentProcess == "DY" && fabs(mll-particle::mZ)>15 ) continue;
+            //if( currentProcess == "DY" && fabs(mll-particle::mZ)>15 ) continue;
 	    // veto events with conversions 
 	    // (only for syncing with David on 08/11/2022)
-	    //if( _lMatchPdgId[l1]==22 || _lMatchPdgId[l2]==22 ) continue;
+	    if( _lMatchPdgId[l1]==22 || _lMatchPdgId[l2]==22 ) continue;
 
 	    // check lepton indices
 	    if( (_lFlavor[l1]==0 && fabs(l1_pt-_lPtCorr[l1])>1e-3) 

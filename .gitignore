@@ -27,6 +27,8 @@ sampleXSec/sampleLists
 
 # analysis specific output folders
 ttWAnalysis/*/output_*
+chargeFlipsStandalone/chargeFlipMaps_v*
+chargeFlipsStandalone/closurePlots_v*
 
 # analysis specific files
 ttWAnalysis/variables/*.txt
