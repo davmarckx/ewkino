@@ -193,6 +193,22 @@ def histtoarray( hist ):
 	res[i] = hist.GetBinContent(i)
     return res
 
+def histtoarray2d( hist, keepouterflow=True ):
+    ### same as above but for 2D histogram
+    nxbins = hist.GetNbinsX()
+    nybins = hist.GetNbinsY()
+    if keepouterflow:
+	res = np.zeros( (nxbins+2, nybins+2) )
+	for i in range(0, nxbins+2):
+	    for j in range(0, nybins+2):
+		res[i,j] = hist.GetBinContent(i,j)
+    else:
+	res = np.zeros( (nxbins, nybins) )
+        for i in range(1, nxbins+1):
+            for j in range(1, nybins+1):
+                res[i-1,j-1] = hist.GetBinContent(i,j)
+    return res
+
 def tgraphtohist( graph ):
 
     # get list of x values and sort them

@@ -45,7 +45,7 @@ if __name__=='__main__':
     hist = histlist[0]
     # set plot properties
     title = 'Simulated charge misid. map for {} {}s'.format(year,flavour)
-    figname = 'chargeFlipMap_MC_{}_{}'.format(flavour,year)
+    figname = f.replace('.root','')
     figname = os.path.join(args.inputdir,figname)
     xaxtitle = hist.GetXaxis().GetTitle()
     yaxtitle = hist.GetYaxis().GetTitle()

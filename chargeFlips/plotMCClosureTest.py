@@ -21,10 +21,12 @@ if len(sys.argv)>1:
 else: 
   inputfiles = ([f for f in os.listdir(os.getcwd()) 
          if ('closurePlots_MC' in f and f[-5:]=='.root') ])
+inputfiles = [os.path.abspath(f) for f in inputfiles]
 
 # loop over input files
 for f in inputfiles:
   print('now running on {}...'.format(f))
+  fdir,fbase = os.path.split(f)
 
   # set output directory
   outdir = f.replace('.root','')
@@ -33,7 +35,7 @@ for f in inputfiles:
   # determine instance properties from filename
   # (the filename is assumed to be of the following form: 
   # closurePlots_MC_<process>_<year>.root)
-  instancename = outdir.replace('closurePlots_MC_','')
+  instancename = fbase.replace('closurePlots_MC_','').replace('.root','')
   instanceparts = instancename.split('_')
   process = instanceparts[0]
   year = instanceparts[1]
