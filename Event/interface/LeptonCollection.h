@@ -69,9 +69,9 @@ class LeptonCollection : public PhysicsObjectCollection< Lepton > {
         size_type numberOfUniqueOSPairs() const;
 
         //reconstruct best Z boson candidate
-        double bestZBosonCandidateMass() const;
-        std::pair< size_type, size_type > bestZBosonCandidateIndices() const;
-        std::pair< std::pair< size_type, size_type >, double > bestZBosonCandidateIndicesAndMass() const;
+        double bestZBosonCandidateMass(bool allowSameSign = false) const;
+        std::pair< size_type, size_type > bestZBosonCandidateIndices(bool allowSameSign = false) const;
+        std::pair< std::pair< size_type, size_type >, double > bestZBosonCandidateIndicesAndMass(bool allowSameSign = false) const;
 
         //remove tau leptons from collection
         void removeTaus();

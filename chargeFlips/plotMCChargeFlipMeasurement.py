@@ -33,9 +33,13 @@ if __name__=='__main__':
     nameparts = f.replace('.root','').split('_')
     flavour = nameparts[2]
     year = nameparts[3]
+    process = nameparts[5]
+    binning = nameparts[7]
     print('Running on file {} with following properties:'.format(f))
     print('  - year: {}'.format(year))
     print('  - flavour: {}'.format(flavour))
+    print('  - process: {}'.format(process))
+    print('  - binning: {}'.format(binning))
     # load the charge flip map
     histlist = ht.loadhistograms(os.path.join(args.inputdir,f), 
 		mustcontainall=['chargeFlipRate_{}_{}'.format(flavour,year)])
@@ -45,6 +49,8 @@ if __name__=='__main__':
     hist = histlist[0]
     # set plot properties
     title = 'Simulated charge misid. map for {} {}s'.format(year,flavour)
+    extrainfos = (['(Measurement process: {},'.format(process)
+                 +' binning: {})'.format(binning)])
     figname = f.replace('.root','')
     figname = os.path.join(args.inputdir,figname)
     xaxtitle = hist.GetXaxis().GetTitle()
@@ -60,4 +66,5 @@ if __name__=='__main__':
                     drawoptions='colztexte', cmin=None, cmax=None,
 		    bintextoptions='4.2e',
                     docmstext=False,
-                    topmargin=None, bottommargin=None, leftmargin=0.1, rightmargin=0.2)
+                    topmargin=None, bottommargin=None, leftmargin=0.1, rightmargin=0.2,
+                    extrainfos=extrainfos, infoleft=0.1, infotop=0.92)
