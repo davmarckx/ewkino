@@ -14,10 +14,21 @@ from samplelisttools import readsamplelist
 
 
 # fixed settings
-event_selections = (['wzcontrolregion','zzcontrolregion','zgcontrolregion',
-                     'signalregion_trilepton',
-                     'nonprompt_trilepton_noossf', 'nonprompt_trilepton_noz',
-                     'nonprompt_trilepton', 'nonprompt_dilepton'])
+event_selections = (['signalregion_dilepton_inclusive',
+		     'signalregion_dilepton_ee',
+		     'signalregion_dilepton_em',
+		     'signalregion_dilepton_me',
+		     'signalregion_dilepton_mm',
+		     'signalregion_trilepton',
+		     'wzcontrolregion','zzcontrolregion','zgcontrolregion',
+		     'trileptoncontrolregion','fourleptoncontrolregion',
+                     'npcontrolregion_dilepton_inclusive',
+		     'npcontrolregion_dilepton_ee',
+		     'npcontrolregion_dilepton_em',
+		     'npcontrolregion_dilepton_me',
+		     'npcontrolregion_dilepton_mm',
+		     'npcontrolregion_trilepton',
+		     'cfcontrolregion'])
 selection_types = ['tight','prompt','fakerate','2tight']
 variations = ['nominal','all','JECDown','JECUp','JERDown','JERUp','UnclDown','UnclUp']
 

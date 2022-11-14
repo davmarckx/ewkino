@@ -14,26 +14,47 @@ Met getmet(const Event&, const std::string& variation);
 bool hasLeptonFromMEExternalConversion( const Event& );
 bool leptonFromMEExternalConversion( const Lepton& );
 bool passAnyTrigger(Event&);
-bool passLeptonPtSelections(Event&);
 bool hasnFOLeptons(Event&, int, bool select);
 bool hasnTightLeptons(Event&, int, bool select);
 bool allLeptonsArePrompt(const Event&);
 // pass functions
+// signal regions
+bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_ee(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_em(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_me(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_mm(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
-                                const std::string& variation, const bool selectbjets);
+                        const std::string& variation, const bool selectbjets);
+// prompt control regions
 bool pass_wzcontrolregion(Event&, const std::string& selectiontype, 
 			const std::string& variation, const bool selectbjets);
 bool pass_zzcontrolregion(Event&, const std::string& selectiontype, 
 			const std::string& variation, const bool selectbjets);
 bool pass_zgcontrolregion(Event&, const std::string& selectiontype, 
 			const std::string& variation, const bool selectbjets);
-bool pass_nonprompt_trilepton_noossf(Event&, const std::string& selectiontype,
+bool pass_trileptoncontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
-bool pass_nonprompt_trilepton_noz(Event&, const std::string& selectiontype,
+bool pass_fourleptoncontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
-bool pass_nonprompt_trilepton(Event&, const std::string& selectiontype,
+// nonprompt control regions
+bool pass_npcontrolregion_dilepton_inclusive(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
-bool pass_nonprompt_dilepton(Event&, const std::string& selectiontype,
+bool pass_npcontrolregion_dilepton_ee(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_npcontrolregion_dilepton_em(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_npcontrolregion_dilepton_me(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_npcontrolregion_dilepton_mm(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+// charge flip control region
+bool pass_cfcontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 
 #endif
