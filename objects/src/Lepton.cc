@@ -197,6 +197,13 @@ unsigned Lepton::provenanceConversion() const{
     }
 }
 
+bool Lepton::isChargeFlip() const{
+    // veto leptons from photon conversions (not counted as charge flips)
+    if( matchPdgId()==22 ) return false;
+    // check if measured charge differs from generator charge
+    return (charge() != matchCharge());
+}
+
 
 void Lepton::applyConeCorrection(){
 
