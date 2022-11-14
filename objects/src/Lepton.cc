@@ -222,6 +222,17 @@ bool sameFlavor( const Lepton& lhs, const Lepton& rhs ){
     );
 }
 
+bool oppositeFlavor( const Lepton& lhs, const Lepton& rhs ){
+    return !sameFlavor(lhs, rhs);
+}
+
+bool sameSign( const Lepton& lhs, const Lepton& rhs ){
+    return ( lhs.charge() == rhs.charge() );
+}
+
+bool oppositeSign( const Lepton& lhs, const Lepton& rhs ){
+    return !sameSign(lhs, rhs);
+}
 
 bool oppositeSignSameFlavor( const Lepton& lhs, const Lepton& rhs ){
     return ( sameFlavor( lhs, rhs ) && ( lhs.charge() != rhs.charge() ) );

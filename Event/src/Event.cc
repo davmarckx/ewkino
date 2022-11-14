@@ -185,21 +185,21 @@ SusyMassInfo& Event::susyMassInfo() const{
 }
 
 
-void Event::initializeZBosonCandidate(){
+void Event::initializeZBosonCandidate(bool allowSameSign){
+    // reconstruct the best Z boson
+    
+    // first check if initialization was already done
+    // to avoid unnecessary duplicate calculations
     if( !ZIsInitialized ){
-
-        //check that there are at least two leptons is performed automatically in LeptonCollection
-        
-        //leading lepton not used in this pairing is considered to be from the W decay (in trilepton events )
-        //BUT in order to have consistent indices, sort leptons by pT already here.
+        // sort leptons to have consistent indices in later steps
+	// (e.g. for determining leading lepton that does not come from Z-decay)
         sortLeptonsByPt();
-
-        //reconstruct the best Z boson
-        std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > ZBosonCandidateIndicesAndMass = _leptonCollectionPtr->bestZBosonCandidateIndicesAndMass();
+        // reconstruct the best Z boson using function in LeptonCollection
+        std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > ZBosonCandidateIndicesAndMass = _leptonCollectionPtr->bestZBosonCandidateIndicesAndMass(allowSameSign);
         _bestZBosonCandidateIndices = ZBosonCandidateIndicesAndMass.first;
         _bestZBosonCandidateMass = ZBosonCandidateIndicesAndMass.second;
-
-        //note that the third lepton can also be a tau in this case!
+	// get the leading other lepton
+        // (note that this can also be a tau in this case!)
         if( numberOfLeptons() >= 3 ){
             for( LeptonCollection::size_type leptonIndex = 0; leptonIndex < numberOfLeptons(); ++leptonIndex ){
                 if( !( leptonIndex == _bestZBosonCandidateIndices.first || leptonIndex == _bestZBosonCandidateIndices.second ) ){
@@ -208,33 +208,33 @@ void Event::initializeZBosonCandidate(){
                 }
             }
         }
-
+	// update the ZIsInitialized flag
         ZIsInitialized = true;
     }
 }
 
 
-std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > Event::bestZBosonCandidateIndicesAndMass(){
-    initializeZBosonCandidate();    
+std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > Event::bestZBosonCandidateIndicesAndMass(bool allowSameSign){
+    initializeZBosonCandidate(allowSameSign);
     return { _bestZBosonCandidateIndices, _bestZBosonCandidateMass };
 }
 
 
-std::pair< LeptonCollection::size_type, LeptonCollection::size_type > Event::bestZBosonCandidateIndices(){
-    initializeZBosonCandidate();
+std::pair< LeptonCollection::size_type, LeptonCollection::size_type > Event::bestZBosonCandidateIndices(bool allowSameSign){
+    initializeZBosonCandidate(allowSameSign);
     return _bestZBosonCandidateIndices;
 }
 
 
-double Event::bestZBosonCandidateMass(){
-    initializeZBosonCandidate();
+double Event::bestZBosonCandidateMass(bool allowSameSign){
+    initializeZBosonCandidate(allowSameSign);
     return _bestZBosonCandidateMass;
 }
 
 
-bool Event::hasZTollCandidate( const double oneSidedMassWindow ){
-    initializeZBosonCandidate();
-    return ( fabs( bestZBosonCandidateMass() - particle::mZ ) < oneSidedMassWindow );
+bool Event::hasZTollCandidate( const double oneSidedMassWindow, bool allowSameSign ){
+    initializeZBosonCandidate(allowSameSign);
+    return ( fabs( bestZBosonCandidateMass(allowSameSign) - particle::mZ ) < oneSidedMassWindow );
 }
 
 
