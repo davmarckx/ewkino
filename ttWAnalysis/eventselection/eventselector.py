@@ -27,7 +27,6 @@ event_selections = (['signalregion_dilepton_inclusive',
 		     'npcontrolregion_dilepton_em',
 		     'npcontrolregion_dilepton_me',
 		     'npcontrolregion_dilepton_mm',
-		     'npcontrolregion_trilepton',
 		     'cfcontrolregion'])
 selection_types = ['tight','prompt','fakerate','2tight']
 variations = ['nominal','all','JECDown','JECUp','JERDown','JERUp','UnclDown','UnclUp']

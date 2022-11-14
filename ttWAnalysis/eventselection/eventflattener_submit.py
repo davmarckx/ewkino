@@ -6,10 +6,12 @@ import os
 import sys
 
 regions = []
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
-for r in ['nonprompt_dilepton']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 

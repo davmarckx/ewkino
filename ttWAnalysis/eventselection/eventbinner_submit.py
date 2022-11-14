@@ -6,11 +6,12 @@ import os
 import sys
 
 regions = []
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
-for r in ['nonprompt_trilepton']: regions.append(r)
-for r in ['nonprompt_dilepton']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
@@ -29,9 +30,9 @@ frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
-variables = '../variables/variables_copyfromtzq.json'
+variables = '../variables/variables_main.json'
 
-istest = False
+istest = True
 
 for year in years:
   for dtype in dtypes:
@@ -43,7 +44,7 @@ for year in years:
         inputdiryear = '2016'
     inputdir = os.path.join(inputdir, inputdiryear)
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
-    outputdir = 'output_20220922'
+    outputdir = 'output_test'
     outputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
     cmd = 'python eventbinner.py'
     cmd += ' --inputdir ' + inputdir
@@ -59,6 +60,6 @@ for year in years:
     cmd += ' --variables ' + variables
     if istest:
       cmd += ' --runmode local'
-      cmd += ' --nevents 100'
+      cmd += ' --nevents 1000'
     print('executing '+cmd)
     os.system(cmd)

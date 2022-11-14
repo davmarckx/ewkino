@@ -280,7 +280,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	varmap["_leptonPtSubLeading"] = lepcollection[1].pt();
 	varmap["_leptonEtaSubLeading"] = lepcollection[1].eta();
     }
-    if(lepcollection.numberOfLightLeptons()>=2){
+    if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
         varmap["_leptonEtaTrailing"] = lepcollection[2].eta();
     }
