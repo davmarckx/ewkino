@@ -102,7 +102,7 @@ def select_histograms_in_file(rfile, npmode, mode='custom'):
       for tag in tags:
         if tag in keyname: hastag = True
       if not hastag: 
-        f.delete(key)
+        f.Delete(keyname)
       else:
         newkeyname = keyname
         for tag in tags:

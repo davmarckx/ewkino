@@ -13,15 +13,15 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 npmodes = []
 npmodes.append( 'npfromsim' )
-#npmodes.append( 'npfromdata' )
+npmodes.append( 'npfromdata' )
 
 rename = 'processes/rename_processes_tttt.json'
 #rename = None
 renamemode = 'fast'
 
-selectmode = 'fast'
+selectmode = 'custom'
 
-doclip = False
+doclip = True
 
 runmode = 'condor'
 
