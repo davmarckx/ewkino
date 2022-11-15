@@ -1,9 +1,8 @@
-######################
-# tools for plotting #
-######################
+########################
+# tools for color maps #
+########################
 
 import ROOT
-
 
 def getcolormap( style='default' ):
   ### get a color map (see definitions below)

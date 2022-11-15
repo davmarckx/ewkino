@@ -167,7 +167,7 @@
   "nbins": "20",
   "xlow": "-2.5",
   "xhigh": "2.5",
-  "axtitle": "Leading lepton \\eta",
+  "axtitle": "Leading lepton pseudorapidity",
   "unit": ""
 },
 {
@@ -176,7 +176,7 @@
   "nbins": "20",
   "xlow": "-2.5",
   "xhigh": "2.5",
-  "axtitle": "Subleading lepton \\eta",
+  "axtitle": "Subleading lepton pseudorapidity",
   "unit": ""
 },
 {
@@ -185,7 +185,7 @@
   "nbins": "20",
   "xlow": "-2.5",
   "xhigh": "2.5",
-  "axtitle": "Trailing lepton \\eta",
+  "axtitle": "Trailing lepton pseudorapidity",
   "unit": ""
 },
 {

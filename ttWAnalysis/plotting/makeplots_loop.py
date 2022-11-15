@@ -12,17 +12,18 @@ inputdir = sys.argv[1]
 runmode = 'condor'
 
 regions = []
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
-for r in ['nonprompt_trilepton']: regions.append(r)
-for r in ['nonprompt_dilepton']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 npmodes = ['npfromsim','npfromdata']
 
-variables = '../variables/variables_copyfromtzq.json'
+variables = '../variables/variables_main.json'
 
 colormap = 'tttt'
 
@@ -37,14 +38,14 @@ for year in years:
     for region in regions:
       thisoutputdir = os.path.join(inputdir, subdir, 'plots', year+'_'+region+'_'+npmode)
       unblind = True
-      if 'signalregion' in region: unblind = False
+      #if 'signalregion' in region: unblind = False
       cmd = 'python makeplots.py'
       cmd += ' --inputfile '+inputfile
       cmd += ' --year '+year
       cmd += ' --region '+region
       cmd += ' --variables '+variables
       cmd += ' --outputdir '+thisoutputdir
-      cmd += ' --unblind {}'.format(unblind)
+      if unblind: cmd += ' --unblind'
       cmd += ' --colormap '+colormap
       if runmode=='local':
         print('executing '+cmd)
