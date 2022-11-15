@@ -1,36 +1,50 @@
-#############################################################
-# parse sample lists from Niels' fourtops framework to here #
-#############################################################
+#############################################
+# rename processes from Niels' sample lists #
+#############################################
 
 import sys
 import os
-from rename_processes import get_rename_dict
+
+def get_rename_dict():
+  renamedict = {}
+  renamedict['SSWW'] = 'SSWW'
+  renamedict['TTTo'] = 'TTBar'
+  renamedict['TTGamma_'] = 'TTG'
+  renamedict['ttHJetTo'] = 'TTH'
+  renamedict['ST_s-channel_'] = 'ST-S'
+  renamedict['ST_t-channel_'] = 'ST-T'
+  renamedict['ST_tW_'] = 'ST-TW'
+  renamedict['THQ_'] = 'THQ'
+  renamedict['TTTJ_'] = 'TTTJ'
+  renamedict['TTTW_'] = 'TTTW'
+  renamedict['tZq_'] = 'TZQ'
+  renamedict['WW_'] = 'WW'
+  renamedict['WWTo'] = 'WW'
+  renamedict['WWW_'] = 'WWW'
+  renamedict['WWZ_'] = 'WWZ'
+  renamedict['WZZ'] = 'WZZ'
+  renamedict['ZZZ'] = 'ZZZ'
+  renamedict['WZTo'] = 'WZ'
+  renamedict['DYJetsTo'] = 'DY'
+  renamedict['ZGTo'] = 'ZG'
+  renamedict['GluGluHTo'] = 'GGH'
+  renamedict['GluGluToContin'] = 'GGZZ'
+  renamedict['VHTo'] = 'VBFH'
+  renamedict['ZZTo'] = 'ZZ'
+  return renamedict
 
 if __name__=='__main__':
 
   dtypes = ['sim','data']
   years = ['2016PreVFP','2016PostVFP','2017','2018']
-  giturl = 'https://raw.githubusercontent.com'
-  baseurl = 'NielsVdBossche/ewkino/Experimental/sampleLists'
   renamedict = get_rename_dict()
 
   for dtype in dtypes:
     for year in years:
       # define the filename to parse
       sname = 'samples_tttt_{}_{}.txt'.format(year,dtype)
-      tempname = sname.replace('.txt','_temp.txt')
-      # get the correct github url
-      origin_name = '{}.txt'.format(year)
-      if dtype=='data':
-        origin_name = 'Data'+origin_name
-        origin_name = origin_name.replace('20','')
-      url = os.path.join(giturl, baseurl, origin_name)
-      # download the file and rename it
-      cmd = 'wget {}'.format(url)
-      os.system(cmd)
-      os.system('mv {} {}'.format(origin_name,tempname))
       # read all lines of the file
-      with open(tempname,'r') as f:
+      with open(sname,'r') as f:
         lines = f.readlines()
       # loop over lines
       newlines = []
@@ -42,10 +56,6 @@ if __name__=='__main__':
           continue
         # remove commented lines
         if line[0]=='#': continue
-        # first remove superfluous spaces
-        lineparts = line.split(' ')
-        lineparts = [p for p in lineparts if p!='']
-        line = '  '.join(lineparts)
         # get the parts
         lineparts = line.split('  ')
         process_name = lineparts[0]
@@ -65,5 +75,3 @@ if __name__=='__main__':
       # write the final file
       with open(sname,'w') as f:
         for line in newlines: f.write('{}\n'.format(line))
-      # remove temporary file
-      os.system('rm {}'.format(tempname))
