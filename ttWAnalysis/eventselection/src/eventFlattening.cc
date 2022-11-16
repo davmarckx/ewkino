@@ -262,8 +262,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	varmap["_fakeRateFlavour"] = readFakeRateTools::fakeRateFlavour(event);
     }
 
-    // in case of running in mode "chargeflip", take into account charge flip weight
-    if(selection_type=="chargeflip"){
+    // in case of running in mode "chargeflips", take into account charge flip weight
+    if(selection_type=="chargeflips"){
 	double cfweight = readChargeFlipTools::chargeFlipWeight(event, cfMap_electron, true);
 	if(event.isMC()) cfweight = 0;
 	varmap["_normweight"] *= cfweight;
