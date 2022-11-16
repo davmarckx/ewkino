@@ -48,6 +48,7 @@
 #include "Tools/src/variableTools.cc"
 #include "Tools/src/rootFileTools.cc"
 #include "Tools/src/readFakeRateTools.cc"
+#include "Tools/src/readChargeFlipTools.cc"
 
 //include TreeReader code 
 #include "TreeReader/src/TreeReader.cc"
