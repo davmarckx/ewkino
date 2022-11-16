@@ -91,7 +91,9 @@ def check_error_content(filename, contentlist='default', verbose=True):
                            '/var/torque/mom_priv/jobs',
                            'R__unzip: error',
                            'hadd exiting due to error in',
-                           'Bus error' ])
+                           'Bus error',
+                           'Exception:',
+                           'Traceback (most recent call last):' ])
 	contentlist.append('###error###') # custom error tag for targeted flagging
 
     # check if the file content contains provided error tags
