@@ -16,6 +16,7 @@ Float_t _normweight = 0; // total weight, including reweighting and fake rate
 Float_t _leptonreweight = 1; // lepton reweighting factor
 Float_t _nonleptonreweight = 1; // all other reweighting factors
 Float_t _fakerateweight = 0; // fake rate reweighting factor
+Float_t _chargeflipweight = 0; // charge flip reweighting factor
 // event BDT variables
 Float_t _abs_eta_recoil = 0;
 Float_t _Mjj_max = 0;
@@ -70,6 +71,7 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _leptonreweight = varmap["_leptonreweight"];
     _nonleptonreweight = varmap["_nonleptonreweight"];
     _fakerateweight = varmap["_fakerateweight"];
+    _chargeflipweight = varmap["_chargeflipweight"];
 
     _abs_eta_recoil = varmap["_abs_eta_recoil"];
     _Mjj_max = varmap["_Mjj_max"]; 
@@ -118,7 +120,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_runNb", 0},{"_lumiBlock",0},{"_eventNb",0},
 
 	{"_weight",0},{"_normweight",0},
-	{"_leptonreweight",1},{"_nonleptonreweight",1},{"_fakerateweight",0},
+	{"_leptonreweight",1},{"_nonleptonreweight",1},
+	{"_fakerateweight",0},{"_chargeflipweight",0},
 
 	{"_abs_eta_recoil",0},{"_Mjj_max",0},{"_lW_asymmetry",0},
 	{"_deepCSV_max",0},{"_deepFlavor_max",0},{"_lT",0},
@@ -162,7 +165,8 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_normweight", &_normweight, "_normweight/F");
     outputTree->Branch("_leptonreweight", &_leptonreweight, "_leptonreweight/F");
     outputTree->Branch("_nonleptonreweight", &_nonleptonreweight, "_nonleptonreweight/F");
-    outputTree->Branch("_fakerateweight", &_fakerateweight, "_fakerateweight/F"); 
+    outputTree->Branch("_fakerateweight", &_fakerateweight, "_fakerateweight/F");
+    outputTree->Branch("_chargeflipweight", &_chargeflipweight, "_chargeflipweight/F"); 
    
     // event BDT variables
     outputTree->Branch("_abs_eta_recoil", &_abs_eta_recoil, "_abs_eta_recoil/F");
@@ -216,6 +220,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 				const std::string& selection_type, 
 				const std::shared_ptr< TH2D>& frMap_muon, 
 				const std::shared_ptr< TH2D>& frMap_electron,
+				const std::shared_ptr< TH2D>& cfMap_electron,
 				const std::string& variation ){
     // fill one entry in outputTree (initialized with initOutputTree), 
     // based on the info of one event.
@@ -255,6 +260,14 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	varmap["_normweight"] *= frweight;
 	varmap["_fakerateweight"] = frweight;
 	varmap["_fakeRateFlavour"] = readFakeRateTools::fakeRateFlavour(event);
+    }
+
+    // in case of running in mode "chargeflip", take into account charge flip weight
+    if(selection_type=="chargeflip"){
+	double cfweight = readChargeFlipTools::chargeFlipWeight(event, cfMap_electron, true);
+	if(event.isMC()) cfweight = 0;
+	varmap["_normweight"] *= cfweight;
+	varmap["_chargeflipweight"] = cfweight;
     }
 
     // get correct jet collection and met (defined in eventSelections.cc!)

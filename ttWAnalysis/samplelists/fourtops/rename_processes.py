@@ -8,7 +8,7 @@ import os
 def get_rename_dict():
   renamedict = {}
   renamedict['SSWW'] = 'SSWW'
-  renamedict['TTTo'] = 'TTBar'
+  renamedict['TTTo'] = 'TT'
   renamedict['TTGamma_'] = 'TTG'
   renamedict['ttHJetTo'] = 'TTH'
   renamedict['ST_s-channel_'] = 'ST-S'

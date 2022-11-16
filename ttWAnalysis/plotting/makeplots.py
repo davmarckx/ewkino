@@ -137,7 +137,7 @@ if __name__=="__main__":
       xaxtitle += ' ({})'.format(unit)
     yaxtitle = 'Events'
     outfile = os.path.join(args.outputdir, varname)
-    lumimap = {'all':137600, '2016':36300, '2017':41500, '2018':59700,
+    lumimap = {'run2':137600, '2016':36300, '2017':41500, '2018':59700,
 		    '2016PreVFP':19520, '2016PostVFP':16810 }
     if not args.year in lumimap.keys():
       print('WARNING: year {} not recognized,'.format(args.year)

@@ -21,18 +21,22 @@ selection_types = []
 selection_types.append('tight')
 selection_types.append('prompt')
 selection_types.append('fakerate')
+selection_types.append('chargeflips')
+selection_types.append('chargegood')
+selection_types.append('irreducible')
 
 variations = []
 variations.append('nominal')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
+cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
 samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
 variables = '../variables/variables_main.json'
 
-istest = True
+istest = False
 
 for year in years:
   for dtype in dtypes:
@@ -44,7 +48,7 @@ for year in years:
         inputdiryear = '2016'
     inputdir = os.path.join(inputdir, inputdiryear)
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
-    outputdir = 'output_test'
+    outputdir = 'output_20221116'
     outputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
     cmd = 'python eventbinner.py'
     cmd += ' --inputdir ' + inputdir
@@ -57,6 +61,7 @@ for year in years:
     cmd += ' --variation'
     for v in variations: cmd += ' ' + v
     cmd += ' --frdir ' + frdir
+    cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
     if istest:
       cmd += ' --runmode local'

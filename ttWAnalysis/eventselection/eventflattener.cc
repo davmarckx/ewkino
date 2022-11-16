@@ -20,6 +20,7 @@
 #include "../../weights/interface/ConcreteReweighterFactory.h"
 #include "../../Tools/interface/stringTools.h"
 #include "../../Tools/interface/readFakeRateTools.h"
+#include "../../Tools/interface/readChargeFlipTools.h"
 
 // include analysis tools
 #include "interface/eventSelections.h"
@@ -34,7 +35,8 @@ void eventloopEF_CR(const std::string& inputDirectory,
 		    const std::string& selection_type,
 		    const std::string& variation,
 		    const std::string& muonFRMap,
-		    const std::string& electronFRMap){
+		    const std::string& electronFRMap,
+                    const std::string& electronCFMap){
 
     std::cout << "start function eventloopEF_CR" << std::endl;
     
@@ -81,6 +83,13 @@ void eventloopEF_CR(const std::string& inputDirectory,
 	frMap_muon = readFakeRateTools::readFRMap(muonFRMap,"muon",year);
 	frMap_electron = readFakeRateTools::readFRMap(electronFRMap,"electron",year);
     }
+
+    // load charge flip maps if needed
+    std::shared_ptr<TH2D> cfmap_electron;
+    if(selection_type=="chargeflips"){
+        cfmap_electron = readChargeFlipTools::readChargeFlipMap(
+                                electronCFMap, year, "electron");
+    }
     
     long unsigned numberOfEntries = treeReader.numberOfEntries();
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
@@ -90,7 +99,8 @@ void eventloopEF_CR(const std::string& inputDirectory,
         Event event = treeReader.buildEvent(entry);
         if(!passES(event, event_selection, selection_type, variation)) continue;
         eventFlattening::eventToEntry(event, reweighter, selection_type, 
-				      frMap_muon, frMap_electron, variation);
+				      frMap_muon, frMap_electron, cfmap_electron,
+                                      variation);
         treePtr->Fill();
     }
     outputFilePtr->cd( outputdir.c_str() );
@@ -100,12 +110,12 @@ void eventloopEF_CR(const std::string& inputDirectory,
 
 int main( int argc, char* argv[] ){
     std::cerr<<"###starting###"<<std::endl;
-    if( argc != 11  ){
+    if( argc != 12  ){
         std::cerr << "ERROR: event flattening requires different number of arguments:";
         std::cerr << " input_directory, sample_list, sample_index,";
 	std::cerr << " output_directory,";
 	std::cerr << " event_selection, selection_type, variation,";
-	std::cerr << " muonfrmap, electronfrmap, nevents" << std::endl;
+	std::cerr << " muonfrmap, electronfrmap, electroncfmap, nevents" << std::endl;
         return -1;
     }
     std::vector< std::string > argvStr( &argv[0], &argv[0] + argc );
@@ -121,13 +131,14 @@ int main( int argc, char* argv[] ){
     // first set of other arguments: 
     std::string& muonfrmap = argvStr[8];
     std::string& electronfrmap = argvStr[9];
-    unsigned long nevents = std::stoul(argvStr[10]);
+    std::string& electroncfmap = argvStr[10];
+    unsigned long nevents = std::stoul(argvStr[11]);
     
     // call functions
     eventloopEF_CR( input_directory, sample_list, sample_index, nevents,
 		    output_directory, 
 		    event_selection, selection_type, variation, 
-		    muonfrmap, electronfrmap );
+		    muonfrmap, electronfrmap, electroncfmap );
     std::cerr<<"###done###"<<std::endl;
     return 0;
 }
