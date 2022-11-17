@@ -76,7 +76,7 @@ if __name__=='__main__':
   frmapyear = year_from_samplelist( args.samplelist )
   muonfrmap = os.path.join(args.frdir,'fakeRateMap_data_muon_'+frmapyear+'_mT.root')
   electronfrmap = os.path.join(args.frdir,'fakeRateMap_data_electron_'+frmapyear+'_mT.root')
-  if selection_type=='fakerate':
+  if args.selection_type=='fakerate':
     if not os.path.exists(muonfrmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(muonfrmap))
     if not os.path.exists(electronfrmap):
