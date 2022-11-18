@@ -22,11 +22,19 @@ double readChargeFlipTools::chargeFlipWeight(
     double totalProbability = summedProbabilities - multipliedProbabilities;
     if( !doCorrectionFactor ) return totalProbability;
     std::string year = event.sample().year();
+    // need extra step for year since it is not split in Pre and Post for 2016 data.
+    std::string sampleName = event.sample().fileName();
+    if( year=="2016" ){
+	if( stringTools::stringContains(sampleName,"HIPM") ) year = "2016PreVFP";
+        else year = "2016PostVFP";
+    }
     if( year=="2016PreVFP" ) return 0.85 * totalProbability;
     if( year=="2016PostVFP" ) return 0.95 * totalProbability;
     if( year=="2017" ) return 1.4 * totalProbability;
     if( year=="2018" ) return 1.4 * totalProbability;
-    return 0.;
+    std::string msg = "ERROR in readChargeFlipTools::chargeFlipWeight:";
+    msg += " year " + year + " not recognized (needed for correction factor).";
+    throw std::runtime_error(msg);
 }
 
 // help function for reading the charge flip map
