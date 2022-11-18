@@ -1,9 +1,13 @@
-######################
-# tools for plotting #
-######################
+########################
+# tools for color maps #
+########################
 
+import sys
+import os
+import argparse
 import ROOT
-
+sys.path.append('../../plotting/python')
+import histplotter as hp
 
 def getcolormap( style='default' ):
   ### get a color map (see definitions below)
@@ -11,6 +15,7 @@ def getcolormap( style='default' ):
   if(style=='default'): return getcolormap_default()
   if(style=='tttt'): return getcolormap_tttt()
   if(style=='systematics'): return getcolormap_systematics()
+  if(style=='ttw'): return getcolormap_ttw()
   else: print('WARNING in getcolormap: style not recognized, returning None')
   return None
 
@@ -167,3 +172,83 @@ def getcolormap_systematics():
     cmap['UE'] = ROOT.kAzure+7
 
     return cmap
+
+def getcolormap_ttw():
+    # colormap for ttw analysis (in development)
+    cmap = {}
+    cmap['nonprompt'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt'] = cmap['nonprompt']
+    cmap['chargeflips'] = define_color_hex('#fcee1e')[0]
+    cmap['Chargeflips'] = cmap['chargeflips']
+    cmap['DY'] = define_color_hex('#ffd22e')[0]
+    cmap['ZG'] = define_color_hex('#900ead')[0]
+    cmap['TT'] = define_color_hex('#ffbd80')[0]
+    cmap['TTG'] = define_color_hex('#b443fa')[0]
+    cmap['TTX'] = define_color_hex('#2f8ceb')[0]
+    cmap['TTZ'] = define_color_hex('#336fce')[0]
+    cmap['TTW'] = define_color_hex('#ff0000')[0]
+    cmap['TX'] = define_color_hex('#49c7f5')[0]
+    cmap['WZ'] = define_color_hex('#81efd7')[0]
+    cmap['ZZ'] = define_color_hex('#2fbc6c')[0]
+    cmap['multiboson'] = define_color_hex('#54f035')[0]
+    cmap['Multiboson'] = cmap['multiboson']
+    cmap['other'] = define_color_hex('#ccccaa')[0]
+    cmap['Other'] = cmap['other']
+    return cmap
+
+
+if __name__=='__main__':
+  # make a dummy plot of a colormap for quick testing
+
+  # parse arguments
+  parser = argparse.ArgumentParser(description='Plot color map')
+  parser.add_argument('--colormap', required=True)
+  parser.add_argument('--signal', default=None)
+  args = parser.parse_args()
+
+  # print arguments
+  print('Running with following configuration:')
+  for arg in vars(args):
+    print('  - {}: {}'.format(arg,getattr(args,arg)))
+
+  # get colormap
+  cmap = getcolormap( style=args.colormap )
+
+  # define signals
+  signals = [args.signal] if args.signal is not None else None
+  
+  # make a dummy histogram for each unique label
+  keys = sorted(cmap.keys())
+  histlist = []
+  unique_keys = []
+  for key in keys:
+    # skip labels that only differ in case
+    upkey = key.upper()
+    if upkey in unique_keys: continue
+    unique_keys.append(upkey)
+    # make a histogram
+    hist = ROOT.TH1D( key, key, 1, 0., 1.)
+    hist.SetDirectory(0)
+    hist.Fill(0.5)
+    histlist.append(hist)
+
+  # make fake data histogram
+  datahist = histlist[0].Clone()
+  for hist in histlist[1:]:
+    datahist.Add(hist)
+
+  # set plot properties
+  xaxtitle = 'Yield'
+  yaxtitle = 'Number of events'
+  outfile = 'testcolors'
+  extrainfos = []
+  extrainfos.append( 'Fake yields' )
+  extrainfos.append( '(for testing colors)' )
+
+  # make the plot
+  hp.plotdatavsmc(outfile, datahist, histlist,
+            signals=signals,
+            xaxtitle=xaxtitle,
+            yaxtitle=yaxtitle,
+            colormap=cmap,
+            extrainfos=extrainfos, infosize=15 )

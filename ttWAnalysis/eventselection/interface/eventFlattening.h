@@ -8,6 +8,7 @@
 #include "../../../Event/interface/Event.h"
 #include "../../../weights/interface/ConcreteReweighterFactory.h"
 #include "../../../Tools/interface/readFakeRateTools.h"
+#include "../../../Tools/interface/readChargeFlipTools.h"
 
 // include analysis tools
 #include "eventSelections.h"
@@ -27,6 +28,7 @@ namespace eventFlattening{
 				const std::string& selection_type, 
 				const std::shared_ptr< TH2D>& frMap_muon = nullptr, 
 				const std::shared_ptr< TH2D>& frMap_electron = nullptr,
+                                const std::shared_ptr< TH2D>& cfMap_electron = nullptr,
 				const std::string& variation = "nominal");
     std::pair<double,double> pmzcandidates(Lepton&, Met&);
     std::pair<double,int> besttopcandidate(JetCollection&, Lepton&, Met&, double, double);

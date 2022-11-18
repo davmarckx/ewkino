@@ -38,6 +38,7 @@ if __name__=='__main__':
   parser.add_argument('--selection_type', default='tight', choices=selection_types)
   parser.add_argument('--variation', default='nominal', choices=variations)
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
+  parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
@@ -82,14 +83,24 @@ if __name__=='__main__':
     if not os.path.exists(electronfrmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap))
 
+  # set and check charge flip maps
+  cfmapyear = year_from_samplelist( args.samplelist )
+  electroncfmap = None
+  if selection_type=='chargeflips':
+    if args.cfdir is None:
+      raise Exception('ERROR: charge flip dir must be specified for selection type chargeflips.')
+    electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')
+    if not os.path.exists(electronfrmap):
+      raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap)) 
+
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
     # make the command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {}'.format(
 		    args.inputdir, args.samplelist, i, args.outputdir,
                     args.event_selection, args.selection_type, args.variation,
-		    muonfrmap, electronfrmap, args.nevents )
+		    muonfrmap, electronfrmap, electroncfmap, args.nevents )
     commands.append(command)
 
   # submit the jobs

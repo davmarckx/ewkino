@@ -19,6 +19,7 @@ from variabletools import read_variables
 sys.path.append('../../plotting/python')
 import histplotter as hp
 import colors
+import infodicts
 
 
 def getmcsysthist(mchistlist, npunc=0.3):
@@ -60,22 +61,34 @@ if __name__=="__main__":
     print('  - {}: {}'.format(arg,getattr(args,arg)))
     
   # read all histograms
+  histnames = ht.loadallhistnames(args.inputfile)
   histlist = ht.loadallhistograms(args.inputfile)
-  histlist = ht.selecthistograms(histlist,mustcontainall=[args.region])[1]
-  if len(histlist)==0:
-    raise Exception('ERROR: histogram list is empty, cannot make plots.')
+  
+  # re-set histogram name and title
+  # (could diverge from key name if only key name was modified for speed)
+  for hist, histname in zip(histlist, histnames):
+    hist.SetName(histname)
+    hist.SetTitle(histname.split('_')[0])
 
-  # hard-coded fixes for overlapping region names...
-  if( args.region=='nonprompt_trilepton' ):
-    histlist = ht.selecthistograms(histlist,maynotcontainone=['noz','noossf'])[1]
+  # select histograms
+  histlist = ht.selecthistograms(histlist,mustcontainall=[args.region])[1]
   if len(histlist)==0:
     raise Exception('ERROR: histogram list is empty, cannot make plots.')
 
   # make output directory
   if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
 
+  # get a printable version of the region name
+  regiondict = infodicts.get_region_dict()
+  if args.region in regiondict.keys():
+    regionname = regiondict[args.region]
+  else:
+    print('WARNING: region {} not found in region dict,'.format(args.region),
+          ' will write raw region name on plot.')
+    regionname = args.region
+
   # read variables
-  variables = read_variables( args.variables )  
+  variables = read_variables( args.variables )
 
   # loop over variables
   for var in variables:
@@ -105,8 +118,11 @@ if __name__=="__main__":
       datahist = simhists[0].Clone()
       args.unblind = False
     elif len(datahists)!=1:
-      raise Exception('ERROR: expecting one data histogram'
-		      +' but found {}'.format(len(datahists)))
+      msg = 'ERROR: expecting one data histogram'
+      msg += ' but found {}:\n'.format(len(datahists))
+      for datahist in datahists: msg += '  - {}\n'.format(datahist.GetName())
+      msg.strip('\n')
+      raise Exception(msg)
     else: datahist = datahists[0]
 
     # blind data histogram
@@ -121,7 +137,7 @@ if __name__=="__main__":
       xaxtitle += ' ({})'.format(unit)
     yaxtitle = 'Events'
     outfile = os.path.join(args.outputdir, varname)
-    lumimap = {'all':137600, '2016':36300, '2017':41500, '2018':59700,
+    lumimap = {'run2':137600, '2016':36300, '2017':41500, '2018':59700,
 		    '2016PreVFP':19520, '2016PostVFP':16810 }
     if not args.year in lumimap.keys():
       print('WARNING: year {} not recognized,'.format(args.year)
@@ -130,6 +146,9 @@ if __name__=="__main__":
     colormap = colors.getcolormap(style=args.colormap)
     npunc = 0.3
     simsysthist = getmcsysthist(simhists, npunc=npunc)
+    extrainfos = []
+    extrainfos.append( args.year )
+    extrainfos.append( regionname )
 
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
@@ -137,4 +156,5 @@ if __name__=="__main__":
 	    xaxtitle=xaxtitle,
 	    yaxtitle='Number of events',
 	    colormap=colormap,
-	    lumi=lumi, extracmstext=args.extracmstext )
+	    lumi=lumi, extracmstext=args.extracmstext,
+            extrainfos=extrainfos, infosize=15 )

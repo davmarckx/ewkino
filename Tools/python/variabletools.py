@@ -16,8 +16,11 @@ class HistogramVariable(object):
     self.xlow = float(xlow)
     self.xhigh = float(xhigh)
     self.axtitle = axtitle
+    if( self.axtitle is not None and self.axtitle=='' ): self.axtitle = None
     self.unit = unit
+    if( self.unit is not None and self.unit=='' ): self.unit = None
     self.comments = comments
+    if( self.comments is not None and self.comments=='' ): self.comments = None
     self.ordered_keys = (['name','variable','nbins','xlow','xhigh',
                           'axtitle','unit','comments'])
 

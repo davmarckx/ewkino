@@ -13,31 +13,36 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 npmodes = []
 npmodes.append( 'npfromsim' )
-#npmodes.append( 'npfromdata' )
+npmodes.append( 'npfromdata' )
 
-rename = 'processes/rename_processes_tttt.json'
-#rename = None
+cfmodes = []
+cfmodes.append( 'cffromsim' )
+cfmodes.append( 'cffromdata' )
+
+rename = 'processes/rename_processes.json'
 renamemode = 'fast'
 
-selectmode = 'fast'
+selectmode = 'custom'
 
-doclip = False
+doclip = True
 
 runmode = 'condor'
 
 for year in years:
   for npmode in npmodes:
-    inputdir = os.path.join(topdir, year)
-    outputfile = os.path.join(topdir, year, 'merged_{}'.format(npmode), 'merged.root')
-    cmd = 'python mergehists.py'
-    cmd += ' --directory '+inputdir
-    cmd += ' --outputfile '+outputfile
-    cmd += ' --npmode '+npmode
-    if rename is not None:
-      cmd += ' --rename '+rename
-      cmd += ' --renamemode '+renamemode
-    cmd += ' --selectmode '+selectmode
-    if doclip: cmd += ' --doclip'
-    cmd += ' --runmode '+runmode
-    print('executing '+cmd)
-    os.system(cmd)
+    for cfmode in cfmodes:
+      inputdir = os.path.join(topdir, year)
+      outputfile = os.path.join(topdir, year, 'merged_{}_{}'.format(npmode,cfmode), 'merged.root')
+      cmd = 'python mergehists.py'
+      cmd += ' --directory '+inputdir
+      cmd += ' --outputfile '+outputfile
+      cmd += ' --npmode '+npmode
+      cmd += ' --cfmode '+cfmode
+      if rename is not None:
+        cmd += ' --rename '+rename
+        cmd += ' --renamemode '+renamemode
+      cmd += ' --selectmode '+selectmode
+      if doclip: cmd += ' --doclip'
+      cmd += ' --runmode '+runmode
+      print('executing '+cmd)
+      os.system(cmd)

@@ -48,12 +48,15 @@ class ProcessInfo(object):
         and isinstance(val[1],str) ): return True
     return False
 
+  def hassys( self, sysname ):
+    return (sysname in self.systematics.keys())
+
   def addsys( self, sysname, mag ):
     ### add a systematic to this process
     # for allowed values of mag, see initializer
     # note: use this function only for adding a new systematic;
     #       to update an already present systematic, use enablesys
-    if sysname in self.systematics.keys():
+    if self.hassys(sysname):
       msg = 'ERROR in ProcessInfo.addsys:'
       msg += ' systematic "{}" already exists'.format(sysname)
       msg += ' for process "{}".'.format(self.name)
@@ -66,16 +69,36 @@ class ProcessInfo(object):
     # for allowed valus of mag, see initializer
     # note: use this function only for modifying an existing systematic;
     #       to add a new systematic, use addsys
-    if sysname not in self.systematics.keys():
+    if not self.hassys(sysname):
       msg = 'ERROR in ProcessInfo.enablesys:'
       msg += ' systematic "{}" not found for process "{}"'.format(sysname,self.name)
       raise Exception(msg)
     if not self.check_systematic_val( mag ): raise Exception('')
     self.systematics[sysname] = mag
 
-  def disablesys( self , sysname ):
+  def disablesys( self, sysname ):
     ### disable a given systematic for a given set of processes
     self.enablesys( sysname, '-' )
+
+  def considersys( self, sysname ):
+    ### return whether a given systematic should be considered for this process
+    if not self.hassys(sysname):
+      msg = 'ERROR in ProcessInfo.considersys:'
+      msg += ' systematic "{}" not found for process "{}"'.format(sysname,self.name)
+      raise Exception(msg)
+    val = self.systematics[sysname]
+    if( isinstance(val,str) and val=='-' ): return False
+    return True
+
+  def get_datacard_impact( self, sysname ):
+    ### return the entry for the datacard for a given systematic
+    if not self.hassys(sysname):
+      msg = 'ERROR in ProcessInfo.get_datacard_impact:'
+      msg += ' systematic "{}" not found for process "{}"'.format(sysname,self.name)
+      raise Exception(msg)
+    val = self.systematics[sysname]
+    if( isinstance(val,tuple) ): val = 1.
+    return val
 
   def check_systematics( self, systematics ):
     ### internal helper function to check list of systematics
@@ -162,6 +185,13 @@ class Process(object):
   def get_nominal( self ):
     ### get nominal histogram
     return self.hist
+
+  def get_yield( self, systematic=None ):
+    ### get the yield
+    if systematic is None:
+      return self.get_nominal().Integral()
+    else:
+      raise Exception('Process.get_yield for non-nominal histograms not yet implemented.')
 
   def get_systematic( self, systematic, idx, diff=False, absolute=False ):
     ### internal helper function
@@ -411,7 +441,7 @@ class ProcessInfoCollection(object):
   @staticmethod
   def fromhistlist( histnames, variable, signals=[],
                     includesystematics=None, excludesystematics=None,
-                    datatag='data' ):
+                    datatag='data', nominaltag='_nominal' ):
     ### make a ProcessInfoCollection from a list of histogram names
     # for more info, see readhistfile (below)!
 
@@ -442,7 +472,7 @@ class ProcessInfoCollection(object):
       thishistnames = ([el for el in histnames
                         if el.split(variable)[0].rstrip('_')==process])
       # find nominal histogram
-      nomhistname = '{}_{}_nominal'.format(process,variable)
+      nomhistname = '{}_{}{}'.format(process, variable, nominaltag)
       if not nomhistname in thishistnames:
         raise Exception('ERROR in processinfo.py / readhistfile:'
           +' nominal histogram {} not found for process {}'.format(nomhistname,process))
@@ -554,6 +584,18 @@ class ProcessCollection(object):
   def get_nominal( self ):
     ### get the nominal histogram for the sum of all processes
     return self.get_hist_sum( [self.processes[p].hist for p in self.plist] )
+
+  def get_yields( self, systematic=None ):
+    ### return the yields (per process and total) in a dict
+    res = {}
+    if systematic is None:
+      for pname, p in self.processes.items():
+        res[pname] = p.get_yield()
+      res['total'] = self.get_nominal().Integral()
+      return res
+    else:
+      raise Exception('ERROR: ProcessCollection.get_yields for non-nominal histograms'
+                     +' not yet implemented.')
     
   def get_systematic_up( self, systematic, processes='all' ):
     ### get up variation for a given systematic and process(es)

@@ -27,6 +27,7 @@ Event binning
 #include "../../Tools/interface/HistInfo.h"
 #include "../../Tools/interface/Sample.h"
 #include "../../Tools/interface/readFakeRateTools.h"
+#include "../../Tools/interface/readChargeFlipTools.h"
 #include "../../Tools/interface/histogramTools.h"
 #include "../../Tools/interface/variableTools.h"
 
@@ -51,6 +52,7 @@ std::map< std::string,std::map< std::string,std::shared_ptr<TH1D>> > initHistMap
             std::string instanceName = es+"_"+st;
             std::string thisProcessName = processName;
             if( st=="fakerate" ) thisProcessName = "nonprompt";
+            if( st=="chargeflips" ) thisProcessName = "chargeflips";
 	    // make a set of thistograms
 	    std::map<std::string, std::shared_ptr<TH1D>> hists;
 	    hists = variableTools::initializeHistograms( histvars );
@@ -78,6 +80,7 @@ void fillHistograms(const std::string& inputDirectory,
 			const std::string& variation,
 			const std::string& muonfrmap,
 			const std::string& electronfrmap,
+			const std::string& electroncfmap,
 			const std::vector<HistogramVariable> histvars){
     std::cout << "=== start function fillHistograms ===" << std::endl;
     
@@ -102,12 +105,23 @@ void fillHistograms(const std::string& inputDirectory,
 	    std::cout << "read fake rate maps" << std::endl;
 	}
     }
+
+    // load charge flip maps if needed
+    std::shared_ptr<TH2D> cfmap_electron;
+    for(std::string st: selection_types){
+        if(st=="chargeflips"){
+            cfmap_electron = readChargeFlipTools::readChargeFlipMap(
+				electroncfmap, year, "electron");
+            std::cout << "read charge flip maps" << std::endl;
+        }
+    }
     
     // make reweighter
     std::cout << "initializing Reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     reweighterFactory = std::shared_ptr<ReweighterFactory>( 
-	new EmptyReweighterFactory() );
+	//new EmptyReweighterFactory() ); // for testing
+	new Run2ULReweighterFactory() ); // for real
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
@@ -138,7 +152,8 @@ void fillHistograms(const std::string& inputDirectory,
 		if(!passES(event, es, st, variation)) pass = false;
 		if(pass){
 		    varmap = eventFlattening::eventToEntry(event, reweighter, st, 
-					frmap_muon, frmap_electron, variation);
+					frmap_muon, frmap_electron, cfmap_electron, 
+                                        variation);
 	
 		    /*std::cout << "----" << std::endl;
 		    std::cout << varmap["_normweight"] << std::endl;
@@ -198,11 +213,11 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    if( argc < 12 ){
+    if( argc < 13 ){
         std::cerr << "ERROR: event binning requires at different number of arguments to run...:";
         std::cerr << " input_directory, sample_list, sample_index, output_directory,";
 	std::cerr << " variable_file, event_selection, selection_type, variation,";
-	std::cerr << " muonfrmap, electronfrmap,";
+	std::cerr << " muonfrmap, electronfrmap, electroncfmap";
 	std::cerr << " nevents" << std::endl;
         return -1;
     }
@@ -221,7 +236,8 @@ int main( int argc, char* argv[] ){
     std::string& variation = argvStr[8];
     std::string& muonfrmap = argvStr[9];
     std::string& electronfrmap = argvStr[10];
-    unsigned long nevents = std::stoul(argvStr[11]);
+    std::string& electroncfmap = argvStr[11];
+    unsigned long nevents = std::stoul(argvStr[12]);
 
     // print arguments
     std::cout << "Found following arguments:" << std::endl;
@@ -235,6 +251,7 @@ int main( int argc, char* argv[] ){
     std::cout << "  - variation: " << variation << std::endl;
     std::cout << "  - muon FR map: " << muonfrmap << std::endl;
     std::cout << "  - electron FR map: " << electronfrmap << std::endl;
+    std::cout << "  - electron CF map: " << electroncfmap << std::endl;
     std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
 
     // read variables
@@ -260,7 +277,7 @@ int main( int argc, char* argv[] ){
     fillHistograms( input_directory, sample_list, sample_index, nevents,
 		    output_directory,
 		    event_selections, selection_types, variation,
-		    muonfrmap, electronfrmap, 
+		    muonfrmap, electronfrmap, electroncfmap,
 		    histvars );
     std::cerr << "###done###" << std::endl;
     return 0;

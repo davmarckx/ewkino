@@ -74,13 +74,22 @@ def rename_processes_in_file(renamedict, rfile, mode='custom'):
       key.SetName(newkeyname)
     f.Close()
  
-def select_histograms_in_file(rfile, npmode, mode='custom'):
+def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
   ### remove unneeded histograms from a file
   # and remove selection type tag from histogram name
 
   tags = []
-  if npmode=='npfromsim': tags = ['_tight_']
-  elif npmode=='npfromdata': tags = ['_prompt_','_fakerate_']
+  if( npmode=='npfromsim' and cfmode=='cffromsim' ): tags = ['_tight_']
+  elif( npmode=='npfromdata' and cfmode=='cffromsim' ): 
+    tags = ['_prompt_', '_fakerate_']
+  elif( npmode=='npfromsim' and cfmode=='cffromdata' ): 
+    tags = ['_chargegood_', '_chargeflips_']
+  elif( npmode=='npfromdata' and cfmode=='cffromdata' ): 
+    tags = ['_irreducible_', '_fakerate_', '_chargeflips_']
+  else:
+    raise Exception('ERROR in select_histograms_in_file:'
+            +' invalid combination of npmode {}'.format(npmode)
+            +' and cfmode {}'.format(cfmode))
 
   if mode=='custom':
     histlist = ht.loadhistograms(rfile, mustcontainone=tags)
@@ -102,7 +111,7 @@ def select_histograms_in_file(rfile, npmode, mode='custom'):
       for tag in tags:
         if tag in keyname: hastag = True
       if not hastag: 
-        f.delete(key)
+        f.Delete(keyname)
       else:
         newkeyname = keyname
         for tag in tags:
@@ -118,6 +127,7 @@ if __name__=='__main__':
   parser.add_argument('--directory', required=True, type=os.path.abspath)
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
   parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata'])
+  parser.add_argument('--cfmode', required=True, choices=['cffromsim','cffromdata'])
   parser.add_argument('--rename', default=None, type=apt.path_or_none)
   parser.add_argument('--renamemode', default='fast', choices=['custom','rootmv','fast'])
   parser.add_argument('--selectmode', default='fast', choices=['custom','fast'])
@@ -142,6 +152,7 @@ if __name__=='__main__':
     cmd += ' --directory '+args.directory
     cmd += ' --outputfile '+args.outputfile
     cmd += ' --npmode '+args.npmode
+    cmd += ' --cfmode '+args.cfmode
     if args.rename is not None: 
       cmd += ' --rename '+args.rename
       cmd += ' --renamemode '+args.renamemode
@@ -167,7 +178,7 @@ if __name__=='__main__':
     os.makedirs(outputdirname)
 
   # make a temporary directory to store intermediate results
-  tempdir = os.path.join(args.directory, 'temp_{}'.format(args.npmode))
+  tempdir = os.path.join(args.directory, 'temp_{}_{}'.format(args.npmode, args.cfmode))
   if not os.path.exists(tempdir):
     os.makedirs(tempdir)
 
@@ -205,7 +216,7 @@ if __name__=='__main__':
   # and remove selection type tag, as it is not needed anymore.
   print('Selecting histograms to keep and removing selection type tag...')
   sys.stdout.flush()
-  select_histograms_in_file(args.outputfile, args.npmode, mode=args.selectmode)
+  select_histograms_in_file(args.outputfile, args.npmode, args.cfmode, mode=args.selectmode)
 
   # clip all resulting histograms to minimum zero
   if args.doclip:

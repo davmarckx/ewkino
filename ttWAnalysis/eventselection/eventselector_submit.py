@@ -5,8 +5,8 @@
 import os
 import sys
 
-regions = []
-for r in ['signalregion_dilepton', 'signalregion_trilepton','signalregion_dimuon','signalregion_dielectron','signalregion_dilepton_em','signalregion_dilepton_me']: regions.append(r)
+regions = ['signalregion_dilepton_inclusive']
+#for r in ['signalregion_dilepton', 'signalregion_trilepton','signalregion_dimuon','signalregion_dielectron','signalregion_dilepton_em','signalregion_dilepton_me']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
 #for r in ['nonprompt_trilepton']: regions.append(r)
