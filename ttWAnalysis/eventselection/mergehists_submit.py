@@ -20,7 +20,6 @@ cfmodes.append( 'cffromsim' )
 cfmodes.append( 'cffromdata' )
 
 rename = 'processes/rename_processes.json'
-#rename = None
 renamemode = 'fast'
 
 selectmode = 'custom'
@@ -31,18 +30,19 @@ runmode = 'condor'
 
 for year in years:
   for npmode in npmodes:
-    inputdir = os.path.join(topdir, year)
-    outputfile = os.path.join(topdir, year, 'merged_{}_{}'.format(npmode,cfmode), 'merged.root')
-    cmd = 'python mergehists.py'
-    cmd += ' --directory '+inputdir
-    cmd += ' --outputfile '+outputfile
-    cmd += ' --npmode '+npmode
-    cmd += ' --cfmode '+cfmode
-    if rename is not None:
-      cmd += ' --rename '+rename
-      cmd += ' --renamemode '+renamemode
-    cmd += ' --selectmode '+selectmode
-    if doclip: cmd += ' --doclip'
-    cmd += ' --runmode '+runmode
-    print('executing '+cmd)
-    os.system(cmd)
+    for cfmode in cfmodes:
+      inputdir = os.path.join(topdir, year)
+      outputfile = os.path.join(topdir, year, 'merged_{}_{}'.format(npmode,cfmode), 'merged.root')
+      cmd = 'python mergehists.py'
+      cmd += ' --directory '+inputdir
+      cmd += ' --outputfile '+outputfile
+      cmd += ' --npmode '+npmode
+      cmd += ' --cfmode '+cfmode
+      if rename is not None:
+        cmd += ' --rename '+rename
+        cmd += ' --renamemode '+renamemode
+      cmd += ' --selectmode '+selectmode
+      if doclip: cmd += ' --doclip'
+      cmd += ' --runmode '+runmode
+      print('executing '+cmd)
+      os.system(cmd)

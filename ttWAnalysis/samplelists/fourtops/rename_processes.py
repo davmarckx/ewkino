@@ -30,6 +30,7 @@ def get_rename_dict():
   renamedict['GluGluHTo'] = 'GGH'
   renamedict['GluGluToContin'] = 'GGZZ'
   renamedict['VHTo'] = 'VBFH'
+  renamedict['VBF_HToZZTo'] = 'VBFH'
   renamedict['ZZTo'] = 'ZZ'
   return renamedict
 

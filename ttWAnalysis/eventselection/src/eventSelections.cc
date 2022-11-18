@@ -283,7 +283,7 @@ bool passMllMassVeto( const Event& event ){
 	    l2It != event.leptonCollection().cend(); l2It++ ){
             Lepton& lep1 = **l1It;
             Lepton& lep2 = **l2It;
-            if((lep1+lep2).mass() < 12.) return false;
+            if( sameFlavor(lep1,lep2) && (lep1+lep2).mass() < 12. ) return false;
 	}
     }
     return true;
@@ -475,14 +475,20 @@ bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
+    if(!passMllMassVeto(event)) return false;
     if(!hasnFOLeptons(event,3,true)) return false;
-    if(not passTriLeptonPtThresholds(event)) return false;
+    //if(not passTriLeptonPtThresholds(event)) return false;
+    if(event.leptonCollection()[0].pt() < 25.
+        || event.leptonCollection()[1].pt() < 20.
+        || event.leptonCollection()[2].pt() < 10.) return false;
     if(not passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return false;
     // mass constraints on OSSF pair and trilepton system
     if(!event.hasOSSFLightLeptonPair()) return false;
-    if(fabs(event.leptonSystem().mass()-particle::mZ)>halfwindow) return false;
+    //if(event.bestZBosonCandidateMass()>75.) return false; 
+    // (enable cut above for partial syncing with below)
+    if(fabs(event.leptonSystem().mass()-particle::mZ)>halfwindow_wide) return false;
     bool pairZmass = false;
     for(LeptonCollection::const_iterator lIt1 = event.leptonCollection().cbegin();
         lIt1 != event.leptonCollection().cend(); lIt1++){
@@ -490,16 +496,58 @@ bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
 	for(LeptonCollection::const_iterator lIt2 = lIt1+1; 
 	    lIt2!=event.leptonCollection().cend(); lIt2++){
 	    Lepton& lep2 = **lIt2;
-	    if(fabs((lep1+lep2).mass()-particle::mZ)<halfwindow) pairZmass = true;
-	    if(oppositeSignSameFlavor(lep1,lep2) && (lep1+lep2).mass() < 35.) return false;
+	    if(fabs((lep1+lep2).mass()-particle::mZ)<halfwindow_wide) pairZmass = true;
+            if(oppositeSignSameFlavor(lep1,lep2)
+               && fabs((lep1+lep2).mass()-particle::mZ)<halfwindow_wide) pairZmass = true;
+	    if(oppositeSignSameFlavor(lep1,lep2) 
+               && (lep1+lep2).mass() < 35.) return false;
+	    // (disable cut above for partial syncing with below)
 	}
     }
     if(pairZmass) return false;
+    // (disable cut above for partial syncing with below)
     // dummy condition on variation to avoid warnings
     if(variation=="dummy") return true;
     if(selectbjets){}
     return true;
 }
+
+/*bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
+                            const std::string& variation, const bool selectbjets){
+    // control region focusing on conversions,
+    // ALTERNATIVE VERSION FOR SYNCING WITH NIELS FOR SOME CHECKS
+    // i.e. three leptons making a Z boson.
+    cleanLeptonsAndJets(event);
+    // apply trigger and pt thresholds
+    if(not event.passMetFilters()) return false;
+    if(not passAnyTrigger(event)) return false;
+    if(!passMllMassVeto(event)) return false;
+    if(!hasnFOLeptons(event,3,true)) return false;
+    event.sortLeptonsByPt();
+    if(event.leptonCollection()[0].pt() < 25.
+        || event.leptonCollection()[1].pt() < 20.
+        || event.leptonCollection()[2].pt() < 10.) return false;
+    if(not passPhotonOverlapRemoval(event)) return false;
+    // do lepton selection for different types of selections
+    if( !doLeptonSelection(event, selectiontype, 3) ) return false;
+    // something called 'lean selection'
+    // not needed in principle since nloosebjets is always zero (see below)
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    bool passlean = ( njetsnloosebjets.first >= 2 
+			&& njetsnloosebjets.second >= 1 
+			&& event.getJetCollection(variation).scalarPtSum() > 200 );
+    if( passlean ) return false;
+    // mass constraints on OSSF pair and trilepton system
+    if(fabs(event.leptonSystem().mass()-particle::mZ)>15.) return false;
+    if(!event.hasOSSFLightLeptonPair()) return false;
+    if(event.bestZBosonCandidateMass()>75.) return false;
+    // dummy condition on variation to avoid warnings
+    if(variation=="dummy") return true;
+    if(selectbjets){
+	if(njetsnloosebjets.second!=0) return false;
+    }
+    return true;
+}*/
 
 bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
@@ -638,7 +686,7 @@ bool pass_cfcontrolregion(Event& event,
             const std::string& selectiontype,
             const std::string& variation,
             const bool selectbjets){
-    // control region for nonprompts with two same sign electrons on the Z peak
+    // control region for charge flips with two same sign electrons on the Z peak
     cleanLeptonsAndJets(event);
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;

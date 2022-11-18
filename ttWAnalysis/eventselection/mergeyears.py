@@ -27,6 +27,7 @@ if __name__=='__main__':
         if not os.path.exists(f):
           msg = 'ERROR: file {} not does not exist (for year {});'.format(f,year)
           msg += ' skipping merging for npmode {} cfmode {}.'.format(npmode,cfmode)
+          print(msg)
           allfiles = False
         else: hfiles.append(f)
       if not allfiles: continue

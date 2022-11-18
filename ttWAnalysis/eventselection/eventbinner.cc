@@ -120,7 +120,8 @@ void fillHistograms(const std::string& inputDirectory,
     std::cout << "initializing Reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     reweighterFactory = std::shared_ptr<ReweighterFactory>( 
-	new EmptyReweighterFactory() );
+	//new EmptyReweighterFactory() ); // for testing
+	new Run2ULReweighterFactory() ); // for real
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 

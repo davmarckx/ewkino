@@ -99,8 +99,8 @@ if __name__=='__main__':
     if args.cfdir is None:
       raise Exception('ERROR: charge flip dir must be specified for selection type chargeflip.')
     electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')
-    if not os.path.exists(electronfrmap):
-      raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap))
+    if not os.path.exists(electroncfmap):
+      raise Exception('ERROR: fake rate map {} does not exist'.format(electroncfmap))
 
   # loop over input files and submit jobs
   commands = []

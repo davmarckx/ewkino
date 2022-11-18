@@ -1,7 +1,7 @@
 { "SSWW": "Multiboson",
   "TT": "TT",
   "TTG": "TTG",
-  "TTH": "TTH",
+  "TTH": "TTX",
   "TTTT": "TTX",
   "TTVV": "TTX",
   "TTW": "TTW",
@@ -24,4 +24,6 @@
   "GGH": "ZZ",
   "GGZZ": "ZZ",
   "VBFH": "ZZ",
+  "nonprompt": "Nonprompt",
+  "chargeflips": "Chargeflips",
   "Obs": "Data" }
