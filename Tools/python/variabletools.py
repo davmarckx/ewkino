@@ -8,17 +8,20 @@ import json
 
 class HistogramVariable(object):
 
-  def __init__( self, name, title, nbins, xlow, xhigh, 
+  def __init__( self, name, variable, nbins, xlow, xhigh, 
                 axtitle=None, unit=None, comments=None ):
     self.name = name
-    self.title = title
+    self.variable = variable
     self.nbins = int(nbins)
     self.xlow = float(xlow)
     self.xhigh = float(xhigh)
     self.axtitle = axtitle
+    if( self.axtitle is not None and self.axtitle=='' ): self.axtitle = None
     self.unit = unit
+    if( self.unit is not None and self.unit=='' ): self.unit = None
     self.comments = comments
-    self.ordered_keys = (['name','title','nbins','xlow','xhigh',
+    if( self.comments is not None and self.comments=='' ): self.comments = None
+    self.ordered_keys = (['name','variable','nbins','xlow','xhigh',
                           'axtitle','unit','comments'])
 
   def __str__( self ):
@@ -38,7 +41,7 @@ def check_json( jsonobj, verbose=True ):
       if verbose: print('ERROR: each element in the json object should be a dict,'
                         +' found {}'.format(type(el)))
       return False
-    reqkeys = ['name','title','nbins','xlow','xhigh']
+    reqkeys = ['name','variable','nbins','xlow','xhigh']
     optkeys = ['axtitle','unit','comments']
     for reqkey in reqkeys:
       if( reqkey not in el.keys() ):
@@ -65,7 +68,7 @@ def read_variables( jsonfile ):
                     +' see more detailed error message above.')
   res = []
   for var in variables:
-    res.append( HistogramVariable( var['name'], var['title'], var['nbins'],
+    res.append( HistogramVariable( var['name'], var['variable'], var['nbins'],
                 var['xlow'], var['xhigh'],
                 axtitle=var.get('axtitle',None),
                 unit=var.get('unit',None),
@@ -79,7 +82,7 @@ def write_variables_txt( variables, txtfile ):
   for var in variables:
     line_elements = []
     line_elements.append(var.name)
-    line_elements.append(var.title)
+    line_elements.append(var.variable)
     line_elements.append(str(var.nbins))
     line_elements.append(str(var.xlow))
     line_elements.append(str(var.xhigh))
@@ -93,7 +96,7 @@ def write_variables_json( variables, jsonfile, builtin=False ):
   varlist = []
   for var in variables:
     vardict = ({ 'name' : var.name,
-                 'title' : var.title,
+                 'variable' : var.variable,
                  'nbins': var.nbins,
                  'xlow': var.xlow,
                  'xhigh': var.xhigh })
@@ -108,7 +111,7 @@ def write_variables_json( variables, jsonfile, builtin=False ):
       json.dump(varlist, f)
   else:
     # manual parsing
-    ordered_keys = (['name','title','nbins','xlow','xhigh',
+    ordered_keys = (['name','variable','nbins','xlow','xhigh',
                      'axtitle','unit','comments'])
     lines = []
     lines.append('[')

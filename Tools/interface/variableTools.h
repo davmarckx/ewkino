@@ -24,17 +24,17 @@ class HistogramVariable{
 
     public:
 	HistogramVariable(  const std::string& name, 
-			    const std::string& title,
+			    const std::string& variable,
 			    int nbins,
 			    double xlow,
 			    double xhigh );
 	HistogramVariable(  const std::string& name,
-			    const std::string& title,
+			    const std::string& variable,
                             const std::string& nbins,
                             const std::string& xlow,
 			    const std::string& xhigh );
 	std::string name() const{ return _name; }
-	std::string title() const{ return _title; }
+	std::string variable() const{ return _variable; }
 	int nbins() const{ return _nbins; }
 	double xlow() const{ return _xlow; }
 	double xhigh() const{ return _xhigh; }
@@ -42,7 +42,7 @@ class HistogramVariable{
 
     private:
 	std::string _name;
-	std::string _title;
+	std::string _variable;
 	int _nbins;
 	double _xlow;
 	double _xhigh;

@@ -46,7 +46,7 @@ class Lepton : public PhysicsObject {
         unsigned provenance() const;
         unsigned provenanceCompressed() const;
         unsigned provenanceConversion() const;
-        bool isChargeFlip() const{ return ( charge() != matchCharge() ); }
+        bool isChargeFlip() const;
 
         //lepton id decisions 
         bool isLoose() const{ return selector->isLoose(); }
@@ -108,8 +108,11 @@ class Lepton : public PhysicsObject {
         Lepton( Lepton&&, LeptonSelector* ) noexcept;
 };
 
-//check whether two leptons have the same flavor
+// check whether two leptons have the same flavor and/or charge
 bool sameFlavor( const Lepton&, const Lepton& );
+bool oppositeFlavor( const Lepton&, const Lepton& );
+bool sameSign( const Lepton&, const Lepton& );
+bool oppositeSign( const Lepton&, const Lepton& );
 bool oppositeSignSameFlavor( const Lepton&, const Lepton& );
 
 #endif

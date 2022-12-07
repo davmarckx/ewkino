@@ -38,12 +38,14 @@ def loadallhistograms(histfile, allow_tgraphs=False, suppress_warnings=False):
     f.Close()
     return histlist
 
-def loadhistograms(histfile,mustcontainall=[],mustcontainone=[],
-	        maynotcontainall=[],maynotcontainone=[]):
-    ### read a root file containing histograms and load all histograms to a list
-    # with selection already included at this stage
-    # (instead of loading all and then selecting with methods below)
-    # (useful in case of many histograms of which only a few are needed)
+def loadhistograms(histfile, 
+                   mustcontainall=[], mustcontainone=[],
+	           maynotcontainall=[],maynotcontainone=[],
+                   allow_tgraphs=False, suppress_warnings=False ):
+    ### read a root file containing histograms and load histograms to a list.
+    # note: selection already included at this stage
+    #       (instead of loading all and then selecting with methods below)
+    #       (useful in case of many histograms of which only a few are needed)
     f = ROOT.TFile.Open(histfile)
     histlist = []
     keylist = f.GetListOfKeys()
@@ -52,18 +54,50 @@ def loadhistograms(histfile,mustcontainall=[],mustcontainone=[],
 	    mustcontainone=mustcontainone,mustcontainall=mustcontainall,
 	    maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
         hist = f.Get(key.GetName())
-        # check if histogram is readable
-        try:
-            nentries = hist.GetEntries()
-            nbins = hist.GetNbinsX()
-            hist.SetDirectory(0)
-        except:
-            print('WARNING in loadhistograms: key "'+str(key.GetName())
-	    +'" does not correspond to valid hist.')
-            continue
+	# check the object type
+        ishist = ( isinstance(hist,ROOT.TH1)
+                   or isinstance(hist,ROOT.TH2) )
+        isgraph = ( isinstance(hist,ROOT.TGraph) )
+        if not suppress_warnings:
+            if( not allow_tgraphs and not ishist ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram.')
+                continue
+            if( allow_tgraphs and not (ishist or isgraph) ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
+                continue
+        hist.SetName(key.GetName())
+        if ishist: hist.SetDirectory(ROOT.gROOT)
         histlist.append(hist)
     f.Close()
     return histlist
+
+def loadallhistnames(histfile):
+    ### read a root file containing histograms and make a list of histogram names.
+    # note: objects are not loaded (for speed), only a list of names is retrieved.
+    f = ROOT.TFile.Open(histfile)
+    histnames = []
+    keylist = f.GetListOfKeys()
+    for key in keylist: histnames.append(key.GetName())
+    f.Close()
+    return histnames
+
+def loadhistnames(histfile,
+                  mustcontainall=[], mustcontainone=[],
+                  maynotcontainall=[],maynotcontainone=[]):
+    ### read a root file containing histograms and make a list of histogram names.
+    # note: objects are not loaded (for speed), only a list of names is retrieved.
+    f = ROOT.TFile.Open(histfile)
+    histnames = []
+    keylist = f.GetListOfKeys()
+    for key in keylist:
+        if not lt.subselect_string(key.GetName(),
+            mustcontainone=mustcontainone,mustcontainall=mustcontainall,
+            maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
+        histnames.append(key.GetName())
+    f.Close()
+    return histnames
 
 
 ### histogram subselection ###
@@ -117,6 +151,15 @@ def clipallhistograms(histfile,mustcontainall=[],clipboundary=0):
     os.system('mv '+tempfilename+' '+histfile)
 
 
+### take absolute value ###
+
+def absolute(hist):
+    ### take absolute value of each bin
+    for i in range(0,hist.GetNbinsX()+2):
+        if hist.GetBinContent(i)<0:
+            hist.SetBinContent(i,-hist.GetBinContent(i))
+
+
 ### finding minimum and maximum ###
 
 def getminmax(histlist):
@@ -148,6 +191,22 @@ def histtoarray( hist ):
     res = np.zeros( nbins+2 )
     for i in range(0, nbins+2):
 	res[i] = hist.GetBinContent(i)
+    return res
+
+def histtoarray2d( hist, keepouterflow=True ):
+    ### same as above but for 2D histogram
+    nxbins = hist.GetNbinsX()
+    nybins = hist.GetNbinsY()
+    if keepouterflow:
+	res = np.zeros( (nxbins+2, nybins+2) )
+	for i in range(0, nxbins+2):
+	    for j in range(0, nybins+2):
+		res[i,j] = hist.GetBinContent(i,j)
+    else:
+	res = np.zeros( (nxbins, nybins) )
+        for i in range(1, nxbins+1):
+            for j in range(1, nybins+1):
+                res[i-1,j-1] = hist.GetBinContent(i,j)
     return res
 
 def tgraphtohist( graph ):

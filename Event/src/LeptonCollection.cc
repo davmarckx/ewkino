@@ -246,24 +246,24 @@ enum LeptonCollection::FlavorCharge : unsigned int { OSSF_light, OSSF_tau, OS, S
 
 
 LeptonCollection::FlavorCharge LeptonCollection::flavorChargeCombination() const{
+    // return the flavor/charge combination of the current lepton collection
     if( size() <= 1 ){
+	// case of 0 or 1 lepton
         return ZeroOrOneLepton;
-    } 
-
-
+    }
+    // default is SS (same sign)
     FlavorCharge currentState = SS;
-
+    // loop over all pairs of leptons in this collection
     for( const_iterator l1It = cbegin(); l1It != cend() - 1; ++l1It ){
         Lepton& l1 = **l1It;
         for( const_iterator l2It = l1It + 1; l2It != cend(); ++l2It ){
             Lepton& l2 = **l2It;
-
+	    // update in case of OS (opposite sign) pair
             if( l1.charge() != l2.charge() ){
                 currentState = OS;
-
+		// return in case of OS light pair
+		// (return immediately because precedence over other combinations)
                 if( sameFlavor( l1, l2 ) && l1.isLightLepton() ){
-
-                    //OSSF_light can be returned because it has precedence over other combinations, as it is a requirement for Z boson reconstruction
                     return OSSF_light;
                 } else if( sameFlavor( l1, l2 ) && l1.isTau() ){
                     currentState = OSSF_tau;
@@ -339,27 +339,35 @@ LeptonCollection::size_type LeptonCollection::numberOfUniqueOSPairs() const{
 }
 
 
-std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > LeptonCollection::bestZBosonCandidateIndicesAndMass() const{
-
-    //currently the code only works when an OSSF pair is present 
-    if( !hasLightOSSFPair() ){
-        throw std::domain_error( "Finding the best leptonic Z decay candidate is only defined when two light leptons of opposite sign and same flavor are present in the event." );
+std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > LeptonCollection::bestZBosonCandidateIndicesAndMass(bool allowSameSign) const{
+    // normal case is with opposite sign lepton pair
+    // (but can be overridden by allowSameSign argument, see below)
+    if( !hasLightOSSFPair() && !allowSameSign ){
+	std::string msg = "ERROR in LeptonCollection.cc:";
+	msg += " leptonic Z decay candidate reconstruction was requested (with opposite sign),";
+	msg += " but the current event has no OSSF light lepton pair.";
+        throw std::domain_error(msg);
     }
 
-    //minimize mass difference with mZ over OSSF lepton pairs, and determine best mass and indices of the leptons forming this mass 
+    // minimize mass difference with mZ over all OSSF lepton pairs, 
+    // and determine best mass and indices of the leptons forming this mass 
     double minDiff = std::numeric_limits< double >::max();
     double bestMass = 0;
     std::pair< size_type, size_type > indicesZCandidate = {99, 99};
 
+    // loop over first lepton
     for( const_iterator l1It = cbegin(); l1It != cend() - 1; ++l1It ){
         Lepton& l1 = **l1It;
-
-        //only consider light leptons
+        // only consider light leptons
         if( l1.isTau() ) continue;
+	// loop over second lepton
         for( const_iterator l2It = l1It + 1; l2It != cend(); ++l2It ){
-            Lepton& l2 = **l2It; 
-            if( !oppositeSignSameFlavor( l1, l2 ) ) continue;
-
+            Lepton& l2 = **l2It;
+	    // skip lepton pairs with different flavor
+	    if( !sameFlavor( l1, l2 ) ) continue;
+	    // skip lepton pairs with same sign (if requested)
+            if( sameSign( l1, l2 ) && !allowSameSign ) continue;
+	    // determine the mass and update best combination
             double mass = ( l1 + l2 ).mass();
             double massDifference = std::abs( mass - particle::mZ );
             if( massDifference < minDiff ){
@@ -374,13 +382,13 @@ std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >
 }
 
 
-std::pair< LeptonCollection::size_type, LeptonCollection::size_type > LeptonCollection::bestZBosonCandidateIndices() const{
-    return bestZBosonCandidateIndicesAndMass().first;
+std::pair< LeptonCollection::size_type, LeptonCollection::size_type > LeptonCollection::bestZBosonCandidateIndices(bool allowSameSign) const{
+    return bestZBosonCandidateIndicesAndMass(allowSameSign).first;
 }
 
 
-double LeptonCollection::bestZBosonCandidateMass() const{
-    return bestZBosonCandidateIndicesAndMass().second;
+double LeptonCollection::bestZBosonCandidateMass(bool allowSameSign) const{
+    return bestZBosonCandidateIndicesAndMass(allowSameSign).second;
 }
 
 
@@ -417,3 +425,15 @@ LeptonCollection LeptonCollection::electronResUpCollection() const{
     return buildVariedElectronCollection( &Electron::electronResUp );
 }
 
+// sorting
+void LeptonCollection::sortByPt( bool useConeCorrectedPt ){
+    if( useConeCorrectedPt ){
+	return sortByAttribute( [](const std::shared_ptr< Lepton >& lhs, 
+				   const std::shared_ptr< Lepton >& rhs){ 
+	    return lhs->pt() > rhs->pt(); } ); 
+    } else{
+	return sortByAttribute( [](const std::shared_ptr< Lepton >& lhs, 
+                                   const std::shared_ptr< Lepton >& rhs){ 
+            return lhs->uncorrectedPt() > rhs->uncorrectedPt(); } );
+    }
+}
