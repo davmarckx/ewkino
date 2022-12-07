@@ -19,6 +19,20 @@ LeptonParticleLevel::LeptonParticleLevel(
     {}
 
 
+LeptonParticleLevel::LeptonParticleLevel( const LeptonParticleLevel& rhs ) :
+    PhysicsObject( rhs ),
+    _charge( rhs._charge ),
+    _flavor( rhs._flavor )
+    {}
+
+
+LeptonParticleLevel::LeptonParticleLevel( LeptonParticleLevel&& rhs ) noexcept :
+    PhysicsObject( std::move( rhs ) ),
+    _charge( rhs._charge ),
+    _flavor( rhs._flavor )
+    {}
+
+
 LeptonParticleLevel::~LeptonParticleLevel(){
 }
 

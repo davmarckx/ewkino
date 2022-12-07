@@ -12,7 +12,10 @@
 #include "JetInfo.h"
 #include "EventTags.h"
 #include "SusyMassInfo.h"
+#include "LeptonParticleLevelCollection.h"
+#include "JetParticleLevelCollection.h"
 #include "../../objects/interface/Met.h"
+#include "../../objects/interface/MetParticleLevel.h"
 #include "../../objects/interface/PhysicsObject.h"
 
 
@@ -27,7 +30,6 @@ class GeneratorInfo;
 class Sample;
 
 
-
 class Event{
 
     public:
@@ -35,7 +37,8 @@ class Event{
 		const bool readIndividualTriggers = false, 
 		const bool readIndividualMetFilters = false,
 		const bool readAllJECVariations = false,
-		const bool readGroupedJECVariations = false );
+		const bool readGroupedJECVariations = false,
+                const bool readParticleLevel = false );
         Event( const Event& );
         Event( Event&& ) noexcept;
 
@@ -53,6 +56,9 @@ class Event{
         EventTags& eventTags() const{ return *_eventTagsPtr; }
         GeneratorInfo& generatorInfo() const;
         SusyMassInfo& susyMassInfo() const;
+	LeptonParticleLevelCollection& leptonParticleLevelCollection() const;
+	JetParticleLevelCollection& jetParticleLevelCollection() const;
+	MetParticleLevel& metParticleLevel() const;
 
 	// return jet collection and met with varied JEC/JER/Uncl uncertainties
 	JetCollection getJetCollection( const std::string& variation ) const{ 
@@ -241,6 +247,9 @@ class Event{
         EventTags* _eventTagsPtr = nullptr;
         GeneratorInfo* _generatorInfoPtr = nullptr;
         SusyMassInfo* _susyMassInfoPtr = nullptr;
+	LeptonParticleLevelCollection* _leptonParticleLevelCollectionPtr = nullptr;
+	JetParticleLevelCollection* _jetParticleLevelCollectionPtr = nullptr;
+	MetParticleLevel* _metParticleLevelPtr = nullptr;
         unsigned _numberOfVertices = 0;
         double _weight = 1;
         const Sample* _samplePtr = nullptr;
@@ -263,6 +272,13 @@ class Event{
         //check the presence of susy information
         bool hasSusyMassInfo() const{ return ( _susyMassInfoPtr != nullptr ); }
         void checkSusyMassInfo() const;
+
+	// check the presence of particle level information
+	bool hasParticleLevel() const{ 
+	    return ( _leptonParticleLevelCollectionPtr != nullptr
+		    && _jetParticleLevelCollectionPtr != nullptr
+		    && _metParticleLevelPtr != nullptr ); }
+	void checkParticleLevel() const;
 
 	Event variedLeptonCollectionEvent(
                     LeptonCollection (LeptonCollection::*variedCollection)() const ) const;

@@ -30,6 +30,8 @@
 #include "Event/src/TriggerInfo.cc"
 #include "Event/src/GeneratorInfo.cc"
 #include "Event/src/SusyMassInfo.cc"
+#include "Event/src/LeptonParticleLevelCollection.cc"
+#include "Event/src/JetParticleLevelCollection.cc"
 #include "Event/src/EventTags.cc"
 #include "Event/src/Event.cc"
 

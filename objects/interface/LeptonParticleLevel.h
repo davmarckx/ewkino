@@ -23,6 +23,9 @@ class LeptonParticleLevel : public PhysicsObject {
     public: 
         LeptonParticleLevel( const TreeReader&, unsigned int ); 
 
+	LeptonParticleLevel( const LeptonParticleLevel& );
+        LeptonParticleLevel( LeptonParticleLevel&& ) noexcept;
+
         ~LeptonParticleLevel();
         
         LeptonParticleLevel& operator=( const LeptonParticleLevel& );
@@ -43,8 +46,8 @@ class LeptonParticleLevel : public PhysicsObject {
     
         void copyNonPointerAttributes( const LeptonParticleLevel& );
 
-        virtual LeptonParticleLevel* clone() const & = 0;
-        virtual LeptonParticleLevel* clone() && = 0;
+        LeptonParticleLevel* clone() const & { return new LeptonParticleLevel(*this); }
+        LeptonParticleLevel* clone() && { return new LeptonParticleLevel( std::move(*this)); }
 
 };
 
