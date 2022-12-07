@@ -327,12 +327,14 @@ class TreeReader {
 			    const bool readIndividualTriggers = false, 
 			    const bool readIndividualMetFilters = false,
 			    const bool readAllJECVariations = false,
-			    const bool readGroupedJECVariations = false );
+			    const bool readGroupedJECVariations = false,
+			    const bool readParticleLevel = false );
         Event buildEvent( long unsigned, 
 			    const bool readIndividualTriggers = false, 
 			    const bool readIndividualMetFilters = false,
 			    const bool readAllJECVariations = false, 
-                            const bool readGroupedJECVariations = false );
+                            const bool readGroupedJECVariations = false,
+			    const bool readParticleLevel = false );
 
         //check whether specific info is present in current tree
         bool containsTauInfo() const;
