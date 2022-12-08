@@ -1093,7 +1093,7 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	}
     }
 
-    if( isMC() && includeParticleLevel){
+    if( isMC() && includeParticleLevel ){
         if( !containsParticleLevel() ){
             std::string msg = "WARNING in TreeReader.setOutputTree:";
             msg.append(" requested to include particle level in output tree,");
@@ -1102,21 +1102,21 @@ void TreeReader::setOutputTree( TTree* outputTree,
             std::cerr << msg << std::endl;
         }
         else{
-	    outputTree->Branch("_pl_met", &b__pl_met, "_pl_met/D");
-            outputTree->Branch("_pl_metPhi", &b__pl_metPhi, "_pl_metPhi/D");
-            outputTree->Branch("_pl_nL", &b__pl_nL, "_pl_nL/i");
-            outputTree->Branch("_pl_lPt", &b__pl_lPt, "_pl_lPt[_pl_nL]/D");
-            outputTree->Branch("_pl_lEta", &b__pl_lEta, "_pl_lEta[_pl_nL]/D");
-            outputTree->Branch("_pl_lPhi", &b__pl_lPhi, "_pl_lPhi[_pl_nL]/D");
-            outputTree->Branch("_pl_lE", &b__pl_lE, "_pl_lE[_pl_nL]/D");
-            outputTree->Branch("_pl_lFlavor", &b__pl_lFlavor, "_pl_lFlavor[_pl_nL]/i");
-            outputTree->Branch("_pl_lCharge", &b__pl_lCharge, "_pl_lCharge[_pl_nL]/I");
-            outputTree->Branch("_pl_nJets", &b__pl_nJets, "_pl_nJets/i");
-            outputTree->Branch("_pl_jetPt", &b__pl_jetPt, "_pl_jetPt[_pl_nJets]/D");
-            outputTree->Branch("_pl_jetEta", &b__pl_jetEta, "_pl_jetEta[_pl_nJets]/D");
-            outputTree->Branch("_pl_jetPhi", &b__pl_jetPhi, "_pl_jetPhi[_pl_nJets]/D");
-            outputTree->Branch("_pl_jetE", &b__pl_jetE, "_pl_jetE[_pl_nJets]/D");
-            outputTree->Branch("_pl_jetHadronFlavor", &b__pl_jetHadronFlavor, "pl_jetHadronFlavor[_pl_nJets]/i");
+	    outputTree->Branch("_pl_met", &_pl_met, "_pl_met/D");
+            outputTree->Branch("_pl_metPhi", &_pl_metPhi, "_pl_metPhi/D");
+            outputTree->Branch("_pl_nL", &_pl_nL, "_pl_nL/i");
+            outputTree->Branch("_pl_lPt", &_pl_lPt, "_pl_lPt[_pl_nL]/D");
+            outputTree->Branch("_pl_lEta", &_pl_lEta, "_pl_lEta[_pl_nL]/D");
+            outputTree->Branch("_pl_lPhi", &_pl_lPhi, "_pl_lPhi[_pl_nL]/D");
+            outputTree->Branch("_pl_lE", &_pl_lE, "_pl_lE[_pl_nL]/D");
+            outputTree->Branch("_pl_lFlavor", &_pl_lFlavor, "_pl_lFlavor[_pl_nL]/i");
+            outputTree->Branch("_pl_lCharge", &_pl_lCharge, "_pl_lCharge[_pl_nL]/I");
+            outputTree->Branch("_pl_nJets", &_pl_nJets, "_pl_nJets/i");
+            outputTree->Branch("_pl_jetPt", &_pl_jetPt, "_pl_jetPt[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetEta", &_pl_jetEta, "_pl_jetEta[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetPhi", &_pl_jetPhi, "_pl_jetPhi[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetE", &_pl_jetE, "_pl_jetE[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetHadronFlavor", &_pl_jetHadronFlavor, "pl_jetHadronFlavor[_pl_nJets]/i");
 	}
     }
 
