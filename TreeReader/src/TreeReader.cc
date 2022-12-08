@@ -238,6 +238,11 @@ bool TreeReader::containsGenParticles() const{
 }
 
 
+bool TreeReader::containsParticleLevel() const{
+    return treeHasBranchWithName( _currentTreePtr, "_pl_" );
+}
+
+
 bool TreeReader::containsPrefire() const{
     return treeHasBranchWithName( _currentTreePtr, "_prefireWeight" );
 }
@@ -496,19 +501,23 @@ void TreeReader::GetEntry( long unsigned entry ){
 
 Event TreeReader::buildEvent( const Sample& samp, long unsigned entry, 
 	const bool readIndividualTriggers, const bool readIndividualMetFilters,
-	const bool readAllJECVariations, const bool readGroupedJECVariations ){
+	const bool readAllJECVariations, const bool readGroupedJECVariations,
+	const bool readParticleLevel ){
     GetEntry( samp, entry );
     return Event( *this, readIndividualTriggers, readIndividualMetFilters,
-			readAllJECVariations, readGroupedJECVariations );
+			readAllJECVariations, readGroupedJECVariations,
+			readParticleLevel );
 }
 
 
 Event TreeReader::buildEvent( long unsigned entry, 
 	const bool readIndividualTriggers, const bool readIndividualMetFilters,
-	const bool readAllJECVariations, const bool readGroupedJECVariations ){
+	const bool readAllJECVariations, const bool readGroupedJECVariations,
+	const bool readParticleLevel ){
     GetEntry( entry );
     return Event( *this, readIndividualTriggers, readIndividualMetFilters,
-			readAllJECVariations, readGroupedJECVariations );
+			readAllJECVariations, readGroupedJECVariations,
+			readParticleLevel );
 }
 
 
@@ -760,6 +769,28 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
 	    _currentTreePtr->SetBranchAddress("_gen_lIsPrompt", _gen_lIsPrompt, &b__gen_lIsPrompt);
 	}
 
+	if( !containsParticleLevel() ){
+	    std::string msg = "WARNING: input tree does not seem to contain particle level info;";
+            msg.append( " will not read particle level branches!" );
+            std::cerr << msg << std::endl;
+	} else{
+	    _currentTreePtr->SetBranchAddress("_pl_met", &_pl_met, &b__pl_met);
+	    _currentTreePtr->SetBranchAddress("_pl_metPhi", &_pl_metPhi, &b__pl_metPhi);
+	    _currentTreePtr->SetBranchAddress("_pl_nL", &_pl_nL, &b__pl_nL);
+	    _currentTreePtr->SetBranchAddress("_pl_lPt", _pl_lPt, &b__pl_lPt);
+	    _currentTreePtr->SetBranchAddress("_pl_lEta", _pl_lEta, &b__pl_lEta);
+	    _currentTreePtr->SetBranchAddress("_pl_lPhi", _pl_lPhi, &b__pl_lPhi);
+	    _currentTreePtr->SetBranchAddress("_pl_lE", _pl_lE, &b__pl_lE);
+	    _currentTreePtr->SetBranchAddress("_pl_lFlavor", _pl_lFlavor, &b__pl_lFlavor);
+	    _currentTreePtr->SetBranchAddress("_pl_lCharge", _pl_lCharge, &b__pl_lCharge);
+	    _currentTreePtr->SetBranchAddress("_pl_nJets", &_pl_nJets, &b__pl_nJets);
+	    _currentTreePtr->SetBranchAddress("_pl_jetPt", _pl_jetPt, &b__pl_jetPt);
+	    _currentTreePtr->SetBranchAddress("_pl_jetEta", _pl_jetEta, &b__pl_jetEta);
+	    _currentTreePtr->SetBranchAddress("_pl_jetPhi", _pl_jetPhi, &b__pl_jetPhi);
+	    _currentTreePtr->SetBranchAddress("_pl_jetE", _pl_jetE, &b__pl_jetE);
+	    _currentTreePtr->SetBranchAddress("_pl_jetHadronFlavor", _pl_jetHadronFlavor, &b__pl_jetHadronFlavor);	
+	}
+
 	if( !containsPrefire() ){
 	    std::string msg = "WARNING: input tree does not seem to contain prefire info;";
 	    msg.append( " will not read prefire branches!" );
@@ -829,7 +860,8 @@ void TreeReader::setOutputTree( TTree* outputTree,
 				bool includeGeneratorInfo,
 				bool includeGenParticles,
 				bool includePrefire,
-				bool includePrefireComponents ){
+				bool includePrefireComponents,
+                                bool includeParticleLevel ){
     outputTree->Branch("_runNb",                        &_runNb,                        "_runNb/l");
     outputTree->Branch("_lumiBlock",                    &_lumiBlock,                    "_lumiBlock/l");
     outputTree->Branch("_eventNb",                      &_eventNb,                      "_eventNb/l");
@@ -1052,6 +1084,33 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	    outputTree->Branch("_gen_lCharge",               &_gen_lCharge,               "_gen_lCharge[_gen_nL]/I");
 	    outputTree->Branch("_gen_lMomPdg",               &_gen_lMomPdg,               "_gen_lMomPdg[_gen_nL]/I");
 	    outputTree->Branch("_gen_lIsPrompt",             &_gen_lIsPrompt,             "_gen_lIsPrompt[_gen_nL]/O");
+	}
+    }
+
+    if( isMC() && includeParticleLevel){
+        if( !containsParticleLevel() ){
+            std::string msg = "WARNING in TreeReader.setOutputTree:";
+            msg.append(" requested to include particle level in output tree,");
+            msg.append(" but there appear to be no particle level branches in the input tree;");
+            msg.append(" will skip writing particles level to output tree!");
+            std::cerr << msg << std::endl;
+        }
+        else{
+	    outputTree->Branch("_pl_met", &b__pl_met, "_pl_met/D");
+            outputTree->Branch("_pl_metPhi", &b__pl_metPhi, "_pl_metPhi/D");
+            outputTree->Branch("_pl_nL", &b__pl_nL, "_pl_nL/i");
+            outputTree->Branch("_pl_lPt", &b__pl_lPt, "_pl_lPt[_pl_nL]/D");
+            outputTree->Branch("_pl_lEta", &b__pl_lEta, "_pl_lEta[_pl_nL]/D");
+            outputTree->Branch("_pl_lPhi", &b__pl_lPhi, "_pl_lPhi[_pl_nL]/D");
+            outputTree->Branch("_pl_lE", &b__pl_lE, "_pl_lE[_pl_nL]/D");
+            outputTree->Branch("_pl_lFlavor", &b__pl_lFlavor, "_pl_lFlavor[_pl_nL]/i");
+            outputTree->Branch("_pl_lCharge", &b__pl_lCharge, "_pl_lCharge[_pl_nL]/I");
+            outputTree->Branch("_pl_nJets", &b__pl_nJets, "_pl_nJets/i");
+            outputTree->Branch("_pl_jetPt", &b__pl_jetPt, "_pl_jetPt[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetEta", &b__pl_jetEta, "_pl_jetEta[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetPhi", &b__pl_jetPhi, "_pl_jetPhi[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetE", &b__pl_jetE, "_pl_jetE[_pl_nJets]/D");
+            outputTree->Branch("_pl_jetHadronFlavor", &b__pl_jetHadronFlavor, "pl_jetHadronFlavor[_pl_nJets]/i");
 	}
     }
 
