@@ -99,6 +99,8 @@ for f in inputfiles:
 	extrainfos = []
 	if process=='DY': extrainfos=['Drell-Yan simulation']
 	if process=='TT': extrainfos=['t#bar{t} simulation']
+        extrainfos.append('Year: {}'.format(year))
+        extrainfos.append('Lepton flavour: {}'.format(flavor))
     
 	hp.plotdatavsmc( os.path.join(outdir,var+'_'+instancename), observedhist, 
 	        predictedhists, mcsysthist=predictedsyst,
