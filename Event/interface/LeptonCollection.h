@@ -18,6 +18,7 @@ class LeptonCollection : public PhysicsObjectCollection< Lepton > {
     
     public:
         LeptonCollection( const TreeReader& );
+	LeptonCollection( const std::vector< std::shared_ptr< Lepton > >& leptonVector ) : PhysicsObjectCollection< Lepton >( leptonVector ) {}
 
         MuonCollection muonCollection() const;
         ElectronCollection electronCollection() const;
@@ -95,8 +96,6 @@ class LeptonCollection : public PhysicsObjectCollection< Lepton > {
 
         //build collection of objects passing given selection
         LeptonCollection selectedCollection( void (LeptonCollection::*applySelection)() ) const;
-
-        LeptonCollection( const std::vector< std::shared_ptr< Lepton > >& leptonVector ) : PhysicsObjectCollection< Lepton >( leptonVector ) {}
 
         //determine the flavor + charge combination of the leptons
         enum FlavorCharge : unsigned int;

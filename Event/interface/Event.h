@@ -183,6 +183,7 @@ class Event{
         std::pair< LeptonCollection::size_type, LeptonCollection::size_type > bestZBosonCandidateIndices(bool allowSameSign = false);
         std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > bestZBosonCandidateIndicesAndMass(bool allowSameSign = false);
         bool hasZTollCandidate( const double oneSidedMassWindow, bool allowSameSign = false );
+	unsigned int nZTollCandidates( const double oneSidedMassWindow );
 
         //transverse mass of lepton from W decay in 1 or 3 lepton events and the MET
         LeptonCollection::size_type WLeptonIndex();

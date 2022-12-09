@@ -306,6 +306,34 @@ bool Event::hasZTollCandidate( const double oneSidedMassWindow, bool allowSameSi
 }
 
 
+unsigned int Event::nZTollCandidates( const double oneSidedMassWindow ){
+    // initialize result
+    unsigned int nZ = 0;
+    // copy the lepton collection of this event
+    // note: is there another way to copy that does not involve some kind of selection?
+    LeptonCollection remainingLeptons = _leptonCollectionPtr->looseLeptonCollection();
+    // iteratively find best Z boson candidates
+    while( remainingLeptons.hasLightOSSFPair() ){
+	std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > ZBosonCandidateIndicesAndMass = remainingLeptons.bestZBosonCandidateIndicesAndMass();
+        std::pair< int, int > indices = ZBosonCandidateIndicesAndMass.first;
+	double mass = ZBosonCandidateIndicesAndMass.second;
+	// if the mass is not good, break
+	if( std::fabs(mass-particle::mZ) > oneSidedMassWindow ) break;
+	// else add 1, remove leptons and repeat
+	nZ += 1;
+	std::vector< std::shared_ptr< Lepton > > lepVector;
+	for(LeptonCollection::const_iterator lIt = remainingLeptons.cbegin();
+	    lIt != remainingLeptons.cend(); lIt++){
+	    if(lIt-remainingLeptons.cbegin()==indices.first
+                or lIt-remainingLeptons.cbegin()==indices.second) continue;
+            lepVector.push_back( *lIt );
+        }
+	remainingLeptons = LeptonCollection( lepVector );
+    }
+    return nZ;	
+}
+
+
 LeptonCollection::size_type Event::WLeptonIndex(){
     initializeZBosonCandidate();
     return _WLeptonIndex;
