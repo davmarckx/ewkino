@@ -43,13 +43,13 @@ def getminmax(datahist,mchist,yaxlog):
     histmax = max(histmax,datahist.GetBinContent(datahist.GetMaximumBin())
                             +datahist.GetBinErrorUp(datahist.GetMaximumBin()))
     if not yaxlog: return (0,histmax*1.5)
-    # find minimum (manually to avoid zero)
+    # find minimum (manually to avoid zero and small dummy values)
     histmin = histmax
     for i in range(1,mchist.GetNbinsX()+1):
-        if( (not mchist.GetBinContent(i)==0) and mchist.GetBinContent(i)<histmin):
+        if( (not mchist.GetBinContent(i)<1e-3) and mchist.GetBinContent(i)<histmin):
             histmin = mchist.GetBinContent(i)
     rangemin = histmin/5.
-    rangemax = histmax*np.power(histmax/rangemin,0.4)
+    rangemax = histmax*np.power(histmax/rangemin,0.6)
     return (rangemin,rangemax)
 
 def drawbincontent(mchistlist,mchisterror,tag):
@@ -73,7 +73,8 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	p2yaxtitle=None, p2yaxrange=None,
 	p1legendncols=None, p1legendbox=None,
 	extracmstext='', lumi=None,
-	extrainfos=[], infosize=None, infoleft=None, infotop=None):
+	extrainfos=[], infosize=None, infoleft=None, infotop=None,
+        binlabels=None, labelsize=None):
     ### make a (stacked) simulation vs. data plot
     # arguments:
     # - outfile is the output file where the figure will be saved
@@ -104,6 +105,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # - infosize: font size of extra info
     # - infoleft: left border of extra info text (default leftmargin + 0.05)
     # - infotop: top border of extra info text (default 1 - p1topmargin - 0.1)
+    # - binlabels: list of alphanumeric x-axis labels (for categorical histograms)
     
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -130,7 +132,8 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     cwidth = 600 # width of canvas
     rfrac = 0.3 # fraction of ratio plot in canvas
     # fonts and sizes:
-    labelfont = 4; labelsize = 22
+    labelfont = 4
+    if labelsize is None: labelsize = 22
     axtitlefont = 4; axtitlesize = 27
     infofont = 4
     if infosize is None: infosize = 20
@@ -355,6 +358,18 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	#xax.SetNdivisions(xax.GetNbins(),0,0,ROOT.kFALSE)
 	#xax.CenterLabels()
 	# does not work properly since labels are still half-integer but simply shifted
+    elif binlabels is not None:
+        # set bin labels for x-axis
+        if len(binlabels)!=scerror.GetNbinsX():
+            msg = 'ERROR in histplotter.plotdatavsmc:'
+            msg += ' binlabels has invalid length of {}'.format(len(binlabels))
+            msg += ' while number of bins is {};'.format(scerror.GetNbinsX())
+            msg += ' will ignore provided bin labels.'
+            print(msg)
+        else:
+            for i in range(1,scerror.GetNbinsX()+1): 
+		label = str(binlabels[i-1])
+		xax.SetBinLabel(i, label)
     else: xax.SetNdivisions(10,5,0,ROOT.kTRUE)
     xax.SetLabelSize(labelsize)
     xax.SetLabelFont(10*labelfont+3)

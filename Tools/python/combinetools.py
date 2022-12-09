@@ -8,27 +8,39 @@
 import os
 import sys
 
-def cleandatacarddir(datacarddir, rmtxt=True, rmroot=True):
+def cleandatacarddir(datacarddir, rmtxt=True, rmroot=True, force=False):
   ### remove all combine objects from a datacard directory
   # note: original (elementary) datacards and histograms are not removed
   # note: depends a little on naming convention, maybe think of generalization later
+  filestorm = []
   if rmtxt:
     # remove output txt files and combined datacards
     alltxtfiles = [f for f in os.listdir(datacarddir) if f[-4:]=='.txt']
     for f in alltxtfiles:
-      if '_out_' in f: os.system('rm '+os.path.join(datacarddir,f))
-      elif 'combined' in f: os.system('rm '+os.path.join(datacarddir,f))
+      if '_out_' in f: filestorm.append(os.path.join(datacarddir,f))
+      elif 'combined' in f: filestorm.append(os.path.join(datacarddir,f))
   if rmroot:
     # remove output root files except for files holding input histograms
     allrootfiles = [f for f in os.listdir(datacarddir) if f[-5:]=='.root']
     for f in allrootfiles:
-      if not f.startswith('histograms_'): os.system('rm '+os.path.join(datacarddir,f))
+      if not f.startswith('histograms_'): filestorm.append(os.path.join(datacarddir,f))
   # remove all other files and folders
   allotherfiles = ([f for f in os.listdir(datacarddir) 
                     if not (f[-5:]=='.root' or f[-4:]=='.txt')])
-  for f in allotherfiles: os.system('rm -r '+os.path.join(datacarddir,f))
+  for f in allotherfiles: filestorm.append(os.path.join(datacarddir,f))
+  # ask for confirmation
+  if( not force and len(filestorm)>0 ):
+    msg = 'WARNING in combinetools.cleandatacarddir:'
+    msg += ' datacard directory {} is not empty.\n'.format(datacarddir)
+    msg += 'Clean it? (y/n)'
+    print(msg)
+    go = raw_input()
+    if not go=='y': return False
+  # remove the files and folders
+  for f in filestorm: os.system('rm -r {}'.format(f))
+  return True
 
-def get_combinecards_commands(datacarddir, combinationdict):
+def makecombinedcards(datacarddir, combinationdict, cmssw_version=None):
   ### call combineCards functionality on combinations of datacards
   # input arguments:
   # - datacarddir: directory containing the datacards
@@ -67,13 +79,24 @@ def get_combinecards_commands(datacarddir, combinationdict):
       continue
     # make sure the combination has correct extension
     combcard = os.path.splitext(combcard)[0]+'.txt'
-    # run the combinceCards script
+    # make the combinceCards command
     command = 'combineCards.py'
     for card in cards:
       channelname = combinationdict[combcard][card]
       command += ' '+channelname+'='+card
     command += ' &> '+combcard
-    os.system(command)
+    # make a temporary bash script and add environment
+    scriptname = 'temp_combinecards_{}.sh'.format(os.path.splitext(combcard)[0])
+    with open(scriptname,'w') as script:
+      # write setting correct cmssw release
+      if cmssw_version is not None:
+        script.write('cd {}\n'.format( os.path.join( cmssw_version,'src' ) ) )
+        script.write('eval `scram runtime -sh`\n')
+        script.write('cd {}\n'.format( os.getcwd() ) )
+      script.write(command+'\n')
+    # run and remove the temporary script
+    os.system('bash {}'.format(scriptname))
+    os.system('rm {}'.format(scriptname))
     msg = 'INFO in combinetools.makecombinedcards:'
     msg += ' made combined datacard {}.'.format(combcard)
     combinedcards.append(combcard)
