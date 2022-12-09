@@ -73,6 +73,32 @@ def loadhistograms(histfile,
     f.Close()
     return histlist
 
+def loadhistogramlist(histfile, histnames, 
+		      allow_tgraphs=False, suppress_warnings=False):
+    ### load histograms specified by name from a file
+    f = ROOT.TFile.Open(histfile)
+    histlist = []
+    for histname in histnames:
+        hist = f.Get(histname)
+        # check the object type
+        ishist = ( isinstance(hist,ROOT.TH1)
+                   or isinstance(hist,ROOT.TH2) )
+        isgraph = ( isinstance(hist,ROOT.TGraph) )
+        if not suppress_warnings:
+            if( not allow_tgraphs and not ishist ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram.')
+                continue
+            if( allow_tgraphs and not (ishist or isgraph) ):
+                print('WARNING in histtools.loadhistograms:'
+                      +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
+                continue
+        hist.SetName(histname)
+        if ishist: hist.SetDirectory(ROOT.gROOT)
+        histlist.append(hist)
+    f.Close()
+    return histlist
+
 def loadallhistnames(histfile):
     ### read a root file containing histograms and make a list of histogram names.
     # note: objects are not loaded (for speed), only a list of names is retrieved.
