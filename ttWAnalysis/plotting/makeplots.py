@@ -22,25 +22,6 @@ import colors
 import infodicts
 
 
-def getmcsysthist(mchistlist, npunc=0.3):
-  ### get a histogram with systematic uncertainties
-  # note: dummy implementation with only nonprompt uncertainty!
-  syshist = mchistlist[0].Clone()
-  syshist.Reset()
-  totmchist = mchistlist[0].Clone()
-  totmchist.Reset()
-  nphist = None
-  for hist in mchistlist:
-    totmchist.Add(hist)
-    syshist.Add(hist)
-    if hist.GetTitle()=="nonprompt": nphist = hist.Clone()
-  if nphist is None: return None
-  if nphist.GetBinContent(1)<1e-4: nphist.SetBinContent(1,0.)
-  syshist.Add(nphist,npunc)
-  syshist.Add(totmchist,-1)
-  return syshist
-
-
 if __name__=="__main__":
 
   # parse arguments
@@ -53,6 +34,7 @@ if __name__=="__main__":
   parser.add_argument('--colormap', default='default')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
+  parser.add_argument('--dolog', action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -98,7 +80,10 @@ if __name__=="__main__":
     
     # select histograms
     thishists = ht.selecthistograms(histlist, mustcontainall=[varname])[1]
-    if len(histlist)==0:
+    # additional selections for overlapping histogram names
+    thishists = ([hist for hist in thishists if 
+                  (hist.GetName().endswith(varname) or varname+'_' in hist.GetName())])
+    if len(thishists)==0:
       print('ERROR: histogram list for variable {} is empty,'.format(varname)
             +' skipping this variable.')
       continue
@@ -144,17 +129,32 @@ if __name__=="__main__":
             +' will not write lumi header.')
     lumi = lumimap.get(args.year,None)
     colormap = colors.getcolormap(style=args.colormap)
-    npunc = 0.3
-    simsysthist = getmcsysthist(simhists, npunc=npunc)
     extrainfos = []
     extrainfos.append( args.year )
     extrainfos.append( regionname )
+    xlabels = None
+    labelsize = None
+    if( var.iscategorical and var.xlabels is not None ):
+	xlabels = var.xlabels
+        labelsize = 15
 
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
-	    mcsysthist=simsysthist, 
 	    xaxtitle=xaxtitle,
 	    yaxtitle='Number of events',
 	    colormap=colormap,
 	    lumi=lumi, extracmstext=args.extracmstext,
-            extrainfos=extrainfos, infosize=15 )
+            extrainfos=extrainfos, infosize=15,
+            binlabels=xlabels, labelsize=labelsize )
+
+    if args.dolog:
+      # make plot in log scale
+      outfile = os.path.join(args.outputdir, varname)+'_log'
+      hp.plotdatavsmc(outfile, datahist, simhists,
+            xaxtitle=xaxtitle,
+            yaxtitle='Number of events',
+            yaxlog=True,
+            colormap=colormap,
+            lumi=lumi, extracmstext=args.extracmstext,
+            extrainfos=extrainfos, infosize=15,
+            binlabels=xlabels, labelsize=labelsize )

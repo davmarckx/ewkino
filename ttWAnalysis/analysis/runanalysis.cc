@@ -20,6 +20,7 @@
 #include "../../TreeReader/interface/TreeReader.h"
 #include "../../Event/interface/Event.h"
 #include "../../Tools/interface/stringTools.h"
+#include "../../Tools/interface/systemTools.h"
 #include "../../Tools/interface/variableTools.h"
 #include "../../Tools/interface/rootFileTools.h"
 #include "../../Tools/interface/SampleCrossSections.h"
@@ -28,6 +29,16 @@
 #include "../eventselection/interface/eventSelections.h"
 #include "../eventselection/interface/eventFlattening.h"
 
+
+std::string modProcessName( const std::string processName, const std::string selectionType ){
+    // small internal helper function
+    std::string modProcessName = processName;
+    if( selectionType=="fakerate" ) modProcessName = "nonprompt";
+    if( selectionType=="chargeflips" ) modProcessName = "chargeflips";
+    return modProcessName;
+}
+
+
 std::map< std::string,     // process
     std::map< std::string, // event selection
     std::map< std::string, // selection type
@@ -35,6 +46,7 @@ std::map< std::string,     // process
     std::map< std::string, // systematic
     std::shared_ptr<TH1D> > > > > > initHistMap(
     const std::vector<std::string>& processNames,
+    const bool isData,
     const std::vector<std::string>& eventSelections,
     const std::vector<std::string>& selectionTypes,
     const std::vector<HistogramVariable>& histVars,
@@ -48,8 +60,10 @@ std::map< std::string,     // process
     // the resulting map has five levels: 
     // map[process name][event selection][selection type][variable name][systematic]
     // notes:
-    // - processNames is just one name (per file) in most cases,
-    //   but can be multiple if a sample is split in sub-categories
+    // - processNames should be just one name (per file) in most cases,
+    //   but can be multiple if a sample is split in sub-categories.
+    // - isData should be true for data samples and false for MC samples;
+    //   systematics are skipped for data except for fake rate selection type.
     
     // initialize the output histogram map
     std::map< std::string, 
@@ -64,11 +78,12 @@ std::map< std::string,     // process
 	for(std::string eventSelection: eventSelections){
 	    // loop over selection types
 	    for(std::string selectionType: selectionTypes){
+		std::string thisProcessName = modProcessName(processName,selectionType);
 		// loop over variables
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
 		    // form the histogram name
-		    std::string baseName = processName+"_"+eventSelection+"_"+selectionType+"_"+variableName;
+		    std::string baseName = thisProcessName+"_"+eventSelection+"_"+selectionType+"_"+variableName;
 		    baseName = stringTools::removeOccurencesOf(baseName," ");
 		    baseName = stringTools::removeOccurencesOf(baseName,"/");
 		    baseName = stringTools::removeOccurencesOf(baseName,"#");
@@ -78,8 +93,17 @@ std::map< std::string,     // process
 		    // make the histInfo object
 		    HistInfo histInfo( "", "", histVar.nbins(), histVar.xlow(), histVar.xhigh() );
 		    // add nominal histogram
-		    histMap[processName][eventSelection][selectionType][variableName]["nominal"] = histInfo.makeHist( baseName+"_nominal" );
-		    histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at("nominal")->SetTitle(processName.c_str());
+		    histMap[thisProcessName][eventSelection][selectionType][variableName]["nominal"] = histInfo.makeHist( baseName+"_nominal" );
+		    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at("nominal")->SetTitle(thisProcessName.c_str());
+		    // for data, skip initialization of histograms for systematics
+                    // (except for selection type "fakerate", in which case systematic histograms
+                    // should be added and filled with nominal values,
+                    // in order to correctly merge with MC with the same selection type).
+		    if( isData && selectionType!="fakerate" ) continue;
+                    // for MC, specifically for selection type "chargeflips",
+                    // skip initialization of systematic histograms as well,
+                    // in order to correctly merge with data with the same selection type.
+                    if( selectionType=="chargeflips" ) continue;
 		    // loop over systematics
 		    for(std::string systematic : systematics){
 			// special case for PDF variations: store individual variations 
@@ -87,14 +111,14 @@ std::map< std::string,     // process
 			if(systematic=="pdfShapeVar"){
 			    for(unsigned i=0; i<numberOfPdfVariations; ++i){
 				std::string temp = systematic + std::to_string(i);
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			    std::vector<std::string> temps = {"pdfShapeEnvUp", "pdfShapeEnvDown",
 							      "pdfShapeRMSUp", "pdfShapeRMSDown"};
 			    for(std::string temp: temps){
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
 			// special case for QCD scales: store individual variations
@@ -102,13 +126,13 @@ std::map< std::string,     // process
 			else if(systematic=="qcdScalesShapeVar"){
 			    for(unsigned i=0; i<numberOfQcdScaleVariations; ++i){
 				std::string temp = systematic + std::to_string(i);
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			    std::vector<std::string> temps = {"qcdScalesShapeEnvUp", "qcdScalesShapeEnvDown"};
 			    for(std::string temp: temps){
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
 			// special case for split JEC variations: store all variations
@@ -117,32 +141,32 @@ std::map< std::string,     // process
 			    if( systematic=="JECGrouped" ) variations = groupedJecVariations;
 			    for(std::string jecvar: variations){
 				std::string temp = systematic + "_" + jecvar + "Up";
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 				temp = systematic + "_" + jecvar + "Down";
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
 			// special case for bTag shape variations: store multiple systematics
 			else if(systematic=="bTag_shape"){
 			    for(std::string btagsys: bTagShapeSystematics){
 				std::string temp = systematic + "_" + btagsys + "Up";
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 				temp = systematic + "_" + btagsys + "Down";
-				histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
 			// now general case: store up and down variation
 			else{
 			    std::string temp = systematic + "Up";
-			    histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-			    histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+			    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    temp = systematic + "Down";
-			    histMap[processName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
-			    histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+			    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			}
 		    }
 		}
@@ -167,8 +191,10 @@ void fillSystematicsHistograms(
 	    const std::vector<std::string>& event_selections, 
 	    const std::vector<std::string>& selection_types,
             const std::string& muonFRMap, 
-	    const std::string& electronFRMap, 
+	    const std::string& electronFRMap,
+            const std::string& electronCFMap,
 	    unsigned long nEntries,
+            bool forceNEntries,
             std::vector<std::string>& systematics ){
     // initialize TreeReader from input file
     std::cout << "=== start function fillSystematicsHistograms ===" << std::endl;;
@@ -182,13 +208,6 @@ void fillSystematicsHistograms(
     std::string inputFileName = treeReader.currentSample().fileName();
     std::string processName = treeReader.currentSample().processName();
 
-    // when considering the data sample, disregard all systematics
-    bool processNameIsData = (processName=="data" || processName=="Data"
-			      || processName=="obs" || processName=="Obs"); 
-    if( processNameIsData) systematics.clear();
-    // warning: do not use isData() in the condition above, 
-    // as systematic histograms must be created for fakes from data (see below)
-
     // load fake rate maps if needed
     std::shared_ptr<TH2D> frmap_muon;
     std::shared_ptr<TH2D> frmap_electron;
@@ -196,6 +215,14 @@ void fillSystematicsHistograms(
 	std::cout << "reading fake rate maps..." << std::endl;
         frmap_muon = readFakeRateTools::readFRMap(muonFRMap, "muon", year);
         frmap_electron = readFakeRateTools::readFRMap(electronFRMap, "electron", year);
+    }
+
+    // load charge flip maps if needed
+    std::shared_ptr<TH2D> cfmap_electron;
+    if(std::find(selection_types.begin(),selection_types.end(),"chargeflips")!=selection_types.end()){
+        std::cout << "reading charge flip maps..." << std::endl;
+	cfmap_electron = readChargeFlipTools::readChargeFlipMap(
+			    electronCFMap, year, "electron");
     }
 
     // make reweighter
@@ -311,7 +338,8 @@ void fillSystematicsHistograms(
 	else if( systematic=="JECGrouped" ) considerjecgrouped = true;
     }
     if( treeReader.numberOfEntries()>0
-	&& (considerjecall || considerjecgrouped) ){
+	&& (considerjecall || considerjecgrouped)
+        && !treeReader.isData() ){
 	std::cout << "finding available JEC uncertainty sources..." << std::endl;
 	Event event = treeReader.buildEvent(0,false,false,considerjecall,considerjecgrouped);
 	allJECVariations = event.jetInfo().allJECVariations();
@@ -349,7 +377,8 @@ void fillSystematicsHistograms(
 	std::map< std::string, // variable
 	std::map< std::string, // systematic
         std::shared_ptr<TH1D> > > > > > histMap = initHistMap(
-	processNames, event_selections, selection_types, histVars, systematics,
+	processNames, treeReader.isData(), 
+	event_selections, selection_types, histVars, systematics,
 	numberOfPdfVariations, 6, 
 	allJECVariations, groupedJECVariations,
 	bTagShapeSystematics);
@@ -367,53 +396,59 @@ void fillSystematicsHistograms(
     // do event loop
     long unsigned numberOfEntries = treeReader.numberOfEntries();
     double nEntriesReweight = 1;
-    if( nEntries!=0 && nEntries<numberOfEntries && !treeReader.isData() ){
-	// loop over a smaller number of entries if samples are impractically large
-        std::cout << "limiting number of entries to " << nEntries << std::endl;
-        nEntriesReweight = (double)numberOfEntries/nEntries;
-        std::cout << "(with corresponding reweighting factor " << nEntriesReweight << ")" << std::endl;
-        numberOfEntries = nEntries;
+    if( nEntries!=0 && nEntries<numberOfEntries ){
+	if( !treeReader.isData() || forceNEntries ){
+	    // loop over a smaller number of entries if samples are impractically large
+	    std::cout << "limiting number of entries to " << nEntries << std::endl;
+	    nEntriesReweight = (double)numberOfEntries/nEntries;
+	    std::cout << "(with corresponding reweighting factor " << nEntriesReweight << ")" << std::endl;
+	    numberOfEntries = nEntries;
+	}
     }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events."<<std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
 
+	// build the event
+	Event event = treeReader.buildEvent(
+                        entry,
+                        false,false,
+                        considerjecall,
+                        considerjecgrouped);
+
+	// initialize map of variables
+        std::map<std::string,double> varmap = eventFlattening::initVarMap();
+        // (store nominal event variables, call only once and use for all weight systematics)
+        std::map<std::string,double> accvarmap = eventFlattening::initVarMap();
+        // (store acceptance-modified event variables, can be overwritten per acceptance variation)
+
 	// loop over event selections and selection types
 	for( std::string event_selection: event_selections ){
 	for( std::string selection_type: selection_types ){
 	
-	// initialize map of variables
-	std::map<std::string,double> varmap = eventFlattening::initVarMap();
-	// (store nominal event variables, call only once and use for all weight systematics)
-	std::map<std::string,double> accvarmap = eventFlattening::initVarMap();
-	// (store acceptance-modified event variables, can be overwritten per acceptance variation)
-
+	// modify the process name for some selection types
+	std::string thisProcessName = modProcessName(processName,selection_type);
+	
 	// fill nominal histograms
 	bool passnominal = true;
-	double lumiWeight = 0;
 	double nominalWeight = 0;
-        Event event = treeReader.buildEvent(
-			entry,
-			false,false,
-			considerjecall,
-			considerjecgrouped);
         if(!passES(event, event_selection, selection_type, "nominal")) passnominal = false;
 	if(passnominal){
 	    passNominalCounter.at(event_selection).at(selection_type)++;
 	    varmap = eventFlattening::eventToEntry(event, 
 			reweighter, selection_type, 
-			frmap_muon, frmap_electron, "nominal");
-	    lumiWeight = varmap.at("_weight")*nEntriesReweight;
+			frmap_muon, frmap_electron, cfmap_electron, "nominal");
 	    nominalWeight = varmap.at("_normweight")*nEntriesReweight;
 	    for(HistogramVariable histVar: histVars){
 		std::string variableName = histVar.name();
 		std::string variable = histVar.variable();
-		histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at("nominal").get(),
+		histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at("nominal").get(),
 				      varmap.at(variable), nominalWeight );
-		// for data carrying a different processName than "data" (e.g. fakes from data),
+		// for fake rates from data, need to create systematic histograms
+		// (in order for the merging to work properly);
 		// loop over all systematics and fill with nominal values
-		if(event.isData() and !processNameIsData){
-		    for(auto mapelement: histMap.at(processName).at(event_selection).at(selection_type).at(variableName) ){
+		if(event.isData() && selection_type=="fakerate"){
+		    for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
 			if(stringTools::stringContains(mapelement.first,"nominal")) continue;
 			histogram::fillValue( mapelement.second.get(),
 					       varmap.at(variable), nominalWeight );
@@ -424,6 +459,8 @@ void fillSystematicsHistograms(
 
 	// stop further event processing in case of data
 	if(event.isData()) continue;
+        // also stop further event processing for MC in case of charge flip selection
+        if(selection_type=="chargeflips") continue;
 
 	// loop over systematics
 	for(std::string systematic : systematics){
@@ -442,7 +479,7 @@ void fillSystematicsHistograms(
 		if(passup){
 		    accvarmap = eventFlattening::eventToEntry(event, 
 				    reweighter, selection_type, 
-				    frmap_muon, frmap_electron, upvar);
+				    frmap_muon, frmap_electron, cfmap_electron, upvar);
 		    double weight = accvarmap["_normweight"]*nEntriesReweight;
 		    // for JEC: propagate into b-tag shape reweighting
 		    /*if( systematic=="JEC" && considerbtagshape ){
@@ -454,7 +491,7 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
-			histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+			histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					      accvarmap.at(variable), weight);
 		    }
 		}
@@ -464,7 +501,7 @@ void fillSystematicsHistograms(
 		if(passdown){
 		    accvarmap = eventFlattening::eventToEntry(event, 
 				    reweighter, selection_type, 
-				    frmap_muon, frmap_electron, downvar);
+				    frmap_muon, frmap_electron, cfmap_electron, downvar);
 		    double weight = accvarmap["_normweight"]*nEntriesReweight;
 		    // for JEC: propagate into b-tag shape reweighting
                     /*if( systematic=="JEC" && considerbtagshape ){
@@ -476,7 +513,7 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
                         std::string variableName = histVar.name();
                         std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
                                               accvarmap.at(variable), weight);
                     }
 		}
@@ -496,7 +533,9 @@ void fillSystematicsHistograms(
 		    if(!passES(event, event_selection, selection_type, thisupvar)) passup = false;
 		    if(passup){
 			accvarmap = eventFlattening::eventToEntry(event,
-				    reweighter, selection_type, frmap_muon, frmap_electron, thisupvar);
+				    reweighter, selection_type, 
+				    frmap_muon, frmap_electron, 
+				    cfmap_electron, thisupvar);
 			double weight = accvarmap["_normweight"]*nEntriesReweight;
 			// for JEC: propagate into b-tag shape reweighting
 			/*if( considerbtagshape && jecvar!="RelativeSample" ){
@@ -515,7 +554,7 @@ void fillSystematicsHistograms(
 			for(HistogramVariable histVar: histVars){
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
-			    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisupvar).get(),
+			    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisupvar).get(),
 						  accvarmap.at(variable), weight);
 			}
 		    }
@@ -525,7 +564,8 @@ void fillSystematicsHistograms(
 		    if(passdown){
 			accvarmap = eventFlattening::eventToEntry(event,
 				reweighter, selection_type, 
-				frmap_muon, frmap_electron, thisdownvar);
+				frmap_muon, frmap_electron, 
+				cfmap_electron, thisdownvar);
 			double weight = accvarmap["_normweight"]*nEntriesReweight;
                         // for JEC: propagate into b-tag shape reweighting
                         /*if( considerbtagshape && jecvar!="RelativeSample" ){
@@ -544,7 +584,7 @@ void fillSystematicsHistograms(
 			for(HistogramVariable histVar: histVars){
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
-			    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisdownvar).get(),
+			    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisdownvar).get(),
 						  accvarmap.at(variable), weight);
 			}
 		    }
@@ -559,14 +599,17 @@ void fillSystematicsHistograms(
 	    
 	    // IF type is weight, apply reweighter with up and down weight
 	    if(sysType=="weight"){
-		double upWeight = lumiWeight * reweighter.weightUp(event, systematic);
-		double downWeight = lumiWeight * reweighter.weightDown(event, systematic);
+		double reWeight = reweighter.singleWeight(event, systematic);
+		// skip events for which the reweighting factor is zero
+		if( reWeight<1e-12 ) continue;
+                double upWeight = nominalWeight / reWeight * reweighter.singleWeightUp(event, systematic);
+		double downWeight = nominalWeight / reWeight * reweighter.singleWeightDown(event, systematic);
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
 		    std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(), 
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(), 
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -606,9 +649,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();	    
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -620,9 +663,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();      
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
                 // skip checking other systematics as they are mutually exclusive
@@ -643,9 +686,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -657,9 +700,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
                 // skip checking other systematics as they are mutually exclusive
@@ -673,9 +716,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
 		// skip checking other systematics as they are mutually exclusive
@@ -687,9 +730,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
                 // skip checking other systematics as they are mutually exclusive
@@ -708,9 +751,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -722,9 +765,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
                 // skip checking other systematics as they are mutually exclusive
@@ -738,9 +781,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -752,9 +795,9 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
                 }
                 // skip checking other systematics as they are mutually exclusive
@@ -774,9 +817,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
 					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
 					  varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -805,7 +848,7 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
+                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
 					      varmap.at(variable), qcdweight);
 		    }
                 }
@@ -818,9 +861,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
                                           varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
                                           varmap.at(variable), downWeight);
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -836,7 +879,7 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
                         std::string variableName = histVar.name();
                         std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
+                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
                                               varmap.at(variable), pdfweight);
                     }		    
 
@@ -860,9 +903,9 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
                                           varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
                                           varmap.at(variable), downWeight);   
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -884,6 +927,10 @@ void fillSystematicsHistograms(
     // make envelopes and/or RMS for systematics where this is needed
     for(std::string event_selection: event_selections){
     for(std::string selection_type: selection_types){
+	// modify the process name for some selection types
+        std::string thisProcessName = modProcessName(processName,selection_type);
+	if( treeReader.isData() && selection_type!="fakerate" ) continue;
+        if( selection_type=="chargeflips" ) continue;
 	for( std::string systematic : systematics ){
 	    if(systematic=="pdfShapeVar"){
 		// do envelope
@@ -892,10 +939,10 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    // first initialize the up and down variations to be equal to nominal
 		    // (needed for correct envelope computation)
-		    std::shared_ptr<TH1D> nominalHist = histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
+		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
 		    for(int i=1; i<nominalHist->GetNbinsX()+1; ++i){
-			histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at(upvar)->SetBinContent(i,nominalHist->GetBinContent(i));
-			histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at(downvar)->SetBinContent(i,nominalHist->GetBinContent(i));
+			histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at(upvar)->SetBinContent(i,nominalHist->GetBinContent(i));
+			histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at(downvar)->SetBinContent(i,nominalHist->GetBinContent(i));
 		    }
 		    // print for testing
 		    /*std::cout << variable << " before enveloping" << std::endl;
@@ -906,7 +953,7 @@ void fillSystematicsHistograms(
 		    }*/
 		    // then fill envelope in case valid pdf variations are present
 		    if(hasValidPdfs){
-			systematicTools::fillEnvelope( histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()), 
+			systematicTools::fillEnvelope( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()), 
 						       upvar, downvar, "pdfShapeVar");
 		    }
 		    // print for testing
@@ -921,7 +968,7 @@ void fillSystematicsHistograms(
 		upvar = "pdfShapeRMSUp";
 		downvar = "pdfShapeRMSDown";
 		for(HistogramVariable histVar: histVars){
-		    std::shared_ptr<TH1D> nominalHist = histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
+		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
 		    // print for testing
 		    /*std::cout << variable << " before rmsing" << std::endl;
 		    for(int i=1; i<histMap[thisPName][variable]["nominal"]->GetNbinsX()+1; ++i){
@@ -931,7 +978,7 @@ void fillSystematicsHistograms(
 		    }*/
 		    // then fill rms in case valid pdf variations are present
 		    if(hasValidPdfs){
-			systematicTools::fillRMS( histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()),
+			systematicTools::fillRMS( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()),
 						  upvar, downvar, "pdfShapeVar"); 
 		    }
 		    // print for testing
@@ -949,10 +996,10 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    // first initialize the up and down variations to be equal to nominal
 		    // (needed for correct envelope computation)
-		    std::shared_ptr<TH1D> nominalHist = histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
+		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
 		    for(int i=1; i<nominalHist->GetNbinsX()+1; ++i){
-			histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at(upvar)->SetBinContent(i,nominalHist->GetBinContent(i));
-			histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()).at(downvar)->SetBinContent(i,nominalHist->GetBinContent(i));
+			histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at(upvar)->SetBinContent(i,nominalHist->GetBinContent(i));
+			histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at(downvar)->SetBinContent(i,nominalHist->GetBinContent(i));
 		    }
 		    // prints for testing:
 		    /*std::cout << "---------------------" << std::endl;
@@ -965,7 +1012,7 @@ void fillSystematicsHistograms(
 			std::cout << histMap[thisPName][variable][downvar]->GetBinContent(i) << std::endl; }*/
 		    // then fill envelope in case valid qcd variations are present
 		    if(hasValidQcds){ 
-			systematicTools::fillEnvelope( histMap.at(processName).at(event_selection).at(selection_type).at(histVar.name()),
+			systematicTools::fillEnvelope( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()),
 						       upvar, downvar, "qcdScalesShapeVar"); 
 		    }
 		    // prints for testing
@@ -980,13 +1027,17 @@ void fillSystematicsHistograms(
 	} // end loop over systematics to fill envelope and/or RMS
     } } // end loop over event selections and selection types to fill envelope and/or RMS
 
-    // make output ROOT file
-    std::string outputFilePath = stringTools::formatDirectoryName( outputDirectory );
-    outputFilePath += inputFileName;
-    TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
     // save histograms to the output file
     for(std::string event_selection: event_selections){
     for(std::string selection_type: selection_types){
+	// make output ROOT file
+	std::string outputFilePath = stringTools::formatDirectoryName( outputDirectory );
+	outputFilePath += event_selection + "/" + selection_type + "/";
+        systemTools::makeDirectory(outputFilePath);
+	outputFilePath += inputFileName;
+	TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
+	// modify the process name for some selection types
+        std::string thisProcessName = modProcessName(processName,selection_type);
 	// loop over variables
 	for(HistogramVariable histVar: histVars){
 	    std::string variableName = histVar.name();
@@ -999,9 +1050,9 @@ void fillSystematicsHistograms(
 		storeLheVars = true;
 		doClip = false;
 	    }
-	    if( selection_type == "fakerate") doClip = false;
+	    if( selection_type == "fakerate" ) doClip = false;
 	    // first find nominal histogram for this variable
-	    std::shared_ptr<TH1D> nominalhist = histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at("nominal");
+	    std::shared_ptr<TH1D> nominalhist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at("nominal");
 	    // if nominal histogram is empty, fill with dummy value (needed for combine);
 	    // also put all other histograms equal to the nominal one to avoid huge uncertainties
 	    bool nominalIsEmpty = false;
@@ -1013,7 +1064,7 @@ void fillSystematicsHistograms(
 		std::cout << msg << std::endl;
 		nominalIsEmpty = true;
 		nominalhist->SetBinContent(1,1e-6); 
-		for(auto mapelement : histMap.at(processName).at(event_selection).at(selection_type).at(variableName)){
+		for(auto mapelement : histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName)){
 		    if(stringTools::stringContains(mapelement.first,"nominal")) continue;
 		    histogram::copyHistogram(mapelement.second,nominalhist);
 		}
@@ -1022,7 +1073,7 @@ void fillSystematicsHistograms(
 	    if( doClip ) histogram::clipHistogram(nominalhist.get());
 	    nominalhist->Write();
 	    // loop over rest of histograms
-	    for(auto mapelement : histMap.at(processName).at(event_selection).at(selection_type).at(variableName)){
+	    for(auto mapelement : histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName)){
 		if( stringTools::stringContains(mapelement.first,"nominal")) continue;
 		std::shared_ptr<TH1D> hist = mapelement.second;
 		// selection: do not store all individual pdf variations
@@ -1064,8 +1115,8 @@ void fillSystematicsHistograms(
 		hist->Write();
 	    }
 	} // end loop over variables for writing histograms
+	outputFilePtr->Close();
     } } // end loop over event selections and selection types for writing histograms
-    outputFilePtr->Close();
 }
 
 
@@ -1073,7 +1124,7 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    int nargs = 11;
+    int nargs = 13;
     if( argc != nargs+1 ){
         std::cerr << "ERROR: runanalysis.cc requires " << std::to_string(nargs) << " arguments to run...: " << std::endl;
         std::cerr << "input_directory" << std::endl;
@@ -1085,7 +1136,9 @@ int main( int argc, char* argv[] ){
 	std::cerr << "selection_type" << std::endl;
 	std::cerr << "muonfrmap" << std::endl;
 	std::cerr << "electronfrmap" << std::endl;
+        std::cerr << "electroncfmap" << std::endl;
 	std::cerr << "nevents" << std::endl;
+	std::cerr << "forcenevents" << std::endl;
 	std::cerr << "systematics (comma-separated list)" << std::endl;
         return -1;
     }
@@ -1103,9 +1156,14 @@ int main( int argc, char* argv[] ){
     std::vector<std::string> selection_types = stringTools::split(selection_type,",");
     std::string& muonfrmap = argvStr[8];
     std::string& electronfrmap = argvStr[9];
-    unsigned long nevents = std::stoul(argvStr[10]);
-    std::string& systematicstr = argvStr[11];
-    std::vector<std::string> systematics = stringTools::split(systematicstr,",");
+    std::string& electroncfmap = argvStr[10];
+    unsigned long nevents = std::stoul(argvStr[11]);
+    bool forcenevents = ( argvStr[12]=="true" || argvStr[12]=="True" );
+    std::string& systematicstr = argvStr[13];
+    std::vector<std::string> systematics;
+    if( systematicstr!="none" ){
+	systematics = stringTools::split(systematicstr,",");
+    }
 
     // print arguments
     std::cout << "Found following arguments:" << std::endl;
@@ -1118,7 +1176,9 @@ int main( int argc, char* argv[] ){
     std::cout << "  - selection type: " << selection_type << std::endl;
     std::cout << "  - muon FR map: " << muonfrmap << std::endl;
     std::cout << "  - electron FR map: " << electronfrmap << std::endl;
+    std::cout << "  - electron CF map: " << electroncfmap << std::endl;
     std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
+    std::cout << "  - force number of events: " << std::to_string(forcenevents) << std::endl;
     std::cout << "  - systematics:" << std::endl;
     for( std::string systematic: systematics ) std::cout << "      " << systematic << std::endl;
 
@@ -1148,7 +1208,8 @@ int main( int argc, char* argv[] ){
     // fill the histograms
     fillSystematicsHistograms( input_directory, sample_list, sample_index, output_directory,
 			       histVars, event_selections, selection_types, 
-			       muonfrmap, electronfrmap, nevents,
+			       muonfrmap, electronfrmap, electroncfmap, 
+                               nevents, forcenevents,
 			       systematics );
 
     std::cerr << "###done###" << std::endl;

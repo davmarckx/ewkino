@@ -78,6 +78,8 @@ if __name__=="__main__":
                       help='Comma-separated list of systematic tags to include')
   parser.add_argument('--excludetags', default=None,
                       help='Comma-separated list of systematic tags to exclude')
+  parser.add_argument('--datatag', default='data',
+                      help='Process name of data histograms in input file.')
   parser.add_argument('--tags', default=None,
                       help='Comma-separated list of additional info to display on plot'
                           +' (e.g. simulation year or selection region).'
@@ -147,7 +149,7 @@ if __name__=="__main__":
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
   #  is the same for all variables)
-  PIC = ProcessInfoCollection.fromhistlist( histnames, variablenames[0], datatag='data' )
+  PIC = ProcessInfoCollection.fromhistlist( histnames, variablenames[0], datatag=args.datatag )
   print('Constructed following ProcessInfoCollection from histogram list:')
   print(PIC)
 
@@ -175,8 +177,14 @@ if __name__=="__main__":
     xaxtitle = var.axtitle
     print('Now running on variable {}...'.format(variablename))
 
+    # extra histogram selection for overlapping variable names
+    othervarnames = [v.name for v in varlist if v.name!=variablename]
+    thishistnames = lt.subselect_strings(histnames,
+                      mustcontainall=[variablename],
+                      maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
+
     # make a ProcessCollection for this variable
-    PIC = ProcessInfoCollection.fromhistlist( histnames, variablename, datatag='data' )
+    PIC = ProcessInfoCollection.fromhistlist( thishistnames, variablename, datatag=args.datatag )
     PC = ProcessCollection( PIC, args.inputfile )
 
     # get the histograms
@@ -187,7 +195,11 @@ if __name__=="__main__":
       histlist.append( PC.get_systematic_down(systematic) )
     # also add the nominal
     histlist.append( PC.get_nominal() )
-	    
+
+    # printouts for testing
+    #for hist in histlist:
+    #  print(hist)
+
     # re-order histograms to put individual pdf, qcd and jec variations in front
     # (so they will be plotted in the background)
     firsthistlist = []

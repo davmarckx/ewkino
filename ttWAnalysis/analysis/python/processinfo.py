@@ -38,6 +38,15 @@ class ProcessInfo(object):
         msg += ' systematics argument contains unrecognized value:'
         msg += ' key "{}" has a value "{}" of type {}.'.format(key,val,type(val))
         raise Exception(msg)
+    
+  def allhistnames( self ):
+    ### return all histogram names for this process
+    histnames = [self.histname]
+    for val in self.systematics.values():
+      if( isinstance(val,tuple) ):
+        histnames.append(val[0])
+        histnames.append(val[1])
+    return histnames
 
   def check_systematic_val( self, val ):
     ### internal helper function for checking validity of systematics argument
@@ -153,15 +162,28 @@ class Process(object):
     for systematic,val in self.info.systematics.items():
       if( isinstance(val,str) and val=='-' ):
         # use nominal
-        self.systhists[systematic] = (self.hist.Clone(),self.hist.Clone())
+        uphist = self.hist.Clone()
+        uphist.SetDirectory(0)
+        uphist.SetName(self.info.histname.replace('nominal',systematic+'Up'))
+        uphist.SetTitle(self.info.name)
+        downhist = self.hist.Clone()
+        downhist.SetDirectory(0)
+        downhist.SetName(self.info.histname.replace('nominal',systematic+'Down'))
+        downhist.SetTitle(self.info.name)
+        self.systhists[systematic] = (uphist,downhist)
       elif( isinstance(val,float) ):
         # use nominal scaled by a factor
         uphist = self.hist.Clone()
+        uphist.SetDirectory(0)
+        uphist.SetName(self.info.histname.replace('nominal',systematic+'Up'))
+        uphist.SetTitle(self.info.name)
         uphist.Scale(val)
         downhist = self.hist.Clone()
+        downhist.SetDirectory(0)
+        downhist.SetName(self.info.histname.replace('nominal',systematic+'Down'))
+        downhist.SetTitle(self.info.name)
         downhist.Scale(2-val)
         self.systhists[systematic] = (uphist,downhist)
-        # (use simple value for now, maybe replace by histogram later)
       elif( isinstance(val,tuple) ):
         # read up-histogram
         if not val[0] in keylist:
@@ -171,6 +193,8 @@ class Process(object):
           raise Exception(msg)
         uphist = f.Get(val[0])
         uphist.SetDirectory(0)
+        uphist.SetName(val[0])
+        uphist.SetTitle(self.info.name)
         # read down-histogram
         if not val[1] in keylist:
           msg = 'ERROR in Process.init:'
@@ -179,6 +203,8 @@ class Process(object):
           raise Exception(msg)
         downhist = f.Get(val[1])
         downhist.SetDirectory(0)
+        downhist.SetName(val[0])
+        downhist.SetTitle(self.info.name)
         self.systhists[systematic] = (uphist,downhist)
     f.Close()
 
@@ -257,10 +283,25 @@ class ProcessInfoCollection(object):
     self.slist = []
     self.minpid = None
     self.maxpid = None
+    self.datahistname = None
 
   def nprocesses( self ):
     ### get current number of processes
     return len(self.plist)
+
+  def allhistnames( self ):
+    ### return all histogram names stored in this collection
+    histnames = []
+    for p in self.plist:
+      for hname in self.pinfos[p].allhistnames(): 
+        histnames.append(hname)
+    if self.datahistname is not None:
+      histnames.append(self.datahistname)
+    return histnames
+
+  def hassys( self, systematic ):
+    ### check if a systematic is present in this collection
+    return (systematic in self.slist)
 
   def check_processes( self, processes ):
     ### internal helper function to check list of processes
@@ -308,6 +349,10 @@ class ProcessInfoCollection(object):
     if( self.minpid is None or processinfo.pid < self.minpid ): self.minpid = processinfo.pid
     # re-sort lists
     self.sort()
+
+  def adddata( self, datahistname ):
+    ### set the data histogram name
+    self.datahistname = datahistname
 
   def sort( self ):
     ### internal helper function to (re-)sort internal lists.
@@ -435,15 +480,35 @@ class ProcessInfoCollection(object):
       res += '  process: {}, pid: {}, yield: {}\n'.format(n,p.pid,p.pyield)
       for s in self.slist:
         res += '    {}: {}\n'.format(s,p.systematics[s])
+    if self.datahistname is not None:
+      res += '  data: {}\n'.format(self.datahistname)
     res = res.strip('\n')
     return res
 
   @staticmethod
   def fromhistlist( histnames, variable, signals=[],
                     includesystematics=None, excludesystematics=None,
-                    datatag='data', nominaltag='_nominal' ):
+                    datatag='data', adddata=False, nominaltag='_nominal' ):
     ### make a ProcessInfoCollection from a list of histogram names
-    # for more info, see readhistfile (below)!
+    # note: this concerns a definition of processes and shape systematics;
+    # to add normalization uncertainties (not stored as root histograms), 
+    # use ProcessInfoCollection.addnormsys.
+    # note: this function does not read all histograms, only the names (for speed).
+    # input arguments:
+    # - histfile: path to a root file containing all histograms
+    #   the histograms are assumed to be named process_variable_systematic
+    #   (with 'nominal' as systematic for the nominal histogram).
+    #   all tags, i.e. process, variable and systematic, 
+    #   are in principle allowed to contain underscores.
+    # - variable is the name of the variable for which to extract the histograms
+    # - signals is a list of process names that identify signal processes (opposed to background).
+    #   signals are given an 'index' <= 0 to make combine define them as signal.
+    # - includesystematics: list of systematics to include (default: all in file)
+    # - excludesystematics: list of systematics to exclude (default: none)
+    # - datatag is the process name of data histograms
+    # - adddata: whether to add the data to the ProcessInfoCollection
+    # - nominaltag: tag by which to recognize nominal histograms
+    # output object: a ProcessInfoCollection object
 
     # initialization
     pinfo = {} # final output dict containing info for all processes
@@ -453,11 +518,11 @@ class ProcessInfoCollection(object):
     sigcounter = 0 # id counter for signals
     # select only histograms of the requested variable
     # and do not consider data
-    histnames = ([el for el in histnames
+    selhistnames = ([el for el in histnames
                   if (variable in el
                       and datatag not in el.split(variable)[0].rstrip('_'))])
     # make list of processes
-    plist = [el.split(variable)[0].rstrip('_') for el in histnames]
+    plist = [el.split(variable)[0].rstrip('_') for el in selhistnames]
     plist = list(set(plist))
     # loop over processes
     for process in plist:
@@ -469,12 +534,12 @@ class ProcessInfoCollection(object):
         idnumber = bkgcounter
         bkgcounter += 1
       # subselect all histograms for this process
-      thishistnames = ([el for el in histnames
+      thishistnames = ([el for el in selhistnames
                         if el.split(variable)[0].rstrip('_')==process])
       # find nominal histogram
       nomhistname = '{}_{}{}'.format(process, variable, nominaltag)
       if not nomhistname in thishistnames:
-        raise Exception('ERROR in processinfo.py / readhistfile:'
+        raise Exception('ERROR in ProcessInfoCollection.fromhistlist:'
           +' nominal histogram {} not found for process {}'.format(nomhistname,process))
       thishistnames.remove(nomhistname)
       # read nominal histogram and determine yield
@@ -496,7 +561,7 @@ class ProcessInfoCollection(object):
         # check if down variation is also present
         downhistname = '{}_{}_{}Down'.format(process, variable, systematic)
         if not downhistname in thishistnames:
-          raise Exception('ERROR in processinfo.py / readhistfile:'
+          raise Exception('ERROR in ProcessInfoCollection.fromhistlist:'
             +' down histogram {} not found'.format(downhistname)
             +' (corresponding to up histogram {}).'.format(histname))
         # set systematic impacts
@@ -504,51 +569,42 @@ class ProcessInfoCollection(object):
         pinfo[process].addsys(systematic,(histname,downhistname))
     # add all processes to a collection
     if len(plist)==0:
-      print('WARNING in processinfo.py / readhistfile:'
+      print('WARNING in ProcessInfoCollection.fromhistlist:'
             +' returning an empty ProcessInfoCollection;'
             +' check if the file contains the right histograms'
             +' and if they are read correctly.')
     if len(slist)==0:
-      print('WARNING in processinfo.py / readhistfile:'
+      print('WARNING in ProcessInfoCollection.fromhistlist:'
             +' returning a ProcessInfoCollection with no systematics;'
             +' check if the file contains the right histograms'
             +' and if they are read correctly.')
     PIC = ProcessInfoCollection()
     for p in pinfo.values(): PIC.addprocess(p)
+    # add the data histogram if requested
+    if adddata:
+      datahistname = ([el for el in histnames
+                        if (variable in el
+                        and datatag in el.split(variable)[0].rstrip('_'))])
+      if len(datahistname)!=1:
+        msg = 'ERROR in ProcessInfoCollection.fromhistlist:'
+        msg += ' expected one data histogram but found {}:\n'.format(len(datahistname))
+        for dhname in datahistname: msg += '  - {}\n'.format(dhname)
+        msg = msg.strip('\n')
+        raise Exception(msg)
+      PIC.adddata( datahistname[0] )
     return PIC
 
   @staticmethod
-  def fromhistfile( histfile, variable, signals=[],
-                    includesystematics=None, excludesystematics=None, 
-                    datatag='data' ):
+  def fromhistfile( histfile, variable, **kwargs):
     ### read a ROOT file containing histograms and make a ProcessInfoCollection
-    # note: this concerns a definition of processes and shape systematics;
-    # to add normalization uncertainties (not stored as root histograms), 
-    # use ProcessInfoCollection.addnormsys.
-    # note: this function does not read all histograms, only the names (for speed).
-    # input arguments:
-    # - histfile: path to a root file containing all histograms
-    #   the histograms are assumed to be named process_variable_systematic
-    #   (with 'nominal' as systematic for the nominal histogram).
-    #   all tags, i.e. process, variable and systematic, 
-    #   are in principle allowed to contain underscores.
-    # - variable is the name of the variable for which to extract the histograms
-    # - signals is a list of process names that identify signal processes (opposed to background).
-    #   signals are given an 'index' <= 0 to make combine define them as signal.
-    # - includesystematics: list of systematics to include (default: all in file)
-    # - excludesystematics: list of systematics to exclude (default: none)
-    # - datatag is the process name of data histograms; they are fully ignored by this function
-    # output object: a ProcessInfoCollection object 
+    # see fromhistlist for more info
 
     # get all histogram names
     f = ROOT.TFile.Open(histfile)
     keylist = f.GetListOfKeys()
     histnames = [k.GetName() for k in keylist]
     f.Close()
-    return parsehistlist(histnames, variable, signals=signals,
-             includesystematics=includesystematics, 
-             excludesystematics=excludesystematics,
-             datatag=datatag)
+    return parsehistlist(histnames, variable, **kwargs )
 
 
 class ProcessCollection(object):

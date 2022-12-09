@@ -137,7 +137,7 @@ void fillHistograms(const std::string& inputDirectory,
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
     std::cout << "starting event loop for " << numberOfEntries << " events." << std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
-        if(entry%1000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
+        if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
 	
 	// initialize map of variables
 	std::map<std::string,double> varmap = eventFlattening::initVarMap();

@@ -26,7 +26,9 @@ def findbyname(histlist,tag):
 	if tag in hist.GetName():
 	    indices.append(i)
     if len(indices)>1:
-	print('### ERROR ###: multiple histograms corresponding to "'+tag+'" in name')
+	print('ERROR in systplotter.py / findbyname:'
+              +' multiple histograms corresponding to "'+tag+'" in name:')
+        for i in indices: print('  - {}'.format(histlist[i].GetName()))
 	return None
     return indices[0]
 

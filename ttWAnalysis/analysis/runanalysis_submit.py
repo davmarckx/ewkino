@@ -6,12 +6,12 @@ import os
 import sys
 
 regions = []
-#for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion']: regions.append(r)
-for r in ['zzcontrolregion','zgcontrolregion']: regions.append(r)
-#for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
-#for r in ['nonprompt_trilepton']: regions.append(r)
-#for r in ['nonprompt_dilepton']: regions.append(r)
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
@@ -19,30 +19,31 @@ dtypes = ['sim','data']
 
 selection_types = []
 selection_types.append('tight')
-#selection_types.append('prompt')
-#selection_types.append('fakerate')
+selection_types.append('prompt')
+selection_types.append('fakerate')
+selection_types.append('chargeflips')
+selection_types.append('chargegood')
+selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
+cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
 samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
 variables = '../variables/variables_main.json'
 
-outputdir = 'output_20221104'
+outputdir = 'output_20221124'
 
 nevents = 1e6
 runlocal = False
 
-submitcombined = True
+submit_selection_types_combined = True
+submit_event_selections_combined = True
 
 # loop over years and data types
 for year in years:
   for dtype in dtypes:
-    # remove prompt selection type for data
-    this_selection_types = selection_types[:]
-    if( dtype=='data' and 'prompt' in this_selection_types ):
-      this_selection_types.remove('prompt')
     # set correct input directory
     inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
     inputdiryear = year
@@ -53,41 +54,54 @@ for year in years:
     inputdir = os.path.join(inputdir, inputdiryear)
     # set correct sample list
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
+    # set correct output directory
+    thisoutputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
+    # make the basic command
+    cmd = 'python runanalysis.py'
+    cmd += ' --inputdir ' + inputdir
+    cmd += ' --outputdir ' + thisoutputdir
+    cmd += ' --samplelist ' + samplelist
+    cmd += ' --frdir ' + frdir
+    cmd += ' --cfdir ' + cfdir
+    cmd += ' --variables ' + variables
+    if runlocal: cms += ' --runmode local'
+    if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
     # consider different submission strategies
-    if submitcombined:
+    if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types
-      thisoutputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
-      cmd = 'python runanalysis.py'
-      cmd += ' --inputdir ' + inputdir
-      cmd += ' --samplelist ' + samplelist
-      cmd += ' --outputdir ' + thisoutputdir
-      cmd += ' --event_selection'
-      for region in regions: cmd += ' '+region
-      cmd += ' --selection_type'
-      for selection_type in this_selection_types: cmd += ' '+selection_type
-      cmd += ' --frdir ' + frdir
-      cmd += ' --variables ' + variables
-      if runlocal: cms += ' --runmode local'
-      if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
-      print('executing '+cmd)
-      os.system(cmd)
-    else:
+      thiscmd = cmd
+      thiscmd += ' --event_selection'
+      for region in regions: thiscmd += ' '+region
+      thiscmd += ' --selection_type'
+      for selection_type in selection_types: thiscmd += ' '+selection_type
+      print('executing '+thiscmd)
+      os.system(thiscmd)
+    elif( not submit_event_selections_combined and submit_selection_types_combined ):
+      # submit jobs separately for event selections
+      # but combined in selection types
+      for region in regions:
+        thiscmd = cmd
+        thiscmd += ' --event_selection ' + region
+        thiscmd += ' --selection_type'
+        for selection_type in selection_types: thiscmd += ' '+selection_type
+        print('executing '+thiscmd)
+        os.system(thiscmd)
+    elif( submit_event_selections_combined and not submit_selection_types_combined ):
+      # submit jobs combined in event selections
+      # but separately in selection types
+      for selection_type in selection_types:
+        thiscmd = cmd
+        thiscmd += ' --event_selection'
+        for region in regions: thiscmd += ' '+region
+        thiscmd += ' --selection_type ' + selection_type
+        print('executing '+thiscmd)
+        os.system(thiscmd)
+    elif( not submit_event_selections_combined and not submit_selection_types_combined ):
       # submit jobs separately for event selections and selection types
       for region in regions:
-        for selection_type in this_selection_types:
-          # set output directory
-          thisoutputdir = os.path.join(outputdir, 
-                          '{}_{}'.format(year,dtype),
-                          region, selection_type)
-          cmd = 'python runanalysis.py'
-          cmd += ' --inputdir ' + inputdir
-          cmd += ' --samplelist ' + samplelist
-          cmd += ' --outputdir ' + thisoutputdir
-          cmd += ' --event_selection ' + region
-          cmd += ' --selection_type ' + selection_type
-          cmd += ' --frdir ' + frdir
-          cmd += ' --variables ' + variables
-          if runlocal: cms += ' --runmode local'
-          if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
-          print('executing '+cmd)
-          os.system(cmd)
+        for selection_type in selection_types:
+          thiscmd = cmd
+          thiscmd += ' --event_selection ' + region
+          thiscmd += ' --selection_type ' + selection_type
+          print('executing '+thiscmd)
+          os.system(thiscmd)

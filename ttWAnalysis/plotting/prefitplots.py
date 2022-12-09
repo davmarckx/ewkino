@@ -17,8 +17,12 @@ from variabletools import read_variables
 sys.path.append(os.path.abspath('../../plotting/python'))
 import histplotter as hp
 import colors
+import infodicts
 sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
+sys.path.append(os.path.abspath('../combine/'))
+from uncertaintytools import remove_systematics_default
+from uncertaintytools import add_systematics_default
 
 
 if __name__=="__main__":
@@ -46,6 +50,7 @@ if __name__=="__main__":
   parser.add_argument('--colormap', default='default')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
+  parser.add_argument('--dolog', action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -80,6 +85,15 @@ if __name__=="__main__":
   # make the output directory
   if not os.path.exists(args.outputdir):
     os.makedirs(args.outputdir)
+
+  # get a printable version of the region name
+  regiondict = infodicts.get_region_dict()
+  if args.region in regiondict.keys():
+    regionname = regiondict[args.region]
+  else:
+    print('WARNING: region {} not found in region dict,'.format(args.region),
+          ' will write raw region name on plot.')
+    regionname = args.region
 
   # get all relevant histograms
   print('Loading histogram names from input file...')
@@ -116,6 +130,9 @@ if __name__=="__main__":
   #  is the same for all variables)
   splittag = args.region+'_'+variablenames[0]
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
+  # manage systematics (not yet needed here, but useful for printing the correct info)
+  _ = remove_systematics_default( PIC, year=args.year )
+  _ = add_systematics_default( PIC, year=args.year )
   print('Constructed following ProcessInfoCollection from histogram list:')
   print(PIC)
 
@@ -142,9 +159,21 @@ if __name__=="__main__":
     unit = var.unit
     print('Now running on variable {}...'.format(variablename))
 
+    # extra histogram selection for overlapping variable names
+    othervarnames = [v.name for v in varlist if v.name!=variablename]
+    thishistnames = lt.subselect_strings(histnames, 
+                      mustcontainall=[variablename],
+                      maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
+
     # make a ProcessCollection for this variable
     splittag = args.region+'_'+variablename
-    PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
+    PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag, datatag=args.datatag )
+
+    # manage systematics
+    (removedforall,_) = remove_systematics_default( PIC, year=args.year )
+    normsyslist = add_systematics_default( PIC, year=args.year )
+
+    # make a ProcessCollection
     PC = ProcessCollection( PIC, args.inputfile )
 
     # get the nominal simulated histograms
@@ -157,9 +186,9 @@ if __name__=="__main__":
     
     # get data histogram
     datahistname = '{}_{}_{}_nominal'.format(args.datatag,args.region,variablename)
-    if not datahistname in histnames:
+    if not datahistname in thishistnames:
       print('WARNING: no data histogram found.')
-      dathist = PC.get_nominal()
+      datahist = PC.get_nominal()
       args.unblind = False
     else:
       f = ROOT.TFile.Open(args.inputfile,'read')
@@ -178,13 +207,21 @@ if __name__=="__main__":
       xaxtitle += ' ({})'.format(unit)
     yaxtitle = 'Number of events'
     outfile = os.path.join(args.outputdir, variablename)
-    lumimap = {'all':137600, '2016':36300, '2017':41500, '2018':59700,
-		    '2016PreVFP':19520, '2016PostVFP':16810 }
+    lumimap = {'run2':137600, '2016':36300, '2017':41500, '2018':59700,
+                    '2016PreVFP':19520, '2016PostVFP':16810 }
     if not args.year in lumimap.keys():
       print('WARNING: year {} not recognized,'.format(args.year)
             +' will not write lumi header.')
     lumi = lumimap.get(args.year,None)
     colormap = colors.getcolormap(style=args.colormap)
+    extrainfos = []
+    extrainfos.append( args.year )
+    extrainfos.append( regionname )
+    xlabels = None
+    labelsize = None
+    if( var.iscategorical and var.xlabels is not None ):
+        xlabels = var.xlabels
+        labelsize = 15
 
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
@@ -192,4 +229,19 @@ if __name__=="__main__":
 	    xaxtitle=xaxtitle,
 	    yaxtitle=yaxtitle,
 	    colormap=colormap,
-	    lumi=lumi, extracmstext=args.extracmstext )
+            extrainfos=extrainfos,
+	    lumi=lumi, extracmstext=args.extracmstext,
+            binlabels=xlabels, labelsize=labelsize )
+
+    if args.dolog:
+      # make plot in log scale
+      outfile = os.path.join(args.outputdir, variablename)+'_log'
+      hp.plotdatavsmc(outfile, datahist, simhists,
+            mcsysthist=mcsysthist,
+            xaxtitle=xaxtitle,
+            yaxtitle=yaxtitle,
+            colormap=colormap,
+            extrainfos=extrainfos,
+            lumi=lumi, extracmstext=args.extracmstext,
+            binlabels=xlabels, labelsize=labelsize,
+            yaxlog=True )
