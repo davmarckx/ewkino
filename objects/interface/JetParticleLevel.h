@@ -29,6 +29,7 @@ class JetParticleLevel : public PhysicsObject{
         JetParticleLevel& operator=( JetParticleLevel&& ) noexcept;
 
         unsigned hadronFlavor() const{ return _hadronFlavor; }
+	bool isBJet() const{ return _hadronFlavor==5; }
 
         virtual std::ostream& print( std::ostream& ) const override;
 

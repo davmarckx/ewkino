@@ -64,7 +64,7 @@ LeptonParticleLevel& LeptonParticleLevel::operator=( LeptonParticleLevel&& rhs )
 }
 
 
-bool sameFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
+bool LeptonParticleLevel::sameFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
     return ( 
         ( lhs.isMuon() && rhs.isMuon() ) ||
         ( lhs.isElectron() && rhs.isElectron() ) ||
@@ -73,8 +73,23 @@ bool sameFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs 
 }
 
 
-bool oppositeSign( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
+bool LeptonParticleLevel::differentFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
+    return !sameFlavor(lhs, rhs);
+}
+
+
+bool LeptonParticleLevel::sameSign( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
+    return ( lhs.charge() == rhs.charge() );
+}
+
+
+bool LeptonParticleLevel::oppositeSign( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
     return ( lhs.charge() != rhs.charge() );
+}
+
+
+bool LeptonParticleLevel::oppositeSignSameFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
+    return ( oppositeSign(lhs, rhs) && sameFlavor(lhs, rhs) );
 }
 
 
