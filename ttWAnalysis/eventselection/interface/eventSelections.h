@@ -56,5 +56,17 @@ bool pass_npcontrolregion_dilepton_mm(Event&, const std::string& selectiontype,
 // charge flip control region
 bool pass_cfcontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+// cutflow functions
+// remark: put in a namespace for clearer calling in other scripts;
+// the other ones have not been put in a namespace "for historical reasons",
+// maybe change later.
+namespace eventSelections{
+    std::tuple<int,std::string> pass_signalregion_dilepton_inclusive_cutflow(
+	Event& event, const std::string& selectiontype,
+	const std::string& variation, const bool selectbjets);
+    std::tuple<int,std::string> pass_signalregion_trilepton_cutflow(
+        Event& event, const std::string& selectiontype,
+        const std::string& variation, const bool selectbjets);
+}
 
 #endif
