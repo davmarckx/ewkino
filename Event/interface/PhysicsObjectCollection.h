@@ -42,22 +42,25 @@ template< typename ObjectType > class PhysicsObjectCollection {
         double mass() const;
         double scalarPtSum() const;
 
-        //apply a user specified selection
+        // apply a user specified selection
         void selectObjects( bool (&passSelection)( const ObjectType& ) );
 
-        //return a vector of all possible object pairs
+        // return a vector of all possible object pairs
         std::vector< std::pair< std::shared_ptr< ObjectType >, std::shared_ptr< ObjectType > > > pairCollection() const;
 
     protected:
         PhysicsObjectCollection( const collection_type& col ) : collection( col ) {}
 
-        //select objects passing a threshold and remove the others 
+        // select objects passing a threshold and remove the others 
         void selectObjects( bool (ObjectType::*passSelection)() const );
 
         template< typename IteratorType > IteratorType erase( IteratorType );
 
-        //count the number of objects satisfying given criterion
+        // count the number of objects satisfying given criterion
         size_type count( bool (ObjectType::*passSelection)() const ) const;
+
+        // check if a pair satisfies a given criterion
+	bool hasPairWithRequirement( bool (*)(const ObjectType&, const ObjectType&) ) const;
 
     private:
         collection_type collection;
@@ -154,6 +157,19 @@ template< typename ObjectType > std::vector< std::pair< std::shared_ptr< ObjectT
         }
     }
     return pairVector;
+}
+
+
+template< typename ObjectType > bool PhysicsObjectCollection< ObjectType >::hasPairWithRequirement( 
+    bool (*satisfyPairRequirement)(const ObjectType& lhs, const ObjectType& rhs) ) const{
+    std::vector< std::pair< std::shared_ptr< ObjectType >, std::shared_ptr< ObjectType > > > allPairs;
+    allPairs = pairCollection();
+    for( auto& pair : allPairs ){
+        if( (*satisfyPairRequirement)(*pair.first, *pair.second) ){
+            return true;
+        }
+    }
+    return false;
 }
 
 

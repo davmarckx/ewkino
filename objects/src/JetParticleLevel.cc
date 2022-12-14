@@ -18,7 +18,7 @@ JetParticleLevel::JetParticleLevel( const TreeReader& treeReader, const unsigned
         treeReader.is2017(),
 	treeReader.is2018()
     ),
-    _hadronFlavor( treeReader._jetHadronFlavor[index] )
+    _hadronFlavor( treeReader._pl_jetHadronFlavor[index] )
 {
     // check that _hadronFlavor has a known value
     if( ! ( ( _hadronFlavor == 0 ) || ( _hadronFlavor == 4 ) || ( _hadronFlavor == 5 ) ) ){

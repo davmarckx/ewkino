@@ -36,7 +36,13 @@ class LeptonParticleLevel : public PhysicsObject {
         bool isMuon() const{ return _flavor==1; }
         bool isElectron() const{ return _flavor==0; }
         bool isTau() const{ return _flavor==2; }
-        bool isLightLepton(){ return (isMuon() || isElectron()); }
+        bool isLightLepton() const{ return (isMuon() || isElectron()); }
+
+	static bool sameFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );
+	static bool differentFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );
+	static bool sameSign( const LeptonParticleLevel&, const LeptonParticleLevel& );
+	static bool oppositeSign( const LeptonParticleLevel&, const LeptonParticleLevel& );
+	static bool oppositeSignSameFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );
 
         virtual std::ostream& print( std::ostream& os = std::cout ) const override;
 
@@ -50,8 +56,5 @@ class LeptonParticleLevel : public PhysicsObject {
         LeptonParticleLevel* clone() && { return new LeptonParticleLevel( std::move(*this)); }
 
 };
-
-bool sameFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );
-bool oppositeSign( const LeptonParticleLevel&, const LeptonParticleLevel& );
 
 #endif

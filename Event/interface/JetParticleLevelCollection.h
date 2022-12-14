@@ -21,6 +21,13 @@ class JetParticleLevelCollection : public PhysicsObjectCollection< JetParticleLe
     public:
         JetParticleLevelCollection( const TreeReader& );
 
+	// count objects
+	size_type numberOfJets() const;
+	size_type numberOfBJets() const;
+
+	// sorting
+	void sortByPt();
+
     private:
         
 };

@@ -219,3 +219,7 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     c1.Update()
     outfilepath = os.path.splitext(outfilepath)[0]
     for outfmt in outfmts: c1.SaveAs(outfilepath+outfmt)
+   
+    # close the canvas
+    # (appears to be needed when generating a large number of plots)
+    c1.Close()

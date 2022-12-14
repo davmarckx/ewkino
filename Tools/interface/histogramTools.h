@@ -38,6 +38,9 @@ namespace histogram{
     double contentDownAtValues( TH2*, const double valueX, const double valueY );
     double contentUpAtValues( TH2*, const double valueX, const double valueY );
 
+    double boundedValue( const TH1* histPtr, double value );
+    double boundedXValue( const TH2* histPtr, double xValue );
+    double boundedYValue( const TH2* histPtr, double yValue );
     void fillValue( TH1*, const double value, const double weight );
     void fillValues( TH2*, const double valueX, const double valueY, const double weight );
 

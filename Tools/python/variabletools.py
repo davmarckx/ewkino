@@ -10,7 +10,8 @@ class HistogramVariable(object):
 
   def __init__( self, name, variable, nbins, xlow, xhigh, 
                 axtitle=None, unit=None, comments=None,
-		iscategorical=None, xlabels=None ):
+		iscategorical=None, xlabels=None,
+                bins=None ):
     self.name = name
     self.variable = variable
     self.nbins = int(nbins)
@@ -25,9 +26,11 @@ class HistogramVariable(object):
     self.iscategorical = False
     if iscategorical is not None: self.iscategorical = (iscategorical.lower()=='true')
     self.xlabels = xlabels
+    self.bins = bins
+    if( self.bins is not None and len(self.bins)==0 ): self.bins = None
     self.ordered_keys = (['name','variable','nbins','xlow','xhigh',
                           'axtitle','unit','comments',
-                          'iscategorical','xlabels'])
+                          'iscategorical','xlabels','bins'])
 
 
   def __str__( self ):
@@ -48,7 +51,7 @@ def check_json( jsonobj, verbose=True ):
                         +' found {}'.format(type(el)))
       return False
     reqkeys = ['name','variable','nbins','xlow','xhigh']
-    optkeys = ['axtitle','unit','comments','iscategorical','xlabels']
+    optkeys = ['axtitle','unit','comments','iscategorical','xlabels','bins']
     # check if all required keys are present
     for reqkey in reqkeys:
       if( reqkey not in el.keys() ):
@@ -72,6 +75,19 @@ def check_json( jsonobj, verbose=True ):
         msg += ' but found {} and {} respectively.'.format(nlabels,nbins)
         if verbose: print(msg)
         return False
+    # special case for bins: must correspond to other bin specifiers
+    if( 'bins' in el.keys() and len(el['bins'])!=0 ):
+      bins = el['bins']
+      xlow = float(el['xlow'])
+      xhigh = float(el['xhigh'])
+      nbins = int(el['nbins'])
+      if( bins[0]!=xlow
+          or bins[-1]!=xhigh
+          or len(bins)!=nbins ):
+        msg = 'ERROR in HistogramVariable initializer:'
+        msg += ' found incompatible bin specifiers for variable {}'.format(el['name'])
+        if verbose: print(msg)
+        return False
   return True
 
 def read_variables( jsonfile ):
@@ -91,7 +107,8 @@ def read_variables( jsonfile ):
                 unit=var.get('unit',None),
                 comments=var.get('comments',None),
                 iscategorical=var.get('iscategorical',None),
-                xlabels=var.get('xlabels',None) ) )
+                xlabels=var.get('xlabels',None),
+                bins=var.get('bins',None) ) )
   return res
 
 def write_variables_txt( variables, txtfile ):
@@ -102,9 +119,14 @@ def write_variables_txt( variables, txtfile ):
     line_elements = []
     line_elements.append(var.name)
     line_elements.append(var.variable)
-    line_elements.append(str(var.nbins))
-    line_elements.append(str(var.xlow))
-    line_elements.append(str(var.xhigh))
+    if var.bins is None:
+      line_elements.append(str(var.nbins))
+      line_elements.append(str(var.xlow))
+      line_elements.append(str(var.xhigh))
+    else:
+      line_elements.append('0')
+      for binedge in var.bins:
+        line_elements.append(str(binedge))
     lines.append( ' '.join(line_elements) )
   with open(txtfile, 'w') as f:
     for line in lines:
@@ -124,6 +146,7 @@ def write_variables_json( variables, jsonfile, builtin=False ):
     if var.comments is not None: vardict['comments'] = var.comments
     if var.iscategorical: vardict['iscategorical'] = 'true'
     if var.xlabels is not None: vardict['xlabels'] = var.xlabels
+    if var.bins is not None: vardict['bins'] = var.bins
     varlist.append( vardict )
   if builtin:
     # use builtin json.dump
@@ -134,7 +157,7 @@ def write_variables_json( variables, jsonfile, builtin=False ):
     # manual parsing
     ordered_keys = (['name','variable','nbins','xlow','xhigh',
                      'axtitle','unit','iscategorical','xlabels',
-                     'comments'])
+                     'comments', 'bins'])
     lines = []
     lines.append('[')
     for vardict in varlist:
