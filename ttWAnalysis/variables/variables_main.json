@@ -204,6 +204,15 @@
   "unit": "GeV"
 },
 {
+  "name": "_jetEtaLeading",
+  "variable": "_jetETaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading jet pseudorapidity",
+  "unit": ""
+},
+{
   "name": "_jetPtSubLeading",
   "variable": "_jetPtSubLeading",
   "nbins": "20",
@@ -211,6 +220,15 @@
   "xhigh": "100.0",
   "axtitle": "Subleading jet p_{T}",
   "unit": "GeV"
+},
+{
+  "name": "_jetEtaSubLeading",
+  "variable": "_jetEtaSubLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading jet pseudorapidity",
+  "unit": ""
 },
 {
   "name": "_lW_pt",

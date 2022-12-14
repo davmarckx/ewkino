@@ -51,7 +51,9 @@ Float_t _leptonEtaLeading = 0.;
 Float_t _leptonEtaSubLeading = 0.;
 Float_t _leptonEtaTrailing = 0.;
 Float_t _jetPtLeading = 0;
+Float_t _jetEtaLeading = 0;
 Float_t _jetPtSubLeading = 0;
+Float_t _jetEtaSubLeading = 0;
 Float_t _numberOfVertices = 0.;
 Int_t _fakeRateFlavour = -1;
 Float_t _bestZMass = 0.;
@@ -110,7 +112,9 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _leptonEtaSubLeading = varmap["_leptonEtaSubLeading"];
     _leptonEtaTrailing = varmap["_leptonEtaTrailing"];
     _jetPtLeading = varmap["_jetPtLeading"];
+    _jetEtaLeading = varmap["_jetEtaLeading"];
     _jetPtSubLeading = varmap["_jetPtSubLeading"];
+    _jetEtaSubLeading = varmap["_jetEtaSubLeading"];
     _numberOfVertices = varmap["_numberOfVertices"];
     _fakeRateFlavour = varmap["_fakeRateFlavour"];
     _bestZMass = varmap["_bestZMass"];
@@ -149,7 +153,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	
 	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
 	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
-	{"_jetPtLeading",0.}, {"_jetPtSubLeading",0.},
+	{"_jetPtLeading",0.}, {"_jetEtaLeading",0.},
+	{"_jetPtSubLeading",0.}, {"_jetEtaSubLeading",0.},
 
 	{"_numberOfVertices",0},
 	
@@ -215,7 +220,9 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_leptonEtaSubLeading", &_leptonEtaSubLeading, "_leptonEtaSubLeading/F");
     outputTree->Branch("_leptonEtaTrailing", &_leptonEtaTrailing, "_leptonEtaTrailing/F");
     outputTree->Branch("_jetPtLeading", &_jetPtLeading, "_jetPtLeading/F");
+    outputTree->Branch("_jetEtaLeading", &_jetEtaLeading, "_jetEtaLeading/F");
     outputTree->Branch("_jetPtSubLeading", &_jetPtSubLeading, "_jetPtSubLeading/F");
+    outputTree->Branch("_jetEtaSubLeading", &_jetEtaSubLeading, "_jetEtaSubLeading/F");
     outputTree->Branch("_numberOfVertices", &_numberOfVertices, "_numberOfVertices/F");
     outputTree->Branch("_fakeRateFlavour", &_fakeRateFlavour, "_fakeRateFlavour/I");
     outputTree->Branch("_bestZMass", &_bestZMass, "_bestZMass/F");
@@ -317,8 +324,14 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     }
     // jet pt
     jetcollection.sortByPt();
-    if(jetcollection.size()>=1) varmap["_jetPtLeading"] = jetcollection[0].pt();
-    if(jetcollection.size()>=2) varmap["_jetPtSubLeading"] = jetcollection[1].pt();
+    if(jetcollection.size()>=1){ 
+	varmap["_jetPtLeading"] = jetcollection[0].pt();
+	varmap["_jetEtaLeading"] = jetcollection[0].eta();
+    }
+    if(jetcollection.size()>=2){ 
+	varmap["_jetPtSubLeading"] = jetcollection[1].pt();
+	varmap["_jetEtaSubLeading"] = jetcollection[1].eta();
+    }
 
     // other more or less precomputed event variables
     varmap["_lT"] = lepcollection.scalarPtSum() + met.pt();
