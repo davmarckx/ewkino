@@ -58,15 +58,15 @@ double histogram::maxYValue( const TH2* histPtr ){
 
 // fill histogram taking into account under- and overflow
 
-double boundedValue( const TH1* histPtr, double value ){
+double histogram::boundedValue( const TH1* histPtr, double value ){
     return std::max( histogram::minBinCenter( histPtr ), std::min( value, histogram::maxBinCenter( histPtr ) ) );
 }
 
-double boundedXValue( const TH2* histPtr, double xValue ){
+double histogram::boundedXValue( const TH2* histPtr, double xValue ){
     return std::max( histogram::minXBinCenter( histPtr ), std::min( xValue, histogram::maxXBinCenter( histPtr ) ) );
 }
 
-double boundedYValue( const TH2* histPtr, double yValue ){
+double histogram::boundedYValue( const TH2* histPtr, double yValue ){
     return std::max( histogram::minYBinCenter( histPtr ), std::min( yValue, histogram::maxYBinCenter( histPtr ) ) );
 }
 

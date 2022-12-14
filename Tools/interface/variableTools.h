@@ -27,17 +27,20 @@ class HistogramVariable{
 			    const std::string& variable,
 			    int nbins,
 			    double xlow,
-			    double xhigh );
+			    double xhigh,
+                            const std::vector<double> bins = {} );
 	HistogramVariable(  const std::string& name,
 			    const std::string& variable,
                             const std::string& nbins,
                             const std::string& xlow,
-			    const std::string& xhigh );
+			    const std::string& xhigh,
+			    const std::vector<std::string> bins = {} );
 	std::string name() const{ return _name; }
 	std::string variable() const{ return _variable; }
 	int nbins() const{ return _nbins; }
 	double xlow() const{ return _xlow; }
 	double xhigh() const{ return _xhigh; }
+        std::vector<double> bins() const{ return _bins; }
 	std::string toString() const;
 
     private:
@@ -46,6 +49,7 @@ class HistogramVariable{
 	int _nbins;
 	double _xlow;
 	double _xhigh;
+	std::vector<double> _bins;
 };
 
 namespace variableTools{
@@ -56,6 +60,8 @@ namespace variableTools{
 	const std::vector<HistInfo>& histInfoVec );
     std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms(
 	const std::vector<HistogramVariable>& vars );
+    std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms2D(
+    const std::vector<HistogramVariable>& vars );
 
 }
 
