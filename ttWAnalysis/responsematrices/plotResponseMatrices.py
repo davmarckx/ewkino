@@ -12,6 +12,7 @@ sys.path.append(os.path.abspath('../../plotting/python'))
 import hist2dplotter as h2dp
 sys.path.append(os.path.abspath('tools'))
 import responsematrixtools as rmt
+import responsematrixplotter as rmp
 
 if __name__=='__main__':
 
@@ -23,6 +24,8 @@ if __name__=='__main__':
   parser.add_argument('--include_outerflow', default=False, action='store_true')
   parser.add_argument('--writebincontent', default=False, action='store_true')
   parser.add_argument('--writebincontentauto', default=False, action='store_true')
+  parser.add_argument('--dogeneric', default=False, action='store_true')
+  parser.add_argument('--docustom', default=False, action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -69,6 +72,12 @@ if __name__=='__main__':
       # assume for now that that will not happen;
       # extend histogram selection later if needed.
     hist = thishists[0]
+
+    # get normalized histograms, stability and purity
+    colnormhist = rmt.normalize_columns(hist, include_outerflow=args.include_outerflow)
+    rownormhist = rmt.normalize_rows(hist, include_outerflow=args.include_outerflow)
+    stability = rmt.get_stability(hist, include_outerflow=args.include_outerflow)
+    purity = rmt.get_purity(hist, include_outerflow=args.include_outerflow)
  
     # set common plot properties
     if( axtitle is not None and unit is not None ):
@@ -89,9 +98,12 @@ if __name__=='__main__':
     extracmstext = 'Preliminary'
     extrainfos = []
 
-    # make raw plot
-    outfile = os.path.join(args.outputdir, varname+'_absolute')
-    h2dp.plot2dhistogram( hist, outfile, outfmts=['.png'],
+    # generic approach using simple 2D histogram plotter
+    if args.dogeneric:
+
+      # make raw plot
+      outfile = os.path.join(args.outputdir, varname+'_absolute')
+      h2dp.plot2dhistogram( hist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
@@ -100,10 +112,9 @@ if __name__=='__main__':
     	    docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-    # make column-normalized plot
-    outfile = os.path.join(args.outputdir, varname+'_colnorm')
-    colnormhist = rmt.normalize_columns(hist, include_outerflow=args.include_outerflow)
-    h2dp.plot2dhistogram( colnormhist, outfile, outfmts=['.png'],
+      # make column-normalized plot
+      outfile = os.path.join(args.outputdir, varname+'_colnorm')
+      h2dp.plot2dhistogram( colnormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (column-normalized)',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
@@ -112,14 +123,24 @@ if __name__=='__main__':
             docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-    # make row-normalized plot
-    outfile = os.path.join(args.outputdir, varname+'_rownorm')
-    rownormhist = rmt.normalize_rows(hist, include_outerflow=args.include_outerflow)
-    h2dp.plot2dhistogram( rownormhist, outfile, outfmts=['.png'],
+      # make row-normalized plot
+      outfile = os.path.join(args.outputdir, varname+'_rownorm')
+      h2dp.plot2dhistogram( rownormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (row-normalized)',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
             rightmargin=rightmargin,
             drawoptions=drawoptions, cmin=0., cmax=1.,
             docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
+            extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
+
+    # custom approach using dedicated plotting function
+    if args.docustom:
+      outfile = os.path.join(args.outputdir, varname+'_custom')
+      xaxtitle = 'Particle level '+axtitle[:1].lower()+axtitle[1:]
+      yaxtitle = 'Detector level '+axtitle[:1].lower()+axtitle[1:]
+      rmp.plotresponsematrix( hist, stability, purity, outfile, outfmts=['.png'],
+            xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
+            drawoptions=drawoptions,
+            lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )

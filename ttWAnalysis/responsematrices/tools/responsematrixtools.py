@@ -4,6 +4,7 @@
 
 import sys
 import os
+import ROOT
 
 
 def normalize_columns( hist, include_outerflow=False ):
@@ -45,3 +46,31 @@ def normalize_rows( hist, include_outerflow=False ):
       res.SetBinContent(i,j,hist.GetBinContent(i,j)/rowsum)
       res.SetBinError(i,j,hist.GetBinError(i,j)/rowsum)
   return res
+
+def get_stability( hist, include_outerflow=False ):
+  ### calculate the stability,
+  # i.e. the fraction of events per gen bin to end up in the corresponding reco bin
+  # note: this assumes gen level is on the x-axis
+  #       and reco level is on the y-axis
+  colnormhist = normalize_columns( hist, include_outerflow=include_outerflow )
+  nbins = hist.GetNbinsX()
+  stability = hist.ProjectionX('stability')
+  stability.Reset()
+  for i in range(0, nbins+2):
+    stability.SetBinContent(i, colnormhist.GetBinContent(i,i))
+    stability.SetBinError(i, colnormhist.GetBinError(i,i))
+  return stability
+
+def get_purity( hist, include_outerflow=False ):
+  ### calculate the purity,
+  # i.e. the fraction of events per reco bin to end up in the corresponding gen bin
+  # note: this assumes gen level is on the x-axis
+  #       and reco level is on the y-axis
+  rownormhist = normalize_rows( hist, include_outerflow=include_outerflow )
+  nbins = hist.GetNbinsX()
+  purity = hist.ProjectionX('purity')
+  purity.Reset()
+  for i in range(0, nbins+2):
+    purity.SetBinContent(i, rownormhist.GetBinContent(i,i))
+    purity.SetBinError(i, rownormhist.GetBinError(i,i))
+  return purity
