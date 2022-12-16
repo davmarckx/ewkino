@@ -52,17 +52,54 @@ class HistogramVariable{
 	std::vector<double> _bins;
 };
 
+
+class DoubleHistogramVariable{
+
+    public:
+        DoubleHistogramVariable(  
+	    const std::string& name,
+	    const std::string& primaryVariable,
+            const std::string& secondaryVariable,
+            const std::vector<double> primaryBins,
+	    const std::vector<double> secondaryBins );
+        DoubleHistogramVariable(  
+	    const std::string& name,
+            const std::string& primaryVariable,
+	    const std::string& secondaryVariable,
+            const std::vector<std::string> primaryBins,
+	    const std::vector<std::string> secondaryBins );
+        std::string name() const{ return _name; }
+        std::string primaryVariable() const{ return _primaryVariable; }
+	std::string secondaryVariable() const{ return _secondaryVariable; }
+        std::vector<double> primaryBins() const{ return _primaryBins; }
+	std::vector<double> secondaryBins() const{ return _secondaryBins; }
+	std::string toString() const;
+	unsigned int nPrimaryBins() const;
+	unsigned int nSecondaryBins() const;
+	unsigned int nTotalBins() const;
+	int findBinNumber( double primaryValue, double secondaryValue ) const;
+
+    private:
+        std::string _name;
+        std::string _primaryVariable;
+	std::string _secondaryVariable;
+        std::vector<double> _primaryBins;
+	std::vector<double> _secondaryBins;
+};
+
 namespace variableTools{
 
     std::vector<HistogramVariable> readVariables( const std::string& txtFile );
+    std::vector<DoubleHistogramVariable> readDoubleVariables( const std::string& txtFile );
     std::vector<HistInfo> makeHistInfoVec( const std::vector<HistogramVariable>& vars );
     std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms( 
 	const std::vector<HistInfo>& histInfoVec );
     std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms(
 	const std::vector<HistogramVariable>& vars );
     std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms2D(
-    const std::vector<HistogramVariable>& vars );
-
+	const std::vector<HistogramVariable>& vars );
+    std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms(
+	const std::vector<DoubleHistogramVariable>& vars );
 }
 
 #endif
