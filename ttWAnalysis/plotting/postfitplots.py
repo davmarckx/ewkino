@@ -20,6 +20,7 @@ import listtools as lt
 import argparsetools as apt
 import combinetools as cbt
 from variabletools import read_variables, write_variables_json
+from variabletools import DoubleHistogramVariable
 sys.path.append(os.path.abspath('../../plotting/python'))
 import histplotter as hp
 import colors
@@ -153,7 +154,8 @@ def runPostFitShapesFromWorkspace( workspace, datacard, fitresultfile=None ):
   return histdict
 
 def make_workspace( channels, variables, outputdir, workspacename, 
-                    signals=[], datatag='Data', includestatonly=False ):
+                    signals=[], adddata=True, datatag='Data', 
+                    rawsystematics=False, includestatonly=False ):
   ### make combined workspaces as input for PostFitShapesFromWorkspace
   # a single combined workspace for all the channels is made (e.g. to combine years)
   # but split in variables (i.e. one separate workspace for each variable)
@@ -203,8 +205,8 @@ def make_workspace( channels, variables, outputdir, workspacename,
     # make ProcessInfoCollection
     (PIC, shapesyslist, normsyslist) = makeProcessInfoCollection(
       path, year, region, variable, ['all'],
-      signals=signals, datatag=datatag,
-      verbose=verbose )
+      signals=signals, adddata=adddata, datatag=datatag,
+      rawsystematics=rawsystematics, verbose=verbose )
 
     # write the datacard
     print('Writing full datacard...')
@@ -325,6 +327,9 @@ if __name__=="__main__":
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true',
                       help='Make log plots in addition to linear ones.')
+  parser.add_argument('--rawsystematics', action='store_true',
+                      help='Take the systematics from the input file without modifications'
+                          +' (i.e. no disablings and no adding of norm uncertainties).')
   parser.add_argument('--doclean', action='store_true',
                       help='Remove .root and .txt files after plotting.')
   args = parser.parse_args()
@@ -367,8 +372,8 @@ if __name__=="__main__":
   if args.region in regiondict.keys():
     regionname = regiondict[args.region]
   else:
-    print('WARNING: region {} not found in region dict,'.format(args.region),
-          ' will write raw region name on plot.')
+    print('WARNING: region {} not found in region dict,'.format(args.region)
+          +' will write raw region name on plot.')
     regionname = args.region
  
   # if the input file is a ROOT workspace, run on it directly
@@ -494,9 +499,31 @@ if __name__=="__main__":
         datahist.SetBinContent(i, 0)
         datahist.SetBinError(i, 0)
 
+    # get variable properties
+    variablemode = 'single'
+    binlabels = None
+    labelsize = None
+    canvaswidth = None
+    canvasheight = None
+    p1legendbox = None
+    if isinstance(variable,DoubleHistogramVariable): variablemode = 'double'
+    if variablemode=='single':
+      xaxtitle = variable.axtitle
+      unit = variable.unit
+      if( variable.iscategorical and variable.xlabels is not None ):
+        binlabels = variable.xlabels
+        labelsize = 15
+    elif variablemode=='double':
+      xaxtitle = variable.primary.axtitle
+      unit = variable.primary.unit
+      primarybinlabels = variable.primary.getbinlabels()
+      secondarybinlabels = variable.secondary.getbinlabels(extended=True)
+      binlabels = (primarybinlabels, secondarybinlabels)
+      labelsize = 15
+      canvaswidth = 900
+      p1legendbox = [0.5, 0.8, 0.9, 0.9]
+
     # set plot properties
-    xaxtitle = variable.axtitle
-    unit = variable.unit
     if( xaxtitle is not None and unit is not None ):
       xaxtitle += ' ({})'.format(unit)
     yaxtitle = 'Number of events'
@@ -510,11 +537,6 @@ if __name__=="__main__":
     extrainfos = []
     extrainfos.append( args.year )
     extrainfos.append( regionname )
-    xlabels = None
-    labelsize = None
-    if( variable.iscategorical and variable.xlabels is not None ):
-        xlabels = variable.xlabels
-        labelsize = 15
 
     # make the plot
     hp.plotdatavsmc(figname, datahist, simhistdict.values(),
@@ -526,7 +548,9 @@ if __name__=="__main__":
 	    colormap=colormap,
             extrainfos=extrainfos,
 	    lumi=lumi, extracmstext=args.extracmstext,
-            binlabels=xlabels, labelsize=labelsize )
+            binlabels=binlabels, labelsize=labelsize,
+            canvaswidth=canvaswidth, canvasheight=canvasheight,
+            p1legendbox=p1legendbox )
 
     if args.dolog:
       # make plot in log scale
@@ -540,7 +564,9 @@ if __name__=="__main__":
             colormap=colormap,
             extrainfos=extrainfos,
             lumi=lumi, extracmstext=args.extracmstext,
-            binlabels=xlabels, labelsize=labelsize,
+            binlabels=binlabels, labelsize=labelsize,
+            canvaswidth=canvaswidth, canvasheight=canvasheight,
+            p1legendbox=p1legendbox,
             yaxlog=True )
 
   # if the input file is a json, make the workspaces and then run on them.
@@ -559,7 +585,10 @@ if __name__=="__main__":
     # make workspaces
     wspacepaths = make_workspace( channels, variablenames,
 		    thisoutputdir, comboname,
-                    signals=['TTW'], datatag=args.datatag, includestatonly=True )
+                    signals=['TTW'], 
+                    adddata=args.unblind,
+                    datatag=args.datatag, rawsystematics=args.rawsystematics,
+                    includestatonly=True )
     # loop over variables
     for variable, wspacepath in zip(varlist, wspacepaths):
       wspacedir = os.path.dirname(wspacepath)
@@ -585,9 +614,10 @@ if __name__=="__main__":
         command += ' --tags ' + args.tags
       command += ' --colormap ' + args.colormap
       command += ' --extracmstext ' + args.extracmstext
-      if args.unblind: command += ' --unblind '
-      if args.dolog: command += ' --dolog '
-      if args.doclean: command += ' --doclean '
+      if args.unblind: command += ' --unblind'
+      if args.dolog: command += ' --dolog'
+      if args.rawsystematics: command += ' --rawsystematics'
+      if args.doclean: command += ' --doclean'
       os.system( command )
     # do cleaning 
     # (keep separate from loop above 

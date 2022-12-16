@@ -21,8 +21,8 @@ from uncertaintytools import add_systematics_default
 
 
 def makeProcessInfoCollection( inputfile, year, region, variable, processes, 
-  signals=[], includetags=[], excludetags=[], datatag='data',
-  verbose=False ):
+  signals=[], includetags=[], excludetags=[], adddata=True, datatag='data',
+  rawsystematics=False, verbose=False ):
   ### make a ProcessInfoCollection with specified parameters
 
   # get all relevant histograms
@@ -59,7 +59,7 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   # make a ProcessInfoCollection to extract information
   splittag = region+'_'+variable
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag,
-          datatag=datatag, adddata=True )
+          datatag=datatag, adddata=adddata )
   if verbose:
     print('Constructed following ProcessInfoCollection from histogram list:')
     print(PIC)
@@ -85,14 +85,16 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   for p in signals: PIC.makesig( p )
 
   # manage systematics
-  (removedforall, removedspecific) = remove_systematics_default( PIC, year=year )
-  for el in removedforall: shapesyslist.remove(el)
-  for p in PIC.plist:
-    if p not in removedspecific.keys(): continue
-    for el in removedspecific[p]:
-      if( p in el and el in shapesyslist ):
-        shapesyslist.remove(el)
-  normsyslist = add_systematics_default( PIC, year=year )
+  if not rawsystematics:
+    (removedforall, removedspecific) = remove_systematics_default( PIC, year=year )
+    for el in removedforall: shapesyslist.remove(el)
+    for p in PIC.plist:
+      if p not in removedspecific.keys(): continue
+      for el in removedspecific[p]:
+        if( p in el and el in shapesyslist ):
+          shapesyslist.remove(el)
+    normsyslist = add_systematics_default( PIC, year=year )
+  else: normsyslist = []
 
   return (PIC, shapesyslist, normsyslist)
 
