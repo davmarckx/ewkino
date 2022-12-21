@@ -33,7 +33,7 @@ class Sample(object):
         self.process = line[0]
 	# now extract sample name (and version name if present)
         self.name = line[1].rstrip('\n')
-        if '/' in self.name: self.name, self.version = self.sample.split('/')
+        if '/' in self.name: self.name, self.version = self.name.split('/')
         # finally extract cross-section
         if len(line)>2:
 	    xsstr = line[2].rstrip('\n')

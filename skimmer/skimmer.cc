@@ -48,14 +48,15 @@ void skimFile( const std::string& pathToFile, const std::string& outputDirectory
     // make output tree
     std::shared_ptr< TTree > outputTreePtr( std::make_shared< TTree >( 
 	"blackJackAndHookersTree","blackJackAndHookersTree" ) );
-    treeReader.setOutputTree( outputTreePtr.get() );
+    treeReader.setOutputTree( outputTreePtr.get(), 
+      true, true, true, true, true, true, true, true );
 
     long unsigned nentries = treeReader.numberOfEntries();
     long unsigned npass = 0;
     for( long unsigned entry = 0; entry < nentries; ++entry ){
 
         // build event
-        Event event = treeReader.buildEvent( entry, true, true, false, false );
+        Event event = treeReader.buildEvent( entry, true, true, false, false, true );
 
         // apply event selection
         if( !passSkim( event, skimCondition ) ) continue;

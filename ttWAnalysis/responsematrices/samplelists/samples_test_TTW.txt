@@ -1,0 +1,6 @@
+# samples located in /pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal
+
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PreVFP.root  1
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PostVFP.root  1
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Fall17.root  1
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Autumn18.root  1

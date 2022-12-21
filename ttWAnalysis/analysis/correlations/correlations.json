@@ -1,0 +1,22 @@
+{
+  "decorrelate_years": [
+    "_JER",
+    "_Uncl",
+    "_muonIDStat",
+    "_electronIDStat",
+    "_bTag_shape_lfstats1",
+    "_bTag_shape_lfstats2",
+    "_bTag_shape_hfstats1",
+    "_bTag_shape_hfstats2"
+  ],
+  "decorrelate_processes": [
+    "_qcdScalesNorm",
+    "_qcdScalesShapeEnv",
+    "_rScale",
+    "_fScale",
+    "_rfScales",
+    "_isrScale",
+    "_isrShape",
+    "_isrNorm"
+  ]
+}

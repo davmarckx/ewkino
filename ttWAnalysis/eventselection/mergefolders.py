@@ -8,12 +8,7 @@
 import sys
 import os
 
-if __name__=='__main__':
-
-  # settings
-  inputdir = sys.argv[1]
-  years = ['2016PreVFP','2016PostVFP','2017','2018']
-
+def mergefolders( inputdir, years ):
   # loop over years
   for year in years:
     simdir = os.path.join(inputdir,year+'_sim')
@@ -28,9 +23,18 @@ if __name__=='__main__':
       continue
     # make the commands
     cmds = []
-    cmds.append( 'mv {} {}'.format(os.path.join(datadir,'*'),simdir) )
+    cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),simdir) )
     cmds.append( 'rm -r {}'.format(datadir) )
     cmds.append( 'mv {} {}'.format(simdir,mergeddir) )
     # run the commands
     for cmd in cmds:
       os.system(cmd)
+
+if __name__=='__main__':
+
+  # settings
+  inputdir = sys.argv[1]
+  years = ['2016PreVFP','2016PostVFP','2017','2018']
+
+  # call main function
+  mergefolders(inputdir, years)

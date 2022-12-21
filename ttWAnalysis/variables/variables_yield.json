@@ -1,0 +1,13 @@
+[
+{
+  "name": "_yield",
+  "variable": "_yield",
+  "nbins": "1",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Total yield",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": [""]
+}
+]

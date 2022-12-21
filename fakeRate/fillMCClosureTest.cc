@@ -17,7 +17,7 @@ std::vector< HistInfo > makeDistributionInfoDefault(){
     std::vector< HistInfo > histInfoVec = {
 	HistInfo( "leptonPtLeading", "p_{T}^{leading lepton} (GeV)", 10, 10, 200 ),
 	HistInfo( "leptonPtSubLeading", "p_{T}^{subleading lepton} (GeV)", 10, 10, 150 ),
-	HistInfo( "leptonPtTrailing", "P_{T}^{trailing lepton} (GeV)", 10, 10, 100 ),
+	HistInfo( "leptonPtTrailing", "p_{T}^{trailing lepton} (GeV)", 10, 10, 100 ),
 
 	HistInfo( "leptonEtaLeading", "|#eta|^{leading lepton}", 10, 0, 2.5 ),
 	HistInfo( "leptonEtaSubLeading", "|#eta|^{subleading lepton}", 10, 0, 2.5 ),
@@ -37,7 +37,10 @@ std::vector< HistInfo > makeDistributionInfoDefault(){
 
 	HistInfo( "nLightNonPrompt", "number of nonprompt with light origin", 4, 0, 4 ),
 	HistInfo( "nCFlavorNonPrompt", "number of nonprompt with c-hadron origin", 4, 0, 4 ),
-	HistInfo( "nBFlavorNonPrompt", "number of nonprompt with b-hadron origin", 4, 0, 4 )
+	HistInfo( "nBFlavorNonPrompt", "number of nonprompt with b-hadron origin", 4, 0, 4 ),
+
+        HistInfo( "nonpromptLeptonPt", "p_{T}^{leading nonprompt lepton} (GeV)", 10, 10, 100),
+        HistInfo( "nonpromptLeptonEta", "|#eta|^{leading nonprompt lepton}", 10, 0, 2.5 )
     };
     return histInfoVec;
 }
@@ -99,6 +102,19 @@ std::tuple<int,int,int> eventOriginFlavour( const Event& event ){
 	}
     }
     return std::make_tuple<int,int,int>(nlight,ncflavor,nbflavor);
+}
+
+std::pair<double,double> findLeadingNonpromptLeptonPtAndEta( const Event& event ){
+    // retrieve leading nonprompt lepton kinematic properties
+    // assume leptons were already sorted!
+    std::pair<double, double> res = std::make_pair(0,0);
+    for( auto& leptonPtr : event.lightLeptonCollection() ){
+        if( !leptonPtr->isPrompt() ){
+            res = std::make_pair(leptonPtr->pt(),leptonPtr->eta());
+	    break;
+        }
+    }
+    return res;
 }
 
 int main( int argc, char* argv[] ){
@@ -210,7 +226,8 @@ int main( int argc, char* argv[] ){
             }
             
 	    // compute plotting variables 
-	    std::tuple<int,int,int> temp = eventOriginFlavour( event );
+	    std::tuple<int,int,int> eof = eventOriginFlavour( event );
+	    std::pair<double, double> lnpl = findLeadingNonpromptLeptonPtAndEta( event );
             std::vector< double > variables = { 
 		lightLeptons[0].pt(), lightLeptons[1].pt(), lightLeptons[2].pt(),
                 lightLeptons[0].absEta(), lightLeptons[1].absEta(), lightLeptons[2].absEta(),
@@ -224,9 +241,11 @@ int main( int argc, char* argv[] ){
                 static_cast< double >( event.numberOfJets() ),
                 static_cast< double >( event.numberOfMediumBTaggedJets() ),
                 static_cast< double >( event.numberOfVertices() ),
-		static_cast< double >( std::get<0>(temp) ),
-		static_cast< double >( std::get<1>(temp) ),
-		static_cast< double >( std::get<2>(temp) )
+		static_cast< double >( std::get<0>(eof) ),
+		static_cast< double >( std::get<1>(eof) ),
+		static_cast< double >( std::get<2>(eof) ),
+                lnpl.first,
+		fabs(lnpl.second)
             };
 
             // event is 'observed' if all leptons are tight 

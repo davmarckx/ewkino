@@ -19,26 +19,33 @@ for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
 for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = []
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
-npmodes = ['npfromsim','npfromdata']
-cfmodes = ['cffromsim','cffromdata']
+npmodes = ['npfromdata']
+cfmodes = ['cffromdata']
+
+dolog = True
 
 variables = '../variables/variables_main.json'
 
 colormap = 'ttw'
 
+filemode = 'split'
+
 cmds = []
 for year in years:
   for npmode in npmodes:
     for cfmode in cfmodes:
-      subdir = os.path.join(year, 'merged_{}_{}'.format(npmode,cfmode))
-      inputfile = os.path.join(inputdir, subdir, 'merged.root')
-      if not os.path.exists(inputfile):
-        print('WARNING: input file {} does not exist; continuing...'.format(inputfile))
-        continue
       for region in regions:
+        regiondir = ''
+        if filemode=='split': regiondir = region
+        subdir = os.path.join(year, regiondir, 'merged_{}_{}'.format(npmode,cfmode))
+        inputfile = os.path.join(inputdir, subdir, 'merged.root')
+        if not os.path.exists(inputfile):
+          print('WARNING: input file {} does not exist; continuing...'.format(inputfile))
+          continue
         thisoutputdir = '{}_{}_{}_{}'.format(year,region,npmode,cfmode)
         thisoutputdir = os.path.join(inputdir, subdir, 'plots', thisoutputdir)
         unblind = True
@@ -50,6 +57,7 @@ for year in years:
         cmd += ' --variables '+variables
         cmd += ' --outputdir '+thisoutputdir
         if unblind: cmd += ' --unblind'
+        if dolog: cmd += ' --dolog'
         cmd += ' --colormap '+colormap
         if runmode=='local':
           print('executing '+cmd)

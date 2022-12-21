@@ -27,6 +27,10 @@ sampleXSec/sampleLists
 
 # analysis specific output folders
 ttWAnalysis/*/output_*
+ttWAnalysis/combine/datacards_*
+ttWAnalysis/plotting/postfitplots_confs
+ttWAnalysis/chargefliprates
+ttWAnalysis/fakerates
 chargeFlipsStandalone/chargeFlipMaps_v*
 chargeFlipsStandalone/closurePlots_v*
 

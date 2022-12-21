@@ -8,7 +8,8 @@
 
 Event::Event( const TreeReader& treeReader, 
 		const bool readIndividualTriggers , const bool readIndividualMetFilters,
-		const bool readAllJECVariations, const bool readGroupedJECVariations ) :
+		const bool readAllJECVariations, const bool readGroupedJECVariations,
+                const bool readParticleLevel ) :
     // make collections of physics objects
     _leptonCollectionPtr( new LeptonCollection( treeReader ) ),
     _jetCollectionPtr( new JetCollection( treeReader,
@@ -23,9 +24,19 @@ Event::Event( const TreeReader& treeReader,
     _eventTagsPtr( new EventTags( treeReader ) ),
     _generatorInfoPtr( treeReader.isMC() ? new GeneratorInfo( treeReader ) : nullptr ),
     _susyMassInfoPtr( treeReader.isSusy() ? new SusyMassInfo( treeReader ) : nullptr ),
+    // make collections of particle level physics objects
+    _leptonParticleLevelCollectionPtr( (readParticleLevel && treeReader.containsParticleLevel()) ?
+                                    new LeptonParticleLevelCollection( treeReader ) :
+                                    nullptr ),
+    _jetParticleLevelCollectionPtr( (readParticleLevel && treeReader.containsParticleLevel()) ?
+                                    new JetParticleLevelCollection( treeReader ) :
+                                    nullptr ),
+    _metParticleLevelPtr( (readParticleLevel && treeReader.containsParticleLevel()) ?
+                                    new MetParticleLevel( treeReader ) : nullptr ),
+    // make additional information structures
     _numberOfVertices( treeReader._nVertex ),
-
-    //WARNING : use treeReader::_scaledWeight instead of treeReader::_weight since the former already includes cross-section and lumiosity scaling
+    // WARNING : use treeReader::_scaledWeight instead of treeReader::_weight 
+    // since the former already includes cross-section and lumiosity scaling
     _weight( treeReader._scaledWeight ),
     _samplePtr( treeReader.currentSamplePtr() )
     {}
@@ -44,6 +55,11 @@ Event::~Event(){
     if( hasSusyMassInfo() ){
         delete _susyMassInfoPtr;
     }
+    if( hasParticleLevel() ){
+	delete _leptonParticleLevelCollectionPtr;
+	delete _jetParticleLevelCollectionPtr;
+	delete _metParticleLevelPtr;
+    }
 }
 
 
@@ -56,6 +72,12 @@ Event::Event( const Event& rhs ) :
     _eventTagsPtr( new EventTags( *rhs._eventTagsPtr ) ),
     _generatorInfoPtr( rhs.hasGeneratorInfo() ? new GeneratorInfo( *rhs._generatorInfoPtr ) : nullptr ),
     _susyMassInfoPtr( rhs.hasSusyMassInfo() ? new SusyMassInfo( *rhs._susyMassInfoPtr ) : nullptr ),
+    _leptonParticleLevelCollectionPtr( rhs.hasParticleLevel() ?
+        new LeptonParticleLevelCollection( *rhs._leptonParticleLevelCollectionPtr ) : nullptr ),
+    _jetParticleLevelCollectionPtr( rhs.hasParticleLevel() ?
+        new JetParticleLevelCollection( *rhs._jetParticleLevelCollectionPtr ) : nullptr ),
+    _metParticleLevelPtr( rhs.hasParticleLevel() ?
+        new MetParticleLevel( *rhs._metParticleLevelPtr ) : nullptr ),
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
     _samplePtr( rhs._samplePtr )
@@ -71,6 +93,9 @@ Event::Event( Event&& rhs ) noexcept :
     _eventTagsPtr( rhs._eventTagsPtr ),
     _generatorInfoPtr( rhs._generatorInfoPtr ),
     _susyMassInfoPtr( rhs._susyMassInfoPtr ),
+    _leptonParticleLevelCollectionPtr( rhs._leptonParticleLevelCollectionPtr ),
+    _jetParticleLevelCollectionPtr( rhs._jetParticleLevelCollectionPtr ),
+    _metParticleLevelPtr( rhs._metParticleLevelPtr ),
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
     _samplePtr( rhs._samplePtr )
@@ -83,6 +108,9 @@ Event::Event( Event&& rhs ) noexcept :
     rhs._eventTagsPtr = nullptr;
     rhs._generatorInfoPtr = nullptr;
     rhs._susyMassInfoPtr = nullptr;
+    rhs._leptonParticleLevelCollectionPtr = nullptr;
+    rhs._jetParticleLevelCollectionPtr = nullptr;
+    rhs._metParticleLevelPtr = nullptr;
     rhs._samplePtr = nullptr;
 }
     
@@ -101,6 +129,11 @@ Event& Event::operator=( const Event& rhs ){
         if( hasSusyMassInfo() ){
             delete _susyMassInfoPtr;
         }
+	if( hasParticleLevel() ){
+	    delete _leptonParticleLevelCollectionPtr;
+	    delete _jetParticleLevelCollectionPtr;
+	    delete _metParticleLevelPtr;
+	}
 
         _leptonCollectionPtr = new LeptonCollection( *rhs._leptonCollectionPtr );
         _jetCollectionPtr = new JetCollection( *rhs._jetCollectionPtr );
@@ -110,7 +143,12 @@ Event& Event::operator=( const Event& rhs ){
         _eventTagsPtr = new EventTags( *rhs._eventTagsPtr );
         _generatorInfoPtr = rhs.hasGeneratorInfo() ? new GeneratorInfo( *rhs._generatorInfoPtr ) : nullptr;
         _susyMassInfoPtr = rhs.hasSusyMassInfo() ? new SusyMassInfo( *rhs._susyMassInfoPtr ) : nullptr;
-
+	_leptonParticleLevelCollectionPtr = rhs.hasParticleLevel() ? 
+	    new LeptonParticleLevelCollection( *rhs._leptonParticleLevelCollectionPtr ) : nullptr;
+	_jetParticleLevelCollectionPtr = rhs.hasParticleLevel() ?
+            new JetParticleLevelCollection( *rhs._jetParticleLevelCollectionPtr ) : nullptr;
+	_metParticleLevelPtr = rhs.hasParticleLevel() ?
+            new MetParticleLevel( *rhs._metParticleLevelPtr ) : nullptr;
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
         _samplePtr = rhs._samplePtr;
@@ -133,6 +171,11 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         if( hasSusyMassInfo() ){
             delete _susyMassInfoPtr;
         }
+	if( hasParticleLevel() ){
+            delete _leptonParticleLevelCollectionPtr;
+            delete _jetParticleLevelCollectionPtr;
+            delete _metParticleLevelPtr;
+        }
 
         _leptonCollectionPtr = rhs._leptonCollectionPtr;
         rhs._leptonCollectionPtr = nullptr;
@@ -150,7 +193,12 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         rhs._generatorInfoPtr = nullptr;
         _susyMassInfoPtr = rhs._susyMassInfoPtr;
         rhs._susyMassInfoPtr = nullptr;
-
+	_leptonParticleLevelCollectionPtr = rhs._leptonParticleLevelCollectionPtr;
+	rhs._leptonParticleLevelCollectionPtr = nullptr;
+	_jetParticleLevelCollectionPtr = rhs._jetParticleLevelCollectionPtr;
+        rhs._jetParticleLevelCollectionPtr = nullptr;
+	_metParticleLevelPtr = rhs._metParticleLevelPtr;
+        rhs._metParticleLevelPtr = nullptr;
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
         _samplePtr = rhs._samplePtr;
@@ -184,6 +232,26 @@ SusyMassInfo& Event::susyMassInfo() const{
     return *_susyMassInfoPtr;
 }
 
+void Event::checkParticleLevel() const{
+    if( !hasParticleLevel() ){
+	throw std::domain_error( "Trying to access particle level information which is not there." );
+    }
+}
+
+LeptonParticleLevelCollection& Event::leptonParticleLevelCollection() const{
+    checkParticleLevel();
+    return *_leptonParticleLevelCollectionPtr;
+}
+
+JetParticleLevelCollection& Event::jetParticleLevelCollection() const{
+    checkParticleLevel();
+    return *_jetParticleLevelCollectionPtr;
+}
+
+MetParticleLevel& Event::metParticleLevel() const{
+    checkParticleLevel();
+    return *_metParticleLevelPtr;
+}
 
 void Event::initializeZBosonCandidate(bool allowSameSign){
     // reconstruct the best Z boson
@@ -235,6 +303,34 @@ double Event::bestZBosonCandidateMass(bool allowSameSign){
 bool Event::hasZTollCandidate( const double oneSidedMassWindow, bool allowSameSign ){
     initializeZBosonCandidate(allowSameSign);
     return ( fabs( bestZBosonCandidateMass(allowSameSign) - particle::mZ ) < oneSidedMassWindow );
+}
+
+
+unsigned int Event::nZTollCandidates( const double oneSidedMassWindow ){
+    // initialize result
+    unsigned int nZ = 0;
+    // copy the lepton collection of this event
+    // note: is there another way to copy that does not involve some kind of selection?
+    LeptonCollection remainingLeptons = _leptonCollectionPtr->looseLeptonCollection();
+    // iteratively find best Z boson candidates
+    while( remainingLeptons.hasLightOSSFPair() ){
+	std::pair< std::pair< LeptonCollection::size_type, LeptonCollection::size_type >, double > ZBosonCandidateIndicesAndMass = remainingLeptons.bestZBosonCandidateIndicesAndMass();
+        std::pair< int, int > indices = ZBosonCandidateIndicesAndMass.first;
+	double mass = ZBosonCandidateIndicesAndMass.second;
+	// if the mass is not good, break
+	if( std::fabs(mass-particle::mZ) > oneSidedMassWindow ) break;
+	// else add 1, remove leptons and repeat
+	nZ += 1;
+	std::vector< std::shared_ptr< Lepton > > lepVector;
+	for(LeptonCollection::const_iterator lIt = remainingLeptons.cbegin();
+	    lIt != remainingLeptons.cend(); lIt++){
+	    if(lIt-remainingLeptons.cbegin()==indices.first
+                or lIt-remainingLeptons.cbegin()==indices.second) continue;
+            lepVector.push_back( *lIt );
+        }
+	remainingLeptons = LeptonCollection( lepVector );
+    }
+    return nZ;	
 }
 
 

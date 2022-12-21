@@ -11,6 +11,9 @@
 #include "objects/src/LeptonGeneratorInfo.cc"
 #include "objects/src/LeptonSelector.cc"
 #include "objects/src/GenMet.cc"
+#include "objects/src/LeptonParticleLevel.cc"
+#include "objects/src/JetParticleLevel.cc"
+#include "objects/src/MetParticleLevel.cc"
 #include "objectSelection/MuonSelector.cc"
 #include "objectSelection/ElectronSelector.cc"
 #include "objectSelection/TauSelector.cc"
@@ -27,6 +30,8 @@
 #include "Event/src/TriggerInfo.cc"
 #include "Event/src/GeneratorInfo.cc"
 #include "Event/src/SusyMassInfo.cc"
+#include "Event/src/LeptonParticleLevelCollection.cc"
+#include "Event/src/JetParticleLevelCollection.cc"
 #include "Event/src/EventTags.cc"
 #include "Event/src/Event.cc"
 

@@ -23,7 +23,7 @@ systematics = ([
   "JER",
   "Uncl",
   #"JECAll" # not in current samples
-  "JECGrouped",
+  #"JECGrouped",
   # via standard reweighting
   "muonReco",
   "electronReco",
@@ -53,6 +53,7 @@ systematics = ([
   "fsrShape",
   "fsrNorm",
 ])
+#systematics = []
 
 
 if __name__=='__main__':
@@ -66,7 +67,9 @@ if __name__=='__main__':
   parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
   parser.add_argument('--selection_type', default='tight', choices=selection_types, nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
+  parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
+  parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
@@ -117,7 +120,7 @@ if __name__=='__main__':
   frmapyear = year_from_samplelist( args.samplelist )
   muonfrmap = None
   electronfrmap = None
-  if args.selection_type=='fakerate':
+  if 'fakerate' in selection_types:
     if args.frdir is None:
       raise Exception('ERROR: fake rate dir must be specified for selection type fakerate.')
     muonfrmap = os.path.join(args.frdir,'fakeRateMap_data_muon_'+frmapyear+'_mT.root')
@@ -127,17 +130,30 @@ if __name__=='__main__':
     if not os.path.exists(electronfrmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap))
 
+  # set and check charge flip maps
+  cfmapyear = year_from_samplelist( args.samplelist )
+  electroncfmap = None
+  if 'chargeflips' in selection_types:
+    if args.cfdir is None:
+      raise Exception('ERROR: charge flip dir must be specified for selection type chargeflip.')
+    electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')
+    if not os.path.exists(electroncfmap):
+      raise Exception('ERROR: fake rate map {} does not exist'.format(electroncfmap))
+
   # parse systematics
+  if len(systematics)==0: systematics = ['none']
   systematics = ','.join(systematics)
+  print(systematics)
 
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
     # make the command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
-                    muonfrmap, electronfrmap, args.nevents, systematics )
+                    muonfrmap, electronfrmap, electroncfmap, 
+                    args.nevents, args.forcenevents, systematics )
     commands.append(command)
 
   # submit the jobs

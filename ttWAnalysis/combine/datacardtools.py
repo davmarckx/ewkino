@@ -5,6 +5,7 @@
 import os
 import sys
 import re
+import ROOT
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 sys.path.append(os.path.abspath('../analysis/python'))
@@ -63,10 +64,12 @@ def makealigned(stringlist):
 
 def writedatacard( datacarddir, channelname, processinfo,
 		   histfile, variable, datatag='data',
-		   shapesyslist=[], lnNsyslist=[],
+		   shapesyslist=[], lnnsyslist=[],
 		   rateparamlist=[], ratio=[],
 		   automcstats=10,
-		   writeobs=True,
+		   writeobs=False,
+                   writeselectedhists=True,
+                   writeallhists=False,
 		   autof=False ):
     ### write a datacard corresponding to a single channel ('bin' in combine terminology)
     # input arguments:
@@ -79,7 +82,7 @@ def writedatacard( datacarddir, channelname, processinfo,
     # - datatag: process name of observed data (how it is named in the root histograms)
     # - shapesyslist: list of shape systematics to consider (default: none)
     #	(must be a subset of the ones included in processinfo)
-    # - lnNsyslist: list of normalization systematics (type lnN) to consider (default: none)
+    # - lnnsyslist: list of normalization systematics (type lnN) to consider (default: none)
     #   (must be a subset of the ones included in processinfo)
     # - rateparamlist: a list of process names for which to add a rate param
     #   note: maybe extend functionality later, for now just adding a line
@@ -96,6 +99,10 @@ def writedatacard( datacarddir, channelname, processinfo,
     #    can be useful but not very clean when recycling datacards for different variables
     #	 with slightly different yields (depending on the binning) 
     #    without remaking the processinfo)
+    # - writeselectedhists: whether to copy the required histograms to a new root file
+    #   and make the datacard refer to that new file.
+    # - writeallhists: whether to copy the entire histfile 
+    #   (which might contain more histograms than needed for the datacard / processinfo)
     # - autof: boolean whether to overwrite existing card without explicitly asking
 
     # make path to datacard
@@ -106,13 +113,31 @@ def writedatacard( datacarddir, channelname, processinfo,
 	print('WARNING in writedatacard: requested file already exists. Overwrite? (y/n)')
 	go = raw_input()
 	if not go=='y': return
-    # copy root file to location
-    newhistname = 'histograms_'+channelname+'.root'
-    newhistpath = os.path.join(datacarddir,newhistname)
-    if not os.path.exists(histfile):
+    # check the datacard directory and make if needed
+    if not os.path.exists(datacarddir):
+      os.makedirs(datacarddir)
+    # check if provided processinfo has data
+    hasdata = True
+    if processinfo.datahistname is None:
+      hasdata = False
+      msg = 'WARNING in datacardtools.py / writedatacard:'
+      msg += ' provided ProcessInfoCollection does not contain data.'
+      print(msg)
+    # copy root file to location if requested
+    newhistname = histfile
+    if( writeselectedhists or writeallhists ): 
+      newhistname = 'histograms_'+channelname+'.root'
+      newhistpath = os.path.join(datacarddir,newhistname)
+      if not os.path.exists(histfile):
 	raise Exception('ERROR in writedatacard: input histogram file {} '
 			+'does not seem to exist'.format(histfile))
-    os.system('cp '+histfile+' '+newhistpath)
+      if writeallhists: os.system('cp '+histfile+' '+newhistpath)
+      else:
+        histnames = processinfo.allhistnames()
+        hists = ht.loadhistogramlist(histfile, histnames)
+        f = ROOT.TFile.Open(newhistpath,'recreate')
+        for hist in hists: hist.Write()
+        f.Close()
     # open (recreate) datacard file
     datacard = open(datacardpath,'w')
     # write nchannels, nprocesses and nparameters
@@ -127,8 +152,8 @@ def writedatacard( datacarddir, channelname, processinfo,
 	datacard.write('shapes '+p+' '+channelname+' '+newhistname
 			+' '+nominal_histname
 			+' '+sys_histname+'\n')
-    datacard.write('shapes data_obs '+channelname+' '+newhistname
-		    +' '+datatag+'_'+variable+'_nominal\n')
+    if hasdata: datacard.write('shapes data_obs '+channelname+' '+newhistname
+		    +' '+processinfo.datahistname+'\n')
     datacard.write(getseparator())
     # write bin info
     datacard.write('bin\t\t'+channelname+'\n')
@@ -140,7 +165,7 @@ def writedatacard( datacarddir, channelname, processinfo,
     for systematic in shapesyslist:
         c1.append(systematic)
         c2.append('shape')
-    for systematic in lnNsyslist:
+    for systematic in lnnsyslist:
 	c1.append(systematic)
 	c2.append('lnN')
     # make rest of the columns
@@ -153,7 +178,7 @@ def writedatacard( datacarddir, channelname, processinfo,
 	    sysdict[key] = processinfo.pinfos[p].get_datacard_impact(key)
         pcolumn = makecolumn(channelname,p,processinfo.pinfos[p].pid,
 		    pyield,sysdict,
-		    shapesyslist+lnNsyslist)
+		    shapesyslist+lnnsyslist)
         columns.append(pcolumn)
     # format the columns
     for c in columns: 

@@ -13,9 +13,14 @@ double readChargeFlipTools::chargeFlipWeight(
     // P( A + B ) = P( A ) + P( B ) - P( A & B )
     double summedProbabilities = 0.;
     double multipliedProbabilities = 1.;
-    for( const auto& electronPtr : event.electronCollection() ){
-        double flipRate = histogram::contentAtValues( 
-	    chargeFlipMap.get(), electronPtr->pt(), electronPtr->absEta() );
+    for( const auto& leptonPtr : event.lightLeptonCollection() ){
+	double flipRate = 0;
+	if( leptonPtr->isElectron() ){
+	    flipRate = histogram::contentAtValues( 
+		chargeFlipMap.get(), leptonPtr->pt(), leptonPtr->absEta() );
+	} else if( leptonPtr->isMuon() ){
+	    flipRate = 0; // maybe extend later with muon CF rate
+	}
         summedProbabilities += flipRate / ( 1. - flipRate );
         multipliedProbabilities *= flipRate / ( 1. - flipRate );
     }

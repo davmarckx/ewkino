@@ -35,22 +35,25 @@ def stackcol(hist,color):
     hist.SetLineWidth(1)
     hist.SetLineColor(ROOT.kBlack)
 
-def getminmax(datahist,mchist,yaxlog):
+def getminmax(datahist, mchist, yaxlog, margin=True):
     # get suitable minimum and maximum values for plotting a given data hist and summed mc hist
     # find maximum:
     histmax = (mchist.GetBinContent(mchist.GetMaximumBin())
                 +mchist.GetBinErrorUp(mchist.GetMaximumBin()))
     histmax = max(histmax,datahist.GetBinContent(datahist.GetMaximumBin())
                             +datahist.GetBinErrorUp(datahist.GetMaximumBin()))
-    if not yaxlog: return (0,histmax*1.5)
-    # find minimum (manually to avoid zero)
+    if not yaxlog:
+	if margin: histmax *= 1.5
+	return (0, histmax)
+    # find minimum (manually to avoid zero and small dummy values)
     histmin = histmax
     for i in range(1,mchist.GetNbinsX()+1):
-        if( (not mchist.GetBinContent(i)==0) and mchist.GetBinContent(i)<histmin):
+        if( (not mchist.GetBinContent(i)<1e-3) and mchist.GetBinContent(i)<histmin):
             histmin = mchist.GetBinContent(i)
-    rangemin = histmin/5.
-    rangemax = histmax*np.power(histmax/rangemin,0.4)
-    return (rangemin,rangemax)
+    if margin:
+      histmin = histmin/5.
+      histmax = histmax*np.power(histmax/histmin,0.6)
+    return (histmin, histmax)
 
 def drawbincontent(mchistlist,mchisterror,tag):
     text = ROOT.TLatex()
@@ -73,7 +76,9 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	p2yaxtitle=None, p2yaxrange=None,
 	p1legendncols=None, p1legendbox=None,
 	extracmstext='', lumi=None,
-	extrainfos=[], infosize=None, infoleft=None, infotop=None):
+	extrainfos=[], infosize=None, infoleft=None, infotop=None,
+        binlabels=None, labelsize=None,
+        canvaswidth=None, canvasheight=None):
     ### make a (stacked) simulation vs. data plot
     # arguments:
     # - outfile is the output file where the figure will be saved
@@ -104,6 +109,10 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # - infosize: font size of extra info
     # - infoleft: left border of extra info text (default leftmargin + 0.05)
     # - infotop: top border of extra info text (default 1 - p1topmargin - 0.1)
+    # - binlabels: list of alphanumeric x-axis labels (for categorical histograms)
+    #   extension: this argument toggles single vs double variable plotting;
+    #   in the latter case, binlabels must be a tuple of two lists: 
+    #   (primary variable labels, secondary variable labels)
     
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -126,11 +135,12 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     if p2yaxrange is None: p2yaxrange = (0.,1.999)
     
     ### define global parameters for size and positioning
-    cheight = 600 # height of canvas
-    cwidth = 600 # width of canvas
+    if canvasheight is None: canvasheight = 600
+    if canvaswidth is None: canvaswidth= 600
     rfrac = 0.3 # fraction of ratio plot in canvas
     # fonts and sizes:
-    labelfont = 4; labelsize = 22
+    labelfont = 4
+    if labelsize is None: labelsize = 22
     axtitlefont = 4; axtitlesize = 27
     infofont = 4
     if infosize is None: infosize = 20
@@ -155,7 +165,16 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # marker properties for data
     markerstyle = 20
     markercolor = 1
-    markersize = 0.75  
+    markersize = 0.75
+    # variable
+    varmode = 'single'
+    nprimarybins = None
+    secondarybinlabels = None
+    if( binlabels is not None and isinstance(binlabels,tuple) ): 
+	varmode = 'double'
+        nprimarybins = len(binlabels[0])
+        secondarybinlabels = binlabels[1]
+        binlabels = binlabels[0]*len(secondarybinlabels)
 
     ### order mc histograms
     # order by sumofweights
@@ -271,7 +290,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 
     ### make canvas and pads
     c1 = ROOT.TCanvas("c1","c1")
-    c1.SetCanvasSize(cwidth,cheight)
+    c1.SetCanvasSize(canvaswidth, canvasheight)
     pad1 = ROOT.TPad("pad1","",0.,rfrac,1.,1.)
     pad1.SetTopMargin(p1topmargin)
     pad1.SetBottomMargin(0.03)
@@ -291,6 +310,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     pad1.cd()
     # determine range of pad
     if(yaxlog): pad1.SetLogy()
+    (histmin, histmax) = getminmax(datahist,mcerror,yaxlog,margin=False)
     (rangemin,rangemax) = getminmax(datahist,mcerror,yaxlog)
     if yaxrange is not None: (rangemin,rangemax) = yaxrange
     # temporary modification for an annoying comment on one figure:
@@ -335,8 +355,28 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     tinfo.SetTextFont(10*infofont+3)
     tinfo.SetTextSize(infosize)
     for i,info in enumerate(extrainfos):
-	vspace = 0.07*(float(infosize)/20)
+	vspace = 0.05*(float(infosize)/20)
 	tinfo.DrawLatexNDC(infoleft,infotop-(i+1)*vspace, info)
+
+    # draw secondary bin labels and vertical lines
+    if varmode=='double':
+	tsecondarybinlabels = ROOT.TLatex()
+	tsecondarybinlabels.SetTextFont(10*labelfont+3)
+	tsecondarybinlabels.SetTextSize(labelsize)
+	tsecondarybinlabels.SetTextAlign(21)
+        vlines = []
+	for i,label in enumerate(secondarybinlabels):
+	    labelxpos = 0.5 + i*nprimarybins + nprimarybins/2.
+            labelxposndc = (labelxpos-ROOT.gPad.GetX1())/(ROOT.gPad.GetX2()-ROOT.gPad.GetX1())
+	    labelyposndc = 0.65
+	    tsecondarybinlabels.DrawLatexNDC(labelxposndc, labelyposndc, label)
+	    if i!=0:
+		linexpos = 0.5+i*nprimarybins
+		vline = ROOT.TLine(linexpos, mcerror.GetMinimum(), linexpos, histmax)
+		vline.SetLineColor(ROOT.kBlack)
+                vline.SetLineStyle(ROOT.kDashed)
+		vline.Draw()
+                vlines.append(vline)
 
     ### make the lower part of the plot
     pad2.cd()
@@ -355,6 +395,18 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	#xax.SetNdivisions(xax.GetNbins(),0,0,ROOT.kFALSE)
 	#xax.CenterLabels()
 	# does not work properly since labels are still half-integer but simply shifted
+    elif binlabels is not None:
+        # set bin labels for x-axis
+        if len(binlabels)!=scerror.GetNbinsX():
+            msg = 'ERROR in histplotter.plotdatavsmc:'
+            msg += ' binlabels has invalid length of {}'.format(len(binlabels))
+            msg += ' while number of bins is {};'.format(scerror.GetNbinsX())
+            msg += ' will ignore provided bin labels.'
+            print(msg)
+        else:
+            for i in range(1,scerror.GetNbinsX()+1): 
+		label = str(binlabels[i-1])
+		xax.SetBinLabel(i, label)
     else: xax.SetNdivisions(10,5,0,ROOT.kTRUE)
     xax.SetLabelSize(labelsize)
     xax.SetLabelFont(10*labelfont+3)
@@ -387,6 +439,18 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     line = ROOT.TLine(xmin,1,xmax,1)
     line.SetLineStyle(2)
     line.Draw("same")
+
+    # draw vertical lines for secondary variables
+    if varmode=='double':
+        p2vlines = []
+        for i,label in enumerate(secondarybinlabels):
+            if i!=0:
+                linexpos = 0.5+i*nprimarybins
+                vline = ROOT.TLine(linexpos, p2yaxrange[0], linexpos, p2yaxrange[1])
+                vline.SetLineColor(ROOT.kBlack)
+                vline.SetLineStyle(ROOT.kDashed)
+                vline.Draw()
+                p2vlines.append(vline)
     
     ### save the plot
     c1.SaveAs(outfile+'.png')
