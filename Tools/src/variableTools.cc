@@ -125,6 +125,16 @@ int DoubleHistogramVariable::findBinNumber( double primaryValue, double secondar
     return nPrimaryBins()*(secondaryBinNb-1) + primaryBinNb;
 }
 
+int DoubleHistogramVariable::findPrimaryBinNumber( double primaryValue ) const{
+    int primaryBinNb = findBin( _primaryBins, primaryValue );
+    return primaryBinNb;
+}
+
+int DoubleHistogramVariable::findSecondaryBinNumber( double secondaryValue ) const{
+    int secondaryBinNb = findBin( _secondaryBins, secondaryValue );
+    return secondaryBinNb;
+}
+
 
 // helper functions
 
