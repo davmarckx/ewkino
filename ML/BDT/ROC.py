@@ -45,27 +45,25 @@ import ROOT
 print('sklearn version' + str(__version__))
 
 
-boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepCSV_max':'f3',
-       '_deepCSV_leading':'f4', '_deepCSV_subLeading':'f5', '_deepFlavor_max':'f6',
-       '_deepFlavor_leading':'f7', '_deepFlavor_subLeading':'f8', '_lT':'f9', '_pTjj_max':'f10',
-       '_dRlb_min':'f11', '_dRl1l2':'f12', '_dPhill_max':'f13', '_HT':'f14', '_nJets':'f15', '_nBJets':'f16',
-       '_dRlWrecoil:':'f17', '_dRlWbtagged':'f18', '_M3l':'f19', '_abs_eta_max':'f20', '_MET_pt':'f21',
-       '_MET_phi':'f22', '_nMuons':'f23', '_nElectrons':'f24', '_leptonMVATOP_min':'f25',
-       '_leptonMVAttH_min':'f26', '_leptonChargeLeading':'f27', '_leptonChargeSubLeading':'f28',
-       '_leptonPtLeading':'f29', '_leptonPtSubLeading':'f30', '_leptonEtaLeading':'f31',
-       '_leptonEtaSubLeading':'f32', '_leptonELeading':'f33', '_leptonESubLeading':'f34',
-       '_jetPtLeading':'f35', '_jetPtSubLeading':'f36', '_jetMassLeading':'f37',
-       '_jetMassSubLeading':'f38', '_numberOfVertices':'f39', '_l1dxy':'f40', '_l1dz':'f41',
-       '_l1sip3d':'f42', '_l2dxy':'f43', '_l2dz':'f44', '_l2sip3d':'f45'}
+boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepFlavor_max':'f3',
+       '_deepFlavor_leading':'f4', '_deepFlavor_subLeading':'f5', '_lT':'f6', '_pTjj_max':'f7',
+       '_dRlb_min':'f8', '_dRl1l2':'f9', '_HT':'f10', '_nJets':'f11', '_nBJets':'f12',
+       '_dRlWrecoil':'f13', '_dRlWbtagged':'f14', '_M3l':'f15', '_abs_eta_max':'f16', '_MET_pt':'f17',
+       '_nMuons':'f18', '_leptonMVATOP_min':'f19',
+       '_leptonChargeLeading':'f20',
+       '_leptonPtLeading':'f21', '_leptonPtSubLeading':'f22', '_leptonEtaLeading':'f23',
+       '_leptonEtaSubLeading':'f24', '_leptonELeading':'f25', '_leptonESubLeading':'f26',
+       '_jetPtLeading':'f27', '_jetPtSubLeading':'f28', '_jetMassLeading':'f29',
+       '_jetMassSubLeading':'f30','year':'f31'}
 
-file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemap/boostfeaturemap.pkl"
+file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemaps/boostfeaturemap.pkl"
 # save boostfeaturemap to keep up to date
 pickle.dump(boostfeaturemap, open(file_name, "wb"))
 
-n_estimators = 2
-max_depth = 1000
-lr = 0.1
-year = sys.argv[1]
+n_estimators = 2#int(sys.argv[4])
+max_depth = 2#int(sys.argv[3])
+lr = 0.1#float(sys.argv[2])
+year = '2018'#sys.argv[1]
 
 
 #plotting packages
@@ -81,27 +79,33 @@ import matplotlib.pyplot as plt
 with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_processes.json') as json_file:
     dictio = json.load(json_file)
 
-#alle1 = pd.read_pickle('/pnfs/iihe/cms/store/user/dmarckx/ML_dataframes/trainsets/trainset_all_2018_dilep.pkl')
-alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=0.2)
-#alle3 = pd.read_pickle('/pnfs/iihe/cms/store/user/dmarckx/ML_dataframes/trainsets/trainset_all_2016PostVFP_dilep.pkl')
-#alle4 = pd.read_pickle('/pnfs/iihe/cms/store/user/dmarckx/ML_dataframes/trainsets/trainset_all_2016PreVFP_dilep.pkl')
+if year != 'all':
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=0.2)
+    alle1["year"] = 1
 
-#alle1["year"] = 1
-#alle2["year"] = 1
-#alle3["year"] = 0
-#alle4["year"] = 0
 
-#alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True).sample(frac = 0.25)
+else:
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+
+    alle1["year"] = 1
+    alle2["year"] = 1
+    alle3["year"] = 0
+    alle4["year"] = 0
+
+    alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True).sample(frac = 0.25)
+
+
+
 alle1["region"] = "dilep"
-
 alle1 = alle1[alle1["_weight"]>0]
-
 alle1 = alle1.replace({"class": dictio})
 
-
 # make training and testing sets
-X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_lW_charge','_lW_pt',
-       '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
+X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+       '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
 X.loc[X['class'] != 1, 'class'] = 0
@@ -110,7 +114,7 @@ y = alle1['class']
 
 print(X.keys())
 #split into train test, can use kfolds later
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=13)
+X_train, X_test, y_train, y_test = train_test_split(X.astype(float), y, test_size=0.20, random_state=13)
 
 sums = X_train.groupby('class')["_weight"].sum()
 print(sums)
@@ -149,7 +153,7 @@ print(not y_train[y_train.isin([1])].empty)
 
 bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective='binary:logistic',n_jobs = 4)
 print("start training")
-bst.fit(X_train, y_train, sample_weight=weight_train_balanced,eval_set = [(X_train, y_train), (X_test, y_test)])
+bst.fit(X_train.to_numpy(), y_train.to_numpy(), sample_weight=weight_train_balanced.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy())])
 print("done, plotting")
 
 #y_pred_proba_orig = clf.predict_proba(X_test)[::,1]
@@ -159,7 +163,7 @@ aucval_orig = metrics.roc_auc_score(y_test, y_pred_proba_orig, sample_weight = w
 
 y_pred_proba = bst.predict_proba(X_train)[::,1]
 fpr, tpr, _ = metrics.roc_curve(y_train,  y_pred_proba)
-aucval = metrics.roc_auc_score(y_train, y_pred_proba)
+aucval = metrics.roc_auc_score(y_train, y_pred_proba, sample_weight = weight_train)
 
 ax = plt.figure(figsize=(20,20))
 
@@ -203,9 +207,9 @@ plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
 plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_final_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_final_20psmalltrain".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_nativetest".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
-print(bst.get_booster().feature_names)
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "models/XGBtest_{}.root".format(year), num_inputs=len(X_train.columns))
+#print(bst.get_booster().feature_names)
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBtest_{}.root".format(year), num_inputs=len(X_train.columns))

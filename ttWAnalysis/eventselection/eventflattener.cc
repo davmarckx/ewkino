@@ -68,6 +68,11 @@ void eventloopEF_CR(const std::string& inputDirectory,
 					    treename.c_str(), treename.c_str() ) );
     eventFlattening::initOutputTree(treePtr.get());
 
+
+    // make the MVA reader
+    std::shared_ptr<TMVA::Reader> reader;
+    reader = eventFlattening::initReader() 
+
     // make reweighter
     std::string reweighterYear = year;
     std::shared_ptr< ReweighterFactory >reweighterFactory( new EmptyReweighterFactory() );

@@ -142,6 +142,7 @@ void fillHistograms(const std::string& inputDirectory,
 	// initialize map of variables
 	std::map<std::string,double> varmap = eventFlattening::initVarMap();
 	Event event = treeReader.buildEvent(entry,false,false,false,false);
+        std::shared_ptr<TMVA::Reader> reader = eventFlattening::initReader("/user/dmarckx/ewkino/ML/models/XGBtest_2018.root");
 
 	for(std::string es: event_selections){
 	    for(std::string st: selection_types){
@@ -153,7 +154,7 @@ void fillHistograms(const std::string& inputDirectory,
 		if(pass){
 		    varmap = eventFlattening::eventToEntry(event, reweighter, st, 
 					frmap_muon, frmap_electron, cfmap_electron, 
-                                        variation);
+                                        variation, reader);
 	
 		    /*std::cout << "----" << std::endl;
 		    std::cout << varmap["_normweight"] << std::endl;

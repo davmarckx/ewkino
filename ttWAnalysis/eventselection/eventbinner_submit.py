@@ -7,23 +7,23 @@ import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
 
-dtypes = ['sim','data']
+dtypes = ['sim']#,'data']
 
 selection_types = []
 selection_types.append('tight')
-selection_types.append('prompt')
-selection_types.append('fakerate')
-selection_types.append('chargeflips')
-selection_types.append('chargegood')
-selection_types.append('irreducible')
+#selection_types.append('prompt')
+#selection_types.append('fakerate')
+#selection_types.append('chargeflips')
+#selection_types.append('chargegood')
+#selection_types.append('irreducible')
 
 variations = []
 variations.append('nominal')
@@ -36,7 +36,7 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 
 variables = '../variables/variables_main.json'
 
-istest = False
+istest = True
 
 for year in years:
   for dtype in dtypes:
@@ -48,7 +48,7 @@ for year in years:
         inputdiryear = '2016'
     inputdir = os.path.join(inputdir, inputdiryear)
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
-    outputdir = 'output_20221118'
+    outputdir = 'output_BDT'
     outputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
     cmd = 'python eventbinner.py'
     cmd += ' --inputdir ' + inputdir
@@ -65,6 +65,6 @@ for year in years:
     cmd += ' --variables ' + variables
     if istest:
       cmd += ' --runmode local'
-      cmd += ' --nevents 1000'
+      cmd += ' --nevents 20'
     print('executing '+cmd)
     os.system(cmd)

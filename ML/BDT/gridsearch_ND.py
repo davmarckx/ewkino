@@ -30,6 +30,7 @@ from datetime import datetime
 import xgboost as xgb
 from xgboost import XGBClassifier
 import sys
+import math
 
 print('sklearn version' + str(__version__))
 year = sys.argv[1]
@@ -47,15 +48,21 @@ import matplotlib.pyplot as plt
 with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_processes.json') as json_file:
     dictio = json.load(json_file)
 
-alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=0.2)
+alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
+alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
+alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
+alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+
 alle1["region"] = "dilep"
 alle1 = alle1[alle1["_weight"]>0]
 alle1 = alle1.replace({"class": dictio})
 
+
+
 # make training and testing sets
-X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT',
-       '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
-       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing','_numberOfVertices'], axis=1)
+X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi','_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",
+       '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_yield', 'region','_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing','_numberOfVertices',"_leptonMVAttH_min"], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
 X.loc[X['class'] != 1, 'class'] = 0
 
@@ -109,7 +116,7 @@ grid_search.fit(X_train, y_train,sample_weight=weight_train_balanced)
 
 results = pd.DataFrame(grid_search.cv_results_)
 
-results.to_pickle("gridresults/pickled_gridresults_{}.pkl".format(year))
+results.to_pickle("gridresults/pickled_gridresults_allyears.pkl")
 
 
 print("Best parameters: {} \n\n".format(grid_search.best_params_))
