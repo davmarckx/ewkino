@@ -249,12 +249,33 @@ if __name__=="__main__":
     extrainfos.append( args.year )
     extrainfos.append( regionname )
 
+    # for double histogram variables,
+    # make a labelmap for better legends
+    labelmap = None
+    if variablemode=='double':
+      labelmap = {}
+      sbl_short = var.secondary.getbinlabels()
+      for hist in simhists:
+	oldtitle = hist.GetTitle()
+	lastchar = oldtitle[-1]
+	if( lastchar.isdigit() ):
+	    plbin = int(lastchar)
+            appendix = ''
+	    if( plbin==0 ): appendix = '(o.a.)'
+            else: appendix = '({})'.format(sbl_short[plbin-1])
+	    newtitle = oldtitle+' '+appendix
+	    labelmap[oldtitle] = newtitle
+	    print('{} -> {}'.format(oldtitle,newtitle))
+	else:
+	    labelmap[oldtitle] = oldtitle
+
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 
 	    xaxtitle=xaxtitle,
 	    yaxtitle=yaxtitle,
 	    colormap=colormap,
+            labelmap=labelmap,
             extrainfos=extrainfos,
 	    lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
@@ -269,6 +290,7 @@ if __name__=="__main__":
             xaxtitle=xaxtitle,
             yaxtitle=yaxtitle,
             colormap=colormap,
+            labelmap=labelmap,
             extrainfos=extrainfos,
             lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
