@@ -13,7 +13,7 @@ regions = ['signalregion_dilepton_inclusive']
 #for r in ['nonprompt_dilepton']: regions.append(r)
 #for r in ['4lepton_controlregion', 'nonprompt_dilepton_invMET']: regions.append(r)
 
-years = ['2018']#'2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 selection_types = []
 selection_types.append('tight')
@@ -50,7 +50,7 @@ for year in years:
             for s in selection_types: cmd += ' ' + s
             cmd += ' --variation ' + variation
             cmd += ' --frdir ' + frdir
-            cmd += ' --nevents 10'
-            cmd += ' --runmode local'
+            cmd += ' --nevents -1'
+            cmd += ' --runmode condor'
             print('executing '+cmd)
             os.system(cmd)

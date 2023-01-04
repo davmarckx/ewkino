@@ -338,7 +338,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 				const std::shared_ptr< TH2D>& frMap_muon, 
 				const std::shared_ptr< TH2D>& frMap_electron,
 				const std::shared_ptr< TH2D>& cfMap_electron,
-				const std::string& variation){
+				const std::string& variation,
+                                const std::string& year){
     // fill one entry in outputTree (initialized with initOutputTree), 
     // based on the info of one event.
     // note that the event must be cleaned and processed by an event selection function first!
@@ -575,10 +576,11 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         }
     }
     varmap["_M3l"] = event.leptonSystem().mass();
+    float BDTyear;
+    if (year == "2018" || year == "2017"){BDTyear = 1.0;}
+    else {BDTyear = 0.0;}
 
-    setVariables(varmap);
-    
-    float vec[] = {float(_abs_eta_recoil),float(_Mjj_max),float(_deepFlavor_max),float(_deepFlavor_leading),float(_deepFlavor_subLeading),float(_lT),float(_pTjj_max),float(_dRlb_min),float(_dRl1l2),float(_HT),float(_nJets),float(_nBJets),float(_dRlWrecoil),float(_dRlWbtagged),float(_M3l),float(_abs_eta_max),float(_MET_pt),float(_nMuons),float(_leptonMVATOP_min),float(_leptonChargeLeading),float(_leptonPtLeading),float(_leptonPtSubLeading),float(_leptonEtaLeading),float(_leptonEtaSubLeading),float(_leptonELeading),float(_leptonESubLeading),float(_jetPtLeading),float(_jetPtSubLeading),float(_jetMassLeading),float(_jetMassSubLeading),1.0};
+    float vec[] = {float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),float(varmap["_dRl1l2"]),float(varmap["_HT"]),float(varmap["_nJets"]),float(varmap["_nBJets"]),float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),float(varmap["_MET_pt"]),float(varmap["_nMuons"]),float(varmap["_leptonMVATOP_min"]),float(varmap["_leptonChargeLeading"]),float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),float(varmap["_leptonELeading"]),float(varmap["_leptonESubLeading"]),float(varmap["_jetPtLeading"]),float(varmap["_jetPtSubLeading"]),float(varmap["_jetMassLeading"]),float(varmap["_jetMassSubLeading"]),BDTyear};
 
     auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
     auto y = bdt.Compute(x);

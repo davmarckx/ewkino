@@ -34,7 +34,8 @@ namespace eventFlattening{
 				const std::shared_ptr< TH2D>& frMap_muon = nullptr, 
 				const std::shared_ptr< TH2D>& frMap_electron = nullptr,
                                 const std::shared_ptr< TH2D>& cfMap_electron = nullptr,
-				const std::string& variation = "nominal");
+				const std::string& variation = "nominal",
+                                const std::string& year = "2018");
     std::pair<double,double> pmzcandidates(Lepton&, Met&);
     std::pair<double,int> besttopcandidate(JetCollection&, Lepton&, Met&, double, double);
 }

@@ -116,7 +116,7 @@ void eventloopEF_CR(const std::string& inputDirectory,
         if(!passES(event, event_selection, selection_type, variation)) continue;
         eventFlattening::eventToEntry(event, reweighter, selection_type, bdt,
 				      frMap_muon, frMap_electron, cfmap_electron,
-                                      variation);
+                                      variation, year);
         treePtr->Fill();
     }
     outputFilePtr->cd( outputdir.c_str() );
@@ -154,7 +154,7 @@ int main( int argc, char* argv[] ){
     eventloopEF_CR( input_directory, sample_list, sample_index, nevents,
 		    output_directory, 
 		    event_selection, selection_type, variation, 
-		    muonfrmap, electronfrmap, electroncfmap );
+		    muonfrmap, electronfrmap, electroncfmap);
     std::cerr<<"###done###"<<std::endl;
     return 0;
 }
