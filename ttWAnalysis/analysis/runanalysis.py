@@ -1,6 +1,7 @@
 ######################################################################
 # python script to run the runanalysis executable via job submission #
 ######################################################################
+# update: can also be used for the runanalysis2 executable.
 
 import sys
 import os
@@ -70,6 +71,11 @@ if __name__=='__main__':
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
+  parser.add_argument('--exe', default='runanalysis', 
+                      choices=['runanalysis','runanalysis2'])
+  parser.add_argument('--splitprocess', default=None)
+  # (process to split at particle level; only for runsystematics2, 
+  #  ignored for runsystematics)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
@@ -97,7 +103,7 @@ if __name__=='__main__':
   selection_types = ','.join(args.selection_type)
 
   # check if executable is present
-  exe = './runanalysis'
+  exe = './{}'.format(args.exe)
   if not os.path.exists(exe):
     raise Exception('ERROR: {} executable was not found.'.format(exe))
 
@@ -148,12 +154,20 @@ if __name__=='__main__':
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
-    # make the command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
+    # make the basic command
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, electroncfmap, 
-                    args.nevents, args.forcenevents, systematics )
+                    args.nevents, args.forcenevents)
+    # manage particle level splitting
+    if( args.exe=='runanalysis2' ):
+      if( args.splitprocess is not None 
+          and samples.get_samples()[i].process == args.splitprocess ):
+        command += ' true'
+      else: command += ' false'
+    # add systematics
+    command += ' {}'.format(systematics)
     commands.append(command)
 
   # submit the jobs
