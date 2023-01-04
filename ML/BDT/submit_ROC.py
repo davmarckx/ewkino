@@ -220,6 +220,7 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
+#settings for each year, found with gridsearch
 years = ['2016PreVFP','2016PostVFP','2017','2018', 'all']
 lr = ['0.01','0.05','0.05','0.05','0.1']
 depth = '2'

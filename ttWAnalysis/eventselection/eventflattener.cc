@@ -106,10 +106,11 @@ void eventloopEF_CR(const std::string& inputDirectory,
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events"<<std::endl;
 
-    // make the MVA reader
+    // load the MVA model
     std::cout<<"reader is being made";
     TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
     std::cout<<"reader is made";
+
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%1000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
         Event event = treeReader.buildEvent(entry);

@@ -1,3 +1,5 @@
+# this is a 2D version of the gridsearch that automatically makes a plot
+
 import uproot
 
 #math and data packages

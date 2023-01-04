@@ -1,3 +1,5 @@
+#this is a N dimensional gridsearch, which stores the results in a pickled file.
+
 import uproot
 
 #math and data packages
@@ -7,6 +9,7 @@ import scipy
 import random
 import pickle
 import json
+import math
 
 #sklearn imports
 import sklearn
@@ -26,14 +29,15 @@ from sklearn.preprocessing import label_binarize
 from sklearn.metrics import RocCurveDisplay
 from sklearn.model_selection import StratifiedKFold
 from sklearn import __version__
-from datetime import datetime
 import xgboost as xgb
 from xgboost import XGBClassifier
+
+
 import sys
-import math
+from datetime import datetime
+
 
 print('sklearn version' + str(__version__))
-year = sys.argv[1]
 
 #plotting packages
 import seaborn as sns
@@ -42,16 +46,31 @@ import matplotlib.pyplot as plt
 
 
 
-#make ready
+# the year
+year = sys.argv[1]
+
 
 # Opening JSON file that contains the renaming
 with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_processes.json') as json_file:
     dictio = json.load(json_file)
 
-alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
-alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
-alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
-alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+if year=="all":
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+
+    alle1["year"] = 1
+    alle2["year"] = 1
+    alle3["year"] = 0
+    alle4["year"] = 0
+
+    alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True)
+
+else: 
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=fract, random_state=13)
+    alle1["year"] = 1
+
 
 alle1["region"] = "dilep"
 alle1 = alle1[alle1["_weight"]>0]

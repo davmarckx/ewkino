@@ -108,6 +108,7 @@ X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 X_other.loc[X_other['class'] != 1, 'class'] = 0
 
 weight_other = X_other["_weight"]
+y_other = X_other["class"]
 X_other = X_other.drop(['_weight', 'class'], axis = 1)
 
 sums = X.groupby('class')["_weight"].sum()
@@ -177,7 +178,7 @@ for train_index, test_index in cv.split(X, y):
         fontsize=20,
         transform=ax.transAxes)
     
-    fpr, tpr, thresholds = roc_curve(y_test2.to_numpy(), y_score, sample_weight = weight_test)
+    fpr, tpr, thresholds = roc_curve(y_test2.to_numpy(), y_score, sample_weight = weight_test2)
     fpr_other, tpr_other, tresholds = roc_curve(y_other2.to_numpy(), y_scoreother)
     ax.plot(fpr,tpr,lw=1,alpha=0.3, label = "ROC fold {}".format(i))
     ax.plot(fpr_other,tpr_other,lw=1,alpha=0.3, label = "Other backgrounds fold {}".format(i))
