@@ -1,39 +1,49 @@
 #################################################################################################
 # A very simple submitter that runs runanalysis.py for a number of predefined regions and years #
 #################################################################################################
+# update: can also be used for the runanalysis2 executable.
 
 import os
 import sys
 
+exe = 'runanalysis2'
+
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP']
 
 dtypes = ['sim','data']
+#dtypes = ['sim']
 
 selection_types = []
 selection_types.append('tight')
-selection_types.append('prompt')
+#selection_types.append('prompt')
 selection_types.append('fakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
+#selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops'
-samplelistbase = 'samples_tttt_{}_{}.txt'
+samplelistdir = '../samplelists/fourtops' # main sample lists
+samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
+#samplelistdir = 'samplelists' # sample lists for testing
+#samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
+#samplelistdir = 'samplelists' # sample lists for TTW signal samples
+#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json'
+#variables = '../variables/variables_main.json' # single variables
+variables = '../variables/variables_test_double.json' # double variable
 
-outputdir = 'output_20221124'
+outputdir = 'output_20230104'
 
 nevents = 1e6
 runlocal = False
@@ -47,6 +57,8 @@ for year in years:
     # set correct input directory
     inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
     inputdiryear = year
+    #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
+    #inputdiryear = ''
     if dtype=='data':
       inputdir = inputdir.replace('_v4','_v5')
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
@@ -64,7 +76,9 @@ for year in years:
     cmd += ' --frdir ' + frdir
     cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
-    if runlocal: cms += ' --runmode local'
+    cmd += ' --exe ' + exe
+    cmd += ' --splitprocess TTW' # (only relevant for runanalysis2)
+    if runlocal: cmd += ' --runmode local'
     if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):

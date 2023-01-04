@@ -12,5 +12,14 @@
   "nbins":   20,
   "xlow":    -2.5,
   "xhigh":   2.5,
-  "axtitle": "W lepton asymmetry" }
+  "axtitle": "W lepton asymmetry" },
+
+{ "name":    "_nJets",
+  "variable":   "_nJets",
+  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5],
+  "axtitle": "Number of jets",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3", "4", "5"]
+}
 ]

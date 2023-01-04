@@ -78,6 +78,8 @@ class DoubleHistogramVariable{
 	unsigned int nSecondaryBins() const;
 	unsigned int nTotalBins() const;
 	int findBinNumber( double primaryValue, double secondaryValue ) const;
+	int findPrimaryBinNumber( double primaryValue ) const;
+	int findSecondaryBinNumber( double secondaryValue ) const;
 
     private:
         std::string _name;

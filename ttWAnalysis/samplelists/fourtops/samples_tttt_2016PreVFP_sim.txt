@@ -40,7 +40,8 @@ TZQ  tZq_ll_4f_ckm_NLO_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16Mini
 
 WW  WW_TuneCP5_13TeV-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8-v2_singlelepton_MC_2016_ULpreVFPv6.root  75.8
 WWW  WWW_4F_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8-v2_singlelepton_MC_2016_ULpreVFPv6.root  0.2086
-WWZ  WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8-v2_singlelepton_MC_2016_ULpreVFPv6.root  0.1651
+#WWZ  WWZ_4F_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8-v2_singlelepton_MC_2016_ULpreVFPv6.root  0.1651
+# (commented out due to T2 issues causing this sample to be unavailable, 04/01/2023)
 WZZ  WZZ_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8_ext1-v2_singlelepton_MC_2016_ULpreVFPv6.root  0.05565
 ZZZ  ZZZ_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAODAPV-106X_mcRun2_asymptotic_preVFP_v8-v2_singlelepton_MC_2016_ULpreVFPv6.root  0.01476
 

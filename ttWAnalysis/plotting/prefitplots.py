@@ -50,6 +50,7 @@ if __name__=="__main__":
                           +' (e.g. simulation year or selection region).'
                           +' Use underscores for spaces.')
   parser.add_argument('--colormap', default='default')
+  parser.add_argument('--signals', default=None, nargs='+')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true')
@@ -187,7 +188,8 @@ if __name__=="__main__":
       binlabels = (primarybinlabels, secondarybinlabels)
       labelsize = 15
       canvaswidth = 900
-      p1legendbox = [0.5, 0.8, 0.9, 0.9]
+      p1legendbox = [0.45, 0.7, 0.95, 0.9]
+      p1legendncols = 4
 
     # extra histogram selection for overlapping variable names
     othervarnames = [v.name for v in varlist if v.name!=variablename]
@@ -214,7 +216,7 @@ if __name__=="__main__":
 
     # get the uncertainty histogram
     mcsysthist = PC.get_systematics_rss()
-    
+
     # get data histogram
     datahistname = '{}_{}_{}_nominal'.format(args.datatag,args.region,variablename)
     if not datahistname in thishistnames:
@@ -249,17 +251,39 @@ if __name__=="__main__":
     extrainfos.append( args.year )
     extrainfos.append( regionname )
 
+    # for double histogram variables,
+    # make a labelmap for better legends
+    labelmap = None
+    if variablemode=='double':
+      labelmap = {}
+      sbl_short = var.secondary.getbinlabels()
+      for hist in simhists:
+	oldtitle = hist.GetTitle()
+	lastchar = oldtitle[-1]
+	if( lastchar.isdigit() ):
+	    plbin = int(lastchar)
+            appendix = ''
+	    if( plbin==0 ): appendix = '(o.a.)'
+            else: appendix = '({})'.format(sbl_short[plbin-1])
+	    newtitle = oldtitle[:-1]+' '+appendix
+	    labelmap[oldtitle] = newtitle
+	else:
+	    labelmap[oldtitle] = oldtitle
+
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 
 	    xaxtitle=xaxtitle,
 	    yaxtitle=yaxtitle,
 	    colormap=colormap,
+            labelmap=labelmap,
+            signals=args.signals,
             extrainfos=extrainfos,
 	    lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
             canvaswidth=canvaswidth, canvasheight=canvasheight,
-            p1legendbox=p1legendbox )
+            p1legendbox=p1legendbox,
+            p1legendncols=p1legendncols )
 
     if args.dolog:
       # make plot in log scale
@@ -269,9 +293,12 @@ if __name__=="__main__":
             xaxtitle=xaxtitle,
             yaxtitle=yaxtitle,
             colormap=colormap,
+            labelmap=labelmap,
+            signals=args.signals,
             extrainfos=extrainfos,
             lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
             canvaswidth=canvaswidth, canvasheight=canvasheight,
             p1legendbox=p1legendbox,
+            p1legendncols=p1legendncols,
             yaxlog=True )
