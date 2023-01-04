@@ -82,6 +82,9 @@ void fillHistogram(
     // small helper function to fill a given histogram
     // with the primary and secondary value of a double variable.
     int binNb = variable.findBinNumber( primaryValue, secondaryValue );
+    // printouts for testing
+    //std::cout << primaryValue << " " << secondaryValue << " " << binNb << std::endl;
+    // fill the histogram
     hist->Fill( binNb, weight );
 }
 
@@ -205,7 +208,7 @@ std::map< std::string,     // process
 		std::string variableName = histVar.name();
                 // make process names split on particle level (if needed)
 		std::vector<std::string> splittedProcessNames = splitProcessNames(
-		    processName, histVar, doSplitParticleLevel);
+		    modifiedProcessName, histVar, doSplitParticleLevel);
 		// loop over particle level split process names
 		for( std::string thisProcessName: splittedProcessNames ){
 		    // form the histogram name
@@ -635,7 +638,7 @@ void fillSystematicsHistograms(
                         std::string primaryVariable = histVar.primaryVariable();
                         std::string secondaryVariable = histVar.secondaryVariable();
 			fillHistogram( histMap, thisProcessName, event_selection, selection_type, upvar,
-                               histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), weight,
+                               histVar, accvarmap.at(primaryVariable), accvarmap.at(secondaryVariable), weight,
                                doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
 		    }
 		}
@@ -659,7 +662,7 @@ void fillSystematicsHistograms(
                         std::string primaryVariable = histVar.primaryVariable();
                         std::string secondaryVariable = histVar.secondaryVariable();
 			fillHistogram( histMap, thisProcessName, event_selection, selection_type, downvar,
-                               histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), weight,
+                               histVar, accvarmap.at(primaryVariable), accvarmap.at(secondaryVariable), weight,
                                doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
                     }
 		}
@@ -702,7 +705,7 @@ void fillSystematicsHistograms(
                             std::string primaryVariable = histVar.primaryVariable();
                             std::string secondaryVariable = histVar.secondaryVariable();
 			    fillHistogram( histMap, thisProcessName, event_selection, selection_type, systematic+"_"+thisupvar,
-                               histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), weight,
+                               histVar, accvarmap.at(primaryVariable), accvarmap.at(secondaryVariable), weight,
                                doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
 			}
 		    }
@@ -734,7 +737,7 @@ void fillSystematicsHistograms(
                             std::string primaryVariable = histVar.primaryVariable();
                             std::string secondaryVariable = histVar.secondaryVariable();
 			    fillHistogram( histMap, thisProcessName, event_selection, selection_type, systematic+"_"+thisdownvar,
-                               histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), weight,
+                               histVar, accvarmap.at(primaryVariable), accvarmap.at(secondaryVariable), weight,
                                doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
 			}
 		    }
@@ -1229,7 +1232,7 @@ void fillSystematicsHistograms(
 			    downHist->SetBinContent(i,nominalHist->GetBinContent(i));
 			}
 			// prints for testing:
-			std::cout << "---------------------" << std::endl;
+			/*std::cout << "---------------------" << std::endl;
 			std::cout << "process: " << thisProcessName << std::endl;
 			std::cout << "variable: " << histVar.name() << std::endl;
 			std::cout << "scale up:" << std::endl;
@@ -1237,7 +1240,7 @@ void fillSystematicsHistograms(
 			    std::cout << upHist->GetBinContent(i) << std::endl; }
 			std::cout << "scale down:" << std::endl;
 			for(int i=1; i<downHist->GetNbinsX()+1; ++i){ 
-			    std::cout << downHist->GetBinContent(i) << std::endl; }
+			    std::cout << downHist->GetBinContent(i) << std::endl; }*/
 			// then fill envelope in case valid qcd variations are present
 			if(hasValidQcds){ 
 			    systematicTools::fillEnvelope(
@@ -1245,12 +1248,12 @@ void fillSystematicsHistograms(
 				upvar, downvar, "qcdScalesShapeVar"); 
 			}
 			// prints for testing
-			std::cout << "scale up:" << std::endl;
+			/*std::cout << "scale up:" << std::endl;
 			for(int i=1; i<upHist->GetNbinsX()+1; ++i){
 			    std::cout << upHist->GetBinContent(i) << std::endl; }
 			std::cout << "scale down:" << std::endl;
 			for(int i=1; i<downHist->GetNbinsX()+1; ++i){
-			    std::cout << downHist->GetBinContent(i) << std::endl; }
+			    std::cout << downHist->GetBinContent(i) << std::endl; }*/
 		    } // end loop over split process names
 		} // end loop over variables
 	    } // end if systematic=="qcdScalesShapeVar"
