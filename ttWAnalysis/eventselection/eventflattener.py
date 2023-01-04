@@ -86,7 +86,7 @@ if __name__=='__main__':
   # set and check charge flip maps
   cfmapyear = year_from_samplelist( args.samplelist )
   electroncfmap = None
-  if selection_type=='chargeflips':
+  if args.selection_type=='chargeflips':
     if args.cfdir is None:
       raise Exception('ERROR: charge flip dir must be specified for selection type chargeflips.')
     electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')

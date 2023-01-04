@@ -30,11 +30,11 @@ namespace eventFlattening{
     std::map< std::string, double > eventToEntry(Event& event,
 				const CombinedReweighter& reweighter,
 				const std::string& selection_type, 
+                                TMVA::Experimental::RBDT<>& bdt,
 				const std::shared_ptr< TH2D>& frMap_muon = nullptr, 
 				const std::shared_ptr< TH2D>& frMap_electron = nullptr,
                                 const std::shared_ptr< TH2D>& cfMap_electron = nullptr,
-				const std::string& variation = "nominal",
-                                const std::shared_ptr<TMVA::Reader>& weightfileloc = nullptr);
+				const std::string& variation = "nominal");
     std::pair<double,double> pmzcandidates(Lepton&, Met&);
     std::pair<double,int> besttopcandidate(JetCollection&, Lepton&, Met&, double, double);
 }

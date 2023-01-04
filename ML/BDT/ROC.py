@@ -60,10 +60,10 @@ file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemaps/boostfeaturemap.pkl"
 # save boostfeaturemap to keep up to date
 pickle.dump(boostfeaturemap, open(file_name, "wb"))
 
-n_estimators = 2#int(sys.argv[4])
-max_depth = 2#int(sys.argv[3])
-lr = 0.1#float(sys.argv[2])
-year = '2018'#sys.argv[1]
+n_estimators = int(sys.argv[4])
+max_depth = int(sys.argv[3])
+lr = float(sys.argv[2])
+year = sys.argv[1]
 
 
 #plotting packages
@@ -79,29 +79,54 @@ import matplotlib.pyplot as plt
 with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_processes.json') as json_file:
     dictio = json.load(json_file)
 
+
+fract = 0.01
 if year != 'all':
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=0.2)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=fract, random_state=13)
     alle1["year"] = 1
 
 
 else:
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
-    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
-    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
 
     alle1["year"] = 1
     alle2["year"] = 1
     alle3["year"] = 0
     alle4["year"] = 0
 
-    alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True).sample(frac = 0.25)
+    alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True)
 
 
+other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2018_dilep_BDT.pkl')
+other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2017_dilep_BDT.pkl')
+other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PostVFP_dilep_BDT.pkl')
+other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PreVFP_dilep_BDT.pkl')
+
+other1["year"] = 1
+other2["year"] = 1
+other3["year"] = 0
+other4["year"] = 0
+
+other1 = pd.concat([other1,other2,other3,other4], ignore_index=True)
 
 alle1["region"] = "dilep"
 alle1 = alle1[alle1["_weight"]>0]
 alle1 = alle1.replace({"class": dictio})
+
+other1["region"] = "dilep"
+other1 = other1[other1["_weight"]>0]
+other1 = other1.replace({"class": dictio})
+other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject the test signal samples
+
+#make other validation sets
+X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+       '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
+X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
+X_other.loc[X_other['class'] != 1, 'class'] = 0
 
 # make training and testing sets
 X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
@@ -136,6 +161,10 @@ weight_train_balanced = X_train['_weight_balanced']
 X_train = X_train.drop(['_weight', 'class','_weight_balanced'], axis = 1)
 X_test = X_test.drop(['_weight', 'class'], axis = 1)
 
+X_other = pd.concat([X_other, X_test[X_test["class"]==1]],ignore_index=True)
+y_other = X_other['class']
+weight_other =  X_other['_weight']
+X_other = X_other.drop(['_weight', 'class'], axis = 1)
 
 if (not y_train[y_train.isin(['TTW','TTX'])].empty):
     y_train = pd.Series(np.where(y_train.values == 'TTW', 1, 0),y_train.index)
@@ -146,6 +175,15 @@ if (not y_train[y_train.isin(['TTW','TTX'])].empty):
 X.rename(columns=boostfeaturemap,inplace=True)
 X_train.rename(columns=boostfeaturemap,inplace=True)
 X_test.rename(columns=boostfeaturemap,inplace=True)
+X_other.rename(columns=boostfeaturemap,inplace=True)
+
+
+#xgtrain = xgb.DMatrix(X_train.values, y_train.values)
+#evallist = [(xgtrain, 'train')]
+#param = {'max_depth': 2, 'eta': 1, 'objective': 'binary:logistic'}
+
+#num_round = 10
+#bst = xgb.train(param, dtrain, num_round, evallist)
 
 print("do we have signals?")
 print(not y_train[y_train.isin([1])].empty)
@@ -153,17 +191,22 @@ print(not y_train[y_train.isin([1])].empty)
 
 bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective='binary:logistic',n_jobs = 4)
 print("start training")
-bst.fit(X_train.to_numpy(), y_train.to_numpy(), sample_weight=weight_train_balanced.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy())])
+bst.fit(X_train.to_numpy(), y_train.to_numpy(), sample_weight=weight_train_balanced.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy()), (X_other.to_numpy(), y_other.to_numpy())])
 print("done, plotting")
 
-#y_pred_proba_orig = clf.predict_proba(X_test)[::,1]
 y_pred_proba_orig = bst.predict_proba(X_test)[::,1]
 fpr_orig, tpr_orig, _ = metrics.roc_curve(y_test,  y_pred_proba_orig, sample_weight = weight_test)
 aucval_orig = metrics.roc_auc_score(y_test, y_pred_proba_orig, sample_weight = weight_test)
 
 y_pred_proba = bst.predict_proba(X_train)[::,1]
-fpr, tpr, _ = metrics.roc_curve(y_train,  y_pred_proba)
+fpr, tpr, _ = metrics.roc_curve(y_train,  y_pred_proba, sample_weight = weight_train)
 aucval = metrics.roc_auc_score(y_train, y_pred_proba, sample_weight = weight_train)
+
+
+y_pred_proba_other = bst.predict_proba(X_other)[::,1]
+fpr_other, tpr_other = metrics.roc_curve(y_other,  y_pred_proba_other, sample_weight = weight_other)
+aucval = metrics.roc_auc_score(y_other, y_pred_proba_other, sample_weight = weight_other)
+
 
 ax = plt.figure(figsize=(20,20))
 
@@ -178,8 +221,9 @@ ax.text(0.15, 0.84, 'Simulation Internal',
         fontstyle = 'italic',
         fontsize=23)
 
-plt.plot(fpr_orig,tpr_orig,color="red",label="test auc="+str(aucval_orig))
-plt.plot(fpr,tpr,color="darkorange",label="train auc="+str(aucval))
+plt.plot(fpr_orig,tpr_orig,color="red",label="test auc="+str("{:.2f}".format(aucval_orig)))
+plt.plot(fpr,tpr,color="darkorange",label="train auc="+str("{:.2f}".format(aucval)))
+plt.plot(fpr_other,tpr_other,color="green",label="other backgrounds vs test signal auc="+str("{:.2f}".format(aucval_other)))
 plt.plot([0, 1], [0, 1], color="navy", linestyle="--")
 plt.xlabel("False Positive Rate", fontsize=30)
 plt.ylabel("True Positive Rate", fontsize=30)
@@ -189,7 +233,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_final_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_final_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 results = bst.evals_result()
@@ -200,16 +244,17 @@ x_axis = range(0, epochs)
 fig, ax = plt.subplots()
 ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
 ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
+ax.plot(x_axis, results['validation_2']['logloss'], label='Other')
 ax.legend()
 plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
 plt.ylabel('Error\n',fontsize=14,fontweight='semibold')
 plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
-plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_final_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_final_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_nativetest".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_final_withother".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
 #print(bst.get_booster().feature_names)
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBtest_{}.root".format(year), num_inputs=len(X_train.columns))
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBfinal_withother_{}.root".format(year))#, num_inputs=len(X_train.columns))

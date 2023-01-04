@@ -126,8 +126,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
 
     _eventBDT = varmap["_eventBDT"];
 
-    _nMuons = (int) varmap["_nMuons"];
-    _nElectrons = (int) varmap["_nElectrons"];
+    _nMuons =  varmap["_nMuons"];
+    _nElectrons = varmap["_nElectrons"];
     _leptonMVATOP_min = varmap["_leptonMVATOP_min"];
     _leptonMVAttH_min = varmap["_leptonMVAttH_min"];
     _yield = varmap["_yield"];
@@ -334,11 +334,11 @@ void eventFlattening::initOutputTree(TTree* outputTree){
 std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 				const CombinedReweighter& reweighter,
 				const std::string& selection_type, 
+                                TMVA::Experimental::RBDT<>& bdt,
 				const std::shared_ptr< TH2D>& frMap_muon, 
 				const std::shared_ptr< TH2D>& frMap_electron,
 				const std::shared_ptr< TH2D>& cfMap_electron,
-				const std::string& variation,
-                                const std::shared_ptr<TMVA::Reader>& reader){
+				const std::string& variation){
     // fill one entry in outputTree (initialized with initOutputTree), 
     // based on the info of one event.
     // note that the event must be cleaned and processed by an event selection function first!
@@ -347,7 +347,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 
     // re-initialize all variables in the map
     std::map< std::string, double > varmap = initVarMap();
- 
+
     // sort leptons and jets by pt
     event.sortJetsByPt();
     event.sortLeptonsByPt();
@@ -577,8 +577,16 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_M3l"] = event.leptonSystem().mass();
 
     setVariables(varmap);
-    varmap["_eventBDT"] = reader->EvaluateMVA("BDT");
+    
+    float vec[] = {float(_abs_eta_recoil),float(_Mjj_max),float(_deepFlavor_max),float(_deepFlavor_leading),float(_deepFlavor_subLeading),float(_lT),float(_pTjj_max),float(_dRlb_min),float(_dRl1l2),float(_HT),float(_nJets),float(_nBJets),float(_dRlWrecoil),float(_dRlWbtagged),float(_M3l),float(_abs_eta_max),float(_MET_pt),float(_nMuons),float(_leptonMVATOP_min),float(_leptonChargeLeading),float(_leptonPtLeading),float(_leptonPtSubLeading),float(_leptonEtaLeading),float(_leptonEtaSubLeading),float(_leptonELeading),float(_leptonESubLeading),float(_jetPtLeading),float(_jetPtSubLeading),float(_jetMassLeading),float(_jetMassSubLeading),1.0};
+
+    auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
+    auto y = bdt.Compute(x);
+
+    std::cout<< y(0,0);
+    varmap["eventBDT"] = float(y(0,0));
     setVariables(varmap);
+
     // now return the varmap (e.g. to fill histograms)
     return varmap;
 }

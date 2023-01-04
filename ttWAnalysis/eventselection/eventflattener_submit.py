@@ -39,7 +39,7 @@ for year in years:
             inputdir = os.path.join(inputdir, map)
 
             samplelist = os.path.join(samplelistdir,samplelistbase.format(year,'sim'))
-            outputdir = 'flattened_roots_all2'
+            outputdir = 'flattened_roots_withBDT'
             outputdir = os.path.join(outputdir, '{}_{}'.format(year, region))
             cmd = 'python eventflattener.py'
             cmd += ' --inputdir ' + inputdir
@@ -50,7 +50,7 @@ for year in years:
             for s in selection_types: cmd += ' ' + s
             cmd += ' --variation ' + variation
             cmd += ' --frdir ' + frdir
-            cmd += ' --nevents -1'
-            cmd += ' --runmode condor'
+            cmd += ' --nevents 10'
+            cmd += ' --runmode local'
             print('executing '+cmd)
             os.system(cmd)
