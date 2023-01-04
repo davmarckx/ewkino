@@ -15,6 +15,7 @@ ULong_t _eventNb = 0;
 // event weight for simulation
 Float_t _weight = 0; // generator weight scaled by cross section and lumi
 Float_t _normweight = 0; // total weight, including reweighting and fake rate
+Float_t _reweight = 1; // total reweighting factor
 Float_t _leptonreweight = 1; // lepton reweighting factor
 Float_t _nonleptonreweight = 1; // all other reweighting factors
 Float_t _fakerateweight = 0; // fake rate reweighting factor
@@ -83,6 +84,10 @@ Float_t _lW_pt = 0.;
 Float_t _Z_pt = 0.;
 Float_t year = 1.;
 
+// categorization variables
+Int_t _nJetsNBJetsCat = -1;
+Int_t _nJetsNZCat = -1;
+
 
 
 void eventFlattening::setVariables(std::map<std::string,double> varmap){
@@ -94,6 +99,7 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
 
     _weight = varmap["_weight"];
     _normweight = varmap["_normweight"];
+    _reweight = varmap["reweight"];
     _leptonreweight = varmap["_leptonreweight"];
     _nonleptonreweight = varmap["_nonleptonreweight"];
     _fakerateweight = varmap["_fakerateweight"];
@@ -143,8 +149,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _leptonESubLeading = varmap["_leptonESubLeading"];
     _jetPtLeading = varmap["_jetPtLeading"];
     _jetPtSubLeading = varmap["_jetPtSubLeading"];
-    _jetEtaLeading = varmap["_jetPtLeading"];
-    _jetEtaSubLeading = varmap["_jetPtSubLeading"];
+    _jetEtaLeading = varmap["_jetEtaLeading"];
+    _jetEtaSubLeading = varmap["_jetEtaSubLeading"];
     _jetMassLeading = varmap["_jetMassLeading"];
     _jetMassSubLeading = varmap["_jetMassSubLeading"];
     _numberOfVertices = varmap["_numberOfVertices"];
@@ -159,6 +165,10 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _l2dxy = varmap["_l2dxy"];
     _l2dz = varmap["_l2dz"];
     _l2sip3d = varmap["_l2sip3d"];
+
+
+    _nJetsNBJetsCat = varmap["_nJetsNBJetsCat"];
+    _nJetsNZCat = varmap["_nJetsNZCat"];
 }
 // is now unused for bdt's but may be useful for the NNs in the future
 std::shared_ptr<TMVA::Reader> eventFlattening::initReader(const std::string& weightfileloc){
@@ -207,6 +217,7 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_runNb", 0},{"_lumiBlock",0},{"_eventNb",0},
 
 	{"_weight",0},{"_normweight",0},
+        {"_reweight",1},
 	{"_leptonreweight",1},{"_nonleptonreweight",1},
 	{"_fakerateweight",0},{"_chargeflipweight",0},
 
@@ -243,7 +254,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	
 	{"_lW_charge",0}, {"_lW_pt",0.}, {"_Z_pt",0.},
         {"_l1dxy",0.},{"_l1dz",0.},{"_l1sip3d",0.},
-        {"_l2dxy",0.},{"_l2dz",0.},{"_l2sip3d",0.}
+        {"_l2dxy",0.},{"_l2dz",0.},{"_l2sip3d",0.},
+        {"_nJetsNBJetsCat",-1}, {"_nJetsNZCat",-1}
     };
     return varmap;    
 }
@@ -258,6 +270,7 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     // event weight for simulation (fill with ones for data)
     outputTree->Branch("_weight", &_weight, "_weight/F");
     outputTree->Branch("_normweight", &_normweight, "_normweight/F");
+    outputTree->Branch("_reweight", &_reweight, "_reweight/F");
     outputTree->Branch("_leptonreweight", &_leptonreweight, "_leptonreweight/F");
     outputTree->Branch("_nonleptonreweight", &_nonleptonreweight, "_nonleptonreweight/F");
     outputTree->Branch("_fakerateweight", &_fakerateweight, "_fakerateweight/F");
@@ -326,7 +339,10 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_l2dxy", &_l2dxy, "_l2dxy/F");
     outputTree->Branch("_l2dz", &_l2dz, "_l2dz/F");
     outputTree->Branch("_l2sip3d", &_l2sip3d, "_l2sip3d/F");
-}
+    // categorization variables
+    outputTree->Branch("_nJetsNBJetsCat", &_nJetsNBJetsCat, "_nJetsNBJetsCat/I");
+    outputTree->Branch("_nJetsNZCat", &_nJetsNZCat, "_nJetsNZCat/I");
+    }
 
  
 // main function //
@@ -369,7 +385,9 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_weight"] = event.weight();
     varmap["_normweight"] = event.weight();
     if(event.isMC()){ 
-	varmap["_normweight"] *= reweighter.totalWeight(event);
+	double totalWeight = reweighter.totalWeight(event);
+	varmap["_normweight"] *= totalWeight;
+	varmap["_reweight"] = totalWeight;
 	//varmap["_leptonreweight"] = reweighter["muonID"]->weight(event) 
 	//			    * reweighter["electronID"]->weight(event);
 	//varmap["_nonleptonreweight"] = reweighter.totalWeight(event)/varmap["_leptonreweight"];
@@ -589,6 +607,35 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // std::cout<< y(0,0);
     // get the score out of the RTensor
     varmap["_eventBDT"] = float(y(0,0));
+
+
+    // definition of categorization variables
+    int njets = jetcollection.size();
+    int nbjets = bjetcollection.size();
+    int nZ = 0;
+    if( event.hasOSSFLightLeptonPair() ){
+        nZ = event.nZTollCandidates(10.);
+    }
+    
+    // (note: default is -1)
+    if( nbjets==0 ) varmap["_nJetsNBJetsCat"] = std::min(njets,4);
+    else if( nbjets==1 ) varmap["_nJetsNBJetsCat"] = 5 + std::min(njets,4) - 1;
+    else if( nbjets>1 ) varmap["_nJetsNBJetsCat"] = 9 + std::min(njets,4) - 2;
+    // (note: default is -1)
+    if( nZ==2 ) varmap["_nJetsNZCat"] = 0;
+    else if( nZ==1 ){
+      	if( njets==0 ) varmap["_nJetsNZCat"] = 1;
+        else if( nbjets==1 ) varmap["_nJetsNZCat"] = 2;
+        else if( nbjets>1 ) varmap["_nJetsNZCat"] = 3;
+    }
+ 
+    /*std::cout << "number of Z: " << nZ << std::endl;
+    std::cout << "number of jets: " << njets << std::endl;
+    std::cout << "number of b-jets: " << nbjets << std::endl;
+    std::cout << "nJetsNBJets: " << varmap["_nJetsNBJetsCat"] << std::endl;
+    std::cout << "nJetsNZ: " << varmap["_nJetsNZCat"] << std::endl;*/
+
+
     setVariables(varmap);
 
     // now return the varmap (e.g. to fill histograms)

@@ -117,4 +117,4 @@ if __name__=='__main__':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_eventbinner', commands,
-                                      cmssw_version='~/CMSSW_12_4_6')#CMSSW_VERSION ) 
+                                      cmssw_version='~/CMSSW_12_4_6')#instead of CMSSW_VERSION because TMVA::Experimental needs a new ROOT version
