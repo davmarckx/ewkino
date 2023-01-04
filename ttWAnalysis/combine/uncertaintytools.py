@@ -84,7 +84,9 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
 def remove_systematics_default( processinfo, year=None ):
   ### default sequence removing some shape systematics
-  pnonorm = ['WZ','ZZ','TTZ','Nonprompt','Chargeflips','ZG']
+  pnonorm = ['WZ','ZZ','TTZ','ZG']
+  if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
+  if 'Chargeflips' in processinfo.plist: pnonorm.append('Chargeflips')
   allyears = ['2016PreVFP', '2016PostVFP', '2017', '2018']
   (rmforall, rmspecific) = get_systematics_to_disable( processinfo.plist, 
     pnonorm=pnonorm, year=year, allyears=allyears )
@@ -119,7 +121,10 @@ def add_systematics_default( processinfo, year=None ):
       impacts = {}
       for p in processinfo.plist: impacts[p] = impact
       processinfo.addnormsys( source, impacts )
-      processinfo.disablesys( source, ['Nonprompt', 'Chargeflips'] )
+      if 'Nonprompt' in processinfo.plist:
+        processinfo.disablesys( source, ['Nonprompt'] )
+      if 'Chargeflips' in processinfo.plist:
+        processinfo.disablesys( source, ['Chargeflips'] )
       normsyslist.append(source)
 
   # add trigger uncertainty
@@ -129,7 +134,10 @@ def add_systematics_default( processinfo, year=None ):
     for p in processinfo.plist: impacts[p] = 1.02
     source = 'Trigger_{}'.format(year)
     processinfo.addnormsys( source, impacts )
-    processinfo.disablesys( source, ['Nonprompt', 'Chargeflips'] )
+    if 'Nonprompt' in processinfo.plist:
+      processinfo.disablesys( source, ['Nonprompt'] )
+    if 'Chargeflips' in processinfo.plist:
+      processinfo.disablesys( source, ['Chargeflips'] )
     normsyslist.append(source)
 
   # add individual norm uncertainties
@@ -137,10 +145,12 @@ def add_systematics_default( processinfo, year=None ):
     'WZ': 1.1,
     'ZZ': 1.1,
     'TTZ': 1.15,
-    'Nonprompt': 1.2,
-    'Chargeflips': 1.2,
     'ZG': 1.1
   })
+  if 'Nonprompt' in processinfo.plist:
+    norms['Nonprompt'] = 1.2
+  if 'Chargeflips' in processinfo.plist:
+    norms['Chargeflips'] = 1.2
   for process,mag in norms.items():
     source = 'Norm_{}'.format(process)
     impacts = {}
