@@ -377,6 +377,7 @@ class TreeReader {
 
         //access current file and tree 
         std::shared_ptr< TFile > currentFilePtr(){ return _currentFilePtr; }
+	std::pair<double, int> getHCounterInfo() const;
 
         //get object from current file 
         TObject* getFromCurrentFile( const std::string& name ) const;

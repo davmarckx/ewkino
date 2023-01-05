@@ -38,6 +38,7 @@ Event::Event( const TreeReader& treeReader,
     // WARNING : use treeReader::_scaledWeight instead of treeReader::_weight 
     // since the former already includes cross-section and lumiosity scaling
     _weight( treeReader._scaledWeight ),
+    _genWeight( treeReader._weight ),
     _samplePtr( treeReader.currentSamplePtr() )
     {}
 
@@ -80,6 +81,7 @@ Event::Event( const Event& rhs ) :
         new MetParticleLevel( *rhs._metParticleLevelPtr ) : nullptr ),
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
+    _genWeight( rhs._genWeight ),
     _samplePtr( rhs._samplePtr )
     {}
 
@@ -98,6 +100,7 @@ Event::Event( Event&& rhs ) noexcept :
     _metParticleLevelPtr( rhs._metParticleLevelPtr ),
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
+    _genWeight( rhs._genWeight ),
     _samplePtr( rhs._samplePtr )
 {
     rhs._leptonCollectionPtr = nullptr;
@@ -151,6 +154,7 @@ Event& Event::operator=( const Event& rhs ){
             new MetParticleLevel( *rhs._metParticleLevelPtr ) : nullptr;
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
+	_genWeight = rhs._genWeight;
         _samplePtr = rhs._samplePtr;
     }
     return *this;
@@ -201,6 +205,7 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         rhs._metParticleLevelPtr = nullptr;
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
+	_genWeight = rhs._genWeight;
         _samplePtr = rhs._samplePtr;
     }
     return *this;

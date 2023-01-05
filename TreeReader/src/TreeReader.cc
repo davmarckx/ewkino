@@ -363,8 +363,28 @@ long unsigned TreeReader::numberOfEntries() const{
 }
 
 
-void TreeReader::initSample( const Sample& samp ){ 
+std::pair<double, int> TreeReader::getHCounterInfo() const{
+    // get hCounter info for current sample.
+    // return type: pair with hCounter bin content, hCounter number of entries
+    checkCurrentSample();
+    checkCurrentFile();
+    if( isData() ){
+	std::string msg = "ERROR in TreeReader::getHCounterInfo():";
+	msg.append(" the current sample is a data sample.");
+	throw std::runtime_error(msg);
+    }
+    // read sum of simulated event weights
+    TH1D* hCounter = new TH1D( "hCounter", "Events counter", 1, 0, 1 );
+    _currentFilePtr->cd( "blackJackAndHookers" );
+    hCounter->Read( "hCounter" );
+    double weights = hCounter->GetBinContent(1);
+    int entries = hCounter->GetEntries();
+    delete hCounter;
+    return std::make_pair(weights,entries);
+}
 
+
+void TreeReader::initSample( const Sample& samp ){ 
     //update current sample
     // old comment from Willem:
     // "I wonder if the extra copy can be avoided here, 
