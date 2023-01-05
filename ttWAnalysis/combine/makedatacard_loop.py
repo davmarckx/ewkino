@@ -57,6 +57,7 @@ for year in years:
     cmd += ' --outputfile {}'.format(outputfiletag)
     cmd += ' --processes all'
     cmd += ' --signals TTW'
+    cmd += ' --adddata'
     cmd += ' --datatag Data'
     cmds.append(cmd)
 

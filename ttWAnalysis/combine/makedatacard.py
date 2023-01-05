@@ -114,6 +114,7 @@ if __name__=="__main__":
                       help='Comma-separated list of process tags to consider as signal.')
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
   parser.add_argument('--datatag', default='data')
+  parser.add_argument('--dummydata', default=False, action='store_true')
   parser.add_argument('--includetags', default=None,
                       help='Comma-separated list of systematic tags to include')
   parser.add_argument('--excludetags', default=None,
@@ -151,19 +152,17 @@ if __name__=="__main__":
     os.makedirs(outputdir)
 
   # make the ProcessInfoCollection
+  adddata = not args.dummydata
   (PIC, shapesyslist, normsyslist) = makeProcessInfoCollection( 
     args.inputfile, args.year, args.region, args.variable, processes,
     signals=signals, includetags=includetags, excludetags=excludetags, 
-    datatag=args.datatag,
+    adddata=adddata, datatag=args.datatag,
     verbose=True)
-
-  # temp: remove all shape systematics
-  shapesyslist = []
 
   # write the datacard
   writedatacard( outputdir, outputfilename, PIC,
                  args.inputfile, args.variable, 
-                 datatag=args.datatag,
+                 dummydata=args.dummydata,
                  shapesyslist=shapesyslist, lnnsyslist=normsyslist,
                  rateparamlist=[], ratio=[],
                  automcstats=10,

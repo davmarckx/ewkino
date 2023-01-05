@@ -63,7 +63,7 @@ def makealigned(stringlist):
 	stringlist[i] = str('{:<'+str(maxlen)+'}').format(s)
 
 def writedatacard( datacarddir, channelname, processinfo,
-		   histfile, variable, datatag='data',
+		   histfile, variable, dummydata=False,
 		   shapesyslist=[], lnnsyslist=[],
 		   rateparamlist=[], ratio=[],
 		   automcstats=10,
@@ -79,7 +79,8 @@ def writedatacard( datacarddir, channelname, processinfo,
     # - histfile: path to root file containing the histograms
     #   note: the file will be copied to the datacard directory
     # - variable: name of the variable for which the histograms will be used
-    # - datatag: process name of observed data (how it is named in the root histograms)
+    # - dummydata: use some random histogram for data rather than the one from datatag
+    #   (useful when no data is available, but still need correct datacard syntax)
     # - shapesyslist: list of shape systematics to consider (default: none)
     #	(must be a subset of the ones included in processinfo)
     # - lnnsyslist: list of normalization systematics (type lnN) to consider (default: none)
@@ -118,10 +119,18 @@ def writedatacard( datacarddir, channelname, processinfo,
       os.makedirs(datacarddir)
     # check if provided processinfo has data
     hasdata = True
+    datahistname = processinfo.datahistname
     if processinfo.datahistname is None:
       hasdata = False
       msg = 'WARNING in datacardtools.py / writedatacard:'
       msg += ' provided ProcessInfoCollection does not contain data.'
+      print(msg)
+    if dummydata:
+      hasdata = True
+      dummyprocess = processinfo.plist[0]
+      datahistname = processinfo.pinfos[dummyprocess].histname
+      msg = 'WARNING in datacardtools.py / writedatacard:'
+      msg += ' will use dummy data (for correct syntax without actual data).'
       print(msg)
     # copy root file to location if requested
     newhistname = histfile
@@ -153,7 +162,7 @@ def writedatacard( datacarddir, channelname, processinfo,
 			+' '+nominal_histname
 			+' '+sys_histname+'\n')
     if hasdata: datacard.write('shapes data_obs '+channelname+' '+newhistname
-		    +' '+processinfo.datahistname+'\n')
+		    +' '+datahistname+'\n')
     datacard.write(getseparator())
     # write bin info
     datacard.write('bin\t\t'+channelname+'\n')
