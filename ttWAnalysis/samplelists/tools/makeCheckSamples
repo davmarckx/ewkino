@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed,-lTMVA
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= checksamples.cc ../../../codeLibrary.o 
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=checksamples
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+        
+clean:
+	rm -rf *o $(EXECUTABLE)
