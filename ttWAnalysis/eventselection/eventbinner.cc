@@ -132,6 +132,11 @@ void fillHistograms(const std::string& inputDirectory,
     std::map< std::string,std::map< std::string,std::shared_ptr<TH1D>> > histMap =
         initHistMap(histvars, processName, event_selections, selection_types );
 
+    // load the MVA mode
+    TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
+    std::cout<<"BDT is successfully loaded";
+
+
     // do event loop
     long unsigned numberOfEntries = treeReader.numberOfEntries();
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
@@ -152,9 +157,9 @@ void fillHistograms(const std::string& inputDirectory,
 		bool pass = true;
 		if(!passES(event, es, st, variation)) pass = false;
 		if(pass){
-		    varmap = eventFlattening::eventToEntry(event, reweighter, st, 
+		    varmap = eventFlattening::eventToEntry(event, reweighter, st, bdt,
 					frmap_muon, frmap_electron, cfmap_electron, 
-                                        variation, reader);
+                                        variation);
 	
 		    /*std::cout << "----" << std::endl;
 		    std::cout << varmap["_normweight"] << std::endl;
