@@ -258,7 +258,7 @@ class Process(object):
     # - systematics: list of systematics to include.
     #   use 'all' to include all systematics in the current Process.
     if( isinstance(systematics,str) and systematics=='all' ): 
-      systematics = self.systematics.keys()
+      systematics = self.systhists.keys()
     self.info.check_systematics(systematics)
     maxhistlist = []
     # loop over systematics
