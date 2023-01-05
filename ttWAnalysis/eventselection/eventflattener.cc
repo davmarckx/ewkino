@@ -44,16 +44,12 @@ void eventloopEF_CR(const std::string& inputDirectory,
     // initialize TreeReader
     std::cout << "initialize TreeReader for sample at index " << sampleIndex << "." << std::endl;
     TreeReader treeReader( sampleList, inputDirectory );
-    std::cout<<"treereader is being made";
 
     treeReader.initSample();
-    std::cout<<"treereader initsample";
 
     for(int idx=1; idx<=sampleIndex; ++idx){ treeReader.initSample(); }
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();
-
-    std::cout<<"outputfile is being made";
 
     // make output file
     std::string outputdir = "blackJackAndHookers";
@@ -62,12 +58,10 @@ void eventloopEF_CR(const std::string& inputDirectory,
     outputFilePath += inputFileName;
     std::cout<<outputFilePath;
     TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
-    std::cout<<"ptr is made";
 
     outputFilePtr->mkdir( outputdir.c_str() );
     outputFilePtr->cd( outputdir.c_str() );
 
-    std::cout<<"histos are copied is being made";
 
     // copy histograms from input file to output file
     std::vector< std::shared_ptr< TH1 > > histVector = treeReader.getHistogramsFromCurrentFile();
@@ -106,10 +100,9 @@ void eventloopEF_CR(const std::string& inputDirectory,
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events"<<std::endl;
 
-    // load the MVA model
-    std::cout<<"reader is being made";
+    // load the MVA mode
     TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
-    std::cout<<"reader is made";
+    std::cout<<"BDT is successfully loaded";
 
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%1000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
