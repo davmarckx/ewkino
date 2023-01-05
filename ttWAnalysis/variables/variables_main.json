@@ -205,7 +205,7 @@
 },
 {
   "name": "_jetEtaLeading",
-  "variable": "_jetETaLeading",
+  "variable": "_jetEtaLeading",
   "nbins": "20",
   "xlow": "-2.5",
   "xhigh": "2.5",
@@ -231,15 +231,6 @@
   "unit": ""
 },
 {
-  "name": "_lW_pt",
-  "variable": "_lW_pt",
-  "nbins": "14",
-  "xlow": "10.0",
-  "xhigh": "150.0",
-  "axtitle": "Lepton from W boson p_{T}",
-  "unit": "GeV"
-},
-{
   "name": "_nJetsNBJetsCat",
   "variable": "_nJetsNBJetsCat",
   "nbins": "13",
@@ -260,5 +251,14 @@
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["Other","2Z","1Z,0j","1Z,1b","1Z,>1b"]
+},
+{
+  "name": "_eventBDT",
+  "variable": "_eventBDT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "BDT output",
+  "unit": ""
 }
 ]

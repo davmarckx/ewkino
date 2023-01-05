@@ -13,6 +13,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TMVA/Reader.h"
+#include "TMVA/RBDT.hxx"
 
 // include other parts of framework
 #include "../../TreeReader/interface/TreeReader.h"
@@ -43,7 +44,9 @@ void eventloopEF_CR(const std::string& inputDirectory,
     // initialize TreeReader
     std::cout << "initialize TreeReader for sample at index " << sampleIndex << "." << std::endl;
     TreeReader treeReader( sampleList, inputDirectory );
+
     treeReader.initSample();
+
     for(int idx=1; idx<=sampleIndex; ++idx){ treeReader.initSample(); }
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();
@@ -53,9 +56,12 @@ void eventloopEF_CR(const std::string& inputDirectory,
     std::string treename = "blackJackAndHookersTree";
     std::string outputFilePath = stringTools::formatDirectoryName( outputDirectory );
     outputFilePath += inputFileName;
+    std::cout<<outputFilePath;
     TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
+
     outputFilePtr->mkdir( outputdir.c_str() );
     outputFilePtr->cd( outputdir.c_str() );
+
 
     // copy histograms from input file to output file
     std::vector< std::shared_ptr< TH1 > > histVector = treeReader.getHistogramsFromCurrentFile();
@@ -75,7 +81,6 @@ void eventloopEF_CR(const std::string& inputDirectory,
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
                                       "../../weights/", reweighterYear, thissample );
-
     // read fake rate maps if needed
     std::shared_ptr< TH2D > frMap_muon;
     std::shared_ptr< TH2D > frMap_electron;
@@ -94,13 +99,18 @@ void eventloopEF_CR(const std::string& inputDirectory,
     long unsigned numberOfEntries = treeReader.numberOfEntries();
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events"<<std::endl;
+
+    // load the MVA mode
+    TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
+    std::cout<<"BDT is successfully loaded";
+
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%1000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
         Event event = treeReader.buildEvent(entry);
         if(!passES(event, event_selection, selection_type, variation)) continue;
-        eventFlattening::eventToEntry(event, reweighter, selection_type, 
+        eventFlattening::eventToEntry(event, reweighter, selection_type, bdt,
 				      frMap_muon, frMap_electron, cfmap_electron,
-                                      variation);
+                                      variation, year);
         treePtr->Fill();
     }
     outputFilePtr->cd( outputdir.c_str() );
@@ -138,7 +148,7 @@ int main( int argc, char* argv[] ){
     eventloopEF_CR( input_directory, sample_list, sample_index, nevents,
 		    output_directory, 
 		    event_selection, selection_type, variation, 
-		    muonfrmap, electronfrmap, electroncfmap );
+		    muonfrmap, electronfrmap, electroncfmap);
     std::cerr<<"###done###"<<std::endl;
     return 0;
 }

@@ -77,7 +77,7 @@ if __name__=='__main__':
   frmapyear = year_from_samplelist( args.samplelist )
   muonfrmap = os.path.join(args.frdir,'fakeRateMap_data_muon_'+frmapyear+'_mT.root')
   electronfrmap = os.path.join(args.frdir,'fakeRateMap_data_electron_'+frmapyear+'_mT.root')
-  if selection_type=='fakerate':
+  if args.selection_type=='fakerate':
     if not os.path.exists(muonfrmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(muonfrmap))
     if not os.path.exists(electronfrmap):
@@ -86,7 +86,7 @@ if __name__=='__main__':
   # set and check charge flip maps
   cfmapyear = year_from_samplelist( args.samplelist )
   electroncfmap = None
-  if selection_type=='chargeflips':
+  if args.selection_type=='chargeflips':
     if args.cfdir is None:
       raise Exception('ERROR: charge flip dir must be specified for selection type chargeflips.')
     electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')
@@ -108,4 +108,4 @@ if __name__=='__main__':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_eventflattener', commands,
-                                      cmssw_version=CMSSW_VERSION )
+                                      cmssw_version="~/CMSSW_12_4_6" ) # TMVA::Experimental needs a newer CMSSW
