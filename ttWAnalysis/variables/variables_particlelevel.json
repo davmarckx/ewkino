@@ -1,23 +1,5 @@
 [
 {
-  "name": "_nJets",
-  "variable": "_nJets",
-  "nbins": "7",
-  "xlow": "-0.5",
-  "xhigh": "6.5",
-  "axtitle": "Number of jets",
-  "unit": ""
-},
-{
-  "name": "_nBJets",
-  "variable": "_nBJets",
-  "nbins": "4",
-  "xlow": "-0.5",
-  "xhigh": "3.5",
-  "axtitle": "Number of b-tagged jets",
-  "unit": ""
-},
-{
   "name": "_nMuons",
   "variable": "_nMuons",
   "nbins": "4",
@@ -38,6 +20,24 @@
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_nJets",
+  "variable": "_nJets",
+  "nbins": "7",
+  "xlow": "-0.5",
+  "xhigh": "6.5",
+  "axtitle": "Number of jets",
+  "unit": ""
+},
+{
+  "name": "_nBJets",
+  "variable": "_nBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "unit": ""
 },
 {
   "name": "_yield",
