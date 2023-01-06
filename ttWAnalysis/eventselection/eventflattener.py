@@ -39,6 +39,7 @@ if __name__=='__main__':
   parser.add_argument('--variation', default='nominal', choices=variations)
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
+  parser.add_argument('--bdt', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
@@ -75,9 +76,13 @@ if __name__=='__main__':
 
   # set and check fake rate maps
   frmapyear = year_from_samplelist( args.samplelist )
-  muonfrmap = os.path.join(args.frdir,'fakeRateMap_data_muon_'+frmapyear+'_mT.root')
-  electronfrmap = os.path.join(args.frdir,'fakeRateMap_data_electron_'+frmapyear+'_mT.root')
+  muonfrmap = None
+  electronfrmap = None
   if args.selection_type=='fakerate':
+    if args.frdir is None:
+      raise Exception('ERROR: fake rate dir must be specified for selection type fakerate.')
+    muonfrmap = os.path.join(args.frdir,'fakeRateMap_data_muon_'+frmapyear+'_mT.root')
+    electronfrmap = os.path.join(args.frdir,'fakeRateMap_data_electron_'+frmapyear+'_mT.root')
     if not os.path.exists(muonfrmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(muonfrmap))
     if not os.path.exists(electronfrmap):
@@ -91,16 +96,23 @@ if __name__=='__main__':
       raise Exception('ERROR: charge flip dir must be specified for selection type chargeflips.')
     electroncfmap = os.path.join(args.cfdir,'chargeFlipMap_MC_electron_'+frmapyear+'.root')
     if not os.path.exists(electronfrmap):
-      raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap)) 
+      raise Exception('ERROR: fake rate map {} does not exist'.format(electronfrmap))
+
+  # check bdt weight file
+  bdt = 'nobdt'
+  if( args.bdt is not None ):
+    if not os.path.exists(args.bdt):
+      raise Exception('ERROR: BDT file {} does not exist'.format(args.bdt))
+    bdt = args.bdt
 
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
     # make the command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {}'.format(
 		    args.inputdir, args.samplelist, i, args.outputdir,
                     args.event_selection, args.selection_type, args.variation,
-		    muonfrmap, electronfrmap, electroncfmap, args.nevents )
+		    muonfrmap, electronfrmap, electroncfmap, args.nevents, bdt )
     commands.append(command)
 
   # submit the jobs
@@ -108,4 +120,5 @@ if __name__=='__main__':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_eventflattener', commands,
-                                      cmssw_version="~/CMSSW_12_4_6" ) # TMVA::Experimental needs a newer CMSSW
+                                      cmssw_version="~/CMSSW_12_4_6" )
+    # (note: instead of CMSSW_VERSION because TMVA::Experimental needs a new ROOT version)

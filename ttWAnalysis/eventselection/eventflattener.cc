@@ -35,18 +35,22 @@ void eventloopEF_CR(const std::string& inputDirectory,
                     const std::string& event_selection,
 		    const std::string& selection_type,
 		    const std::string& variation,
-		    const std::string& muonFRMap,
-		    const std::string& electronFRMap,
-                    const std::string& electronCFMap){
+		    const std::string& muonFRMap, 
+		    // (only used for "fakerate" selection type)
+		    const std::string& electronFRMap, 
+		    // (only used for "fakerate" selection type)
+                    const std::string& electronCFMap, 
+		    // (only used for "chargeflips" selection type)
+                    const std::string& bdtWeightsFile
+		    // (use empty string to not evaluate the BDT) 
+		    ){
 
     std::cout << "start function eventloopEF_CR" << std::endl;
     
     // initialize TreeReader
-    std::cout << "initialize TreeReader for sample at index " << sampleIndex << "." << std::endl;
+    std::cout << "initializing TreeReader for sample at index " << sampleIndex << "..." << std::endl;
     TreeReader treeReader( sampleList, inputDirectory );
-
     treeReader.initSample();
-
     for(int idx=1; idx<=sampleIndex; ++idx){ treeReader.initSample(); }
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();
@@ -56,7 +60,6 @@ void eventloopEF_CR(const std::string& inputDirectory,
     std::string treename = "blackJackAndHookersTree";
     std::string outputFilePath = stringTools::formatDirectoryName( outputDirectory );
     outputFilePath += inputFileName;
-    std::cout<<outputFilePath;
     TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
 
     outputFilePtr->mkdir( outputdir.c_str() );
@@ -75,16 +78,19 @@ void eventloopEF_CR(const std::string& inputDirectory,
     eventFlattening::initOutputTree(treePtr.get());
 
     // make reweighter
+    std::cout << "initializing reweighter..." << std::endl;
     std::string reweighterYear = year;
     std::shared_ptr< ReweighterFactory >reweighterFactory( new EmptyReweighterFactory() );
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
                                       "../../weights/", reweighterYear, thissample );
+    
     // read fake rate maps if needed
     std::shared_ptr< TH2D > frMap_muon;
     std::shared_ptr< TH2D > frMap_electron;
     if(selection_type=="fakerate"){
+	std::cout << "reading fake rate maps..." << std::endl;
 	frMap_muon = readFakeRateTools::readFRMap(muonFRMap,"muon",year);
 	frMap_electron = readFakeRateTools::readFRMap(electronFRMap,"electron",year);
     }
@@ -92,25 +98,32 @@ void eventloopEF_CR(const std::string& inputDirectory,
     // load charge flip maps if needed
     std::shared_ptr<TH2D> cfmap_electron;
     if(selection_type=="chargeflips"){
+	std::cout << "reading charge flip maps..." << std::endl;
         cfmap_electron = readChargeFlipTools::readChargeFlipMap(
                                 electronCFMap, year, "electron");
     }
     
+    // load the BDT
+    // default value is nullptr, 
+    // in which case the BDT will not be evaluated.
+    std::shared_ptr<TMVA::Experimental::RBDT<>> bdt;
+    if( bdtWeightsFile.size()!=0 ){
+	std::cout << "reading BDT evaluator..." << std::endl;
+        bdt = std::make_shared<TMVA::Experimental::RBDT<>>("XGB", bdtWeightsFile);
+	std::cout << "successfully loaded BDT evaluator." << std::endl;
+    }
+
+    // do event loop
     long unsigned numberOfEntries = treeReader.numberOfEntries();
     if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events"<<std::endl;
-
-    // load the MVA mode
-    TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
-    std::cout<<"BDT is successfully loaded";
-
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%1000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
         Event event = treeReader.buildEvent(entry);
         if(!passES(event, event_selection, selection_type, variation)) continue;
-        eventFlattening::eventToEntry(event, reweighter, selection_type, bdt,
+        eventFlattening::eventToEntry(event, reweighter, selection_type,
 				      frMap_muon, frMap_electron, cfmap_electron,
-                                      variation, year);
+                                      variation, bdt, year);
         treePtr->Fill();
     }
     outputFilePtr->cd( outputdir.c_str() );
@@ -120,12 +133,20 @@ void eventloopEF_CR(const std::string& inputDirectory,
 
 int main( int argc, char* argv[] ){
     std::cerr<<"###starting###"<<std::endl;
-    if( argc != 12  ){
-        std::cerr << "ERROR: event flattening requires different number of arguments:";
-        std::cerr << " input_directory, sample_list, sample_index,";
-	std::cerr << " output_directory,";
-	std::cerr << " event_selection, selection_type, variation,";
-	std::cerr << " muonfrmap, electronfrmap, electroncfmap, nevents" << std::endl;
+    if( argc != 13  ){
+        std::cerr << "ERROR: need following command line arguments:" << std::endl;
+        std::cerr << " - input directory" << std::endl;
+	std::cerr << " - sample list" << std::endl;
+	std::cerr << " - sample index" << std::endl;
+	std::cerr << " - output directory" << std::endl;
+	std::cerr << " - event selection" << std::endl;
+	std::cerr << " - selection type" << std::endl;
+	std::cerr << " - variation" << std::endl;
+	std::cerr << " - muonfrmap" << std::endl;
+	std::cerr << " - electronfrmap" << std::endl;
+	std::cerr << " - electroncfmap" << std::endl;
+	std::cerr << " - nevents" << std::endl;
+        std::cerr << " - bdt weight file (use 'nobdt' to not evaluate the BDT)" << std::endl;
         return -1;
     }
     std::vector< std::string > argvStr( &argv[0], &argv[0] + argc );
@@ -143,12 +164,17 @@ int main( int argc, char* argv[] ){
     std::string& electronfrmap = argvStr[9];
     std::string& electroncfmap = argvStr[10];
     unsigned long nevents = std::stoul(argvStr[11]);
+    std::string& bdtWeightsFile = argvStr[12];
+
+    // parse BDT weight file
+    if( bdtWeightsFile=="nobdt" ){ bdtWeightsFile = ""; }
     
     // call functions
     eventloopEF_CR( input_directory, sample_list, sample_index, nevents,
 		    output_directory, 
 		    event_selection, selection_type, variation, 
-		    muonfrmap, electronfrmap, electroncfmap);
+		    muonfrmap, electronfrmap, electroncfmap,
+                    bdtWeightsFile );
     std::cerr<<"###done###"<<std::endl;
     return 0;
 }

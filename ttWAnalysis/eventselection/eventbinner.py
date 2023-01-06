@@ -20,7 +20,7 @@ from eventflattener import year_from_samplelist
 if __name__=='__main__':
 
   # parse arguments
-  parser = argparse.ArgumentParser('Event flattening')
+  parser = argparse.ArgumentParser('Event binning')
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
@@ -30,6 +30,7 @@ if __name__=='__main__':
   parser.add_argument('--variation', default=['nominal'], choices=variations, nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
+  parser.add_argument('--bdt', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
@@ -102,14 +103,21 @@ if __name__=='__main__':
     if not os.path.exists(electroncfmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(electroncfmap))
 
+  # check bdt weight file
+  bdt = 'nobdt'
+  if( args.bdt is not None ):
+    if not os.path.exists(args.bdt):
+      raise Exception('ERROR: BDT file {} does not exist'.format(args.bdt))
+    bdt = args.bdt
+
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
     # make the command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types, variations,
-                    muonfrmap, electronfrmap, electroncfmap, args.nevents )
+                    muonfrmap, electronfrmap, electroncfmap, args.nevents, bdt )
     commands.append(command)
 
   # submit the jobs
@@ -117,4 +125,5 @@ if __name__=='__main__':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_eventbinner', commands,
-                                      cmssw_version='~/CMSSW_12_4_6')#instead of CMSSW_VERSION because TMVA::Experimental needs a new ROOT version
+                                      cmssw_version='~/CMSSW_12_4_6')
+    # (note: instead of CMSSW_VERSION because TMVA::Experimental needs a new ROOT version)

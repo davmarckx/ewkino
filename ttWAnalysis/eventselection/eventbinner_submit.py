@@ -13,16 +13,19 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP']
 
-dtypes = ['sim','data']
+dtypes = []
+dtypes.append('sim')
+dtypes.append('data')
 
 selection_types = []
 selection_types.append('tight')
-selection_types.append('prompt')
+#selection_types.append('prompt')
 selection_types.append('fakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
+#selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 variations = []
@@ -36,10 +39,18 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 
 variables = '../variables/variables_main.json'
 
-istest = False
+#bdtfile = None
+bdtfile = '../bdtweights/XGBfinal_all.root'
+
+nevents = 1e6
+
+runmode = 'condor'
+
+outputdir = 'output_test'
 
 for year in years:
   for dtype in dtypes:
+    # set correct input directory
     inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
     inputdiryear = year
     if dtype=='data':
@@ -47,13 +58,15 @@ for year in years:
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
         inputdiryear = '2016'
     inputdir = os.path.join(inputdir, inputdiryear)
+    # set correct sample list
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
-    outputdir = 'output_BDT'
-    outputdir = os.path.join(outputdir, '{}_{}'.format(year,dtype))
+    # set correct output directory
+    thisoutputdir = os.path.join(outputdir, '{}_{}'.format(year, dtype))
+    # make the command
     cmd = 'python eventbinner.py'
     cmd += ' --inputdir ' + inputdir
     cmd += ' --samplelist ' + samplelist
-    cmd += ' --outputdir ' + outputdir
+    cmd += ' --outputdir ' + thisoutputdir
     cmd += ' --event_selection'
     for r in regions: cmd += ' ' + r
     cmd += ' --selection_type'
@@ -63,8 +76,8 @@ for year in years:
     cmd += ' --frdir ' + frdir
     cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
-    if istest:
-      cmd += ' --runmode local'
-      cmd += ' --nevents 1000'
+    cmd += ' --runmode ' + runmode
+    if nevents > 0: cmd += ' --nevents ' + str(int(nevents))
+    if bdtfile is not None: cmd += ' --bdt ' + bdtfile
     print('executing '+cmd)
     os.system(cmd)

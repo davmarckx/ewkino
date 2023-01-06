@@ -170,11 +170,10 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _nJetsNBJetsCat = varmap["_nJetsNBJetsCat"];
     _nJetsNZCat = varmap["_nJetsNZCat"];
 }
-// is now unused for bdt's but may be useful for the NNs in the future
+
+// note: function below is unused for now, but may be useful for the NNs in the future
 std::shared_ptr<TMVA::Reader> eventFlattening::initReader(const std::string& weightfileloc){
-
 	std::shared_ptr<TMVA::Reader> reader = std::make_shared<TMVA::Reader>( "!Color:!Silent");
-
 	reader->AddVariable( "f1", &_abs_eta_recoil );
 	reader->AddVariable( "f2", &_Mjj_max );
 	reader->AddVariable( "f3", &_deepFlavor_max );
@@ -206,7 +205,6 @@ std::shared_ptr<TMVA::Reader> eventFlattening::initReader(const std::string& wei
 	reader->AddVariable( "f29", &_jetMassLeading );
 	reader->AddVariable( "f30", &_jetMassSubLeading );
 	reader->AddVariable( "f31", &year );
-
         reader->BookMVA("BDT", weightfileloc);
         return reader;
 }
@@ -350,12 +348,12 @@ void eventFlattening::initOutputTree(TTree* outputTree){
 std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 				const CombinedReweighter& reweighter,
 				const std::string& selection_type, 
-                                TMVA::Experimental::RBDT<>& bdt,
 				const std::shared_ptr< TH2D>& frMap_muon, 
 				const std::shared_ptr< TH2D>& frMap_electron,
 				const std::shared_ptr< TH2D>& cfMap_electron,
 				const std::string& variation,
-                                const std::string& year){
+                                const std::shared_ptr<TMVA::Experimental::RBDT<>>& bdt,
+                                const std::string& bdtYear){
     // fill one entry in outputTree (initialized with initOutputTree), 
     // based on the info of one event.
     // note that the event must be cleaned and processed by an event selection function first!
@@ -594,20 +592,23 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         }
     }
     varmap["_M3l"] = event.leptonSystem().mass();
-    float BDTyear;
-    if (year == "2018" || year == "2017"){BDTyear = 1.0;}
-    else {BDTyear = 0.0;}
-    // construct the vector of features that is fed into the bdt, features are sorted as f1,f1,f3,...
-    float vec[] = {float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),float(varmap["_dRl1l2"]),float(varmap["_HT"]),float(varmap["_nJets"]),float(varmap["_nBJets"]),float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),float(varmap["_MET_pt"]),float(varmap["_nMuons"]),float(varmap["_leptonMVATOP_min"]),float(varmap["_leptonChargeLeading"]),float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),float(varmap["_leptonELeading"]),float(varmap["_leptonESubLeading"]),float(varmap["_jetPtLeading"]),float(varmap["_jetPtSubLeading"]),float(varmap["_jetMassLeading"]),float(varmap["_jetMassSubLeading"]),BDTyear};
-   
-    // turn this into a 1D RTensor because TMVA no longer supports 1event-evaluation for converted sklearn wrapped xgboost models
-    auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
-    auto y = bdt.Compute(x);
 
-    // std::cout<< y(0,0);
-    // get the score out of the RTensor
-    varmap["_eventBDT"] = float(y(0,0));
-
+    // evaluate BDT
+    if( bdt ){
+	float bdtYearCode;
+	if (bdtYear == "2018" || bdtYear == "2017"){ bdtYearCode = 1.0; }
+	else{ bdtYearCode = 0.0; }
+	// construct the vector of features that is fed into the bdt
+	// features are sorted as f1,f1,f3,...
+	float vec[] = {float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),float(varmap["_dRl1l2"]),float(varmap["_HT"]),float(varmap["_nJets"]),float(varmap["_nBJets"]),float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),float(varmap["_MET_pt"]),float(varmap["_nMuons"]),float(varmap["_leptonMVATOP_min"]),float(varmap["_leptonChargeLeading"]),float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),float(varmap["_leptonELeading"]),float(varmap["_leptonESubLeading"]),float(varmap["_jetPtLeading"]),float(varmap["_jetPtSubLeading"]),float(varmap["_jetMassLeading"]),float(varmap["_jetMassSubLeading"]),bdtYearCode};
+	// turn this into a 1D RTensor because TMVA no longer supports 1event-evaluation 
+	// for converted sklearn wrapped xgboost models
+	auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
+	auto y = bdt->Compute(x);
+	// std::cout<< y(0,0);
+	// get the score out of the RTensor
+	varmap["_eventBDT"] = float(y(0,0));
+    }
 
     // definition of categorization variables
     int njets = jetcollection.size();

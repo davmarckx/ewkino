@@ -5,13 +5,13 @@
 import os
 import sys
 
-regions = ['signalregion_dilepton_inclusive']
-for r in ['signalregion_dilepton','signalregion_trilepton','signalregion_dimuon','signalregion_dielectron','signalregion_dilepton_em','signalregion_dilepton_me']: regions.append(r)
+regions = []
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['nonprompt_trilepton_noossf','nonprompt_trilepton_noz']: regions.append(r)
-for r in ['nonprompt_trilepton']: regions.append(r)
-for r in ['nonprompt_dilepton']: regions.append(r)
-for r in ['4lepton_controlregion', 'nonprompt_dilepton_invMET']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
@@ -23,34 +23,56 @@ selection_types.append('fakerate')
 variations = []
 variations.append('nominal')
 
-dtypes = ['sim']
+dtypes = []
+dtypes.append('sim')
+dtypes.append('data')
 
-frdir = '../fakerates'
+frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
+cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir= '../samplelists/fourtops'
+samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
+#bdtfile = None
+bdtfile = '../bdtweights/XGBfinal_all.root'
+
+nevents = -1
+
+outputdir = 'output_test'
 
 for year in years:
+  for dtype in dtypes:
+    # set correct input directory
+    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    inputdiryear = year
+    if dtype=='data':
+      inputdir = inputdir.replace('_v4','_v5')
+      if( year=='2016PreVFP' or year=='2016PostVFP' ):
+        inputdiryear = '2016'
+    inputdir = os.path.join(inputdir, inputdiryear)
+    # set correct sample list
+    samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
+    # make basic command
+    cmd = 'python eventflattener.py'
+    cmd += ' --inputdir ' + inputdir
+    cmd += ' --samplelist ' + samplelist
+    cmd += ' --frdir ' + frdir
+    cmd += ' --cfdir ' + cfdir
+    cmd += ' --runmode condor'
+    if nevents > 0: cmd += ' --nevents ' + str(int(nevents))
+    if bdtfile is not None: cmd += ' --bdt ' + bdtfile
+    # loop over selections, types and variations
     for region in regions:
+      for selection_type in selection_types:
         for variation in variations:
-            inputdir = 'selected_roots_all'#'/pnfs/iihe/cms/store/user/nivanden/skims_v4' this version needs a selected eventfile, not the original one
-            map = year + '_' + region
-            inputdir = os.path.join(inputdir, map)
-
-            samplelist = os.path.join(samplelistdir,samplelistbase.format(year,'sim'))
-            outputdir = 'flattened_roots_withBDT'
-            outputdir = os.path.join(outputdir, '{}_{}'.format(year, region))
-            cmd = 'python eventflattener.py'
-            cmd += ' --inputdir ' + inputdir
-            cmd += ' --samplelist ' + samplelist
-            cmd += ' --outputdir ' + outputdir
-            cmd += ' --event_selection ' + region
-            cmd += ' --selection_type '
-            for s in selection_types: cmd += ' ' + s
-            cmd += ' --variation ' + variation
-            cmd += ' --frdir ' + frdir
-            cmd += ' --nevents -1'
-            cmd += ' --runmode condor'
-            print('executing '+cmd)
-            os.system(cmd)
+          thiscmd = cmd
+          # set correct output directory
+          thisoutputdir = os.path.join(outputdir,
+            '{}_{}'.format(year, dtype),
+            '{}_{}_{}'.format(region, selection_type, variation))
+          thiscmd += ' --event_selection ' + region
+          thiscmd += ' --selection_type ' + selection_type
+          thiscmd += ' --variation ' + variation
+          thiscmd += ' --outputdir ' + thisoutputdir
+          print('executing '+thiscmd)
+          os.system(thiscmd)

@@ -18,6 +18,7 @@ Event binning
 #include "TFile.h"
 #include "TTree.h"
 #include "TMVA/Reader.h"
+#include "TMVA/RBDT.hxx"
 
 // include other parts of framework
 #include "../../TreeReader/interface/TreeReader.h"
@@ -79,9 +80,15 @@ void fillHistograms(const std::string& inputDirectory,
 			const std::vector<std::string> selection_types,
 			const std::string& variation,
 			const std::string& muonfrmap,
+			// (only used for "fakerate" selection type)
 			const std::string& electronfrmap,
+			// (only used for "fakerate" selection type)
 			const std::string& electroncfmap,
-			const std::vector<HistogramVariable> histvars){
+			// (only used for "chargeflips" selection type)
+			const std::vector<HistogramVariable> histvars,
+			const std::string& bdtWeightsFile
+			// (use empty string to not evaluate the BDT)
+			){
     std::cout << "=== start function fillHistograms ===" << std::endl;
     
     // initialize TreeReader from input file
@@ -100,9 +107,10 @@ void fillHistograms(const std::string& inputDirectory,
     std::shared_ptr<TH2D> frmap_electron;
     for(std::string st: selection_types){
 	if(st=="fakerate"){
+	    std::cout << "reading fake rate maps..." << std::endl;
 	    frmap_muon = readFakeRateTools::readFRMap(muonfrmap, "muon", year);
 	    frmap_electron = readFakeRateTools::readFRMap(electronfrmap, "electron", year);
-	    std::cout << "read fake rate maps" << std::endl;
+	    std::cout << "read fake rate maps." << std::endl;
 	}
     }
 
@@ -110,14 +118,15 @@ void fillHistograms(const std::string& inputDirectory,
     std::shared_ptr<TH2D> cfmap_electron;
     for(std::string st: selection_types){
         if(st=="chargeflips"){
+	    std::cout << "reading charge flip maps..." << std::endl;
             cfmap_electron = readChargeFlipTools::readChargeFlipMap(
 				electroncfmap, year, "electron");
-            std::cout << "read charge flip maps" << std::endl;
+            std::cout << "read charge flip maps." << std::endl;
         }
     }
     
     // make reweighter
-    std::cout << "initializing Reweighter..." << std::endl;
+    std::cout << "initializing reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     reweighterFactory = std::shared_ptr<ReweighterFactory>( 
 	//new EmptyReweighterFactory() ); // for testing
@@ -132,14 +141,28 @@ void fillHistograms(const std::string& inputDirectory,
     std::map< std::string,std::map< std::string,std::shared_ptr<TH1D>> > histMap =
         initHistMap(histvars, processName, event_selections, selection_types );
 
-    // load the MVA mode
-    TMVA::Experimental::RBDT bdt("XGB", "/user/dmarckx/ewkino/ML/models/XGBfinal_all.root");
-    std::cout<<"BDT is successfully loaded";
-
+    // load the BDT
+    // default value is nullptr, 
+    // in which case the BDT will not be evaluated.
+    std::shared_ptr<TMVA::Experimental::RBDT<>> bdt;
+    if( bdtWeightsFile.size()!=0 ){
+        std::cout << "reading BDT evaluator..." << std::endl;
+        bdt = std::make_shared<TMVA::Experimental::RBDT<>>("XGB", bdtWeightsFile);
+        std::cout << "successfully loaded BDT evaluator." << std::endl;
+    }
 
     // do event loop
     long unsigned numberOfEntries = treeReader.numberOfEntries();
-    if( nEvents!=0 && nEvents<numberOfEntries ){ numberOfEntries = nEvents; }
+    double nEntriesReweight = 1;
+    if( nEvents!=0 && nEvents<numberOfEntries ){
+	if( !treeReader.isData() ){
+	    // loop over a smaller number of entries
+	    std::cout << "limiting number of entries to " << nEvents << std::endl;
+            nEntriesReweight = (double)numberOfEntries/nEvents;
+            std::cout << "(with corresponding reweighting factor " << nEntriesReweight << ")" << std::endl;
+            numberOfEntries = nEvents;
+        }
+    }
     std::cout << "starting event loop for " << numberOfEntries << " events." << std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
@@ -157,9 +180,9 @@ void fillHistograms(const std::string& inputDirectory,
 		bool pass = true;
 		if(!passES(event, es, st, variation)) pass = false;
 		if(pass){
-		    varmap = eventFlattening::eventToEntry(event, reweighter, st, bdt,
+		    varmap = eventFlattening::eventToEntry(event, reweighter, st,
 					frmap_muon, frmap_electron, cfmap_electron, 
-                                        variation);
+                                        variation, bdt, year);
 	
 		    /*std::cout << "----" << std::endl;
 		    std::cout << varmap["_normweight"] << std::endl;
@@ -172,7 +195,7 @@ void fillHistograms(const std::string& inputDirectory,
 		    std::cout << reweighter["prefire"]->weight(event) << std::endl;
 		    std::cout << reweighter["pileup"]->weight(event) << std::endl;*/
 	    
-		    double weight = varmap["_normweight"];
+		    double weight = varmap["_normweight"]*nEntriesReweight;
 		    for(HistogramVariable histVar: histvars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
@@ -219,12 +242,21 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    if( argc < 13 ){
-        std::cerr << "ERROR: event binning requires at different number of arguments to run...:";
-        std::cerr << " input_directory, sample_list, sample_index, output_directory,";
-	std::cerr << " variable_file, event_selection, selection_type, variation,";
-	std::cerr << " muonfrmap, electronfrmap, electroncfmap";
-	std::cerr << " nevents" << std::endl;
+    if( argc != 14 ){
+	std::cerr << "ERROR: need following command line arguments:" << std::endl;
+        std::cerr << " - input directory" << std::endl;
+        std::cerr << " - sample list" << std::endl;
+        std::cerr << " - sample index" << std::endl;
+        std::cerr << " - output directory" << std::endl;
+	std::cerr << " - variable file" << std::endl;
+        std::cerr << " - event selection" << std::endl;
+        std::cerr << " - selection type" << std::endl;
+        std::cerr << " - variation" << std::endl;
+        std::cerr << " - muonfrmap" << std::endl;
+        std::cerr << " - electronfrmap" << std::endl;
+        std::cerr << " - electroncfmap" << std::endl;
+        std::cerr << " - nevents" << std::endl;
+        std::cerr << " - bdt weight file (use 'nobdt' to not evaluate the BDT)" << std::endl;
         return -1;
     }
 
@@ -244,6 +276,7 @@ int main( int argc, char* argv[] ){
     std::string& electronfrmap = argvStr[10];
     std::string& electroncfmap = argvStr[11];
     unsigned long nevents = std::stoul(argvStr[12]);
+    std::string& bdtWeightsFile = argvStr[13];
 
     // print arguments
     std::cout << "Found following arguments:" << std::endl;
@@ -259,6 +292,7 @@ int main( int argc, char* argv[] ){
     std::cout << "  - electron FR map: " << electronfrmap << std::endl;
     std::cout << "  - electron CF map: " << electroncfmap << std::endl;
     std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
+    std::cout << "  - BDT weights file: " << bdtWeightsFile << std::endl;
 
     // read variables
     std::vector<HistogramVariable> histvars = variableTools::readVariables( variable_file );
@@ -279,12 +313,15 @@ int main( int argc, char* argv[] ){
 	}
     }
 
+    // parse BDT weight file
+    if( bdtWeightsFile=="nobdt" ){ bdtWeightsFile = ""; }
+
     // fill the histograms
     fillHistograms( input_directory, sample_list, sample_index, nevents,
 		    output_directory,
 		    event_selections, selection_types, variation,
 		    muonfrmap, electronfrmap, electroncfmap,
-		    histvars );
+		    histvars, bdtWeightsFile );
     std::cerr << "###done###" << std::endl;
     return 0;
 }
