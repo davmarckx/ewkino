@@ -138,6 +138,14 @@ JetCollection JetCollection::JECDownCollection( std::string source ) const{
     return buildVariedCollection( &Jet::JetJECDown, source );
 }
 
+JetCollection JetCollection::HEM1516UpCollection() const{
+    return buildVariedCollection( &Jet::JetHEM1516Up );
+}
+
+JetCollection JetCollection::HEM1516DownCollection() const{
+    return buildVariedCollection( &Jet::JetHEM1516Down );
+}
+
 JetCollection JetCollection::getVariedJetCollection( const std::string& variation) const{
     if( variation == "nominal" ){
         return this->goodJetCollection();
@@ -153,6 +161,10 @@ JetCollection JetCollection::getVariedJetCollection( const std::string& variatio
         return this->goodJetCollection();
     } else if( variation == "UnclUp" ){
         return this->goodJetCollection();
+    } else if( variation == "HEM1516Up" ){
+	return this->HEM1516UpCollection().goodJetCollection();
+    } else if( variation == "HEM1516Down" ){
+	return this->HEM1516DownCollection().goodJetCollection();
     } else if( stringTools::stringEndsWith(variation,"Up") ){
         std::string jecvar = variation.substr(0, variation.size()-2);
         return this->JECUpCollection( jecvar ).goodJetCollection();

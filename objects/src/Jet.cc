@@ -201,6 +201,28 @@ Jet Jet::JetJERUp() const{
 }
 
 
+Jet Jet::JetHEM1516Up() const{
+    // see here: https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
+    double newpt = this->pt();
+    if( this->is2018() ){
+	if( this->eta() > -2.5 && this->eta() < -1.3
+	    && this->phi() > -1.57 && this->phi() < -0.87 ){
+	    newpt *= 0.8;
+	} else if( this->eta() > -3.0 && this->eta() < -2.5
+	    && this->phi() > -1.57 && this->phi() < -0.87 ){
+            newpt *= 0.65;
+	}
+    }
+    return variedJet( newpt );
+}
+
+
+Jet Jet::JetHEM1516Down() const{
+    // see here: https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/2000.html
+    return variedJet( this->pt() );
+}
+
+
 Jet Jet::JetJECDown( const std::string source ) const{
     // note: this function checks both all and grouped variations,
     // need to check if there is no overlap in names between them!

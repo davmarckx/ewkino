@@ -106,6 +106,14 @@ Met Met::MetJECUp( const std::string source ) const{
     return variedMetPxPy( newpxy.first, newpxy.second );
 }
 
+Met Met::MetHEM1516Up() const{
+    return variedMetPxPy( this->px(), this->py() );
+}
+
+Met Met::MetHEM1516Down() const{
+    return variedMetPxPy( this->px(), this->py() );
+}
+
 Met Met::getVariedMet( const std::string& variation ) const{
     if( variation == "nominal" ){
         return *this;
@@ -121,6 +129,10 @@ Met Met::getVariedMet( const std::string& variation ) const{
         return this->MetUnclusteredDown();
     } else if( variation == "UnclUp" ){
         return this->MetUnclusteredUp();
+    } else if( variation == "HEM1516Up" ){
+	return this->MetHEM1516Up();
+    } else if( variation == "HEM1516Down" ){
+	return this->MetHEM1516Down();
     } else if( stringTools::stringEndsWith(variation,"Up") ){
         std::string jecvar = variation.substr(0, variation.size()-2);
         return this->MetJECUp( jecvar );
