@@ -476,3 +476,119 @@ def get_gof_commands( datacarddir, card,
   commands.append( gof_command+' '+toy_options )
   commands.append('cd {}'.format(cwd))
   return commands
+
+def get_impacts_commands( datacarddir, card, 
+      workspace=None, usedata=False, expectsignal=True, pois=['r']):
+  ### get the commands to produce the impacts for a given combine workspace
+  # initializations
+  name = card.replace('.txt','')
+  if workspace is None: workspace = card.replace('.txt','.root')
+  defaultpoi = False
+  if( len(pois)==0 and pois[0]=='r' ): defaultpoi = True
+  appendix = '_impacts'
+  if usedata: appendix += '_obs'
+  else: appendix += '_exp'
+  if( expectsignal and not usedata ): appendix += '_sig'
+  if( not expectsignal and not usedata ): appendix += '_bkg'
+  subdir = workspace.replace('.root', appendix)
+  json = name + appendix + '.json'
+  fig = name + appendix
+  # make the output directory
+  abssubdir = os.path.join(datacarddir, subdir)
+  if os.path.exists(abssubdir):
+    os.system('rm -r {}'.format(abssubdir))
+  os.makedirs(abssubdir)
+  absworkspace = os.path.join(datacarddir, workspace)
+  # make the basic command
+  command = 'combineTool.py -M Impacts -d '+absworkspace
+  command += ' -m 100'
+  command += ' --rMin 0 --rMax 5'
+  #command += ' --cminDefaultMinimizerStrategy 0'
+  command += ' --robustFit=1'
+  if not defaultpoi: command += ' --redefineSignalPOIs {}'.format(','.join(pois))
+  if( not usedata and expectsignal ): command += ' -t -1 --expectSignal 1'
+  elif( not usedata and not expectsignal ): command += ' -t -1 --expectSignal 0'
+  # make the total set of commands
+  setdir = 'cd {}'.format(abssubdir)
+  initfit = command + ' --doInitialFit'
+  impacts = command + ' --doFits --parallel 10'
+  output = command + ' --output {}'.format(json)
+  plot = 'plotImpacts.py -i {} -o {}'.format(json,fig)
+  commands = [setdir,initfit,impacts,output,plot]
+  return commands
+
+def get_likelihoodscan_commands(datacarddir, card,
+    workspace=None, dostatonly=False, usedata=False,
+    pois=['r'], poiranges=None, 
+    npoints=10, fastscan=False ):
+  ### get the commands to calculate the signal strength for multiple POIs
+  # input arguments:
+  # - datacarddir: directory of the datacards
+  # - card: filename of the datacard file in datacarddir
+  # - workpace: name of the workspace (default: equal to card)
+  # - dostatonly: boolean whether do statistical uncertainty only analysis
+  # - usedata: boolean whether to use data (default: blind analysis)
+  # - pois: list of parameters of interest (default: one poi called 'r')
+  # - poiranges: dict of poi names to tuple of (min,max)
+  # - npoints: number of points in the scanning grid
+  # - fastscan: add the fastScan option to the combine command
+  #   note: this will freeze all nuisance parameters to the global best-fit values
+  #   instead of profiling them at every scanning point.
+  # output:
+  # list of commands that, when executed, will produce:
+  # - <datacard name>_out_likelihoodscan_<appendix>.txt with text output
+  # - higgsCombine<datacard name>_out_likelihoodscan_<appendix>.MultiDimFit.mH120.root
+  #   with the output stored in a root tree.
+
+  # set paths to input and output files
+  defaultpoi = (len(pois)==1 and pois[0]=='r')
+  if workspace is None: workspace = card.replace('.txt','.root')
+  basename = os.path.splitext(card)[0]
+  extension = '_out_likelihoodscan_exp'
+  if usedata: extension = '_out_likelihoodscan_obs'
+  if dostatonly: extension += '_stat'
+  if not defaultpoi: extension += '_'+'_'.join(pois)
+  name = basename + extension
+  outtxtfile = name+'.txt'
+  cwd = os.getcwd()
+  defaultpoi = (len(pois)==1 and pois[0]=='r')
+
+  commands = []
+  commands.append('cd {}'.format(datacarddir))
+  # define basic command
+  ss_command = 'combine -M MultiDimFit '+workspace
+  ss_command += ' -n '+name
+  ss_command += ' --algo grid'
+  ss_command += ' --points {}'.format(npoints)
+  ss_command += ' --robustFit=1'
+  if not defaultpoi:
+    ss_command += ' --redefineSignalPOIs {}'.format(','.join(pois))
+  if poiranges is not None:
+    ss_command += ' --setParameterRanges {}'.format(':'.join(
+      ['{}={},{}'.format(key,val[0],val[1]) for key,val in poiranges.items()] ))
+  # define options for stat only analysis
+  stat_options = '--freezeParameters allConstrainedNuisances'
+  # define options for blinding data
+  toy_options = '-t -1'
+  if defaultpoi: toy_options += ' --expectSignal=1'
+  else:
+    toy_options += ' --setParameters {}'.format(','.join(['{}=1'.format(poi) for poi in pois]))
+  # set correct options
+  if not usedata: ss_command += ' '+toy_options
+  if dostatonly:
+    # special case as need to run two commands in sequence
+    init_command = ss_command.replace(' -n '+name,' -n '+name+'_initfit')
+    init_command = init_command.replace('--algo grid', '--algo singles')
+    init_command += ' --saveWorkspace --saveFitResult'
+    initname = 'higgsCombine'+name+'_initfit.MultiDimFit.mH120.root'
+    commands.append( init_command+' > '+outtxtfile+' 2> '+outtxtfile )
+    stat_command = ss_command.replace(workspace,initname,1)
+    stat_command += ' --snapshotName "MultiDimFit"'
+    stat_command += ' '+stat_options
+    commands.append( stat_command+' > '+outtxtfile+' 2> '+outtxtfile )
+    rm_command = 'rm '+initname
+    commands.append(rm_command)
+  else:
+    commands.append( ss_command+' > '+outtxtfile+' 2> '+outtxtfile )
+  commands.append('cd {}'.format(cwd))
+  return commands
