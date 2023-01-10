@@ -264,8 +264,10 @@ if __name__=="__main__":
 	    plbin = int(lastchar)
             appendix = ''
 	    if( plbin==0 ): appendix = '(o.a.)'
-            else: appendix = '({})'.format(sbl_short[plbin-1])
-	    newtitle = oldtitle[:-1]+' '+appendix
+            elif( plbin-1 < len(sbl_short) ): appendix = '({})'.format(sbl_short[plbin-1])
+            else: appendix = ''
+            if len(appendix)>0: newtitle = oldtitle[:-1]+' '+appendix
+            else: newtitle = oldtitle
 	    labelmap[oldtitle] = newtitle
 	else:
 	    labelmap[oldtitle] = oldtitle

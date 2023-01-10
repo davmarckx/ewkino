@@ -1,0 +1,180 @@
+[
+{ "name": "_eventBDTnMuons",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_nMuons",
+    "variable": "_nMuons",
+    "bins": [-0.5, 0.5, 1.5, 2.5, 3.5],
+    "axtitle": "Number of muons in event",
+    "shorttitle": "N(#mu)",
+    "unit": "",
+    "iscategorical": "true",
+    "xlabels": ["0", "1", "2", "3"]
+  }
+},
+{ "name": "_eventBDTnElectons",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_nElectrons",
+    "variable": "_nElectrons",
+    "bins": [-0.5, 0.5, 1.5, 2.5, 3.5],
+    "axtitle": "Number of electrons in event",
+    "shorttitle": "N(e)",
+    "unit": "",
+    "iscategorical": "true",
+    "xlabels": ["0", "1", "2", "3"]
+  }
+},
+{ "name": "_eventBDTnJets",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_nJets",
+    "variable": "_nJets",
+    "bins": [1.5, 2.5, 3.5, 4.5, 5.5],
+    "axtitle": "Number of jets",
+    "shorttitle": "N(jets)",
+    "unit": "",
+    "iscategorical": "true",
+    "xlabels": ["2", "3", "4", "5"]
+  }
+},
+{ "name": "_eventBDTnBJets",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_nBJets",
+    "variable": "_nBJets",
+    "bins": [-0.5, 0.5, 1.5, 2.5, 3.5],
+    "axtitle": "Number of b-tagged jets",
+    "shorttitle": "N(b-jets)",
+    "unit": "",
+    "iscategorical": "true",
+    "xlabels": ["0", "1", "2", "3"]
+  }
+},
+{ "name": "_eventBDTleptonPtLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_leptonPtLeading",
+    "variable": "_leptonPtLeading",
+    "bins": [0.0, 50.0, 100.0, 200.0, 300.0],
+    "axtitle": "Leading lepton p_{T}",
+    "shorttitle": "p_{T}(l_{1})",
+    "unit": "GeV"
+  }
+},
+{ "name": "_eventBDTleptonPtSubLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_leptonPtSubLeading",
+    "variable": "_leptonPtSubLeading",
+    "bins": [0.0, 50.0, 100.0, 180.0],
+    "axtitle": "Subleading lepton p_{T}",
+    "shorttitle": "p_{T}(l_{2})",
+    "unit": "GeV"
+  }
+},
+{ "name": "_eventBDTleptonEtaLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_leptonEtaLeading",
+    "variable": "_leptonEtaLeading",
+    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+    "axtitle": "Leading lepton pseudorapidity",
+    "shorttitle": "#eta(l_{1})",
+    "unit": ""
+  }
+},
+{ "name": "_eventBDTleptonEtaSubLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_leptonEtaSubLeading",
+    "variable": "_leptonEtaSubLeading",
+    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+    "axtitle": "Subleading lepton pseudorapidity",
+    "shorttitle": "#eta(l_{2})",
+    "unit": ""
+  }
+},
+{ "name": "_eventBDTjetPtLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_jetPtLeading",
+    "variable": "_jetPtLeading",
+    "bins": [25.0, 50.0, 75.0, 100.0],
+    "axtitle": "Leading jet p_{T}",
+    "shorttitle": "p_{T}(jet_{1})",
+    "unit": "GeV"
+  }
+},
+{ "name": "_eventBDTjetEtaLeading",
+  "primary":
+  { "name":    "_eventBDT",
+    "variable":   "_eventBDT",
+    "bins":   [0.0, 0.2, 0.4, 0.6, 0.8, 1.0],
+    "axtitle": "BDT output score"
+  },
+  "secondary":
+  {
+    "name": "_jetEtaLeading",
+    "variable": "_jetEtaLeading",
+    "bins": [-2.2, -1.5, 0.0, 1.5, 2.5],
+    "axtitle": "Leading jet pseudorapidity",
+    "shorttitle": "#eta(jet_{1})",
+    "unit": ""
+  }
+}
+]
