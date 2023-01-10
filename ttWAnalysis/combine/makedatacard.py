@@ -68,6 +68,7 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   if doallprocesses: processes = PIC.plist
   else:
     for p in processes:
+      if p==datatag: continue
       if p not in PIC.plist:
         raise Exception('ERROR: requested process {}'.format(p)
                         +' not found in the ProcessInfoCollection.')
