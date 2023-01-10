@@ -600,7 +600,23 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	else{ bdtYearCode = 0.0; }
 	// construct the vector of features that is fed into the bdt
 	// features are sorted as f1,f1,f3,...
-	float vec[] = {float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),float(varmap["_dRl1l2"]),float(varmap["_HT"]),float(varmap["_nJets"]),float(varmap["_nBJets"]),float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),float(varmap["_MET_pt"]),float(varmap["_nMuons"]),float(varmap["_leptonMVATOP_min"]),float(varmap["_leptonChargeLeading"]),float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),float(varmap["_leptonELeading"]),float(varmap["_leptonESubLeading"]),float(varmap["_jetPtLeading"]),float(varmap["_jetPtSubLeading"]),float(varmap["_jetMassLeading"]),float(varmap["_jetMassSubLeading"]),bdtYearCode};
+	float vec[] = { float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),
+                        float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),
+                        float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),
+                        float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),
+                        float(varmap["_dRl1l2"]),float(varmap["_HT"]),
+                        float(varmap["_nJets"]),float(varmap["_nBJets"]),
+                        float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),
+                        float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),
+                        float(varmap["_MET_pt"]),float(varmap["_nMuons"]),
+                        1., //float(varmap["_leptonMVATOP_min"]),
+                        float(varmap["_leptonChargeLeading"]),
+                        float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),
+                        float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),
+                        float(varmap["_leptonELeading"]),float(varmap["_leptonESubLeading"]),
+                        float(varmap["_jetPtLeading"]),float(varmap["_jetPtSubLeading"]),
+                        float(varmap["_jetMassLeading"]),float(varmap["_jetMassSubLeading"]),
+                        bdtYearCode };
 	// turn this into a 1D RTensor because TMVA no longer supports 1event-evaluation 
 	// for converted sklearn wrapped xgboost models
 	auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
