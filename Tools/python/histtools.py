@@ -87,11 +87,11 @@ def loadhistogramlist(histfile, histnames,
         if not suppress_warnings:
             if( not allow_tgraphs and not ishist ):
                 print('WARNING in histtools.loadhistograms:'
-                      +' key "'+str(key.GetName())+'" is not a valid histogram.')
+                      +' key "'+str(histname.GetName())+'" is not a valid histogram.')
                 continue
             if( allow_tgraphs and not (ishist or isgraph) ):
                 print('WARNING in histtools.loadhistograms:'
-                      +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
+                      +' key "'+str(histname.GetName())+'" is not a valid histogram or graph.')
                 continue
         hist.SetName(histname)
         if ishist: hist.SetDirectory(ROOT.gROOT)

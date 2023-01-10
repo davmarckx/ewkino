@@ -9,7 +9,7 @@ import json
 class HistogramVariable(object):
 
   def __init__( self, name, variable, nbins, xlow, xhigh, 
-                axtitle=None, unit=None, comments=None,
+                axtitle=None, shorttitle=None, unit=None, comments=None,
 		iscategorical=None, xlabels=None,
                 bins=None ):
     self.name = name
@@ -19,6 +19,8 @@ class HistogramVariable(object):
     self.xhigh = float(xhigh)
     self.axtitle = axtitle
     if( self.axtitle is not None and self.axtitle=='' ): self.axtitle = None
+    self.shorttitle = shorttitle
+    if( self.shorttitle is not None and self.shorttitle=='' ): self.shorttitle = None
     self.unit = unit
     if( self.unit is not None and self.unit=='' ): self.unit = None
     self.comments = comments
@@ -31,7 +33,7 @@ class HistogramVariable(object):
       self.bins = [float(el) for el in bins]
     self.check_bins()
     self.ordered_keys = (['name','variable','nbins','xlow','xhigh',
-                          'axtitle','unit','comments',
+                          'axtitle','shorttitle','unit','comments',
                           'iscategorical','xlabels','bins'])
 
   def check_bins( self ):
@@ -75,6 +77,7 @@ class HistogramVariable(object):
                  'xlow': self.xlow,
                  'xhigh': self.xhigh })
     if self.axtitle is not None: vardict['axtitle'] = self.axtitle
+    if self.shorttitle is not None: vardict['shorttitle'] = self.shorttitle
     if self.unit is not None: vardict['unit'] = self.unit
     if self.comments is not None: vardict['comments'] = self.comments
     if self.iscategorical: vardict['iscategorical'] = 'true'
@@ -90,7 +93,8 @@ class HistogramVariable(object):
         +' input object should be a dict,'
         +' but found {}'.format(type(vardict)))
     reqkeys = ['name','variable']
-    optkeys = (['axtitle','unit','comments','iscategorical','xlabels',
+    optkeys = (['axtitle','shorttitle','unit','comments',
+                'iscategorical','xlabels',
                 'nbins','xlow','xhigh','bins'])
     # check if all required keys are present
     for reqkey in reqkeys:
@@ -133,6 +137,7 @@ class HistogramVariable(object):
     return HistogramVariable( vardict['name'], vardict['variable'],
                 vardict['nbins'], vardict['xlow'], vardict['xhigh'],
                 axtitle=vardict.get('axtitle',None),
+                shorttitle=vardict.get('shorttitle',None),
                 unit=vardict.get('unit',None),
                 comments=vardict.get('comments',None),
                 iscategorical=vardict.get('iscategorical',None),
@@ -291,7 +296,7 @@ def write_variables_json( variables, jsonfile, builtin=False ):
   else:
     # manual parsing
     ordered_keys = (['name','variable','nbins','xlow','xhigh',
-                     'axtitle','unit','iscategorical','xlabels',
+                     'axtitle','shorttitle','unit','iscategorical','xlabels',
                      'comments', 'bins'])
     lines = []
     lines.append('[')
