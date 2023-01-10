@@ -21,6 +21,8 @@ class Met : public PhysicsObject {
         Met MetJECUp() const;
         Met MetUnclusteredDown() const;
         Met MetUnclusteredUp() const;
+	Met MetHEM1516Up() const;
+	Met MetHEM1516Down() const;
 
 	// met objects varied by split JEC uncertainties
 	Met MetJECDown( const std::string source ) const;
