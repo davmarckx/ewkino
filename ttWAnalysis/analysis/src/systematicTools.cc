@@ -12,6 +12,10 @@ std::string systematicTools::systematicType( const std::string systematic ){
     if(systematic=="JEC" or systematic=="JER" or systematic=="Uncl"){
         return std::string("acceptance");
     }
+    // special selection for HEM15/16 issue
+    if(systematic=="HEM1516"){
+	return std::string("acceptance");
+    }
     // split JEC
     if(systematic=="JECAll" or systematic=="JECGrouped"){
         return std::string("jecsplit");
