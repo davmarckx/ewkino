@@ -599,7 +599,6 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	if (bdtYear == "2018" || bdtYear == "2017"){ bdtYearCode = 1.0; }
 	else{ bdtYearCode = 0.0; }
 	// construct the vector of features that is fed into the bdt
-	// features are sorted as f1,f1,f3,...
 	float vec[] = { float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),
                         float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),
                         float(varmap["_deepFlavor_subLeading"]),float(varmap["_lT"]),
@@ -609,7 +608,6 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
                         float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),
                         float(varmap["_M3l"]),float(varmap["_abs_eta_max"]),
                         float(varmap["_MET_pt"]),float(varmap["_nMuons"]),
-                        1., //float(varmap["_leptonMVATOP_min"]),
                         float(varmap["_leptonChargeLeading"]),
                         float(varmap["_leptonPtLeading"]),float(varmap["_leptonPtSubLeading"]),
                         float(varmap["_leptonEtaLeading"]),float(varmap["_leptonEtaSubLeading"]),
@@ -619,7 +617,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
                         bdtYearCode };
 	// turn this into a 1D RTensor because TMVA no longer supports 1event-evaluation 
 	// for converted sklearn wrapped xgboost models
-	auto x = TMVA::Experimental::RTensor<float>(vec, {1, 31});
+        long unsigned int vecsize = (int)(sizeof(vec)/sizeof(vec[0]));
+	auto x = TMVA::Experimental::RTensor<float>(vec, {1, vecsize});
 	auto y = bdt->Compute(x);
 	// std::cout<< y(0,0);
 	// get the score out of the RTensor
