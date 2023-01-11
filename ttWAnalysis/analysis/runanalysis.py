@@ -9,6 +9,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = '~/CMSSW_12_4_6' # newer version needed for BDT evaluation
 sys.path.append(os.path.abspath('../../Tools/python'))
 import argparsetools as apt
 from samplelisttools import readsamplelist
@@ -69,6 +70,7 @@ if __name__=='__main__':
   parser.add_argument('--selection_type', default='tight', choices=selection_types, nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
+  parser.add_argument('--bdt', default=None, type=apt.path_or_none)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--exe', default='runanalysis', 
@@ -146,6 +148,13 @@ if __name__=='__main__':
     if not os.path.exists(electroncfmap):
       raise Exception('ERROR: fake rate map {} does not exist'.format(electroncfmap))
 
+  # check bdt weight file
+  bdt = 'nobdt'
+  if( args.bdt is not None ):
+    if not os.path.exists(args.bdt):
+      raise Exception('ERROR: BDT file {} does not exist'.format(args.bdt))
+    bdt = args.bdt
+
   # parse systematics
   if len(systematics)==0: systematics = ['none']
   systematics = ','.join(systematics)
@@ -155,11 +164,11 @@ if __name__=='__main__':
   commands = []
   for i in range(nsamples):
     # make the basic command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, electroncfmap, 
-                    args.nevents, args.forcenevents)
+                    args.nevents, args.forcenevents, bdt )
     # manage particle level splitting
     if( args.exe=='runanalysis2' ):
       if( args.splitprocess is not None 

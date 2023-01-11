@@ -41,9 +41,12 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
-variables = '../variables/variables_test_double.json' # double variable
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
-outputdir = 'output_20230104'
+#bdtfile = None
+bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
+
+outputdir = 'output_20230111_double'
 
 nevents = 1e6
 runlocal = False
@@ -80,6 +83,7 @@ for year in years:
     cmd += ' --splitprocess TTW' # (only relevant for runanalysis2)
     if runlocal: cmd += ' --runmode local'
     if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
+    if bdtfile is not None: cmd += ' --bdt ' + bdtfile
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types

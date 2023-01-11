@@ -324,6 +324,7 @@ void fillSystematicsHistograms(
 	    unsigned long nEntries,
             bool forceNEntries,
 	    bool doSplitParticleLevel,
+	    const std::string& bdtWeightsFile,
             std::vector<std::string>& systematics ){
     // initialize TreeReader from input file
     std::cout << "=== start function fillSystematicsHistograms ===" << std::endl;;
@@ -512,6 +513,16 @@ void fillSystematicsHistograms(
 	allJECVariations, groupedJECVariations,
 	bTagShapeSystematics);
 
+    // load the BDT
+    // default value is nullptr, 
+    // in which case the BDT will not be evaluated.
+    std::shared_ptr<TMVA::Experimental::RBDT<>> bdt;
+    if( bdtWeightsFile.size()!=0 ){
+        std::cout << "reading BDT evaluator..." << std::endl;
+        bdt = std::make_shared<TMVA::Experimental::RBDT<>>("XGB", bdtWeightsFile);
+        std::cout << "successfully loaded BDT evaluator." << std::endl;
+    }
+
     // initialize pass nominal counter
     std::map<std::string,     // event selection
 	std::map<std::string, // selection type
@@ -580,7 +591,8 @@ void fillSystematicsHistograms(
 	    passNominalCounter.at(event_selection).at(selection_type)++;
 	    varmap = eventFlattening::eventToEntry(event, 
 			reweighter, selection_type, 
-			frmap_muon, frmap_electron, cfmap_electron, "nominal");
+			frmap_muon, frmap_electron, cfmap_electron, "nominal",
+                        bdt, year);
 	    nominalWeight = varmap.at("_normweight")*nEntriesReweight;
 	    for(DoubleHistogramVariable histVar: histVars){
 		std::string variableName = histVar.name();
@@ -624,7 +636,8 @@ void fillSystematicsHistograms(
 		if(passup){
 		    accvarmap = eventFlattening::eventToEntry(event, 
 				    reweighter, selection_type, 
-				    frmap_muon, frmap_electron, cfmap_electron, upvar);
+				    frmap_muon, frmap_electron, cfmap_electron, upvar,
+                                    bdt, year);
 		    double weight = accvarmap["_normweight"]*nEntriesReweight;
 		    // for JEC: propagate into b-tag shape reweighting
 		    /*if( systematic=="JEC" && considerbtagshape ){
@@ -648,7 +661,8 @@ void fillSystematicsHistograms(
 		if(passdown){
 		    accvarmap = eventFlattening::eventToEntry(event, 
 				    reweighter, selection_type, 
-				    frmap_muon, frmap_electron, cfmap_electron, downvar);
+				    frmap_muon, frmap_electron, cfmap_electron, downvar,
+                                    bdt, year);
 		    double weight = accvarmap["_normweight"]*nEntriesReweight;
 		    // for JEC: propagate into b-tag shape reweighting
                     /*if( systematic=="JEC" && considerbtagshape ){
@@ -684,7 +698,8 @@ void fillSystematicsHistograms(
 			accvarmap = eventFlattening::eventToEntry(event,
 				    reweighter, selection_type, 
 				    frmap_muon, frmap_electron, 
-				    cfmap_electron, thisupvar);
+				    cfmap_electron, thisupvar,
+                                    bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesReweight;
 			// for JEC: propagate into b-tag shape reweighting
 			/*if( considerbtagshape && jecvar!="RelativeSample" ){
@@ -716,7 +731,8 @@ void fillSystematicsHistograms(
 			accvarmap = eventFlattening::eventToEntry(event,
 				reweighter, selection_type, 
 				frmap_muon, frmap_electron, 
-				cfmap_electron, thisdownvar);
+				cfmap_electron, thisdownvar,
+                                bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesReweight;
                         // for JEC: propagate into b-tag shape reweighting
                         /*if( considerbtagshape && jecvar!="RelativeSample" ){
@@ -1363,7 +1379,7 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    int nargs = 14;
+    int nargs = 15;
     if( argc != nargs+1 ){
         std::cerr << "ERROR: runanalysis2.cc requires " << std::to_string(nargs) << " arguments to run...: " << std::endl;
         std::cerr << "input_directory" << std::endl;
@@ -1378,8 +1394,9 @@ int main( int argc, char* argv[] ){
         std::cerr << "electroncfmap" << std::endl;
 	std::cerr << "nevents" << std::endl;
 	std::cerr << "forcenevents" << std::endl;
+	std::cerr << "bdt weight file (use 'nobdt' to not evaluate the BDT)" << std::endl;
 	std::cerr << "splitparticlelevel" << std::endl;
-	std::cerr << "systematics (comma-separated list)" << std::endl;
+	std::cerr << "systematics (comma-separated list) (use 'none' for no systematics)" << std::endl;
         return -1;
     }
 
@@ -1399,8 +1416,9 @@ int main( int argc, char* argv[] ){
     std::string& electroncfmap = argvStr[10];
     unsigned long nevents = std::stoul(argvStr[11]);
     bool forcenevents = ( argvStr[12]=="true" || argvStr[12]=="True" );
-    bool doSplitParticleLevel = ( argvStr[13]=="true" || argvStr[13]=="True" );
-    std::string& systematicstr = argvStr[14];
+    std::string& bdtWeightsFile = argvStr[13];
+    bool doSplitParticleLevel = ( argvStr[14]=="true" || argvStr[14]=="True" );
+    std::string& systematicstr = argvStr[15];
     std::vector<std::string> systematics;
     if( systematicstr!="none" ){
 	systematics = stringTools::split(systematicstr,",");
@@ -1420,6 +1438,7 @@ int main( int argc, char* argv[] ){
     std::cout << "  - electron CF map: " << electroncfmap << std::endl;
     std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
     std::cout << "  - force number of events: " << std::to_string(forcenevents) << std::endl;
+    std::cout << "  - BDT weights file: " << bdtWeightsFile << std::endl;
     std::cout << "  - do split particle level: " << std::to_string(doSplitParticleLevel) << std::endl;
     std::cout << "  - systematics:" << std::endl;
     for( std::string systematic: systematics ) std::cout << "      " << systematic << std::endl;
@@ -1459,6 +1478,9 @@ int main( int argc, char* argv[] ){
         }
     }
 
+    // parse BDT weight file
+    if( bdtWeightsFile=="nobdt" ){ bdtWeightsFile = ""; }
+
     // check validity of systematics
     for(std::string systematic : systematics){
 	std::string testsyst = systematicTools::systematicType(systematic);
@@ -1470,7 +1492,7 @@ int main( int argc, char* argv[] ){
 			       histVars, event_selections, selection_types, 
 			       muonfrmap, electronfrmap, electroncfmap, 
                                nevents, forcenevents, doSplitParticleLevel,
-			       systematics );
+			       bdtWeightsFile, systematics );
 
     std::cerr << "###done###" << std::endl;
     return 0;
