@@ -188,19 +188,21 @@ def absolute(hist):
 
 ### finding minimum and maximum ###
 
-def getminmax(histlist):
+def getminmax(histlist, includebinerror=False):
     # get suitable minimum and maximum values for plotting a hist collection (not stacked)
     totmax = 0.
     totmin = 1e12
     for hist in histlist:
         for i in range(1,hist.GetNbinsX()+1):
             val = hist.GetBinContent(i)
-            if val > totmax: totmax = val
-            if val < totmin: totmin = val
+            err = 0.
+            if includebinerror: err = hist.GetBinError(i)
+            if val+err > totmax: totmax = val+err
+            if val-err < totmin: totmin = val-err
     return (totmin,totmax)
 
-def getminmaxmargin(histlist,clip=False):
-    (totmin,totmax) = getminmax(histlist)
+def getminmaxmargin(histlist, includebinerror=False, clip=False):
+    (totmin,totmax) = getminmax(histlist, includebinerror=includebinerror)
     topmargin = (totmax-totmin)/2.
     bottommargin = (totmax-totmin)/5.
     minv = totmin-bottommargin
