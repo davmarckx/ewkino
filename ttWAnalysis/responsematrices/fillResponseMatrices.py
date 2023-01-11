@@ -8,6 +8,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = '~/CMSSW_12_4_6' # newer version needed for BDT evaluation
 sys.path.append(os.path.abspath('../../Tools/python'))
 import argparsetools as apt
 from samplelisttools import readsamplelist
@@ -19,7 +20,7 @@ from eventselector import event_selections
 if __name__=='__main__':
 
   # parse arguments
-  parser = argparse.ArgumentParser('Compare detector to particle level')
+  parser = argparse.ArgumentParser('Fill response matrices')
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)

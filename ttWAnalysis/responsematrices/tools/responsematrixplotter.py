@@ -140,7 +140,8 @@ def plotresponsematrix( hist, stability, purity, outfilepath,
     purity.SetMarkerSize(0)
 
     # minimum and maximum
-    (totmin, totmax) = ht.getminmax([stability,purity])
+    (totmin, totmax) = ht.getminmax([stability,purity],
+                       includebinerror=True)
     margin = (totmax-totmin)/5.
     stability.SetMaximum(totmax + 3*margin)
     stability.SetMinimum(totmin - margin)

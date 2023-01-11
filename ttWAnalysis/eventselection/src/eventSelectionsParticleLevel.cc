@@ -130,7 +130,8 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive(Event& e
     if( event.metParticleLevel().pt()<30.) return false;
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
-    if( njetsnbjets.second < 2 ) return false;
+    //if( njetsnbjets.second < 2 ) return false;
+    if( njetsnbjets.second < 1 ) return false;
     if( njetsnbjets.first < 2 ) return false;
     return true;
 }
@@ -158,7 +159,8 @@ std::tuple<int,std::string> eventSelectionsParticleLevel::pass_signalregion_dile
     if( event.metParticleLevel().pt()<30.) return std::make_tuple(5, "Fail MET");
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
-    if( njetsnbjets.second < 2 ) return std::make_tuple(6, "Fail b-jets");
+    //if( njetsnbjets.second < 2 ) return std::make_tuple(6, "Fail b-jets");
+    if( njetsnbjets.second < 1 ) return std::make_tuple(6, "Fail b-jets");
     if( njetsnbjets.first < 2 ) return std::make_tuple(7, "Fail jets");
     return std::make_tuple(8, "Pass");
 }

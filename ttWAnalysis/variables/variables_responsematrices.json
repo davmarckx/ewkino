@@ -2,8 +2,8 @@
 {
   "name": "_nJets",
   "variable": "_nJets",
-  "nbins": "7",
-  "xlow": "-0.5",
+  "nbins": "5",
+  "xlow": "1.5",
   "xhigh": "6.5",
   "axtitle": "Number of jets",
   "unit": ""
@@ -20,24 +20,24 @@
 {
   "name": "_nMuons",
   "variable": "_nMuons",
-  "nbins": "4",
+  "nbins": "3",
   "xlow": "-0.5",
-  "xhigh": "3.5",
+  "xhigh": "2.5",
   "axtitle": "Number of muons in event",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2", "3"]
+  "xlabels": ["0", "1", "2"]
 },
 {
   "name": "_nElectrons",
   "variable": "_nElectrons",
-  "nbins": "4",
+  "nbins": "3",
   "xlow": "-0.5",
-  "xhigh": "3.5",
+  "xhigh": "2.5",
   "axtitle": "Number of electrons in event",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2", "3"]
+  "xlabels": ["0", "1", "2"]
 },
 {
   "name": "_yield",
@@ -53,18 +53,14 @@
 {
   "name": "_leptonPtLeading",
   "variable": "_leptonPtLeading",
-  "nbins": "12",
-  "xlow": "0.0",
-  "xhigh": "300.0",
+  "bins": [0.0, 50.0, 75.0, 100.0, 200.0],
   "axtitle": "Leading lepton p_{T}",
   "unit": "GeV"
 },
 {
   "name": "_leptonPtSubLeading",
   "variable": "_leptonPtSubLeading",
-  "nbins": "12",
-  "xlow": "0.0",
-  "xhigh": "180.0",
+  "bins": [0.0, 30.0, 50.0, 100.0],
   "axtitle": "Subleading lepton p_{T}",
   "unit": "GeV"
 },
@@ -80,7 +76,7 @@
 {
   "name": "_leptonEtaLeading",
   "variable": "_leptonEtaLeading",
-  "nbins": "20",
+  "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Leading lepton pseudorapidity",
@@ -89,7 +85,7 @@
 {
   "name": "_leptonEtaSubLeading",
   "variable": "_leptonEtaSubLeading",
-  "nbins": "20",
+  "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Subleading lepton pseudorapidity",
@@ -98,7 +94,7 @@
 {
   "name": "_leptonEtaTrailing",
   "variable": "_leptonEtaTrailing",
-  "nbins": "20",
+  "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Trailing lepton pseudorapidity",
@@ -107,16 +103,14 @@
 {
   "name": "_jetPtLeading",
   "variable": "_jetPtLeading",
-  "nbins": "20",
-  "xlow": "0.0",
-  "xhigh": "100.0",
+  "bins": [0.0, 100.0, 200.0, 300.0],
   "axtitle": "Leading jet p_{T}",
   "unit": "GeV"
 },
 {
   "name": "_jetEtaLeading",
   "variable": "_jetEtaLeading",
-  "nbins": "20",
+  "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Leading jet pseudorapidity",
@@ -125,16 +119,14 @@
 {
   "name": "_jetPtSubLeading",
   "variable": "_jetPtSubLeading",
-  "nbins": "20",
-  "xlow": "0.0",
-  "xhigh": "100.0",
+  "bins": [0.0, 50.0, 100.0, 200.0],
   "axtitle": "Subleading jet p_{T}",
   "unit": "GeV"
 },
 {
   "name": "_jetEtaSubLeading",
   "variable": "_jetEtaSubLeading",
-  "nbins": "20",
+  "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Subleading jet pseudorapidity",

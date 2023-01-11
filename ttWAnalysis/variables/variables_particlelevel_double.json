@@ -10,12 +10,12 @@
   {
     "name": "_nMuons",
     "variable": "_nMuons",
-    "bins": [-0.5, 0.5, 1.5, 2.5, 3.5],
+    "bins": [-0.5, 0.5, 1.5, 2.5],
     "axtitle": "Number of muons in event",
     "shorttitle": "N(#mu)",
     "unit": "",
     "iscategorical": "true",
-    "xlabels": ["0", "1", "2", "3"]
+    "xlabels": ["0", "1", "2"]
   }
 },
 { "name": "_eventBDTnElectons",
@@ -29,12 +29,12 @@
   {
     "name": "_nElectrons",
     "variable": "_nElectrons",
-    "bins": [-0.5, 0.5, 1.5, 2.5, 3.5],
+    "bins": [-0.5, 0.5, 1.5, 2.5],
     "axtitle": "Number of electrons in event",
     "shorttitle": "N(e)",
     "unit": "",
     "iscategorical": "true",
-    "xlabels": ["0", "1", "2", "3"]
+    "xlabels": ["0", "1", "2"]
   }
 },
 { "name": "_eventBDTnJets",
@@ -86,7 +86,7 @@
   {
     "name": "_leptonPtLeading",
     "variable": "_leptonPtLeading",
-    "bins": [0.0, 50.0, 100.0, 200.0, 300.0],
+    "bins": [0.0, 50.0, 75.0, 100.0, 200.0],
     "axtitle": "Leading lepton p_{T}",
     "shorttitle": "p_{T}(l_{1})",
     "unit": "GeV"
@@ -103,7 +103,7 @@
   {
     "name": "_leptonPtSubLeading",
     "variable": "_leptonPtSubLeading",
-    "bins": [0.0, 50.0, 100.0, 180.0],
+    "bins": [0.0, 30.0, 50.0, 100.0],
     "axtitle": "Subleading lepton p_{T}",
     "shorttitle": "p_{T}(l_{2})",
     "unit": "GeV"
@@ -154,7 +154,7 @@
   {
     "name": "_jetPtLeading",
     "variable": "_jetPtLeading",
-    "bins": [25.0, 50.0, 75.0, 100.0],
+    "bins": [25.0, 100.0, 200.0, 300.0],
     "axtitle": "Leading jet p_{T}",
     "shorttitle": "p_{T}(jet_{1})",
     "unit": "GeV"
