@@ -121,6 +121,7 @@ if args.translate is not None:
     if args.POI in name_translate:
         fixed_name = name_translate[args.POI]
 
+# define y-axis coordinates where to calculate intersections and draw horizontal lines
 yvals = [1., 4.]
 
 
@@ -166,6 +167,7 @@ for other in other_scans:
         other['graph'].SetMarkerSize(0.4)
     other['graph'].Draw('PSAME')
 
+# draw lines
 line = ROOT.TLine()
 line.SetLineColor(16)
 # line.SetLineStyle(7)
@@ -175,6 +177,9 @@ for yval in yvals:
         for cr in main_scan['crossings'][yval]:
             if cr['valid_lo']: line.DrawLine(cr['lo'], 0, cr['lo'], yval)
             if cr['valid_hi']: line.DrawLine(cr['hi'], 0, cr['hi'], yval)
+
+# draw additional horizontal line at 0
+plot.DrawHorizontalLine(pads[0], line, 0.)
 
 main_scan['func'].Draw('same')
 for other in other_scans:

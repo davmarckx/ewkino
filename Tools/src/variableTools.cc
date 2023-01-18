@@ -105,7 +105,7 @@ unsigned int DoubleHistogramVariable::nTotalBins() const{
     return nPrimaryBins()*nSecondaryBins();
 }
 
-int findBin( std::vector<double> binedges, double value ){
+int findBin( const std::vector<double>& binedges, double value ){
     // small helper function to retrieve correct bin number
     int bin = 0;
     for( double binedge: binedges ){
