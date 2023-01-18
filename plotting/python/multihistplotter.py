@@ -44,7 +44,6 @@ def plotmultihistograms(histlist,
     # - infoleft: left border of extra info text (default leftmargin + 0.05)
     # - infotop: top border of extra info text (default 1 - topmargin - 0.1)
     # - uncertainties: list of TH1, same length as histlist, that contain the uncertainties.
-    #                  note: not yet supported with the normalization option!
 
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -107,14 +106,18 @@ def plotmultihistograms(histlist,
             hist.SetBinContent(j,hist.GetBinContent(j)/scale)
             hist.SetBinError(j,hist.GetBinError(j)/scale)
 
-    ### style operations on uncertainty histograms
+    ### normalization and style operations on uncertainty histograms
     if uncertainties is not None:
-	for hist in uncertainties:
+	for i,hist in enumerate(uncertainties):
 	    if hist is not None:
 		hist.SetLineWidth(0)
 		hist.SetMarkerStyle(0)
 		hist.SetFillStyle(3254)
-		hist.SetFillColor(ROOT.kBlack)
+		hist.SetFillColor(colorlist[i])
+                if normalize: scale = histlist[i].Integral("width")
+                for j in range(0,hist.GetNbinsX()+2):
+                    hist.SetBinContent(j,hist.GetBinContent(j)/scale)
+                    hist.SetBinError(j,hist.GetBinError(j)/scale)
 
     ### make ratio histograms
     ratiohistlist = []
@@ -129,6 +132,24 @@ def plotmultihistograms(histlist,
 		rhist.SetBinContent(j,rhist.GetBinContent(j)/scale)
 		rhist.SetBinError(j,rhist.GetBinError(j)/scale)
 	ratiohistlist.append(rhist)
+
+    ### make ratio uncertainty histograms
+    ratiouncertainties = []
+    if uncertainties is not None:
+        for hist in uncertainties:
+            if hist is None:
+                ratiouncertainties.append(None)
+            else:
+                rhist = hist.Clone()
+                for j in range(0,rhist.GetNbinsX()+2):
+                    scale = histlist[0].GetBinContent(j)
+                    if scale<1e-12:
+                        rhist.SetBinContent(j,0)
+                        rhist.SetBinError(j,10)
+                    else:
+                        rhist.SetBinContent(j,rhist.GetBinContent(j)/scale)
+                        rhist.SetBinError(j,rhist.GetBinError(j)/scale)
+                ratiouncertainties.append(rhist)
  
     ### make legend for upper plot and add all histograms
     legend = ROOT.TLegend(plegendbox[0],plegendbox[1],plegendbox[2],plegendbox[3])
@@ -269,6 +290,9 @@ def plotmultihistograms(histlist,
 
     # draw objects
     ratiohistlist[0].Draw(drawoptions)
+    if ratiouncertainties is not None:
+        for hist in ratiouncertainties:
+            if hist is not None: hist.Draw("same e2")
     for hist in ratiohistlist[1:]:
         hist.Draw("same "+drawoptions)
     ROOT.gPad.RedrawAxis()

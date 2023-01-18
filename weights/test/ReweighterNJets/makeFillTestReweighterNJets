@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra 
+CFLAGS= -Wl,--no-as-needed
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= fillTestReweighterNJets.cc ../../../codeLibrary.o
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE= fillTestReweighterNJets
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+	
+clean:
+	rm -rf *o $(EXECUTABLE)
