@@ -77,7 +77,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	p1legendncols=None, p1legendbox=None,
 	extracmstext='', lumi=None,
 	extrainfos=[], infosize=None, infoleft=None, infotop=None,
-        binlabels=None, labelsize=None,
+        binlabels=None, labelsize=None, labelangle=None,
         canvaswidth=None, canvasheight=None):
     ### make a (stacked) simulation vs. data plot
     # arguments:
@@ -414,6 +414,11 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     xax.SetTitleFont(10*axtitlefont+3)
     xax.SetTitleSize(axtitlesize)
     xax.SetTitleOffset(xtitleoffset)
+    # label rotation
+    # does not seem to work with xax.ChangeLabel (only for numeric labels...),
+    # so use other option for now
+    if labelangle is not None:
+    	scerror.LabelsOption('v')
     # Y-axis layout
     yax = scerror.GetYaxis()
     yax.SetRangeUser(p2yaxrange[0],p2yaxrange[1]);

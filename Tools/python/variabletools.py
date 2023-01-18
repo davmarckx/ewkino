@@ -151,20 +151,21 @@ class HistogramVariable(object):
     bins = self.bins
     if self.bins is None:
       bins = np.linspace(self.xlow, self.xhigh,num=self.nbins+1)
+    nametag = self.name if self.shorttitle is None else self.shorttitle
     for i in range(self.nbins):
       binlabel = ''
       if( self.iscategorical and self.xlabels is not None ):
-        if extended: binlabel = '{} = {}'.format(self.name, self.xlabels[i])
+        if extended: binlabel = '{} = {}'.format(nametag, self.xlabels[i])
         else: binlabel = self.xlabels[i]
       else:
         if i==0:
-          if extended: binlabel = '{} < {}'.format(self.name, bins[1])
+          if extended: binlabel = '{} < {}'.format(nametag, bins[1])
           else: binlabel = '<{}'.format(bins[1])
         elif i==self.nbins-1:
-          if extended: binlabel = '{} > {}'.format(self.name, bins[-2])
+          if extended: binlabel = '{} > {}'.format(nametag, bins[-2])
           else: binlabel = '>{}'.format(bins[-2])
         else:
-          if extended: binlabel = '{} < {} < {}'.format(bins[i], self.name, bins[i+1])
+          if extended: binlabel = '{} < {} < {}'.format(bins[i], nametag, bins[i+1])
           else: binlabel = '{} - {}'.format(bins[i], bins[i+1])
       binlabels.append(binlabel)
     return binlabels

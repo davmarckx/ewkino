@@ -72,8 +72,8 @@ def plotchannels(channels, outfile,
     ROOT.gStyle.SetOptStat(0)
 
     # parse arguments
-    if font is None: font = 42 
-    if fontsize is None: fontsize = 0.04
+    if font is None: font = 43 
+    if fontsize is None: fontsize = 20
     lumi = str(lumi)
     dolumi = True
     if lumi=='': dolumi=False
@@ -82,15 +82,16 @@ def plotchannels(channels, outfile,
     if xaxcentral is None: 
 	docentral = False
 	xaxcentral = 0
+    legendnrows = 1.5
     if legendbox is None: 
-	legendbox = [0.75, 0.80, 0.90, 0.90]
+	legendbox = [0.15, 0.87, 0.9, 0.92]
 
     # intializations
     c1 = ROOT.TCanvas("c1")
     pad1 = ROOT.TPad("pad1","",0.,0.,1.,1.)
     pad1.SetBottomMargin(0.15)
     pad1.SetLeftMargin(0.1)
-    pad1.SetTopMargin(0.07)
+    pad1.SetTopMargin(0.06)
     #pad1.SetGridx(1)
     #pad1.SetGridy(1)
     pad1.Draw()
@@ -117,14 +118,16 @@ def plotchannels(channels, outfile,
 	    msg = 'WARNING in channelplotter: stat-only up error > total up error'
             msg += ' for channel {} ({})'.format(channel[0],label)
             print(msg)
-            systup = 0
+            systup = totup
+            statup = 0
         if totdown>statdown:
 	    systdown = math.sqrt(totdown**2-statdown**2)
 	else:
 	    msg = 'WARNING in channelplotter: stat-only down error > total down error'
             msg += ' for channel {} ({})'.format(channel[0],label)
             print(msg)
-            systdown = 0
+            systdown = totdown
+            statdown = 0
 
 	points.SetPoint(cnum, central, cnum+1)
 	points.SetPointError(cnum, totdown, totup, 0.5, 0.5)
@@ -175,6 +178,7 @@ def plotchannels(channels, outfile,
 	yax.SetTitleOffset(0.5)
     yax.SetLabelSize(0)
     yax.SetTickLength(0)
+    mg.SetMaximum(len(channels)+legendnrows)
     
     # unit line
     sm = ROOT.TLine(xaxcentral,0.5,xaxcentral,nchannels+0.5)
@@ -206,22 +210,26 @@ def plotchannels(channels, outfile,
     leg.AddEntry(points,'Measurement',"p")
     leg.AddEntry(points_statonly, 'Stat.', "f")
     leg.AddEntry(points, 'Total', "f")
+    leg.SetNColumns(3)
 
     # draw objects
     mg.Draw("P A2")
     if docentral: sm.Draw()
     for vertline in vertlines: vertline.Draw()
     for horline in horlines: horline.Draw()
+    pad1.Update()
+    c1.Update()
     for cnum,label in enumerate(labels):
 	tex = ROOT.TLatex()
 	tex.SetTextFont(font)
         tex.SetTextSize(fontsize)
 	ypos = points.GetY()[cnum]
 	yposndc = (ypos - ROOT.gPad.GetY1())/(ROOT.gPad.GetY2()-ROOT.gPad.GetY1())
-        tex.DrawLatexNDC(0.15,yposndc,label)
+	tex.DrawLatexNDC(0.15,yposndc,label)
     leg.Draw()
     lumitext = None if lumi is None else str(lumi)+' fb^{-1} (13 TeV)'
-    pt.drawLumi(pad1, extratext=extracmstext, lumitext=lumitext, cms_in_grid=False)
+    pt.drawLumi(pad1, extratext=extracmstext, lumitext=lumitext, cms_in_grid=False,
+                 cmstext_size_factor=0.6, cmstext_offset=0.01)
 
     pad1.Update()
     c1.Update()
