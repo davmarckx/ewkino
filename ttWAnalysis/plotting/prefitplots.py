@@ -130,7 +130,7 @@ if __name__=="__main__":
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
-  for histname in histnames: print('  {}'.format(histname))
+  #for histname in histnames: print('  {}'.format(histname))
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
@@ -142,8 +142,8 @@ if __name__=="__main__":
   if not args.rawsystematics:
     _ = remove_systematics_default( PIC, year=args.year )
     _ = add_systematics_default( PIC, year=args.year )
-  print('Constructed following ProcessInfoCollection from histogram list:')
-  print(PIC)
+  #print('Constructed following ProcessInfoCollection from histogram list:')
+  #print(PIC)
 
   # get valid processes and compare to arguments
   if doallprocesses:
@@ -173,6 +173,8 @@ if __name__=="__main__":
     canvaswidth = None
     canvasheight = None
     p1legendbox = None
+    p1legendncols = None
+    labelangle = None
     if isinstance(var,DoubleHistogramVariable): variablemode = 'double'
     if variablemode=='single':
       xaxtitle = var.axtitle
@@ -187,6 +189,7 @@ if __name__=="__main__":
       secondarybinlabels = var.secondary.getbinlabels(extended=True)
       binlabels = (primarybinlabels, secondarybinlabels)
       labelsize = 15
+      labelangle = 45
       canvaswidth = 900
       p1legendbox = [0.45, 0.7, 0.95, 0.9]
       p1legendncols = 4
@@ -283,6 +286,7 @@ if __name__=="__main__":
             extrainfos=extrainfos,
 	    lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
+            labelangle=labelangle,
             canvaswidth=canvaswidth, canvasheight=canvasheight,
             p1legendbox=p1legendbox,
             p1legendncols=p1legendncols )
@@ -300,6 +304,7 @@ if __name__=="__main__":
             extrainfos=extrainfos,
             lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
+            labelangle=labelangle,
             canvaswidth=canvaswidth, canvasheight=canvasheight,
             p1legendbox=p1legendbox,
             p1legendncols=p1legendncols,

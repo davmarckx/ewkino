@@ -87,6 +87,8 @@ def remove_systematics_default( processinfo, year=None ):
   pnonorm = ['WZ','ZZ','TTZ','ZG']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
   if 'Chargeflips' in processinfo.plist: pnonorm.append('Chargeflips')
+  for p in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
+    if p in processinfo.plist: pnonorm.append(p)
   allyears = ['2016PreVFP', '2016PostVFP', '2017', '2018']
   (rmforall, rmspecific) = get_systematics_to_disable( processinfo.plist, 
     pnonorm=pnonorm, year=year, allyears=allyears )

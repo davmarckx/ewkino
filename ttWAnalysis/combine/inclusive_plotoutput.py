@@ -30,13 +30,15 @@ if __name__=='__main__':
   xaxtitle = 'Obs./Pred.'
   yaxtitle = 'Measurement channel'
   xaxcentral = 1
+  xaxrange = None if not args.showvalues else (-0.8,1.8)
+  lumi = 138
 
   # make plot
   cp.plotchannels(channels, args.outputfile,
                   showvalues=args.showvalues, font=None, fontsize=None,
                   xaxtitle=xaxtitle, yaxtitle=yaxtitle,
-                  lumi=None,
+                  lumi=lumi,
                   xaxcentral=xaxcentral,
                   xaxlinecoords=[], yaxlinecoords=[],
-                  xaxrange=None, legendbox=None,
+                  xaxrange=xaxrange, legendbox=None,
                   extracmstext='Preliminary' )

@@ -12,20 +12,20 @@ topdir = sys.argv[1]
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 npmodes = []
-npmodes.append( 'npfromsim' )
+#npmodes.append( 'npfromsim' )
 npmodes.append( 'npfromdata' )
 
 cfmodes = []
-cfmodes.append( 'cffromsim' )
+#cfmodes.append( 'cffromsim' )
 cfmodes.append( 'cffromdata' )
 
 rename = '../eventselection/processes/rename_processes.json'

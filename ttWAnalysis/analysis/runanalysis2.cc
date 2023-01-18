@@ -94,7 +94,7 @@ std::shared_ptr<TH1D> findHistogramToFill(
 	    std::map< std::string, // selection type
 	    std::map< std::string, // variable
 	    std::map< std::string, // systematic
-	    std::shared_ptr<TH1D> > > > > > histMap,
+	    std::shared_ptr<TH1D> > > > > >& histMap,
     const std::string& processName,
     const std::string& eventSelection,
     const std::string& selectionType,
@@ -141,7 +141,7 @@ void fillHistogram(
             std::map< std::string, // selection type
             std::map< std::string, // variable
             std::map< std::string, // systematic
-            std::shared_ptr<TH1D> > > > > > histMap,
+            std::shared_ptr<TH1D> > > > > >& histMap,
     const std::string& processName,
     const std::string& eventSelection,
     const std::string& selectionType,
@@ -547,7 +547,11 @@ void fillSystematicsHistograms(
     }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events."<<std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
-        if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
+	// printouts for progress checking
+        if(entry%1000 == 0){
+	    if(entry < 10000 || (entry%10000 == 0)){
+		std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl; }
+	}
 
 	// build the event
 	Event event = treeReader.buildEvent(

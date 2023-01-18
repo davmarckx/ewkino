@@ -20,7 +20,7 @@ for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
 npmodes = ['npfromdata']
@@ -35,6 +35,9 @@ colormap = 'ttw'
 filemode = 'split'
 
 datatag = 'Data'
+
+#signals = None
+signals = ['TTW']
 
 cmds = []
 for year in years:
@@ -62,6 +65,8 @@ for year in years:
         cmd += ' --colormap '+colormap
         if unblind: cmd += ' --unblind'
         if dolog: cmd += ' --dolog'
+        if signals is not None:
+          cmd += ' --signals '+' '.join(signals)
         if runmode=='local':
           print('executing '+cmd)
           os.system(cmd)

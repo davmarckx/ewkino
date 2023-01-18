@@ -36,7 +36,7 @@ if __name__=='__main__':
   # hard-coded arguments
   poiranges = {}
   for poi in args.pois:
-    poiranges[poi] = (0., 3.)
+    poiranges[poi] = (0.5, 2.)
 
   # split workspace in directory and file name
   datacarddir, workspace = os.path.split(args.workspace)

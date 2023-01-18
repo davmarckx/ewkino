@@ -10,28 +10,28 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20221124'
+topdir = '../analysis/output_20230111_single'
   
 years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 #years = ['run2']
 
 regions = ({
-    'signalregion_dilepton_inclusive': '_yield',
-    'signalregion_trilepton': '_yield',
+    'signalregion_dilepton_inclusive': '_eventBDT',
+    'signalregion_trilepton': '_eventBDT',
     #'wzcontrolregion': '_yield',
     #'zzcontrolregion': '_yield',
     #'zgcontrolregion': '_yield',
-    'trileptoncontrolregion': '_yield',
-    'fourleptoncontrolregion': '_yield',
-    'npcontrolregion_dilepton_inclusive': '_yield',
-    'cfcontrolregion': '_yield'
+    'trileptoncontrolregion': '_nJets',
+    'fourleptoncontrolregion': '_nJets',
+    'npcontrolregion_dilepton_inclusive': '_eventBDT',
+    'cfcontrolregion': '_nJets'
 })
   
 inputfiletag = 'merged_npfromdata_cffromdata/merged.root'
 
-outputdir = 'datacards_20221205'
+outputdir = 'datacards_20230113_single'
 
-runmode = 'condor'
+runmode = 'local'
 
 # make output directory
 if not os.path.exists(outputdir):
@@ -57,13 +57,12 @@ for year in years:
     cmd += ' --outputfile {}'.format(outputfiletag)
     cmd += ' --processes all'
     cmd += ' --signals TTW'
-    cmd += ' --adddata'
     cmd += ' --datatag Data'
     cmds.append(cmd)
 
 # run commands
 if runmode=='local':
-  os.system(cmd)
+  for cmd in cmds: os.system(cmd)
 elif runmode=='condor':
   ct.submitCommandsAsCondorJob( 'cjob_makedatacard', cmds,
              cmssw_version=CMSSW_VERSION ) 

@@ -38,19 +38,20 @@ if __name__=='__main__':
       fls = []
       labels = []
       colors = []
-      basename = 'higgsCombine{}_out_likelihoodscan_{}_{}.MultiDimFit.mH120.root'
-      obs = basename.format(card,'obs',poi)
+      poitag = '' if poi=='r' else '_{}'.format(poi)
+      basename = 'higgsCombine{}_out_likelihoodscan_{}.MultiDimFit.mH120.root'
+      obs = basename.format(card,'obs',poitag)
       if os.path.exists(os.path.join(args.datacarddir,obs)):
         fls.append(obs)
         labels.append('Observed')
         colors.append(ROOT.kBlue+1)
         print('  adding file {}'.format(obs))
       obsstat = basename.format(card,'obs_stat',poi)
-      if os.path.exists(os.path.join(args.datacarddir,obsstat)):
-        fls.append(obsstat)
-        labels.append('Observed (stat. only)')
-        colors.append(ROOT.kAzure-4)
-        print('  adding file {}'.format(obsstat))
+      #if os.path.exists(os.path.join(args.datacarddir,obsstat)):
+      #  fls.append(obsstat)
+      #  labels.append('Observed (stat. only)')
+      #  colors.append(ROOT.kAzure-4)
+      #  print('  adding file {}'.format(obsstat))
       exp = basename.format(card,'exp',poi)
       if os.path.exists(os.path.join(args.datacarddir,exp)):
         fls.append(exp)
@@ -58,11 +59,11 @@ if __name__=='__main__':
         colors.append(ROOT.kMagenta+2)
         print('  adding file {}'.format(exp))
       expstat = basename.format(card,'exp_stat',poi)
-      if os.path.exists(os.path.join(args.datacarddir,expstat)):
-        fls.append(expstat)
-        labels.append('Expected (stat. only)')
-        colors.append(ROOT.kViolet-4)
-        print('  adding file {}'.format(expstat))
+      #if os.path.exists(os.path.join(args.datacarddir,expstat)):
+      #  fls.append(expstat)
+      #  labels.append('Expected (stat. only)')
+      #  colors.append(ROOT.kViolet-4)
+      #  print('  adding file {}'.format(expstat))
       if len(fls)==0:
         print('No files found for this card/POI combination, skipping...')
         continue

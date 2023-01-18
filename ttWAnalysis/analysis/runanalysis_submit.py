@@ -19,8 +19,8 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 
-dtypes = ['sim','data']
-#dtypes = ['sim']
+#dtypes = ['sim','data']
+dtypes = ['sim']
 
 selection_types = []
 selection_types.append('tight')
@@ -33,12 +33,12 @@ selection_types.append('irreducible')
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops' # main sample lists
-samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
+#samplelistdir = '../samplelists/fourtops' # main sample lists
+#samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-#samplelistdir = 'samplelists' # sample lists for TTW signal samples
-#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+samplelistdir = 'samplelists' # sample lists for TTW signal samples
+samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
 variables = '../variables/variables_particlelevel_double.json' # double variables
@@ -46,7 +46,7 @@ variables = '../variables/variables_particlelevel_double.json' # double variable
 #bdtfile = None
 bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
 
-outputdir = 'output_20230111_double'
+outputdir = 'output_20230111_double_signal'
 
 nevents = 1e6
 runlocal = False
@@ -58,10 +58,10 @@ submit_event_selections_combined = True
 for year in years:
   for dtype in dtypes:
     # set correct input directory
-    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
-    inputdiryear = year
-    #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
-    #inputdiryear = ''
+    #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    #inputdiryear = year
+    inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
+    inputdiryear = ''
     if dtype=='data':
       inputdir = inputdir.replace('_v4','_v5')
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
