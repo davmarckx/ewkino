@@ -236,6 +236,11 @@ for year in years:
         data_into_list.remove("")
     for i in range(len(data_into_list)):
         data_into_list[i] = data_into_list[i].split("  ")
+    
+    print(data_into_list)
+    data_into_list = [z for z in data_into_list if not ("#" in z[0])]
+    print(data_into_list)
+
     data_list = [z[1] for z in data_into_list]
     typelist = [z[0] for z in data_into_list]
     weightlist = [z[2] for z in data_into_list]

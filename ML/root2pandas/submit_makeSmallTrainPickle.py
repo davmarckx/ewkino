@@ -139,7 +139,7 @@ def submitCommandsAsCondorCluster(name, commands, stdout=None, stderr=None, log=
 #################################################################################################################
 
 years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
-regions = ['dilep_BDT']
+regions = ['GNN_withBDTvars']
 
 for year in years:
     commands = []

@@ -10,7 +10,7 @@ import random
 
 
 
-sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/flattened_allfeatures/{}_signalregion_dilepton_inclusive/"
+sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/flattened_NN2_selectedobjects/{}_signalregion_dilepton_inclusive/"
 def makePickle(filename, filetype, nr, year):
     events = uproot.open(sampledirectory.format(year) + filename)
     print(events["blackJackAndHookers/blackJackAndHookersTree"].keys())
@@ -28,10 +28,10 @@ def makePickle(filename, filetype, nr, year):
 
             df[0].drop(df[0].filter(regex='_y$').columns, axis=1, inplace=True)
             print(df[0])
-        df[0].to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/dilep_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
+        df[0].to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/GNN_withBDTvars/'.format(year) + filetype + '_' + str(nr) + '.bz2')
 
     else:
-        df.to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/dilep_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
+        df.to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/GNN_withBDTvars/'.format(year) + filetype + '_' + str(nr) + '.bz2')
 
 
 print(sys.argv[1] + sys.argv[2] + sys.argv[3], sys.argv[4])

@@ -32,6 +32,8 @@ from torch_geometric.nn import GraphConv
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn import GATConv
+from torch_geometric.nn import GraphNorm
+
 
 #plotting packages
 import seaborn as sns
@@ -238,21 +240,27 @@ class BigNetwork(nn.Module):
         return x,x3            # returns classification prediction and regression prdeiction, regression layers2 should be remodeled for each feature we want to decorrelate
 
 class GCN(torch.nn.Module):
-    def __init__(self, dropval, dataset,nheads=1,self_loops=True):
+    def __init__(self, dropval, dataset,nheads=1,self_loops=True,graphnorm=True):
         super().__init__()
-        self.conv1 = GATConv(dataset.num_node_features, 100, heads=nheads,edge_dim=1,add_self_loops=True,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
-        self.conv2 = GATConv(100*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
-        #self.conv3 = GATConv(100*nheads, 50, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean')
+        self.conv1 = GATConv(dataset.num_node_features, 200, heads=nheads,edge_dim=1,add_self_loops=True,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv2 = GATConv(200*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv3 = GATConv(100*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean')
         self.drop1 = nn.Dropout(p=dropval)
+        self.GraphNorm2 = GraphNorm(100*nheads)
+        self.GraphNorm1 = GraphNorm(200*nheads)
         self.layers1 = nn.Sequential(
           nn.Linear(100*nheads, 2),
+          #nn.Sigmoid(),
+          #nn.Linear(100, 2),
           nn.Sigmoid()
         )
 
     def forward(self, x, edge_index, batch):
         x = self.conv1(x, edge_index)
+        #x = self.GraphNorm1(x)
         x = F.relu(x)
         x = self.conv2(x, edge_index)
+        x = self.GraphNorm2(x)
         x = F.relu(x)
         x = global_mean_pool(x, batch)
         x = self.drop1(x)
@@ -614,7 +622,7 @@ def TrainANN2(X_train, y_train,X_test,y_test,yreg_train,yreg_test,weightage_trai
     return mlp
 
 
-def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,nheads=1,self_loops=True, epochs=15, manualNjobs=4):
+def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,sparse='',nheads=1,self_loops=True, epochs=15, manualNjobs=4):
     torch.manual_seed(42)
     torch.set_num_threads(manualNjobs)
     
@@ -665,7 +673,7 @@ def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize
             epoch_valloss.append(valloss.item()/len(testloader))
         loss_vals.append(sum(epoch_loss)/len(epoch_loss))
         valloss_vals.append(sum(epoch_valloss)/len(epoch_valloss))
-
+    status = status + sparse
     my_plot(np.linspace(1, num_epochs, num_epochs).astype(int), loss_vals, valloss_vals, dropval,epochs,learr,beta1,beta2,batchsize,status)
     return mlp
 
