@@ -16,6 +16,8 @@ import listtools as lt
 from variabletools import read_variables
 sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
+sys.path.append(os.path.abspath('../combine/'))
+from uncertaintytools import remove_systematics_default
 from systplotter import plotsystematics
 
 def get_jec_rms_list( hislist ):
@@ -67,6 +69,8 @@ if __name__=="__main__":
   parser.add_argument('--inputfile', required=True, type=os.path.abspath,
                       help='Input file to start from, supposed to be an output file'
                           +' from runsystematics.cc')
+  parser.add_argument('--year', required=True)
+  parser.add_argument('--region', required=True)
   parser.add_argument('--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
@@ -78,6 +82,9 @@ if __name__=="__main__":
                       help='Comma-separated list of systematic tags to include')
   parser.add_argument('--excludetags', default=None,
                       help='Comma-separated list of systematic tags to exclude')
+  parser.add_argument('--rawsystematics', action='store_true',
+                      help='Take the systematics from the input file without modifications'
+                          +' (i.e. no disablings).') 
   parser.add_argument('--datatag', default='data',
                       help='Process name of data histograms in input file.')
   parser.add_argument('--tags', default=None,
@@ -149,7 +156,9 @@ if __name__=="__main__":
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
   #  is the same for all variables)
-  PIC = ProcessInfoCollection.fromhistlist( histnames, variablenames[0], datatag=args.datatag )
+  splittag = args.region+'_'+variablenames[0]
+  print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
+  PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
   print('Constructed following ProcessInfoCollection from histogram list:')
   print(PIC)
 
@@ -184,17 +193,26 @@ if __name__=="__main__":
                       maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
 
     # make a ProcessCollection for this variable
-    PIC = ProcessInfoCollection.fromhistlist( thishistnames, variablename, datatag=args.datatag )
+    splittag = args.region+'_'+variablename
+    PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag, datatag=args.datatag )
+    if not args.rawsystematics:
+      _ = remove_systematics_default( PIC, year=args.year )
     PC = ProcessCollection( PIC, args.inputfile )
 
     # get the histograms
     histlist = []
     # loop over all systematics
     for systematic in sorted(shapesyslist):
-      histlist.append( PC.get_systematic_up(systematic) )
-      histlist.append( PC.get_systematic_down(systematic) )
+      uphist = PC.get_systematic_up(systematic)
+      uphist.SetTitle(systematic+'Up')
+      downhist = PC.get_systematic_down(systematic)
+      downhist.SetTitle(systematic+'Down')
+      histlist.append(uphist)
+      histlist.append(downhist)
     # also add the nominal
-    histlist.append( PC.get_nominal() )
+    nominalhist = PC.get_nominal()
+    nominalhist.SetTitle('nominal')
+    histlist.append(nominalhist)
 
     # printouts for testing
     #for hist in histlist:
@@ -216,14 +234,32 @@ if __name__=="__main__":
     #jecrms = get_jec_rms_list(histlist)
     #for hist in jecrms: histlist.append(hist)
 
+    # make a list of labels
+    # (remove year and process tags for more readable legends)
+    labellist = []
+    for hist in histlist:
+      label = str(hist.GetTitle())
+      baselabel = label
+      if label.endswith('Up'): baselabel = label[:-2]
+      if label.endswith('Down'): baselabel = label[:-4]
+      for p in processes:
+        p = str(p)
+        if baselabel.endswith(p):
+          label = label.replace(p,'')
+      for y in ['2016PreVFP','2016PostVFP','2017','2018']:
+        if baselabel.endswith(y): label = label.replace(y,'')
+      labellist.append(label)
+
     # make extra infos to display on plot
     extrainfos = []
     pinfohead = 'Processes:'
-    pinfostr = ''
-    for p in processes: pinfostr += '{}, '.format(str(p))
-    pinfostr = pinfostr.strip(' ,')
-    extrainfos.append(pinfohead)
-    extrainfos.append(pinfostr)
+    if doallprocesses:
+      pinfohead += ' all'
+      extrainfos.append(pinfohead)
+    else:
+      pinfostr = ','.join([str(p) for p in processes])
+      extrainfos.append(pinfohead)
+      extrainfos.append(pinfostr)
     for tag in extratags: extrainfos.append(tag)
 
     # set plot properties
@@ -231,12 +267,15 @@ if __name__=="__main__":
     figname = os.path.join(args.outputdir,figname)
     yaxtitle = 'Events'
     relyaxtitle = 'Normalized'
-    labellist = [hist.GetName().split(variablename)[-1].strip('_') for hist in histlist]
     plotsystematics(histlist, labellist, figname+'_abs', 
                     yaxtitle=yaxtitle, xaxtitle=xaxtitle,
                     relative=False, staterrors=True,
-                    extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15)
+                    extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15,
+                    remove_duplicate_labels=True,
+                    remove_down_labels=True)
     plotsystematics(histlist, labellist, figname+'_rel',
                     yaxtitle=relyaxtitle, xaxtitle=xaxtitle,
                     relative=True, staterrors=True,
-                    extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15)
+                    extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15,
+                    remove_duplicate_labels=True,
+                    remove_down_labels=True)
