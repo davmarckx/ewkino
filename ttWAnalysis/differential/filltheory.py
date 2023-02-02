@@ -9,6 +9,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = '~/CMSSW_12_4_6' # newer version needed for BDT evaluation
 sys.path.append(os.path.abspath('../../Tools/python'))
 import argparsetools as apt
 from samplelisttools import readsamplelist
