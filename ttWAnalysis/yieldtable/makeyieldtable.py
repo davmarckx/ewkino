@@ -16,7 +16,9 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser('Make a yield table')
   parser.add_argument('--inputfile', required=True, type=os.path.abspath)
   parser.add_argument('--region', required=True)
+  parser.add_argument('--outputfile', default=None)
   parser.add_argument('--datatag', default='Data')
+  parser.add_argument('--signals', default=None, nargs='+')
   parser.add_argument('--isnominalonly', default=False, action='store_true')
   args = parser.parse_args()
 
@@ -58,8 +60,31 @@ if __name__=='__main__':
   # make a ProcessCollection
   PC = ProcessCollection( PIC, args.inputfile )
 
-  # extract the yields
+  # extract and sort the yields
   pyields = PC.get_yields()
-  print('Yields:')
-  for key in sorted(pyields.keys()):
-    print('  - {} : {}'.format(key,pyields[key]))
+  pyields = sorted(pyields.items(), key=lambda el: el[1])
+  pyields = pyields[::-1]
+  pyieldsbkg = []
+  pyieldssig = []
+  pyieldtot = []
+  for pyield in pyields:
+    if( args.signals is not None and pyield[0] in args.signals ):
+      pyieldssig.append(pyield)
+    elif pyield[0]=='total':
+      pyieldtot.append(pyield)
+    else: pyieldsbkg.append(pyield)
+  pyields = pyieldssig + pyieldsbkg + pyieldtot
+
+  # prepare the lines for writing
+  lines = []
+  for pyield in pyields:
+    lines.append('{} : {}'.format(pyield[0],pyield[1]))
+
+  # write or print
+  print('Yields for file {}:'.format(args.inputfile))
+  for line in lines:
+    print('  - {}'.format(line))
+  if args.outputfile is not None:
+    with open(args.outputfile,'w') as f:
+      for line in lines:
+        f.write(line+'\n')
