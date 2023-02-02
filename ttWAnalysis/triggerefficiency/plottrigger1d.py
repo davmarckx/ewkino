@@ -69,9 +69,12 @@ if __name__=='__main__':
 
   # loop over all files
   for mergedfilepath in mergedfiles:
+    print('Running on file {}...'.format(mergedfilepath))
     directory = os.path.dirname(mergedfilepath)
     figdir = os.path.join(directory,'plots')
     if not os.path.exists(figdir): os.makedirs(figdir)
+    sfdir = os.path.join(directory,'scalefactors')
+    if not os.path.exists(sfdir): os.makedirs(sfdir)
 
     # get year from path name
     year = 0
@@ -87,8 +90,15 @@ if __name__=='__main__':
         {'name':'leptonpttrailing','xaxtitle':r'lepton p_{T}^{trailing} (GeV)'},
         {'name':'yield','xaxtitle':r'total efficiency'}
     ]
+
+    # load all objects
     objlist = ht.loadallhistograms(mergedfilepath, allow_tgraphs=True)
+    sfhistlist = []
+
+    # loop over variables
     for variable in variables:
+
+      # get all relevant objects
       simgraphlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_eff'])[1]
       datagraphlist = ht.selecthistograms(objlist,mustcontainall=['Run201',variable['name']+'_eff'])[1]
       simhistlist = ht.selecthistograms(objlist,mustcontainall=['mc',variable['name']+'_tot'])[1]
@@ -101,6 +111,8 @@ if __name__=='__main__':
         raise Exception('ERROR: wrong number of simulated efficiency graphs.')
       if len(simhistlist)!=1:
         raise Exception('ERROR: wrong number of simulated efficiency hists.')
+      simgraph = simgraphlist[0]
+      simhist = simhistlist[0]
       # set plot properties
       yaxtitle = 'Trigger efficiency'
       xaxtitle = variable['xaxtitle']
@@ -112,9 +124,44 @@ if __name__=='__main__':
 			  datahistlist=datahistlist, 
 			  datacolorlist=datacolorlist,
                           datalabellist=datalabellist,
-			  simgraph=simgraphlist[0], simhist=simhistlist[0],
+			  simgraph=simgraph, simhist=simhist,
 			  simcolor=ROOT.kBlack, simlabel='Simulation',
 			  simsysthist=None, 
 			  yaxtitle=yaxtitle, xaxtitle=xaxtitle,
 			  lumi=lumi, extracmstext='Preliminary',
                           dodataavg=True, dosimavg=True )
+
+      # calculate scale factors
+      for datagraph in datagraphlist:
+        era = datagraph.GetName().split('_')[1]
+        sfhist = datahistlist[0].Clone()
+        sfhist.Reset()
+        sfuphist = sfhist.Clone()
+        sfdownhist = sfhist.Clone()
+        sfhist.SetName('scalefactors_nominal_{}_{}'.format(era,variable['name']))
+        sfuphist.SetName('scalefactors_errorup_{}_{}'.format(era,variable['name']))
+        sfdownhist.SetName('scalefactors_errordown_{}_{}'.format(era,variable['name']))
+        for i in range(1, sfhist.GetNbinsX()+1):
+          dataeff = datagraph.GetY()[i-1]
+          simeff = simgraph.GetY()[i-1]
+          dataerrup = datagraph.GetErrorYhigh(i-1)
+          dataerrdown = datagraph.GetErrorYlow(i-1)
+          simerrup = simgraph.GetErrorYhigh(i-1)
+          simerrdown = simgraph.GetErrorYlow(i-1)
+          if( simeff > 0 and dataeff > 0 ):
+            sf = dataeff / simeff
+            sferrup = sf*( (dataerrup/dataeff)**2 + (simerrup/simeff)**2 )**0.5
+            sferrdown = sf*( (dataerrdown/dataeff)**2 + (simerrdown/simeff)**2 )**0.5
+	    sfhist.SetBinContent(i,sf)
+            sfhist.SetBinError(i,max(sferrup,sferrdown))
+            sfuphist.SetBinContent(i,sferrup)
+            sfdownhist.SetBinContent(i,sferrdown)
+        sfhistlist.append(sfhist)
+        sfhistlist.append(sfuphist)
+        sfhistlist.append(sfdownhist)
+
+    # write scale factor histograms to file
+    outfile = os.path.join(sfdir, 'scalefactors_{}.root'.format(year))
+    f = ROOT.TFile.Open( outfile, 'recreate' )
+    for hist in sfhistlist: hist.Write()
+    f.Close() 

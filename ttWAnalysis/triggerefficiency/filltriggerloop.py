@@ -16,10 +16,12 @@ years.append('2017')
 years.append('2018')
 
 event_selections = []
-event_selections.append('3tight_recoptcuts')
-event_selections.append('3fo_tightveto_recoptcuts')
-event_selections.append('2tightss_recoptcuts')
-event_selections.append('2foss_tightveto_recoptcuts')
+#event_selections.append('3tight_recoptcuts')
+#event_selections.append('3fo_tightveto_recoptcuts')
+#event_selections.append('2tightss_recoptcuts')
+#event_selections.append('2foss_tightveto_recoptcuts')
+event_selections.append('4tight_recoptcuts')
+event_selections.append('4fo_tightveto_recoptcuts')
 
 dtypes = []
 dtypes.append('sim')
@@ -33,12 +35,13 @@ for year in years:
   for event_selection in event_selections:
     for dtype in dtypes:
       inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4/{}'.format(year)
-      if dtype=='data': inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw'
+      if dtype=='data': inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_data'
       samplelist = 'samplelists/samples_trigger_{}_{}.txt'.format(year,dtype)
       outputdir = os.path.join(topdir,year,event_selection,dtype)
       pt_threshold_id = 'notset'
       if '3' in event_selection: pt_threshold_id = 'ttwtrilep'
       if '2' in event_selection: pt_threshold_id = 'ttwdilep'
+      if '4' in event_selection: pt_threshold_id = 'ttttfourlep'
       if os.path.exists(outputdir): os.system('rm -r '+outputdir)
       command = 'python filltrigger.py'
       command += ' --dimension 1'
@@ -56,10 +59,10 @@ for year in years:
 topdir = 'output_temp_2d'
 
 years = []
-years.append('2016PreVFP')
-years.append('2016PostVFP')
-years.append('2017')
-years.append('2018')
+#years.append('2016PreVFP')
+#years.append('2016PostVFP')
+#years.append('2017')
+#years.append('2018')
 
 event_selections = []
 event_selections.append('legacy_recoptcuts')
@@ -76,7 +79,7 @@ for year in years:
   for event_selection in event_selections:
     for dtype in dtypes:
       inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4/{}'.format(year)
-      if dtype=='data': inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw'
+      if dtype=='data': inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_data'
       samplelist = 'samplelists/samples_trigger_{}_{}.txt'.format(year,dtype)
       outputdir = os.path.join(topdir,year,event_selection,dtype)
       pt_threshold_id = 'ttwdilep'
