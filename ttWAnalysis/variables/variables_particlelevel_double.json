@@ -18,7 +18,7 @@
     "xlabels": ["0", "1", "2"]
   }
 },
-{ "name": "_eventBDTnElectons",
+{ "name": "_eventBDTnElectrons",
   "primary":
   { "name":    "_eventBDT",
     "variable":   "_eventBDT",
@@ -171,7 +171,7 @@
   {
     "name": "_jetEtaLeading",
     "variable": "_jetEtaLeading",
-    "bins": [-2.2, -1.5, 0.0, 1.5, 2.5],
+    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
     "axtitle": "Leading jet pseudorapidity",
     "shorttitle": "#eta(jet_{1})",
     "unit": ""

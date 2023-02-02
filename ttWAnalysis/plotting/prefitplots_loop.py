@@ -26,6 +26,8 @@ years.append('run2')
 npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
+unblind = False
+
 dolog = True
 
 variables = '../variables/variables_main.json'
@@ -52,8 +54,8 @@ for year in years:
           print('WARNING: input file {} does not exist; continuing...'.format(inputfile))
           continue
         thisoutputdir = '{}_{}_{}_{}'.format(year,region,npmode,cfmode)
+        if not unblind: thisoutputdir += '_blind'
         thisoutputdir = os.path.join(inputdir, subdir, 'plots', thisoutputdir)
-        unblind = True
         cmd = 'python prefitplots.py'
         cmd += ' --inputfile '+inputfile
         cmd += ' --year '+year

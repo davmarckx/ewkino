@@ -1,0 +1,11 @@
+[
+{
+  "name": "_eventBDT",
+  "variable": "_eventBDT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "BDT output",
+  "unit": ""
+}
+]

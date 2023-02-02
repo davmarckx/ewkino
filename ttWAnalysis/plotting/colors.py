@@ -140,8 +140,11 @@ def getcolormap_systematics():
     # first three are obsolete and replaced by qcdScalesShapeEnv and qcdScalesNorm
     # last two are obsolete and replaced by isrShape and isrNorm
     cmap['fScale'] = ROOT.kMagenta
+    cmap['fScaleNorm'] = ROOT.kMagenta+1
     cmap['rScale'] = ROOT.kMagenta+2
-    cmap['rfScales'] = ROOT.kMagenta-9
+    cmap['rScaleNorm'] = ROOT.kMagenta+3
+    cmap['rfScales'] = ROOT.kMagenta-7
+    cmap['rfScalesNorm'] = ROOT.kMagenta-8
     cmap['isrScale'] = ROOT.kViolet+1
     cmap['fsrScale'] = ROOT.kViolet+2
 
