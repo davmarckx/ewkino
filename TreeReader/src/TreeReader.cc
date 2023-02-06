@@ -430,9 +430,18 @@ void TreeReader::initSample( const Sample& samp ){
 }
 
 
-//initialize the next sample in the list
-void TreeReader::initSample(){
-    initSample( samples[ ++currentSampleIndex ] );
+// initialize a sample at a given index in the list
+void TreeReader::initSample( unsigned int sampleIndex,
+			     const bool doInitTree,
+                             const bool doInitHCounter ){
+    currentSampleIndex = sampleIndex;
+    initSample( samples[ sampleIndex ], doInitTree, doInitHCounter );
+}
+
+// initialize the next sample in the list
+void TreeReader::initSample( const bool doInitTree,
+                             const bool doInitHCounter ){
+    initSample( samples[ ++currentSampleIndex ], doInitTree, doInitHCounter );
 }
 
 

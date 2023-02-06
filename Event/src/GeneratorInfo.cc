@@ -98,7 +98,11 @@ double retrieveWeight( const double* array, const unsigned index,
     const std::string& name ){
     if( index >= maximumIndex ){
         std::string maximumIndexStr = std::to_string( maximumIndex );
-        throw std::out_of_range( "Only " + maximumIndexStr + " " + name + " variations are available, and an index larger or equal than " + maximumIndexStr + " is requested." );
+        //throw std::out_of_range( "Only " + maximumIndexStr + " " + name + " variations are available, and an index larger or equal than " + maximumIndexStr + " is requested." );
+	std::cout << "WARNING: only " + maximumIndexStr + " " + name + " variations are available";
+	std::cout << " and an index larger or equal than " + maximumIndexStr + " is requested;";
+	std::cout << " returning relative weight 1 instead..." << std::endl;
+	return 1;
     }
     return array[ index + offset ];
 }

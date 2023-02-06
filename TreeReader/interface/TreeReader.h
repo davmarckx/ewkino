@@ -296,8 +296,14 @@ class TreeReader {
                             bool includeParticleLevel = true );
 
         //initialize the next sample
-        void initSample();
-        void initSample(const Sample&);  
+        void initSample( const bool doInitTree = true,
+                         const bool doInitHCounter = true );
+        void initSample( unsigned int sampleIndex,
+                         const bool doInitTree = true,
+                         const bool doInitHCounter = true );
+        void initSample( const Sample&, 
+			 const bool doInitTree = true,
+			 const bool doInitHCounter = true );  
 
         //read sample list from text file
         void readSamples2016(const std::string&, const std::string&);
