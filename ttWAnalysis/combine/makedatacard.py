@@ -21,7 +21,9 @@ from uncertaintytools import add_systematics_default
 
 
 def makeProcessInfoCollection( inputfile, year, region, variable, processes, 
-  signals=[], includetags=[], excludetags=[], adddata=True, datatag='data',
+  signals=[], strict_signals=True,
+  includetags=[], excludetags=[], 
+  adddata=True, datatag='data',
   rawsystematics=False, verbose=False ):
   ### make a ProcessInfoCollection with specified parameters
 
@@ -83,7 +85,13 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
     for systematic in shapesyslist: print('  - '+systematic)
 
   # set some processes to signal
-  for p in signals: PIC.makesig( p )
+  for p in signals: 
+    if not strict_signals:
+      if p not in PIC.plist:
+        print('WARNING: requested signal {} not found in ProcessInfoCollection.'
+              +' Will continue anyway without this signal.')
+        continue
+    PIC.makesig( p )
 
   # manage systematics
   if not rawsystematics:
@@ -156,7 +164,8 @@ if __name__=="__main__":
   adddata = not args.dummydata
   (PIC, shapesyslist, normsyslist) = makeProcessInfoCollection( 
     args.inputfile, args.year, args.region, args.variable, processes,
-    signals=signals, includetags=includetags, excludetags=excludetags, 
+    signals=signals, strict_signals=False,
+    includetags=includetags, excludetags=excludetags, 
     adddata=adddata, datatag=args.datatag,
     verbose=True)
 

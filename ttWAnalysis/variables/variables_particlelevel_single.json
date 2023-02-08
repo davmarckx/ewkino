@@ -1,0 +1,94 @@
+[
+{
+  "name": "_nMuons",
+  "variable": "_nMuons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of muons in event",
+  "shorttitle": "N(#mu)",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
+},
+{
+  "name": "_nElectrons",
+  "variable": "_nElectrons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of electrons in event",
+  "shorttitle": "N(e)",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
+},
+{
+  "name": "_nJets",
+  "variable": "_nJets",
+  "nbins": "4",
+  "xlow": "1.5",
+  "xhigh": "5.5",
+  "axtitle": "Number of jets",
+  "shorttitle": "N(jets)",
+  "unit": ""
+},
+{
+  "name": "_nBJets",
+  "variable": "_nBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "shorttitle": "N(b-jets)",
+  "unit": ""
+},
+{
+  "name": "_leptonPtLeading",
+  "variable": "_leptonPtLeading",
+  "bins": [0.0, 50.0, 75.0, 100.0, 200.0],
+  "axtitle": "Leading lepton p_{T}",
+  "shorttitle": "p_{T}(l_{1})",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtSubLeading",
+  "variable": "_leptonPtSubLeading",
+  "bins": [0.0, 30.0, 50.0, 100.0],
+  "axtitle": "Subleading lepton p_{T}",
+  "shorttitle": "p_{T}(l_{2})",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonEtaLeading",
+  "variable": "_leptonEtaLeading",
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "axtitle": "Leading lepton pseudorapidity",
+  "shorttitle": "#eta(l_{1})",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaSubLeading",
+  "variable": "_leptonEtaSubLeading",
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "axtitle": "Subleading lepton pseudorapidity",
+  "shorttitle": "#eta(l_{2})",
+  "unit": ""
+},
+{
+  "name": "_jetPtLeading",
+  "variable": "_jetPtLeading",
+  "bins": [25.0, 100.0, 200.0, 300.0],
+  "axtitle": "Leading jet p_{T}",
+  "shorttitle": "p_{T}(jet_{1})",
+  "unit": "GeV"
+},
+{
+  "name": "_jetEtaLeading",
+  "variable": "_jetEtaLeading",
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "axtitle": "Leading jet pseudorapidity",
+  "shorttitle": "#eta(jet_{1})",
+  "unit": ""
+}
+]

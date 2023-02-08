@@ -54,6 +54,9 @@ systematics = ([
   "isrNorm",
   "fsrShape",
   "fsrNorm",
+  # extra uncertainties for high jet multiplicities
+  "njets",
+  "nbjets"
 ])
 #systematics = []
 

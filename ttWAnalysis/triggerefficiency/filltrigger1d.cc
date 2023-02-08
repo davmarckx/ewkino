@@ -150,6 +150,38 @@ void fillTriggerEfficiencyHistograms(
 	    if(event.leptonCollection().size()!=3) continue;
 	}
 
+        // select four loose light leptons
+        if(std::find(selectionTags.begin(),selectionTags.end(),"4loose")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            if(event.leptonCollection().size()!=4) continue;
+            if(std::find(selectionTags.begin(),selectionTags.end(),"tightveto")!=selectionTags.end()){
+                if(event.leptonCollection().numberOfTightLeptons()==4) continue;
+            }
+        }
+
+        // select four FO light leptons
+        if(std::find(selectionTags.begin(),selectionTags.end(),"4fo")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            event.selectFOLeptons();
+            if(event.leptonCollection().size()!=4) continue;
+            if(std::find(selectionTags.begin(),selectionTags.end(),"tightveto")!=selectionTags.end()){
+                if(event.leptonCollection().numberOfTightLeptons()==4) continue;
+            }
+        }
+
+        // select four tight light leptons
+        if(std::find(selectionTags.begin(),selectionTags.end(),"4tight")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            event.selectTightLeptons();
+            if(event.leptonCollection().size()!=4) continue;
+        }
+
 	// select two SS loose light leptons
         if(std::find(selectionTags.begin(),selectionTags.end(),"2loosess")!=selectionTags.end()){
             event.selectLooseLeptons();

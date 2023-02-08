@@ -303,6 +303,9 @@ class TreeReader {
         //initialize the next sample
         void initSample( const bool doInitTree = true,
                          const bool doInitHCounter = true );
+        void initSample( unsigned int sampleIndex,
+                         const bool doInitTree = true,
+                         const bool doInitHCounter = true );
         void initSample( const Sample&, 
 			 const bool doInitTree = true,
 			 const bool doInitHCounter = true );  

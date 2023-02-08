@@ -29,15 +29,16 @@ if __name__=='__main__':
 
   # first find directories to run on
   directories = []
+  required_contents = ['sim','data']
+  if args.data_only: required_contents = ['data']
   for root,dirs,files in os.walk(args.inputdir):
-    for dirname in dirs:
-      contents = os.listdir(os.path.join(root,dirname))
-      consider = True
-      required_contents = ['sim','data']
-      if args.data_only: required_contents = ['data']
-      for c in required_contents:
-        if( c not in contents ): consider = False
-      if consider: directories.append(os.path.join(root,dirname))
+    contents = os.listdir(os.path.join(root))
+    consider = True
+    for c in required_contents:
+      if( c not in contents ): consider = False
+    if consider: directories.append(root)
+  print('Will run on following directories:')
+  print(directories)
 
   # loop over all directories
   for directory in directories:

@@ -13,6 +13,7 @@ def plotdifferential(
     theoryhists,
     datahist,
     systhists=None,
+    statdatahist=None,
     figname=None, title=None, xaxtitle=None, yaxtitle=None,
     dolegend=True, labellist=None, 
     colorlist=None,
@@ -26,7 +27,8 @@ def plotdifferential(
     # arguments:
     # - theoryhists, colorlist, labellist: lists of TH1, ROOT colors and labels respectively
     # - systhists: list of TH1 with systematic uncertainties on theoryhists
-    # - datahist: TH1 with data
+    # - datahist: TH1 with the measurement values
+    # - statdatahist: TH1 with same bin contents as datahist but statistical-only errors
     # - figname: name of the figure to save (if None, do not save but return plot dictionary)
     # - title, xaxtitle, yaxtitle, figname: self-explanatory
     # - dolegend: boolean whether to make a legend (histogram title is used if no labellist)
@@ -114,11 +116,14 @@ def plotdifferential(
     datahist.SetMarkerColor(markercolor)
     datahist.SetMarkerSize(markersize)
     datahist.SetLineColor(markercolor)
+    statdatahist.SetMarkerSize(0)
+    statdatahist.SetLineColor(ROOT.kRed)
 
     ### make ratio histograms
     ratiohistlist = [h.Clone() for h in theoryhists]
     ratiodatahist = datahist.Clone()
-    allratiohists = ratiohistlist+[ratiodatahist]
+    ratiostatdatahist = statdatahist.Clone()
+    allratiohists = ratiohistlist+[ratiodatahist]+[ratiostatdatahist]
     ratiosysthists = None
     if systhists is not None:
         ratiosysthists = []
@@ -214,6 +219,7 @@ def plotdifferential(
     for hist in theoryhists:
         hist.Draw("same "+drawoptions)
     datahist.Draw("pe e1 x0 same")
+    statdatahist.Draw("pe e1 x0 same")
     if dolegend:
 	legend.Draw("same")
     ROOT.gPad.RedrawAxis()
@@ -261,6 +267,7 @@ def plotdifferential(
     for hist in ratiohistlist:
         hist.Draw("same "+drawoptions)
     ratiodatahist.Draw("pe e1 x0 same")
+    ratiostatdatahist.Draw("pe e1 x0 same")
     ROOT.gPad.RedrawAxis()
 
     # make and draw unit ratio line

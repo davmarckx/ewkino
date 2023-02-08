@@ -79,24 +79,27 @@ def read_multidimfit_from_txt( filename, pois=['r'] ):
   # output: dict of poi names to tuples of the form (central, downerror, uperror)
   poidict = {}
   nvalid = 0
+  autopoi = (pois=='auto')
   with open(filename,'r') as f:
     for l in f.readlines():
       l = l.strip(' ')
       if( '(68%)' in l and len(l.split(' '))==10 ):
         l = l.split(' ')
         poi = l[0]
-        if not poi in pois: continue
+        if not autopoi:
+          if not poi in pois: continue
         r = l[5].strip('+')
         uperror = l[8].split('/')[1].strip('+')
         downerror = l[8].split('/')[0].strip('-')
         if not (isnumber(r) and isnumber(uperror) and isnumber(downerror)): continue
         nvalid += 1
-  if nvalid != len(pois):
-    raise Exception('ERROR in outputparsetools.py / read_multidimfit_from_txt:'
+        poidict[poi] = (float(r),float(downerror),float(uperror))
+  if not autopoi:
+    if nvalid != len(pois):
+      raise Exception('ERROR in outputparsetools.py / read_multidimfit_from_txt:'
                    +' found {} valid entries'.format(nvalid)
                    +' in file {},'.format( filename )
                    +' while {} were expected.'.format(len(pois)))
-  poidict[poi] = (float(r),float(downerror),float(uperror))
   return poidict
 
 def read_multidimfit_from_root( rootfile, pois=['r'], correlations=False ):

@@ -13,8 +13,11 @@
     "_qcdScalesNorm",
     "_qcdScalesShapeEnv",
     "_rScale",
+    "_rScaleNorm",
     "_fScale",
+    "_fScaleNorm",
     "_rfScales",
+    "_rfScalesNorm",
     "_isrScale",
     "_isrShape",
     "_isrNorm"

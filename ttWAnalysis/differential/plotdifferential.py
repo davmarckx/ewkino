@@ -236,10 +236,21 @@ if __name__=='__main__':
       nominalhists[i].Scale(scale)
       systhists[i].Scale(scale)
 
+    # divide bin contents by bin widths
+    for nominalhist,systhist in zip(nominalhists,systhists):
+      for i in range(1,nominalhist.GetNbinsX()+1):
+        binwidth = nominalhist.GetBinWidth(i)
+        nominalhist.SetBinContent(i, nominalhist.GetBinContent(i)/binwidth)
+	nominalhist.SetBinError(i, nominalhist.GetBinError(i)/binwidth)
+	systhist.SetBinContent(i, systhist.GetBinContent(i)/binwidth)
+        systhist.SetBinError(i, systhist.GetBinError(i)/binwidth)
+
     # find signal strengths
     datahist = nominalhists[0].Clone()
+    statdatahist = nominalhists[0].Clone()
     if signalstrengths is None:
       datahist.Reset()
+      statdatahist.Reset()
     else:
       thisss = signalstrengths.get(variablename,None)
       if thisss is None:
@@ -247,18 +258,27 @@ if __name__=='__main__':
         msg += ' setting data to zero.'
         print(msg)
         datahist.Reset()
+        statdatahist.Reset()
       elif len(thisss)!=datahist.GetNbinsX():
         msg = 'ERROR: number of signal strengths and number of bins do not agree'
         msg += ' for variable {},'.format(variablename)
         msg += ' setting data to zero.'
         print(msg)
         datahist.Reset()
+        statdatahist.Reset()
       else:
         for i in range(1, datahist.GetNbinsX()+1):
           ss = thisss[i-1][0]
-          error = max(thisss[i-1][1],thisss[i-1][2])
+          if len(thisss[i-1])==3:
+            error = max(thisss[i-1][1],thisss[i-1][2])
+            staterror = 0
+          elif len(thisss[i-1])==5:
+            error = max(thisss[i-1][3],thisss[i-1][4])
+            staterror = max(thisss[i-1][1],thisss[i-1][2])
           datahist.SetBinContent(i, datahist.GetBinContent(i)*ss)
           datahist.SetBinError(i, datahist.GetBinContent(i)*error/ss)
+          statdatahist.SetBinContent(i, datahist.GetBinContent(i))
+          statdatahist.SetBinError(i, datahist.GetBinContent(i)*staterror/ss)
 
     # make extra infos to display on plot
     extrainfos = []
@@ -272,7 +292,11 @@ if __name__=='__main__':
     # set plot properties
     figname = variablename
     figname = os.path.join(args.outputdir,figname)
-    yaxtitle = 'd#sigma / d(something) (fb)'
+    yaxdenom = var.axtitle
+    if var.shorttitle is not None: yaxdenom = var.shorttitle
+    yaxunit = 'fb'
+    if var.unit is not None: yaxunit += '/{}'.format(var.unit)
+    yaxtitle = 'd#sigma / d{} ({})'.format(yaxdenom,yaxunit)
     extracmstext = 'Preliminary'
 
     # set lumi value to display
@@ -290,6 +314,7 @@ if __name__=='__main__':
     plotdifferential(
         nominalhists, datahist,
 	systhists=systhists,
+        statdatahist=statdatahist,
 	figname=figname,
         yaxtitle=yaxtitle, xaxtitle=xaxtitle,
         drawoptions='hist e',

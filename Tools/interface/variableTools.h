@@ -17,9 +17,6 @@ Tools for reading collections of histogram variables in txt format
 // include ROOT classes
 #include "TH1D.h"
 
-// include other parts of the framework
-#include "../../Tools/interface/HistInfo.h"
-
 class HistogramVariable{
 
     public:
@@ -42,6 +39,8 @@ class HistogramVariable{
 	double xhigh() const{ return _xhigh; }
         std::vector<double> bins() const{ return _bins; }
 	std::string toString() const;
+	std::shared_ptr<TH1D> initializeHistogram( const std::string& histName ) const;
+	std::shared_ptr<TH2D> initializeHistogram2D( const std::string& histName ) const;
 
     private:
 	std::string _name;
@@ -80,6 +79,7 @@ class DoubleHistogramVariable{
 	int findBinNumber( double primaryValue, double secondaryValue ) const;
 	int findPrimaryBinNumber( double primaryValue ) const;
 	int findSecondaryBinNumber( double secondaryValue ) const;
+	std::shared_ptr<TH1D> initializeHistogram( const std::string& histName ) const;
 
     private:
         std::string _name;
@@ -93,9 +93,6 @@ namespace variableTools{
 
     std::vector<HistogramVariable> readVariables( const std::string& txtFile );
     std::vector<DoubleHistogramVariable> readDoubleVariables( const std::string& txtFile );
-    std::vector<HistInfo> makeHistInfoVec( const std::vector<HistogramVariable>& vars );
-    std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms( 
-	const std::vector<HistInfo>& histInfoVec );
     std::map< std::string, std::shared_ptr<TH1D> > initializeHistograms(
 	const std::vector<HistogramVariable>& vars );
     std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms2D(

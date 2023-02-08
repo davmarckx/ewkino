@@ -14,6 +14,7 @@ std::vector<double> triggerTools::ptThresholds(
         if( channel=="ee"){ return {30., 20.}; }
     }
     if( id=="ttwtrilep"){ return {25., 15., 15.}; }
+    if( id=="ttttfourlep" ){ return {25., 15., 15., 10.}; } // (?)
     std::string msg = "ERROR in ptThresholds: id or channel not recognized";
     msg.append( " (id: "+id+", channel: "+channel+")." );
     throw std::runtime_error(msg);

@@ -90,10 +90,8 @@ std::map< std::string,     // process
 		    baseName = stringTools::removeOccurencesOf(baseName,"{");
 		    baseName = stringTools::removeOccurencesOf(baseName,"}");
 		    baseName = stringTools::removeOccurencesOf(baseName,"+");
-		    // make the histInfo object
-		    HistInfo histInfo( "", "", histVar.nbins(), histVar.xlow(), histVar.xhigh() );
 		    // add nominal histogram
-		    histMap[thisProcessName][eventSelection][selectionType][variableName]["nominal"] = histInfo.makeHist( baseName+"_nominal" );
+		    histMap[thisProcessName][eventSelection][selectionType][variableName]["nominal"] = histVar.initializeHistogram( baseName+"_nominal" );
 		    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at("nominal")->SetTitle(thisProcessName.c_str());
 		    // for data, skip initialization of histograms for systematics
                     // (except for selection type "fakerate", in which case systematic histograms
@@ -111,13 +109,13 @@ std::map< std::string,     // process
 			if(systematic=="pdfShapeVar"){
 			    for(unsigned i=0; i<numberOfPdfVariations; ++i){
 				std::string temp = systematic + std::to_string(i);
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			    std::vector<std::string> temps = {"pdfShapeEnvUp", "pdfShapeEnvDown",
 							      "pdfShapeRMSUp", "pdfShapeRMSDown"};
 			    for(std::string temp: temps){
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
@@ -126,12 +124,12 @@ std::map< std::string,     // process
 			else if(systematic=="qcdScalesShapeVar"){
 			    for(unsigned i=0; i<numberOfQcdScaleVariations; ++i){
 				std::string temp = systematic + std::to_string(i);
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			    std::vector<std::string> temps = {"qcdScalesShapeEnvUp", "qcdScalesShapeEnvDown"};
 			    for(std::string temp: temps){
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
@@ -141,10 +139,10 @@ std::map< std::string,     // process
 			    if( systematic=="JECGrouped" ) variations = groupedJecVariations;
 			    for(std::string jecvar: variations){
 				std::string temp = systematic + "_" + jecvar + "Up";
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 				temp = systematic + "_" + jecvar + "Down";
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
@@ -152,20 +150,20 @@ std::map< std::string,     // process
 			else if(systematic=="bTag_shape"){
 			    for(std::string btagsys: bTagShapeSystematics){
 				std::string temp = systematic + "_" + btagsys + "Up";
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 				temp = systematic + "_" + btagsys + "Down";
-				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
 			// now general case: store up and down variation
 			else{
 			    std::string temp = systematic + "Up";
-			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 			    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    temp = systematic + "Down";
-			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histInfo.makeHist( baseName+"_"+temp );
+			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 			    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			}
 		    }

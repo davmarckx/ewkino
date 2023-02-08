@@ -34,7 +34,7 @@ def findbyname(histlist,tag):
 
 def sethiststyle(hist, systematic):
     # set color and line properties of a histogram
-    hist.SetLineWidth(2)
+    hist.SetLineWidth(3)
     sysname = systematic
     if('Up' in systematic):
 	hist.SetLineStyle(0)
@@ -81,6 +81,7 @@ def plotsystematics( mchistlist, systematiclist, figname,
                      yaxtitle=None, yaxtitlesize=None, yaxtitleoffset=None,
 		     relative=True, staterrors=False,
                      yaxrange=None,
+                     remove_duplicate_labels=False, remove_down_labels=False,
                      extrainfos=[], infosize=None, infoleft=None, infotop=None,
 		     outtxtfile='' ):
     # input arguments:
@@ -161,6 +162,7 @@ def plotsystematics( mchistlist, systematiclist, figname,
     nentries = 0
     allJECHasLabel = False
     groupedJECHasLabel = False
+    unique_labels = []
     for i,hist in enumerate(mchistlist):
 	label = systematiclist[i]
 	# avoid drawing a legend entry for all shape variations
@@ -177,7 +179,16 @@ def plotsystematics( mchistlist, systematiclist, figname,
 		label = 'JECGrouped'
 		groupedJECHasLabel = True
 	    else: continue
-	if label[-4:]=='Down': label = '~Down'
+        # avoid drawing duplicate labels if requested
+        if( remove_duplicate_labels and label in unique_labels ): continue
+        else: 
+          unique_labels.append(label)
+        # modify down label for better readability
+	if label.endswith('Down'): label = '~Down'
+        # remove down labels if requested
+        if remove_down_labels:
+          if label == '~Down': continue
+          if label.endswith('Up'): label = label[:-2]
         legend.AddEntry(hist,label,"l")
 	nentries += 1
     legend.AddEntry(nominalhist,nominallabel,"l")

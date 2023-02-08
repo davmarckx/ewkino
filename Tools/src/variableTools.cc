@@ -49,6 +49,50 @@ std::string HistogramVariable::toString() const{
     return res;
 }
 
+std::shared_ptr<TH1D> HistogramVariable::initializeHistogram(
+    const std::string& histName ) const{
+    // initialize a histogram
+    std::shared_ptr<TH1D> hist;
+    // case of fixed bin width
+    if( bins().size()==0 ){
+        hist = std::make_shared<TH1D>(
+            histName.c_str(), name().c_str(),
+            nbins(), xlow(), xhigh() );
+    }
+    // case of variable bin width
+    else{
+        hist = std::make_shared<TH1D>(
+            histName.c_str(), name().c_str(),
+            nbins(), &(bins()[0]) );
+    }
+    hist->SetDirectory(0);
+    hist->Sumw2();
+    return hist;
+}
+
+std::shared_ptr<TH2D> HistogramVariable::initializeHistogram2D(
+    const std::string& histName ) const{
+    // initialize a 2D histogram (with same x and y bins)
+    std::shared_ptr<TH2D> hist;
+    // case of fixed bin width
+    if( bins().size()==0 ){
+        hist = std::make_shared<TH2D>(
+            histName.c_str(), name().c_str(),
+            nbins(), xlow(), xhigh(),
+            nbins(), xlow(), xhigh() );
+    }
+    // case of variable bin width
+    else{
+        hist = std::make_shared<TH2D>(
+            histName.c_str(), name().c_str(),
+            nbins(), &(bins()[0]),
+            nbins(), &(bins()[0]) );
+    }
+    hist->SetDirectory(0);
+    hist->Sumw2();
+    return hist;
+}
+
 
 // class definition of DoubleHistogramVariable
 
@@ -133,6 +177,21 @@ int DoubleHistogramVariable::findPrimaryBinNumber( double primaryValue ) const{
 int DoubleHistogramVariable::findSecondaryBinNumber( double secondaryValue ) const{
     int secondaryBinNb = findBin( _secondaryBins, secondaryValue );
     return secondaryBinNb;
+}
+
+std::shared_ptr<TH1D> DoubleHistogramVariable::initializeHistogram(
+    const std::string& histName ) const{
+    // initialize a 1D histogram
+    // note: the bin edges are ranging from 0.5 to nTotalBins+0.5 in steps of 1;
+    //       always fill by bin number rather than by value!
+    //       (use e.g. DoubleHistogramVariable::findBinNumber)
+    std::shared_ptr<TH1D> hist;
+    hist = std::make_shared<TH1D>(
+                histName.c_str(), name().c_str(),
+                nTotalBins(), 0.5, nTotalBins()+0.5 );
+    hist->SetDirectory(0);
+    hist->Sumw2();
+    return hist;
 }
 
 
@@ -259,33 +318,14 @@ std::vector<DoubleHistogramVariable> variableTools::readDoubleVariables(
     return res;
 }
 
-std::vector<HistInfo> variableTools::makeHistInfoVec( 
-    const std::vector<HistogramVariable>& vars ){
-    // make a vector of HistInfo objects from a vector of HistogramVariable objects
-    std::vector<HistInfo> histInfoVec;
-    for( HistogramVariable var: vars ){
-	histInfoVec.push_back( HistInfo(var.name(), var.variable(), var.nbins(), 
-					var.xlow(), var.xhigh()) );
-    }
-    return histInfoVec;
-}
-
-std::map< std::string, std::shared_ptr<TH1D> > variableTools::initializeHistograms(
-    const std::vector<HistInfo>& histInfoVec ){
-    // initialize histograms from a vector of HistInfo objects
-    std::map< std::string, std::shared_ptr<TH1D> > histograms;
-    for( HistInfo h: histInfoVec ){
-        histograms[h.name()] = h.makeHist( (std::string(h.name())).c_str() );
-        histograms[h.name()]->SetDirectory(0);
-    }
-    return histograms;
-}
-
 std::map< std::string, std::shared_ptr<TH1D> > variableTools::initializeHistograms(
     const std::vector<HistogramVariable>& vars ){
     // initialize histograms from a vector of HistogramVariable objects
-    std::vector<HistInfo> histInfoVec = makeHistInfoVec( vars );
-    return initializeHistograms( histInfoVec );
+    std::map< std::string, std::shared_ptr<TH1D> > res;
+    for( HistogramVariable var: vars ){
+        res[var.name()] = var.initializeHistogram(var.name());
+    }
+    return res;
 }
 
 std::map< std::string, std::shared_ptr<TH2D> > variableTools::initializeHistograms2D(
@@ -293,24 +333,7 @@ std::map< std::string, std::shared_ptr<TH2D> > variableTools::initializeHistogra
     // initialize 2D histograms (with same x and y bins)
     std::map< std::string, std::shared_ptr<TH2D> > res;
     for( HistogramVariable var: vars ){
-	std::shared_ptr<TH2D> hist;
-	// case of fixed bin width
-	if( var.bins().size()==0 ){
-	    hist = std::make_shared<TH2D>( 
-		var.name().c_str(), var.name().c_str(),
-		var.nbins(), var.xlow(), var.xhigh(),
-		var.nbins(), var.xlow(), var.xhigh() );
-	}
-	// case of variable bin width
-	else{
-	    hist = std::make_shared<TH2D>(
-		var.name().c_str(), var.name().c_str(),
-		var.nbins(), &(var.bins()[0]),
-                var.nbins(), &(var.bins()[0]) );
-	}
-	hist->SetDirectory(0);
-        hist->Sumw2();
-	res[var.name()] = hist;
+	res[var.name()] = var.initializeHistogram2D(var.name());
     }
     return res;
 }
@@ -323,13 +346,7 @@ std::map< std::string, std::shared_ptr<TH1D> > variableTools::initializeHistogra
     //       (use e.g. DoubleHistogramVariable::findBinNumber)
     std::map< std::string, std::shared_ptr<TH1D> > res;
     for( DoubleHistogramVariable var: vars ){
-        std::shared_ptr<TH1D> hist;
-	hist = std::make_shared<TH1D>(
-                var.name().c_str(), var.name().c_str(),
-                var.nTotalBins(), 0.5, var.nTotalBins()+0.5 );
-        hist->SetDirectory(0);
-        hist->Sumw2();
-        res[var.name()] = hist;
+        res[var.name()] = var.initializeHistogram(var.name());
     }
     return res;
 }

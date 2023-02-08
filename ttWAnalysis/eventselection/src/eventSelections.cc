@@ -296,10 +296,11 @@ bool passMllMassVeto( const Event& event ){
 // signal regions 
 // ---------------
 
-bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
+/*bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     // signal region with two same sign leptons,
-    // inclusive in lepton flavours
+    // inclusive in lepton flavours.
+    // legacy version used before 06/02/2023, maybe return to it later
     cleanLeptonsAndJets(event);
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;
@@ -326,6 +327,45 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
     if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false;
     if( njetsnbjets.first < 2 ) return false;
+    if(selectbjets){} // dummy to avoid unused parameter warning
+    return true;
+}*/
+
+bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with two same sign leptons,
+    // inclusive in lepton flavours.
+    // new version used on 06/02/2023 for dummy xsec measurement sync with Oviedo.
+    cleanLeptonsAndJets(event);
+    // apply trigger, pt thresholds and mll veto
+    if(not event.passMetFilters()) return false;
+    if(not passAnyTrigger(event)) return false;
+    if(!hasnFOLeptons(event,2,true)) return false;
+    if(!passMllMassVeto(event)) return false;
+    if(not passPhotonOverlapRemoval(event)) return false;
+    // do lepton selection for different types of selections
+    if( !doLeptonSelection(event, selectiontype, 2) ) return false;
+    event.sortLeptonsByPt();
+    if(event.leptonCollection()[0].pt() < 25. 
+        || event.leptonCollection()[1].pt() < 15. ) return false;
+    // leptons must be same sign
+    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
+    else{ if( !event.leptonsAreSameSign() ) return false; }
+    // Z veto for electrons
+    if( event.leptonCollection()[0].isElectron() 
+        && event.leptonCollection()[1].isElectron()
+        && event.hasZTollCandidate(10., true) ) return false;
+    // MET cut for electrons
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isElectron() ){
+	if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
+	else{ if(event.getMet(variation).pt()<30.) return false; }
+    }
+    // number of jets and b-jets
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
+    if( njetsnloosebjets.second < 2 ) return false;
+    if( njetsnbjets.first < 3 ) return false;
     if(selectbjets){} // dummy to avoid unused parameter warning
     return true;
 }

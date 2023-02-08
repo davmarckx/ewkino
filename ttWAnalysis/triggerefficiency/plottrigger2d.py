@@ -42,6 +42,8 @@ if __name__=='__main__':
     directory = os.path.dirname(mergedfilepath)
     figdir = os.path.join(directory,'plots')
     if not os.path.exists(figdir): os.makedirs(figdir)
+    sfdir = os.path.join(directory,'scalefactors')
+    if not os.path.exists(sfdir): os.makedirs(sfdir)
 
     # get year from path name
     year = 0
@@ -54,6 +56,7 @@ if __name__=='__main__':
     objlist = ht.loadallhistograms(mergedfilepath)
     objdict = {}
     for obj in objlist: objdict[obj.GetName()] = obj
+    sfhists = []
 
     # loop over flavour combinations
     for flavour in ['mm', 'me', 'em', 'ee']:
@@ -72,6 +75,10 @@ if __name__=='__main__':
       # make scale factor histogram
       sf = dataeff.Clone()
       sf.Divide(simeff)
+      # prepare scale factor histogram for writing
+      sf.SetName('scalefactors_{}_{}'.format(year,flavour))
+      sf.SetTitle('Scale factors {} {}'.format(year,flavour))
+      sfhists.append( sf )
       # set plot properties
       xaxtitle = 'Leading lepton p_{T} (GeV)'
       yaxtitle = 'Subleading lepton p_{T} (GeV)'
@@ -128,3 +135,9 @@ if __name__=='__main__':
                     cmstext_size_factor=1., extracmstext='Preliminary', lumitext=lumistr,
                     topmargin=0.05, rightmargin=0.2,
                     extrainfos=extrainfos, infofont=None, infosize=None, infoleft=None, infotop=None )
+
+    # write scale factor histograms to file
+    outfile = os.path.join(sfdir, 'scalefactors_{}.root'.format(year))
+    f = ROOT.TFile.Open( outfile, 'recreate' )
+    for hist in sfhists: hist.Write()
+    f.Close()
