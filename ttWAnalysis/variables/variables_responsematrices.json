@@ -131,14 +131,5 @@
   "xhigh": "2.5",
   "axtitle": "Trailing jet pseudorapidity",
   "unit": ""
-},
-{
-  "name": "buffer",
-  "variable": "_jetEtaSubLeading",
-  "nbins": "4",
-  "xlow": "-2.5",
-  "xhigh": "2.5",
-  "axtitle": "bufferplot",
-  "unit": ""
 }
 ]
