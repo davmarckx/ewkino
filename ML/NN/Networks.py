@@ -32,6 +32,8 @@ from torch_geometric.nn import GraphConv
 from torch_geometric.loader import DataLoader
 from torch_geometric.nn import global_mean_pool
 from torch_geometric.nn import GATConv
+from torch_geometric.nn import GraphNorm
+
 
 #plotting packages
 import seaborn as sns
@@ -69,7 +71,7 @@ def binary_acc(y_pred, y_test):
 ################### class to convert dataset into tensors #################
 class Dataset(torch.utils.data.Dataset):
 
-    def __init__(self, X, y, y_reg=None,regression=False,weightage=None):
+    def __init__(self, X, y, y_reg=None,regression=False,weightage=None,Multiclass=False):
         self.y_reg = None
         self.weight=None
         if not torch.is_tensor(X):
@@ -79,7 +81,7 @@ class Dataset(torch.utils.data.Dataset):
             
         outs = np.array(y)
         newouts = []
-        if regression == False:
+        if regression == False and Multiclass == False:
             for value in outs:
                 if value == 1:
                     newouts.append([0, 1])
@@ -90,6 +92,14 @@ class Dataset(torch.utils.data.Dataset):
                 self.y_reg = torch.from_numpy(np.array(y_reg))
             if not weightage is None:
                 self.weight = torch.from_numpy(np.array(weightage))
+
+        elif regression == False and Multiclass == True:
+            self.y = torch.from_numpy(outs)
+            if not y_reg is None:
+                self.y_reg = torch.from_numpy(np.array(y_reg))
+            if not weightage is None:
+                self.weight = torch.from_numpy(np.array(weightage))
+
         else:
             if not torch.is_tensor(X):
                 self.X = torch.from_numpy(np.array(X))
@@ -238,27 +248,64 @@ class BigNetwork(nn.Module):
         return x,x3            # returns classification prediction and regression prdeiction, regression layers2 should be remodeled for each feature we want to decorrelate
 
 class GCN(torch.nn.Module):
-    def __init__(self, dropval, dataset,nheads=1,self_loops=True):
+    def __init__(self, dropval, dataset,nheads=1,self_loops=True,graphnorm=True):
         super().__init__()
-        self.conv1 = GATConv(dataset.num_node_features, 100, heads=nheads,edge_dim=1,add_self_loops=True,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
-        self.conv2 = GATConv(100*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
-        #self.conv3 = GATConv(100*nheads, 50, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean')
+        self.conv1 = GATConv(dataset.num_node_features, 200, heads=nheads,edge_dim=1,add_self_loops=True,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv2 = GATConv(200*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv3 = GATConv(100*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean')
         self.drop1 = nn.Dropout(p=dropval)
+        self.GraphNorm2 = GraphNorm(100*nheads)
+        self.GraphNorm1 = GraphNorm(200*nheads)
         self.layers1 = nn.Sequential(
           nn.Linear(100*nheads, 2),
+          #nn.Sigmoid(),
+          #nn.Linear(100, 2),
           nn.Sigmoid()
         )
 
     def forward(self, x, edge_index, batch):
         x = self.conv1(x, edge_index)
+        #x = self.GraphNorm1(x)
         x = F.relu(x)
         x = self.conv2(x, edge_index)
+        x = self.GraphNorm2(x)
         x = F.relu(x)
         x = global_mean_pool(x, batch)
         x = self.drop1(x)
         x = self.layers1(x)
 
         
+        return x
+
+
+class MCGCN(torch.nn.Module):
+    def __init__(self, dropval, dataset,nheads=1,self_loops=True,graphnorm=True):
+        super().__init__()
+        self.conv1 = GATConv(dataset.num_node_features, 200, heads=nheads,edge_dim=1,add_self_loops=True,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv2 = GATConv(200*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean', dropout=dropval)
+        self.conv3 = GATConv(100*nheads, 100, heads=nheads,edge_dim=1,add_self_loops=self_loops,negative_slope=0.2,concat=True,fill_value='mean')
+        self.drop1 = nn.Dropout(p=dropval)
+        self.GraphNorm2 = GraphNorm(100*nheads)
+        self.GraphNorm1 = GraphNorm(200*nheads)
+        self.layers1 = nn.Sequential(
+          nn.Linear(100*nheads, 100),
+          nn.Sigmoid(),
+          nn.Linear(100, 5),
+          nn.Sigmoid()
+        )
+
+    def forward(self, x, edge_index, batch):
+        x = self.conv1(x, edge_index)
+        #x = self.GraphNorm1(x)
+        x = F.relu(x)
+        x = self.conv2(x, edge_index)
+        x = self.GraphNorm2(x)
+        x = F.relu(x)
+        x = global_mean_pool(x, batch)
+        x = self.drop1(x)
+        x = self.layers1(x)
+
+
         return x
 
 
@@ -614,7 +661,7 @@ def TrainANN2(X_train, y_train,X_test,y_test,yreg_train,yreg_test,weightage_trai
     return mlp
 
 
-def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,nheads=1,self_loops=True, epochs=15, manualNjobs=4):
+def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,sparse='',nheads=1,self_loops=True, epochs=15, manualNjobs=4):
     torch.manual_seed(42)
     torch.set_num_threads(manualNjobs)
     
@@ -665,8 +712,77 @@ def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize
             epoch_valloss.append(valloss.item()/len(testloader))
         loss_vals.append(sum(epoch_loss)/len(epoch_loss))
         valloss_vals.append(sum(epoch_valloss)/len(epoch_valloss))
-
+    status = status + sparse
     my_plot(np.linspace(1, num_epochs, num_epochs).astype(int), loss_vals, valloss_vals, dropval,epochs,learr,beta1,beta2,batchsize,status)
     return mlp
 
+def trainMCGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,sparse='',nheads=1,self_loops=True, epochs=15, manualNjobs=4):
+    torch.manual_seed(42)
+    torch.set_num_threads(manualNjobs)
 
+    trainloader = DataLoader(traindata, batch_size=batchsize, shuffle=True)
+    testloader = DataLoader(testdata, batch_size=batchsize, shuffle=False)
+    mlp = MCGCN(dropval, traindata[0],nheads,self_loops)
+    loss_function = nn.CrossEntropyLoss(reduction='none',weight=torch.tensor(classweight))
+    optimizer = torch.optim.AdamW(mlp.parameters(), lr=learr)
+
+    num_epochs = epochs
+    loss_vals=  []
+    valloss_vals = []
+    # Run the training loop
+    for epoch in range(0, num_epochs):
+        epoch_loss= []
+        epoch_valloss = []
+        print(f'Starting epoch {epoch+1}')
+        for i, data in enumerate(trainloader, 0):
+            targets, trainweight = data.y.float(), data.w.float()
+            newouts = []
+            for value in targets:
+                if value == 0:
+                    newouts.append([1, 0, 0, 0, 0])
+                elif value == 1:
+                    newouts.append([0, 1, 0, 0, 0])
+                elif value == 2:
+                    newouts.append([0, 0, 1, 0, 0])
+                elif value == 3:
+                    newouts.append([0, 0, 0, 1, 0])
+                elif value == 4:
+                    newouts.append([0, 0, 0, 0, 1])
+            targets = torch.from_numpy(np.array(newouts)).float()
+            #print(targets)
+            
+            #targets = targets.reshape((targets.shape[0], 5))
+            optimizer.zero_grad()
+            outputs = mlp(data.x, data.edge_index, data.batch)
+
+            #print(outputs) 
+            loss = loss_function(outputs, targets)
+            loss = (trainweight * loss).mean()
+            loss.backward()
+            epoch_loss.append(loss.item())
+            optimizer.step()
+        valloss = 0
+        for testdat in testloader:
+            newtouts = []
+            for value in testdat.y.float():
+                if value == 0:
+                    newtouts.append([1, 0, 0, 0, 0])
+                elif value == 1:
+                    newtouts.append([0, 1, 0, 0, 0])
+                elif value == 2:
+                    newtouts.append([0, 0, 1, 0, 0])
+                elif value == 3:
+                    newtouts.append([0, 0, 0, 1, 0])
+                elif value == 4:
+                    newtouts.append([0, 0, 0, 0, 1])
+            valoutputs = mlp(testdat.x, testdat.edge_index, testdat.batch)
+            valtargets = torch.from_numpy(np.array(newtouts)).float()
+            #valtargets = valtargets.reshape((valtargets.shape[0], 2))
+            vallosst = loss_function(valoutputs, valtargets)
+            valloss += (testdat.w.float() * vallosst).mean()
+            epoch_valloss.append(valloss.item()/len(testloader))
+        loss_vals.append(sum(epoch_loss)/len(epoch_loss))
+        valloss_vals.append(sum(epoch_valloss)/len(epoch_valloss))
+    status = status + sparse
+    my_plot(np.linspace(1, num_epochs, num_epochs).astype(int), loss_vals, valloss_vals, dropval,epochs,learr,beta1,beta2,batchsize,status)
+    return mlp
