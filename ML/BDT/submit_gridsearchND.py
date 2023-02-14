@@ -220,7 +220,7 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
-years = ["2016PreVFP","2016PostVFP","2017","2018"]#all
+years = ["all"]
 
 commands = []
 for year in years: 

@@ -10,7 +10,7 @@ import random
 
 
 
-sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/flattened_NN2_selectedobjects/{}_signalregion_dilepton_inclusive/"
+sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/output_dummy_test/{}_sim/signalregion_dilepton_inclusive_tight_nominal/"
 def makePickle(filename, filetype, nr, year):
     events = uproot.open(sampledirectory.format(year) + filename)
     print(events["blackJackAndHookers/blackJackAndHookersTree"].keys())

@@ -9,7 +9,7 @@ import condorTools as ct
 from jobSettings import CMSSW_VERSION
 
 inputdir = sys.argv[1]
-runmode = 'condor'
+runmode = 'local'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
@@ -20,8 +20,8 @@ for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
-years.append('run2')
+years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years.append('run2')
 
 npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
@@ -47,7 +47,7 @@ for year in years:
           print('WARNING: input file {} does not exist; continuing...'.format(inputfile))
           continue
         thisoutputdir = '{}_{}_{}_{}'.format(year,region,npmode,cfmode)
-        thisoutputdir = os.path.join(inputdir, subdir, 'plots', thisoutputdir)
+        thisoutputdir = os.path.join("~/public_html/newBDT", subdir, 'plots', thisoutputdir)
         unblind = True
         #if 'signalregion' in region: unblind = False
         cmd = 'python makeplots.py'

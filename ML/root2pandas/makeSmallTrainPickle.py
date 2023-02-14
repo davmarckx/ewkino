@@ -42,6 +42,6 @@ for i in range(len(dir_list)):
         df["class"] = dir_list[i].split("_")[0]
         other = pd.concat([other,df], ignore_index=True)
 
-alle.to_pickle('../ML_dataframes/trainsets/trainset_multiclass_smallBDTnew_' + year + '_' + region + '.pkl')
-other.to_pickle('../ML_dataframes/trainsets/otherset_multiclass_smallBDTnew_' + year + '_' + region + '.pkl')
+alle.to_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_' + year + '_' + region + '.pkl')
+other.to_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_' + year + '_' + region + '.pkl')
 

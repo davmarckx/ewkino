@@ -55,12 +55,12 @@ with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_proc
     dictio = json.load(json_file)
 
 if year=="all":
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=0.2)
-    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=0.2)
-    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=0.2)
-    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=0.2)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2018_GNN_withBDTvars.pkl').sample(frac=0.2)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2017_GNN_withBDTvars.pkl').sample(frac=0.2)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PostVFP_GNN_withBDTvars.pkl').sample(frac=0.2)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PreVFP_GNN_withBDTvars.pkl').sample(frac=0.2)
 
-    alle1["year"] = 1
+    alle1["year"] = 2
     alle2["year"] = 1
     alle3["year"] = 0
     alle4["year"] = 0

@@ -90,13 +90,13 @@ if year != 'all':
 
 
 else:
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2018_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2017_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2016PostVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2016PreVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2018_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2017_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PostVFP_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PreVFP_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
 
     # years are this way because OHE is too sparse for gBDTs and 0123 is an 'unphysical' ordering which didn't outperform in early benchmarks
-    alle1["year"] = 1
+    alle1["year"] = 2
     alle2["year"] = 1
     alle3["year"] = 0
     alle4["year"] = 0
@@ -109,12 +109,12 @@ if year != 'all':
     other1["year"] = 1
 
 else:
-    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDTnew_2018_dilep_BDT.pkl')
-    other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDTnew_2017_dilep_BDT.pkl')
-    other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDTnew_2016PostVFP_dilep_BDT.pkl')
-    other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDTnew_2016PreVFP_dilep_BDT.pkl')
+    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2018_GNN_withBDTvars.pkl')
+    other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2017_GNN_withBDTvars.pkl')
+    other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2016PostVFP_GNN_withBDTvars.pkl')
+    other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2016PreVFP_GNN_withBDTvars.pkl')
 
-    other1["year"] = 1
+    other1["year"] = 2
     other2["year"] = 1
     other3["year"] = 0
     other4["year"] = 0
@@ -230,7 +230,7 @@ print(y_other[y_other.isin([0])].empty)
 
 bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective='binary:logistic',n_jobs = 4)
 print("start training")
-bst.fit(X_train.to_numpy(), y_train.to_numpy(), sample_weight=weight_train_balanced.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy()), (X_other.to_numpy(), y_other.to_numpy())],sample_weight_eval_set=[weight_train,weight_test,weight_other])
+bst.fit(X_train.to_numpy(), y_train.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy()), (X_other.to_numpy(), y_other.to_numpy())],sample_weight_eval_set=[weight_train,weight_test,weight_other], sample_weight=weight_train_balanced.to_numpy())
 print("done, plotting")
 
 
@@ -273,7 +273,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_newbackgrd_{}_final_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_dummyanalysis_{}_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 
@@ -291,14 +291,14 @@ ax.legend()
 plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
 plt.ylabel('Error\n',fontsize=14,fontweight='semibold')
 plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
-plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_newbackgrd_{}_final_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_dummyanalysis_{}_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 
 
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_newbackgrd_{}_final_withbettergridsearchshort".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_dummyanalysis".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "~/public/models/XGBfinal_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort_{}.root".format(year))
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "~/public/models/XGB_dummyanalysis_{}_30features_lepMVA_removed.root".format(year))

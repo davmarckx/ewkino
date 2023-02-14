@@ -113,7 +113,7 @@ if __name__=='__main__':
 		    args.inputdir, args.samplelist, i, args.outputdir,
                     args.event_selection, args.selection_type, args.variation,
 		    muonfrmap, electronfrmap, electroncfmap, args.nevents, bdt )
-    commands.append(command)
+    commands.append(command)   
 
   # submit the jobs
   if args.runmode=='local':
