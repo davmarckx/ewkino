@@ -63,6 +63,9 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     ymax = hist.GetYaxis().GetXmax()
     # get the height of the underflow bin to draw a separating line
     ybins = hist.GetNbinsY()
+    xbins = hist.GetNbinsX()
+    print(ybins)
+    print(xbins)
     YShape = hist.ProjectionY('shape') 
     lowedge = YShape.GetBinLowEdge(ybins)
     zmin = hist.GetMinimum()
@@ -224,11 +227,12 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     # draw all objects in the response histogram pad
     pad1.cd()
     hist.Draw( drawoptions )
-    myline = ROOT.TLine(xmin,lowedge,xmax,lowedge)
-    myline.SetLineColorAlpha(2, 1) # black 1, red 2, blue 4, darkgray 12-14
-    myline.SetLineWidth(3)
-    myline.SetLineStyle(9)    
-    myline.Draw("same")
+    if not ybins == xbins:
+        myline = ROOT.TLine(xmin,lowedge,xmax,lowedge)
+        myline.SetLineColorAlpha(2, 1) # black 1, red 2, blue 4, darkgray 12-14
+        myline.SetLineWidth(3)
+        myline.SetLineStyle(9)    
+        myline.Draw("same")
     if histtitle is not None: ttitle.DrawLatexNDC(leftmargin,0.9,histtitle)
     pt.drawLumi(c1, extratext=extracmstext, cmstext_size_factor=0.6,
         cms_in_grid=True, lumitext=lumitext)
