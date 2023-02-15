@@ -220,19 +220,14 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
-years = ["2016PreVFP", "2016PostVFP", "2017", "2018"]
-trainOrOther = ["trainandtest", "other"]
-sparse = ["loose","fullyconnected", "sparse"]
+years = ["all"]
 
-
-for setting in sparse:
+for year in years:
     commands = []
-    for i in range(len(years)):
-        commands.append("python3.9 pickle2Graph.py " + years[i] + " " + trainOrOther[0] + " " + setting)
-        commands.append("python3.9 pickle2Graph.py " + years[i] + " " + trainOrOther[1] + " " + setting)
+    #for year in years:
+    commands.append("python3.9 pickle2Graph.py")
 
-
-    submitCommandsAsCondorCluster('cjob_pickle2graph' + setting, commands, stdout=None, stderr=None, log=None,
+    submitCommandsAsCondorCluster('cjob_pickle2graph', commands, stdout=None, stderr=None, log=None,
                         cpus=1, mem=2048, disk=10240,
                         home=None,
                         proxy=None,

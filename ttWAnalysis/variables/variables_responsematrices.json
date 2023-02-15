@@ -129,7 +129,7 @@
   "nbins": "4",
   "xlow": "-2.5",
   "xhigh": "2.5",
-  "axtitle": "Trailing jet pseudorapidity",
+  "axtitle": "Subleading jet pseudorapidity",
   "unit": ""
 }
 ]

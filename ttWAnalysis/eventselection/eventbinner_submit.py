@@ -40,13 +40,13 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 variables = '../variables/variables_main.json'
 
 #bdtfile = None
-#bdtfile = '../bdtweights/XGBfinal_all.root'
-bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
-nevents = -1
+bdtfile = '../bdtweights/XGBfinal_all.root'
+
+nevents = 1e6
 
 runmode = 'condor'
 
-outputdir = 'output_newBDT_09_02'
+outputdir = 'output_test'
 
 for year in years:
   for dtype in dtypes:

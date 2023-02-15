@@ -220,15 +220,16 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
-years = ['all']#'2016PreVFP','2016PostVFP','2017','2018', 'all']
-lr = ['0.05']#'0.005','0.01','0.05','0.05','0.05']
-depths = ['3']#'5','3','2','2','3']
-n_estimators = ['4000']#'3000','2000','3000','5000','4000']
+years = ['2016PreVFP','2016PostVFP','2017','2018', 'all']
+lr = ['0.01','0.05','0.05','0.05','0.1']
+depth = '2'
+n_estimators = ['5','2','4','3','2']
+
 
 commands = []
 for i in range(len(years)):
     #for year in years:
-    commands.append("python3.6 kfold_ROC.py " + years[i] + " " + lr[i] + " " + depths[i] + " " + n_estimators[i])
+    commands.append("python3.6 kfold_ROC.py " + years[i] + " " + lr[i] + " " + depth + " " + n_estimators[i])
 
 submitCommandsAsCondorCluster('cjob_kfoldROC', commands, stdout=None, stderr=None, log=None,
                         cpus=4, mem=2048, disk=10240,
