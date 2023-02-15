@@ -2,8 +2,6 @@
 # python script to run the fillResponseMatrices executable via job submission #
 ###############################################################################
 
-#example: python fillResponseMatrices.py --inputdir /pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal/ --samplelist samplelists/samples_test_TTW.txt --outputdir ouitput/ --variables ../variables/variables_responsematrices.json --event_selection signalregion_dilepton_inclusive --nevents 1000 --runmode local
-
 import sys
 import os
 import argparse

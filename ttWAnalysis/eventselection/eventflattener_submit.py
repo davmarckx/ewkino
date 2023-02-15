@@ -1,32 +1,31 @@
 ####################################################################################################
 # A very simple submitter that runs eventflattener.py for a number of predefined regions and years #
 ####################################################################################################
-# input_directory, sample_list, sample_index, output_directory, event_selection, selection_type, variation, muonfrmap, electronfrmap, electroncfmap, nevents
 
 import os
 import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-#for r in ['signalregion_trilepton']: regions.append(r)
-#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-#for r in ['cfcontrolregion']: regions.append(r)
+for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 selection_types = []
 selection_types.append('tight')
-#selection_types.append('prompt')
-#selection_types.append('fakerate')
+selection_types.append('prompt')
+selection_types.append('fakerate')
 
 variations = []
 variations.append('nominal')
 
 dtypes = []
 dtypes.append('sim')
-#dtypes.append('data')
+dtypes.append('data')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
@@ -39,7 +38,7 @@ bdtfile = '../bdtweights/XGBfinal_all.root'
 
 nevents = -1
 
-outputdir = 'output_dummy_test'
+outputdir = 'output_test'
 
 for year in years:
   for dtype in dtypes:

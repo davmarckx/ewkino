@@ -220,38 +220,25 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018' ]#CURRENTLY IMPLEMENTED FOR ALL YEARS, JUST RUN ONCE
+dropval = 0.25
+regdropval =  0.2
+learr = 0.0001
+beta1 = 0.05
+beta2 = 0.1
+batchsize = 50
+epochs = 100
+fract = 0.0001
+njobs = 4
+
 
 for year in years:
-    # opening the file in read mode
-    my_file = open("/user/dmarckx/ewkino/ttWAnalysis/samplelists/fourtops/samples_tttt_{}_sim.txt".format(year), "r")
-
-    # reading the file
-    data = my_file.read()
-
-    # replacing end splitting the text 
-    # when newline ('\n') is seen.
-    data_into_list = data.split("\n")
-    while("" in data_into_list):
-        data_into_list.remove("")
-    for i in range(len(data_into_list)):
-        data_into_list[i] = data_into_list[i].split("  ")
-    data_list = [z[1] for z in data_into_list]
-    typelist = [z[0] for z in data_into_list]
-    weightlist = [z[2] for z in data_into_list]
-
-    print(data_list)
-    my_file.close()
-
-
     commands = []
-    #for year in years:
-    for i in range(len(data_list)):
-         commands.append("python3.6 data2parquet.py " + data_list[i] + ' ' + typelist[i] + ' ' + str(i) + ' ' + year)
+    commands.append("python3.9 trainGNN_selobj.py " + str(dropval) + " " + str(regdropval) + " " + str(learr) + " " + str(beta1) + " " + str(beta2) + " " + str(batchsize) + " " + str(epochs) + " " + str(fract) + " " + str(year) + " " + str(njobs) + ' True')
 
-    submitCommandsAsCondorCluster('cjob_data2parquet', commands, stdout=None, stderr=None, log=None,
-                        cpus=1, mem=2048, disk=10240,
+submitCommandsAsCondorCluster('cjob_trainGNN_selobjsparse', commands, stdout=None, stderr=None, log=None,
+                        cpus=njobs, mem=2048, disk=10240,
                         home=None,
                         proxy=None,
-                        cmssw_version="CMSSW_10_6_28",
+                        cmssw_version="CMSSW_12_4_6",
                         jobflavour=None)

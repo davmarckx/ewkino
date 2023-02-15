@@ -220,25 +220,22 @@ def makeJobDescription(name, exe, argstring=None,
         f.write('queue\n\n')
     print('makeJobDescription created {}'.format(fname))
 
-years = ['all']#,'2016PostVFP']#,'2017','2018']
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
 dropval = 0.25 
 regdropval =  0.2
-learr = [0.001,0.001,0.001]
+learr = 0.0001
 beta1 = 0.05
 beta2 = 0.1
 batchsize = 50
-epochs = [20,20,20]
-nr_events = -1000
-sparse = ['sparse','fullyconnected']#, 'loose']          #sparse,fullyconnected or loose
-njobs = 8
+epochs = 100
+fract = 0.0005
+njobs = 4
 
 for year in years:
     commands = []
-    for i in range(len(sparse)):
-        commands.append("python3.9 trainGNN.py " + str(dropval) + " " + str(regdropval) + " " + str(learr[i]) + " " + str(beta1) + " " + str(beta2) + " " + str(batchsize) + " " + str(epochs[i]) + " " + str(nr_events) + " " + str(year) + " " + sparse[i] + " " + str(njobs))
-    print(commands)
-    submitCommandsAsCondorCluster('cjob_trainGNN', commands, stdout=None, stderr=None, log=None,
-                        cpus=njobs, mem=4096, disk=10240,
+    commands.append("python3.9 trainGNN.py " + str(dropval) + " " + str(regdropval) + " " + str(learr) + " " + str(beta1) + " " + str(beta2) + " " + str(batchsize) + " " + str(epochs) + " " + str(fract) + " " + str(year) + " " + str(njobs))
+submitCommandsAsCondorCluster('cjob_trainGNN', commands, stdout=None, stderr=None, log=None,
+                        cpus=njobs, mem=2048, disk=10240,
                         home=None,
                         proxy=None,
                         cmssw_version="CMSSW_12_4_6",

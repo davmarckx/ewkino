@@ -47,11 +47,11 @@ def initJobScript(name,
     if home=='auto': home = os.environ['HOME']
     # write script
     with open(fname,'w') as script:
-        # write bash shebang
+	# write bash shebang
         script.write('#!/bin/bash\n')
-        # write echo script name
-        script.write("echo '###exename###: {}'\n".format(fname))
-        # write export home
+	# write echo script name
+	script.write("echo '###exename###: {}'\n".format(fname))
+	# write export home
         if home is not None:
             script.write('export HOME={}\n'.format(home))
 	# write sourcing of common software
