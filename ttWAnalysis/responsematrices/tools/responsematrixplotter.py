@@ -210,6 +210,15 @@ def plotresponsematrix( hist, stability, purity, outfilepath,
     purity.Draw('same')
     p2legend.Draw('same')
 
+<<<<<<< HEAD
+   # draw all objects in the efficiency pad
+    pad3.cd()
+    efficiency.GetXaxis().SetLimits(xmin,xmax)
+    efficiency.Draw("AP")
+    p3legend.Draw('same')
+
+=======
+>>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
     # save the plot
     c1.Update()
     outfilepath = os.path.splitext(outfilepath)[0]

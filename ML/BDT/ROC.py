@@ -57,12 +57,22 @@ boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepFlavor_max':'f
        '_deepFlavor_leading':'f4', '_deepFlavor_subLeading':'f5', '_lT':'f6', '_pTjj_max':'f7',
        '_dRlb_min':'f8', '_dRl1l2':'f9', '_HT':'f10', '_nJets':'f11', '_nBJets':'f12',
        '_dRlWrecoil':'f13', '_dRlWbtagged':'f14', '_M3l':'f15', '_abs_eta_max':'f16', '_MET_pt':'f17',
+<<<<<<< HEAD
+       '_nMuons':'f18', #'_leptonMVATOP_min':'f19',
+       '_leptonChargeLeading':'f19',
+       '_leptonPtLeading':'f20', '_leptonPtSubLeading':'f21', '_leptonEtaLeading':'f22',
+       '_leptonEtaSubLeading':'f23', '_leptonELeading':'f24', '_leptonESubLeading':'f25',
+       '_jetPtLeading':'f26', '_jetPtSubLeading':'f27', '_jetMassLeading':'f28',
+       '_jetMassSubLeading':'f29','year':'f30'}#,'_jetEtaLeading':'f31', '_jetEtaSubLeading':'f32',
+       #'_dRl2btagged':'f33', '_dRl1btagged':'f34'}
+=======
        '_nMuons':'f18', '_leptonMVATOP_min':'f19',
        '_leptonChargeLeading':'f20',
        '_leptonPtLeading':'f21', '_leptonPtSubLeading':'f22', '_leptonEtaLeading':'f23',
        '_leptonEtaSubLeading':'f24', '_leptonELeading':'f25', '_leptonESubLeading':'f26',
        '_jetPtLeading':'f27', '_jetPtSubLeading':'f28', '_jetMassLeading':'f29',
        '_jetMassSubLeading':'f30','year':'f31'}
+>>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
 
 file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemaps/boostfeaturemap.pkl"
 # save boostfeaturemap to keep up to date and translate back
@@ -131,9 +141,24 @@ other1 = other1.replace({"class": dictio})
 other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject the test signal samples later on (otherwise bias)
 
 #make other validation sets
+<<<<<<< HEAD
+X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",
+'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+       '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region' ,'_leptonMVATOP_min','_jetEtaLeading', '_jetEtaSubLeading', '_nJetsNBJetsCat',
+ '_nJetsNZCat', '_dRl2btagged', '_dRl1btagged', '_deepCSV_1', '_deepCSV_2', '_deepCSV_3', '_deepCSV_4', '_deepCSV_5', '_deepCSVc_1', '_deepCSVc_2', '_deepCSVc_3', '_deepCSVc_4', '_deepCSVc_5', 
+'_deepCSVudsg_1', '_deepCSVudsg_2', '_deepCSVudsg_3', '_deepCSVudsg_4', '_deepCSVudsg_5', '_deepFlavor_1', '_deepFlavor_2', '_deepFlavor_3', '_deepFlavor_4', '_deepFlavor_5', '_eventNN', 
+'_leptonCharge1', '_leptonCharge2', '_leptonCharge3', '_leptonFlavor1', '_leptonFlavor2', '_leptonFlavor3', '_leptonMVATOP_l1', '_leptonMVATOP_l2', '_leptonMVATOP_l3', '_leptonPt1', '_leptonPt2', 
+'_leptonPt3', '_leptonEta1', '_leptonEta2', '_leptonEta3', '_leptondR12', '_leptondR23', '_leptondR13', '_lepmetdP1', '_lepmetdP2', '_lepmetdP3', '_leptonE1', '_leptonE2', '_leptonE3', '_jetPt1', 
+'_jetPt2', '_jetPt3', '_jetPt4', '_jetPt5', '_jetEta1', '_jetEta2', '_jetEta3', '_jetEta4', '_jetEta5', '_jetdR12', '_jetdR23', '_jetdR13', '_jetdR14', '_jetdR15', '_jetdR24', '_jetdR25', '_jetdR34', 
+'_jetdR35', '_jetdR45', '_jetmetdP1', '_jetmetdP2', '_jetmetdP3', '_jetmetdP4', '_jetmetdP5', '_jet1l1dR', '_jet1l2dR', '_jet1l3dR', '_jet2l1dR', '_jet2l2dR', '_jet2l3dR', '_jet3l1dR', '_jet3l2dR', 
+'_jet3l3dR', '_jet4l1dR', '_jet4l2dR', '_jet4l3dR', '_jet5l1dR', '_jet5l2dR', '_jet5l3dR', '_jetE1', '_jetE2', '_jetE3', '_jetE4', '_jetE5', '_jetMass1', '_jetMass2', '_jetMass3', '_jetMass4', 
+'_jetMass5', '_l1_3dIP', '_l2_3dIP', '_l3_3dIP', '_l3sip3d',
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry',], axis=1)
+=======
 X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
+>>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
 X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 X_other.loc[X_other['class'] != 1, 'class'] = 0
 
@@ -266,7 +291,7 @@ plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
 plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_final_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
-
+print(list(X_train.columns))
 
 #save the model
 file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_final_withother".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
