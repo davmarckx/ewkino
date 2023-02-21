@@ -139,7 +139,7 @@ if __name__=='__main__':
       outfile = os.path.join(args.outputdir, varname+'_custom')
       xaxtitle = 'Particle level '+axtitle[:1].lower()+axtitle[1:]
       yaxtitle = 'Detector level '+axtitle[:1].lower()+axtitle[1:]
-      rmp.plotresponsematrix( hist, stability, purity, outfile, outfmts=['.png'],
+      rmp.plotresponsematrix( hist,efficiency, stability, purity, outfile, outfmts=['.png'],
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
             drawoptions=drawoptions,
             lumitext=lumitext, extracmstext=extracmstext,
