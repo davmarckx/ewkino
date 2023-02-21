@@ -32,7 +32,7 @@ variables = '../variables/variables_main.json'
 
 colormap = 'ttw'
 
-filemode = 'split'
+filemode = 'combined'#'split'
 
 cmds = []
 for year in years:

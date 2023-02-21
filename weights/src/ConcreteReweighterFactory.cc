@@ -11,6 +11,7 @@
 #include "../interface/ConcreteReweighterLeptons.h"
 #include "../interface/ConcreteSelection.h"
 #include "../interface/ReweighterPileup.h"
+#include "../interface/ReweighterTrigger.h"
 #include "../interface/ConcreteReweighterBTag.h"
 #include "../interface/ReweighterPrefire.h"
 
@@ -346,6 +347,10 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
 	    + "Collisions" + year + "_UltraLegacy_goldenJSON.root";
     combinedReweighter.addReweighter( "pileup",
         std::make_shared< ReweighterPileup >( pileupWeightPath ) );
+
+    // make Trigger reweighter
+    std::string triggerWeightPath = stringTools::formatDirectoryName( weightDirectory ) + "weightFilesUL/triggerSF/scalefactors_allYears.root";
+    combinedReweighter.addReweighter( "trigger", std::make_shared< ReweighterTrigger >( triggerWeightPath, year ) );
 
     // make prefire reweighter
     combinedReweighter.addReweighter( "prefire", std::make_shared< ReweighterPrefire >() );

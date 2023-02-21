@@ -65,6 +65,7 @@ boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepFlavor_max':'f
        '_jetPtLeading':'f26', '_jetPtSubLeading':'f27', '_jetMassLeading':'f28',
        '_jetMassSubLeading':'f29','year':'f30'}#,'_jetEtaLeading':'f31', '_jetEtaSubLeading':'f32',
        #'_dRl2btagged':'f33', '_dRl1btagged':'f34'}
+<<<<<<< HEAD
 =======
        '_nMuons':'f18', '_leptonMVATOP_min':'f19',
        '_leptonChargeLeading':'f20',
@@ -73,6 +74,8 @@ boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepFlavor_max':'f
        '_jetPtLeading':'f27', '_jetPtSubLeading':'f28', '_jetMassLeading':'f29',
        '_jetMassSubLeading':'f30','year':'f31'}
 >>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
+=======
+>>>>>>> tmp
 
 file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemaps/boostfeaturemap.pkl"
 # save boostfeaturemap to keep up to date and translate back
@@ -142,6 +145,9 @@ other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject th
 
 #make other validation sets
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> tmp
 X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",
 '_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region' ,'_leptonMVATOP_min','_jetEtaLeading', '_jetEtaSubLeading', '_nJetsNBJetsCat',
@@ -154,11 +160,14 @@ X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_event
 '_jet3l3dR', '_jet4l1dR', '_jet4l2dR', '_jet4l3dR', '_jet5l1dR', '_jet5l2dR', '_jet5l3dR', '_jetE1', '_jetE2', '_jetE3', '_jetE4', '_jetE5', '_jetMass1', '_jetMass2', '_jetMass3', '_jetMass4', 
 '_jetMass5', '_l1_3dIP', '_l2_3dIP', '_l3_3dIP', '_l3sip3d',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry',], axis=1)
+<<<<<<< HEAD
 =======
 X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
 >>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
+=======
+>>>>>>> tmp
 X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 X_other.loc[X_other['class'] != 1, 'class'] = 0
 
