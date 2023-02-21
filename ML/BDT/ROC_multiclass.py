@@ -62,8 +62,7 @@ boostfeaturemap = {'_abs_eta_recoil':'f1', '_Mjj_max':'f2', '_deepFlavor_max':'f
        '_leptonPtLeading':'f20', '_leptonPtSubLeading':'f21', '_leptonEtaLeading':'f22',
        '_leptonEtaSubLeading':'f23', '_leptonELeading':'f24', '_leptonESubLeading':'f25',
        '_jetPtLeading':'f26', '_jetPtSubLeading':'f27', '_jetMassLeading':'f28',
-       '_jetMassSubLeading':'f29','year':'f30'}#,'_jetEtaLeading':'f31', '_jetEtaSubLeading':'f32',
-       #'_dRl2btagged':'f33', '_dRl1btagged':'f34'}
+       '_jetMassSubLeading':'f29','year':'f30'}
 
 file_name = "/user/dmarckx/ewkino/ML/BDT/boostfeaturemaps/boostfeaturemap.pkl"
 # save boostfeaturemap to keep up to date and translate back
@@ -91,10 +90,10 @@ if year != 'all':
 
 
 else:
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2018_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
-    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2017_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
-    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PostVFP_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
-    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_multiclass_dummy_2016PreVFP_GNN_withBDTvars.pkl').sample(frac=fract, random_state=13)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2018_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2017_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2016PostVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDTnew_2016PreVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
 
     # years are this way because OHE is too sparse for gBDTs and 0123 is an 'unphysical' ordering which didn't outperform in early benchmarks
     alle1["year"] = 2
@@ -106,14 +105,14 @@ else:
     alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True)
 
 if year != 'all':
-    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDTnew_2018_dilep_BDT.pkl')
+    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_{}_dilep_BDT.pkl'.format(year))
     other1["year"] = 1
 
 else:
-    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2018_GNN_withBDTvars.pkl')
-    other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2017_GNN_withBDTvars.pkl')
-    other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2016PostVFP_GNN_withBDTvars.pkl')
-    other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_multiclass_dummy_2016PreVFP_GNN_withBDTvars.pkl')
+    other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2018_dilep_BDT.pkl')
+    other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2017_dilep_BDT.pkl')
+    other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PostVFP_dilep_BDT.pkl')
+    other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PreVFP_dilep_BDT.pkl')
 
     other1["year"] = 2
     other2["year"] = 1
@@ -128,38 +127,35 @@ else:
 # only keep positive weight training samples
 alle1["region"] = "dilep"
 alle1 = alle1[alle1["_weight"]>0]
-alle1 = alle1.replace({"class": dictio})
+#alle1 = alle1.replace({"class": dictio})
 
 other1["region"] = "dilep"
 other1 = other1[other1["_weight"]>0]
 other1 = other1[other1["class"] != "TTW"]
-other1 = other1.replace({"class": dictio})
+#other1 = other1.replace({"class": dictio})
 
 print(other1["class"].unique())
 print(alle1["class"].unique())
 
 #make other validation sets
-X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",
-'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
-       '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region' ,'_leptonMVATOP_min','_jetEtaLeading', '_jetEtaSubLeading', '_nJetsNBJetsCat',
- '_nJetsNZCat', '_dRl2btagged', '_dRl1btagged', '_deepCSV_1', '_deepCSV_2', '_deepCSV_3', '_deepCSV_4', '_deepCSV_5', '_deepCSVc_1', '_deepCSVc_2', '_deepCSVc_3', '_deepCSVc_4', '_deepCSVc_5', 
-'_deepCSVudsg_1', '_deepCSVudsg_2', '_deepCSVudsg_3', '_deepCSVudsg_4', '_deepCSVudsg_5', '_deepFlavor_1', '_deepFlavor_2', '_deepFlavor_3', '_deepFlavor_4', '_deepFlavor_5', '_eventNN', 
-'_leptonCharge1', '_leptonCharge2', '_leptonCharge3', '_leptonFlavor1', '_leptonFlavor2', '_leptonFlavor3', '_leptonMVATOP_l1', '_leptonMVATOP_l2', '_leptonMVATOP_l3', '_leptonPt1', '_leptonPt2', 
-'_leptonPt3', '_leptonEta1', '_leptonEta2', '_leptonEta3', '_leptondR12', '_leptondR23', '_leptondR13', '_lepmetdP1', '_lepmetdP2', '_lepmetdP3', '_leptonE1', '_leptonE2', '_leptonE3', '_jetPt1', 
-'_jetPt2', '_jetPt3', '_jetPt4', '_jetPt5', '_jetEta1', '_jetEta2', '_jetEta3', '_jetEta4', '_jetEta5', '_jetdR12', '_jetdR23', '_jetdR13', '_jetdR14', '_jetdR15', '_jetdR24', '_jetdR25', '_jetdR34', 
-'_jetdR35', '_jetdR45', '_jetmetdP1', '_jetmetdP2', '_jetmetdP3', '_jetmetdP4', '_jetmetdP5', '_jet1l1dR', '_jet1l2dR', '_jet1l3dR', '_jet2l1dR', '_jet2l2dR', '_jet2l3dR', '_jet3l1dR', '_jet3l2dR', 
-'_jet3l3dR', '_jet4l1dR', '_jet4l2dR', '_jet4l3dR', '_jet5l1dR', '_jet5l2dR', '_jet5l3dR', '_jetE1', '_jetE2', '_jetE3', '_jetE4', '_jetE5', '_jetMass1', '_jetMass2', '_jetMass3', '_jetMass4', 
-'_jetMass5', '_l1_3dIP', '_l2_3dIP', '_l3_3dIP', '_l3sip3d',
-       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry',], axis=1)
+X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+       '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region' ,'_leptonMVATOP_min',
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
 X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 X_other.loc[X_other['class'] != 1, 'class'] = 0
+
 
 # make training and testing sets
 X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region','_leptonMVATOP_min',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
-X.loc[X['class'] != 1, 'class'] = 0
+X.loc[X['class'] == 'TTZ', 'class'] = 0
+X.loc[X['class'] == 'TT', 'class'] = 2
+X.loc[X['class'] == 'TTG', 'class'] = 3
+X.loc[X['class'] == 'TTH', 'class'] = 4
+
+classes = ["TTZ","TTW","TT","TTG","TTH"]
 
 y_other = X_other['class']
 y = X['class']
@@ -176,19 +172,30 @@ print(y.unique())
 
 
 #split into train test, can use kfolds later
-X_train, X_test, y_train, y_test = train_test_split(X.astype(float), y.astype(int), test_size=0.20, random_state=13)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.20, random_state=13)
 
 # calculate class imbalance
-sums = X_train.groupby('class')["_weight"].sum()
+sums = list(X_train.groupby('class')["_weight"].sum())
 print(sums)
-class_imbalance_SF = sums[0]/sums[1]
-print(class_imbalance_SF)
+class_imbalance_1 = 1#/(sums[0]/(sums[0]+sums[1]+sums[2]+sums[3]+sums[4]))
+class_imbalance_2 = 1/(sums[1]/max([sums[0],sums[1],sums[2],sums[3],sums[4]]))
+class_imbalance_3 = 1#/(sums[2]/(sums[0]+sums[1]+sums[2]+sums[3]+sums[4]))
+class_imbalance_4 = 1#/(sums[3]/(sums[0]+sums[1]+sums[2]+sums[3]+sums[4]))
+class_imbalance_5 = 1#/(sums[4]/(sums[0]+sums[1]+sums[2]+sums[3]+sums[4]))
+
+
+print(class_imbalance_1)
 
 
 # rescale training weights
 X_train['_weight_balanced'] = X_train['_weight']
-X_train.loc[X_train['class'] == 1, '_weight_balanced'] = class_imbalance_SF
-X_train.loc[X_train['class'] == 0, '_weight_balanced'] = 1
+X_train.loc[X_train['class'] == 0, '_weight_balanced'] = 1 #class_imbalance_1
+X_train.loc[X_train['class'] == 1, '_weight_balanced'] = class_imbalance_2
+X_train.loc[X_train['class'] == 2, '_weight_balanced'] = 1 #class_imbalance_3
+X_train.loc[X_train['class'] == 3, '_weight_balanced'] = 1 #class_imbalance_4
+X_train.loc[X_train['class'] == 4, '_weight_balanced'] = 1 #class_imbalance_5
+
+
 X_train['_weight_balanced'] = X_train['_weight_balanced'] * X_train['_weight']
 
 weight_train = X_train['_weight']
@@ -197,13 +204,13 @@ weight_train_balanced = X_train['_weight_balanced']
 
 
 # last unused features can be dropped
-X_train = X_train.drop(['_weight', 'class','_weight_balanced'], axis = 1)
+X_train = X_train.drop(['_weight', 'class','_weight_balanced'], axis = 1).astype(float)
 #remove signal samples to only inject the test signal samples later on (otherwise bias
 X_other = X_other[X_other["class"]!=1]
 print("X_test classes")
 print(X_test["class"])
 X_other = pd.concat([X_other, X_test[X_test["class"]==1]],ignore_index=True)
-y_other = pd.concat([y_other, y_test[X_test["class"]==1]],ignore_index=True).astype(int)
+y_other = pd.concat([y_other, y_test[X_test["class"]==1]],ignore_index=True)
 X_test = X_test.drop(['_weight', 'class'], axis = 1)
 weight_other =  X_other['_weight']
 
@@ -214,7 +221,7 @@ print("X_other")
 print(X_other)
 
 # last safety to modify classes to numerical
-if (not y_train[y_train.isin(['TTW','TTX'])].empty):
+if (not y_train[y_train.isin(['TTRR','TTXRR'])].empty):
     print("some class was not converted!")
     print(y_train.unique())
     y_train = pd.Series(np.where(y_train.values == 'TTW', 1, 0),y_train.index)
@@ -234,81 +241,116 @@ X_other.rename(columns=boostfeaturemap,inplace=True)
 # safety for when you test with small samples
 print("do we have signals?")
 print(not y_train[y_train.isin([1])].empty)
-print(y_other[y_other.isin([1])].empty)
 print(y_other[y_other.isin([0])].empty)
+print(y_other[y_other.isin([1])].empty)
+print(not y_other[y_other.isin([2])].empty)
 
 
-bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective='binary:logistic',n_jobs = 4)
+
+bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth,num_class=5, learning_rate= lr, objective='objective=multi:softmax',n_jobs = 4)
 print("start training")
-bst.fit(X_train.to_numpy(), y_train.to_numpy(),eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy()), (X_other.to_numpy(), y_other.to_numpy())],sample_weight_eval_set=[weight_train,weight_test,weight_other], sample_weight=weight_train_balanced.to_numpy())
+bst.fit(X_train.to_numpy(), y_train.to_numpy(), sample_weight=weight_train_balanced.to_numpy(), eval_metric=["merror","mlogloss"],eval_set = [(X_train.to_numpy(), y_train.to_numpy()), (X_test.to_numpy(), y_test.to_numpy()), (X_other.to_numpy(), y_other.to_numpy())],sample_weight_eval_set=[weight_train,weight_test,weight_other])
 print("done, plotting")
 
 
-# calculations for ROC
-y_pred_proba_orig = bst.predict_proba(X_test)[::,1]
-fpr_orig, tpr_orig, _ = metrics.roc_curve(y_test,  y_pred_proba_orig, sample_weight = weight_test)
-aucval_orig = metrics.roc_auc_score(y_test, y_pred_proba_orig, sample_weight = weight_test)
+# set plot figure size
+fig, ax = plt.subplots(1,1, figsize = (20, 20))
+linewidths = [1,3,1,1,1]
 
-y_pred_proba = bst.predict_proba(X_train)[::,1]
-fpr, tpr, _ = metrics.roc_curve(y_train,  y_pred_proba, sample_weight = weight_train)
-aucval = metrics.roc_auc_score(y_train, y_pred_proba, sample_weight = weight_train)
+def multiclass_roc_auc_score(y_tests, y_predicts,test_weight,colors, dataset,other=False, average="macro"):
+    y_testmod = list(y_tests)
+    y_testmod2 = list(y_tests)
+    target = [0,1,2,3,4]
+    if other:
+        target = [1]
+    print(target)
+    for (idx, c_label) in enumerate(target):
+        print("START AGAIN")
+        print("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++")
+        print(idx)
+        print(c_label)
+        #print(y_testmod)
+        #print(y_predicts[:,idx])
+        for i in range(len(y_testmod)):
+            if y_testmod2[i] == c_label:
+                # x = 0
+                y_testmod[i] = 1
+            else:
+                y_testmod[i] = 0
 
-y_pred_proba_other = bst.predict_proba(X_other)[::,1]
-fpr_other, tpr_other, _ = metrics.roc_curve(y_other,  y_pred_proba_other, sample_weight = weight_other)
-aucval_other = metrics.roc_auc_score(y_other, y_pred_proba_other, sample_weight = weight_other)
+        print(y_testmod)
+        #print(idx)
+        fpr, tpr, thresholds = roc_curve(pd.Series(y_testmod), y_predicts[:,idx],sample_weight = test_weight)
+        ax.plot(fpr, tpr, label = dataset + ' class ' + classes[idx]+ ' (AUC %0.2f)'  % (auc(fpr, tpr)), linewidth=linewidths[idx], color = colors[idx])
+
+    return #roc_auc_score(y_testmod, y_predicts, average=average,sample_weight = test_weight, multi_class = "ovr")
+
+y_pred_proba_test = bst.predict_proba(X_test)
+y_pred_proba_train = bst.predict_proba(X_train)
+y_pred_proba_other = bst.predict_proba(X_other)
+
+multiclass_roc_auc_score(y_test,y_pred_proba_test,weight_test,["lightskyblue","cornflowerblue","blue","mediumblue","darkblue"] ,"test", other=False)
+multiclass_roc_auc_score(y_train,y_pred_proba_train,weight_train, ["palegreen","limegreen","mediumseagreen","seagreen","darkgreen"], "train", other=False)
+multiclass_roc_auc_score(y_other,y_pred_proba_other,weight_other, ["darkorange"], "other", other=True)
 
 #make the plot
-ax = plt.figure(figsize=(20,20))
-
-ax.text(0.15, 0.87, 'CMS',
+ax.text(0.05, 0.97, 'CMS',
         horizontalalignment='left',
         verticalalignment='top',
         fontsize=32,
         fontweight='bold')
-ax.text(0.15, 0.84, 'Simulation Internal',
+ax.text(0.05, 0.94, 'Simulation Internal',
         horizontalalignment='left',
         verticalalignment='top',
         fontstyle = 'italic',
         fontsize=23)
 
-plt.plot(fpr_orig,tpr_orig,color="red",label="test auc="+str("{:.2f}".format(aucval_orig)))
-plt.plot(fpr,tpr,color="darkorange",label="train auc="+str("{:.2f}".format(aucval)))
-plt.plot(fpr_other,tpr_other,color="green",label="other backgrounds vs test signal auc="+str("{:.2f}".format(aucval_other)))
 plt.plot([0, 1], [0, 1], color="navy", linestyle="--")
 plt.xlabel("False Positive Rate", fontsize=30)
 plt.ylabel("True Positive Rate", fontsize=30)
 plt.title("Receiver operating characteristic", fontsize=40)
-plt.legend(loc="lower right", fontsize=35)
+ax.legend(loc="lower right", fontsize=35)
 plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_dummyanalysis_{}_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_splitmulticlass_weightmaxclass_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 
 #make the loss plot. this still doesnt include the sample weights in the loss, so these are wrong
 results = bst.evals_result()
 
-epochs = len(results['validation_0']['logloss'])
+epochs = len(results['validation_0']['merror'])
 x_axis = range(0, epochs)
 
-fig, ax = plt.subplots()
-ax.plot(x_axis, results['validation_0']['logloss'], label='Train')
-ax.plot(x_axis, results['validation_1']['logloss'], label='Test')
-#ax.plot(x_axis, results['validation_2']['logloss'], label='Other')
+fig, ax = plt.subplots(1,1, figsize = (20, 20))
+ax.plot(x_axis, results['validation_0']['merror'], label='Train')
+ax.plot(x_axis, results['validation_1']['merror'], label='Test')
+#ax.plot(x_axis, results['validation_2']['mlogloss'], label='Other')
 ax.legend()
 plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
 plt.ylabel('Error\n',fontsize=14,fontweight='semibold')
 plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
-plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_dummyanalysis_{}_withother_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/merror_{}_splitmulticlass_weightmaxclass_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
-print(list(X_train.columns))
+
+fig, ax = plt.subplots(1,1, figsize = (20, 20))
+ax.plot(x_axis, results['validation_0']['mlogloss'], label='Train')
+ax.plot(x_axis, results['validation_1']['mlogloss'], label='Test')
+#ax.plot(x_axis, results['validation_2']['mlogloss'], label='Other')
+ax.legend()
+plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
+plt.ylabel('Log loss\n',fontsize=14,fontweight='semibold')
+plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
+plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_splitmulticlass_weightmaxclass_20psmalltrain_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.close()
+
 
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_dummyanalysis".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_splitmulticlass_withbettergridsearchshort".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "~/public/models/XGB_dummyanalysis_{}_30features_lepMVA_removed.root".format(year))
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "~/public/models/XGBsplitmulticlass_30features_lepMVA_removed_withbettergridsearchshort_{}.root".format(year))

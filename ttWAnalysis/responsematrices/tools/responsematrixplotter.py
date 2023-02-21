@@ -254,7 +254,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
    # draw all objects in the efficiency pad
     pad3.cd()
     efficiency.GetXaxis().SetLimits(xmin,xmax)
-    efficiency.Draw()
+    efficiency.Draw("AP")
     p3legend.Draw('same')
 
     # save the plot

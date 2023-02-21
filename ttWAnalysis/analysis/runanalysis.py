@@ -34,6 +34,7 @@ systematics = ([
   "electronIDSyst",
   "electronIDStat",
   "pileup",
+  #"luminosity",
   "prefire",
   # b-tagging
   #"bTag_shape" # not yet implemented

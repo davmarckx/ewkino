@@ -761,25 +761,25 @@ def trainMCGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsi
             loss.backward()
             epoch_loss.append(loss.item())
             optimizer.step()
-        valloss = 0
-        for testdat in testloader:
-            newtouts = []
-            for value in testdat.y.float():
-                if value == 0:
-                    newtouts.append([1, 0, 0, 0, 0])
-                elif value == 1:
-                    newtouts.append([0, 1, 0, 0, 0])
-                elif value == 2:
-                    newtouts.append([0, 0, 1, 0, 0])
-                elif value == 3:
-                    newtouts.append([0, 0, 0, 1, 0])
-                elif value == 4:
-                    newtouts.append([0, 0, 0, 0, 1])
-            valoutputs = mlp(testdat.x, testdat.edge_index, testdat.batch)
-            valtargets = torch.from_numpy(np.array(newtouts)).float()
-            #valtargets = valtargets.reshape((valtargets.shape[0], 2))
-            vallosst = loss_function(valoutputs, valtargets)
-            valloss += (testdat.w.float() * vallosst).mean()
+            valloss = 0
+            for testdat in testloader:
+                newtouts = []
+                for value in testdat.y.float():
+                    if value == 0:
+                        newtouts.append([1, 0, 0, 0, 0])
+                    elif value == 1:
+                        newtouts.append([0, 1, 0, 0, 0])
+                    elif value == 2:
+                        newtouts.append([0, 0, 1, 0, 0])
+                    elif value == 3:
+                        newtouts.append([0, 0, 0, 1, 0])
+                    elif value == 4:
+                        newtouts.append([0, 0, 0, 0, 1])
+                valoutputs = mlp(testdat.x, testdat.edge_index, testdat.batch)
+                valtargets = torch.from_numpy(np.array(newtouts)).float()
+                #valtargets = valtargets.reshape((valtargets.shape[0], 2))
+                vallosst = loss_function(valoutputs, valtargets)
+                valloss += (testdat.w.float() * vallosst).mean()
             epoch_valloss.append(valloss.item()/len(testloader))
         loss_vals.append(sum(epoch_loss)/len(epoch_loss))
         valloss_vals.append(sum(epoch_valloss)/len(epoch_valloss))

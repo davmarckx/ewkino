@@ -23,10 +23,10 @@ dtypes.append('data')
 selection_types = []
 selection_types.append('tight')
 #selection_types.append('prompt')
-selection_types.append('fakerate')
-selection_types.append('chargeflips')
+#selection_types.append('fakerate')
+#selection_types.append('chargeflips')
 #selection_types.append('chargegood')
-selection_types.append('irreducible')
+#selection_types.append('irreducible')
 
 variations = []
 variations.append('nominal')
@@ -41,7 +41,8 @@ variables = '../variables/variables_main.json'
 
 #bdtfile = None
 #bdtfile = '../bdtweights/XGBfinal_all.root'
-bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
+bdtfile = '../bdtweights/XGB_dummyanalysis_all_30features_lepMVA_removed.root'
+#bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
 nevents = -1
 
 runmode = 'condor'
