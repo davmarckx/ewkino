@@ -23,18 +23,18 @@ def loadallhistograms(histfile, allow_tgraphs=False, suppress_warnings=False):
         ishist = ( isinstance(hist,ROOT.TH1)
                    or isinstance(hist,ROOT.TH2) )
         isgraph = ( isinstance(hist,ROOT.TGraph) )
-	if not suppress_warnings:
-	    if( not allow_tgraphs and not ishist ):
-		print('WARNING in histtools.loadallhistograms:'
+        if not suppress_warnings:
+            if( not allow_tgraphs and not ishist ):
+                print('WARNING in histtools.loadallhistograms:'
                       +' key "'+str(key.GetName())+'" is not a valid histogram.')
                 continue
             if( allow_tgraphs and not (ishist or isgraph) ):
-		print('WARNING in histtools.loadallhistograms:'
+                print('WARNING in histtools.loadallhistograms:'
                       +' key "'+str(key.GetName())+'" is not a valid histogram or graph.')
                 continue
-	hist.SetName(key.GetName())
-	if ishist: hist.SetDirectory(ROOT.gROOT)
-	histlist.append(hist)
+        hist.SetName(key.GetName())
+        if ishist: hist.SetDirectory(ROOT.gROOT)
+        histlist.append(hist)
     f.Close()
     return histlist
 
@@ -50,9 +50,9 @@ def loadhistograms(histfile,
     histlist = []
     keylist = f.GetListOfKeys()
     for key in keylist:
-	if not lt.subselect_string(key.GetName(),
-	    mustcontainone=mustcontainone,mustcontainall=mustcontainall,
-	    maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
+        if not lt.subselect_string(key.GetName(),
+            mustcontainone=mustcontainone,mustcontainall=mustcontainall,
+            maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
         hist = f.Get(key.GetName())
 	# check the object type
         ishist = ( isinstance(hist,ROOT.TH1)
@@ -132,15 +132,15 @@ def selecthistograms(histlist,mustcontainone=[],mustcontainall=[],
 		    maynotcontainone=[],maynotcontainall=[]):
     idlist = [hist.GetName() for hist in histlist]
     (indlist,selhistlist) = lt.subselect_objects(histlist,idlist,
-	mustcontainone=mustcontainone,mustcontainall=mustcontainall,
-	maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall)
+        mustcontainone=mustcontainone,mustcontainall=mustcontainall,
+        maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall)
     return (indlist,selhistlist)
 
 def findhistogram(histlist, name):
     ### find a histogram with a given name in a list
     # returns None if no histogram with the requested name is found
     for hist in histlist:
-	if hist.GetName()==name: return hist
+        if hist.GetName()==name: return hist
     return None
 
 
@@ -165,10 +165,10 @@ def clipallhistograms(histfile,mustcontainall=[],clipboundary=0):
     ### apply cliphistogram on all histograms in a file
     histlist = loadallhistograms(histfile)
     if len(mustcontainall)==0:
-	cliphistograms(histlist,clipboundary=clipboundary)
+        cliphistograms(histlist,clipboundary=clipboundary)
     else:
-	(indlist,_) = selecthistograms(histlist,mustcontainall=mustcontainall)
-	for index in indlist: cliphistogram(histlist[index],clipboundary=clipboundary)
+        (indlist,_) = selecthistograms(histlist,mustcontainall=mustcontainall)
+        for index in indlist: cliphistogram(histlist[index],clipboundary=clipboundary)
     tempfilename = histfile[:-5]+'_temp.root'
     f = ROOT.TFile.Open(tempfilename,'recreate')
     for hist in histlist:
@@ -218,7 +218,7 @@ def histtoarray( hist ):
     nbins = hist.GetNbinsX()
     res = np.zeros( nbins+2 )
     for i in range(0, nbins+2):
-	res[i] = hist.GetBinContent(i)
+        res[i] = hist.GetBinContent(i)
     return res
 
 def histtoarray2d( hist, keepouterflow=True ):
@@ -226,12 +226,12 @@ def histtoarray2d( hist, keepouterflow=True ):
     nxbins = hist.GetNbinsX()
     nybins = hist.GetNbinsY()
     if keepouterflow:
-	res = np.zeros( (nxbins+2, nybins+2) )
-	for i in range(0, nxbins+2):
-	    for j in range(0, nybins+2):
-		res[i,j] = hist.GetBinContent(i,j)
+        res = np.zeros( (nxbins+2, nybins+2) )
+        for i in range(0, nxbins+2):
+            for j in range(0, nybins+2):
+                res[i,j] = hist.GetBinContent(i,j)
     else:
-	res = np.zeros( (nxbins, nybins) )
+        res = np.zeros( (nxbins, nybins) )
         for i in range(1, nxbins+1):
             for j in range(1, nybins+1):
                 res[i-1,j-1] = hist.GetBinContent(i,j)
@@ -271,11 +271,11 @@ def binperbinmaxvar( histlist, nominalhist ):
     maxhist.Reset()
     nbins = maxhist.GetNbinsX()
     for i in range(0,nbins+2):
-	nomval = nominalhist.GetBinContent(i)
-	varvals = np.zeros(len(histlist))
-	for j in range(len(histlist)):
-	    varvals[j] = abs(histlist[j].GetBinContent(i)-nomval)
-	maxhist.SetBinContent(i,np.amax(varvals))
+        nomval = nominalhist.GetBinContent(i)
+        varvals = np.zeros(len(histlist))
+        for j in range(len(histlist)):
+            varvals[j] = abs(histlist[j].GetBinContent(i)-nomval)
+        maxhist.SetBinContent(i,np.amax(varvals))
     return maxhist
 
 def envelope( histlist, returntype='tuple' ):
@@ -285,19 +285,19 @@ def envelope( histlist, returntype='tuple' ):
     #               if 'hist', returns a single histogram with same lower and upper bounds
     #               (and bin contents chosen symmetrically between them).
     if( len(histlist)<2 ):
-	msg = 'ERROR in histtools.envelope: at least two histograms required.'
+        msg = 'ERROR in histtools.envelope: at least two histograms required.'
         raise Exception(msg)
     nbins = histlist[0].GetNbinsX()
     minhist = histlist[0].Clone()
     maxhist = histlist[0].Clone()
     for hist in histlist:
         if( hist.GetNbinsX()!=nbins ):
-	    msg = 'ERROR in histtools.envelope: '
-	    msg += ' provided histograms have different number of bins.'
+            msg = 'ERROR in histtools.envelope: '
+            msg += ' provided histograms have different number of bins.'
             raise Exception(msg)
         for i in range(0,nbins+2):
-	    bincontent = hist.GetBinContent(i)
-	    if bincontent < minhist.GetBinContent(i):
+            bincontent = hist.GetBinContent(i)
+            if bincontent < minhist.GetBinContent(i):
               minhist.SetBinContent(i, bincontent)
             if bincontent > maxhist.GetBinContent(i):
               maxhist.SetBinContent(i, bincontent)
@@ -306,41 +306,41 @@ def envelope( histlist, returntype='tuple' ):
         maxhist.SetBinError(i,0)
     if returntype=='tuple': return (minhist,maxhist)
     elif returntype=='hist':
-	res = minhist.Clone()
-	res.Reset()
-	for i in range(0,nbins+2):
-	    minc = minhist.GetBinContent(i)
-	    maxc = maxhist.GetBinContent(i)
-	    binc = (maxc+minc)/float(2)
-	    err = (maxc-minc)/float(2)
-	    res.SetBinContent(i, binc)
-	    res.SetBinError(i, err)
-	return res
+        res = minhist.Clone()
+        res.Reset()
+        for i in range(0,nbins+2):
+            minc = minhist.GetBinContent(i)
+            maxc = maxhist.GetBinContent(i)
+            binc = (maxc+minc)/float(2)
+            err = (maxc-minc)/float(2)
+            res.SetBinContent(i, binc)
+            res.SetBinError(i, err)
+        return res
     else:
-	msg = 'ERROR in histtools.envelope:'
-	msg += ' return type {} not recognized.'.format(returntype)
-	raise Exception(msg)
+        msg = 'ERROR in histtools.envelope:'
+        msg += ' return type {} not recognized.'.format(returntype)
+        raise Exception(msg)
     
 def rootsumsquare( histlist ):
     ### return a histogram that is the root-sum-square of all histograms in histlist.
     # check the input list
     if( len(histlist)<1 ):
-	print('### ERROR ###: at least one histogram required for rootsumsquare')
-	return None
+        print('### ERROR ###: at least one histogram required for rootsumsquare')
+        return None
     res = histlist[0].Clone()
     res.Reset()
     nbins = res.GetNbinsX()
     bincontents = np.zeros(nbins+2)
     for hist in histlist:
-	if( hist.GetNbinsX()!=nbins ):
-	    print('### ERROR ###: histograms are not compatible for summing in quadrature')
-	    return None
-	thisbincontents = np.zeros(nbins+2)
-	for i in range(0,nbins+2): thisbincontents[i] = hist.GetBinContent(i)
-	bincontents += np.power(thisbincontents,2)
+        if( hist.GetNbinsX()!=nbins ):
+            print('### ERROR ###: histograms are not compatible for summing in quadrature')
+            return None
+        thisbincontents = np.zeros(nbins+2)
+        for i in range(0,nbins+2): thisbincontents[i] = hist.GetBinContent(i)
+        bincontents += np.power(thisbincontents,2)
     bincontents = np.sqrt(bincontents)
     for i in range(0,nbins+2):
-	res.SetBinContent(i,bincontents[i])
+        res.SetBinContent(i,bincontents[i])
     return res
 
 
@@ -354,11 +354,11 @@ def printhistogram(hist,naninfo=False,returnstr=False):
         bininfo += '  bin: {} -> {}\n'.format(hist.GetBinLowEdge(i),
                                             hist.GetBinLowEdge(i)+hist.GetBinWidth(i))
         bininfo += '  content: {}\n'.format(hist.GetBinContent(i))
-	if naninfo:
-	    bininfo += '    (isnan: {})\n'.format(math.isnan(hist.GetBinContent(i)))
-	    bininfo += '    (isinf: {})\n'.format(math.isinf(hist.GetBinContent(i)))
+        if naninfo:
+            bininfo += '    (isnan: {})\n'.format(math.isnan(hist.GetBinContent(i)))
+            bininfo += '    (isinf: {})\n'.format(math.isinf(hist.GetBinContent(i)))
         bininfo += '  error: {}\n'.format(hist.GetBinError(i))
-	infostr += bininfo
+        infostr += bininfo
     if returnstr: return infostr
     else: print(infostr)
     
@@ -367,7 +367,7 @@ def printhistograms( histfile, mustcontainall=[], mustcontainone=[],
 		naninfo=False ):
     allhists = loadallhistograms(histfile)
     selhists = selecthistograms(allhists,mustcontainone=mustcontainone,
-		    mustcontainall=mustcontainall,
+                    mustcontainall=mustcontainall,
 		    maynotcontainone=maynotcontainone,
 		    maynotcontainall=maynotcontainall)[1]
     for hist in selhists: printhistogram(hist,naninfo=naninfo)

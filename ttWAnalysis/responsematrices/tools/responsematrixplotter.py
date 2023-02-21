@@ -174,8 +174,8 @@ def plotresponsematrix( hist, stability, purity, outfilepath,
 
     # set log scale if requested
     if logx:
-	pad1.SetLogx()
-	hist.GetXaxis().SetMoreLogLabels()
+        pad1.SetLogx()
+        hist.GetXaxis().SetMoreLogLabels()
         pad2.SetLogx()
 	
     if logy:
@@ -194,7 +194,7 @@ def plotresponsematrix( hist, stability, purity, outfilepath,
     hist.Draw( drawoptions )
     if histtitle is not None: ttitle.DrawLatexNDC(leftmargin,0.9,histtitle)
     pt.drawLumi(c1, extratext=extracmstext, cmstext_size_factor=0.6,
-	cms_in_grid=True, lumitext=lumitext)
+        cms_in_grid=True, lumitext=lumitext)
 
     # draw extra info
     tinfo = ROOT.TLatex()
@@ -210,15 +210,13 @@ def plotresponsematrix( hist, stability, purity, outfilepath,
     purity.Draw('same')
     p2legend.Draw('same')
 
-<<<<<<< HEAD
    # draw all objects in the efficiency pad
     pad3.cd()
     efficiency.GetXaxis().SetLimits(xmin,xmax)
     efficiency.Draw("AP")
     p3legend.Draw('same')
 
-=======
->>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
+
     # save the plot
     c1.Update()
     outfilepath = os.path.splitext(outfilepath)[0]
