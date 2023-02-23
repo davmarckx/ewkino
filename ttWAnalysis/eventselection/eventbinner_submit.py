@@ -13,8 +13,8 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2016PreVFP']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']
 
 dtypes = []
 dtypes.append('sim')
@@ -22,11 +22,11 @@ dtypes.append('data')
 
 selection_types = []
 selection_types.append('tight')
-#selection_types.append('prompt')
-#selection_types.append('fakerate')
-#selection_types.append('chargeflips')
-#selection_types.append('chargegood')
-#selection_types.append('irreducible')
+selection_types.append('prompt')
+selection_types.append('fakerate')
+selection_types.append('chargeflips')
+selection_types.append('chargegood')
+selection_types.append('irreducible')
 
 variations = []
 variations.append('nominal')
@@ -40,16 +40,12 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 variables = '../variables/variables_main.json'
 
 #bdtfile = None
-<<<<<<< HEAD
 bdtfile = '../bdtweights/XGBfinal_all.root'
 
 nevents = 1e6
-=======
-#bdtfile = '../bdtweights/XGBfinal_all.root'
+
 bdtfile = '../bdtweights/XGB_dummyanalysis_all_30features_lepMVA_removed.root'
 #bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
-nevents = -1
->>>>>>> tmp
 
 runmode = 'condor'
 

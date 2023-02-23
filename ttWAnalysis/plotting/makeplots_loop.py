@@ -20,8 +20,8 @@ for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
-years.append('run2')
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+#years.append('run2')
 
 npmodes = ['npfromdata']
 cfmodes = ['cffromdata']

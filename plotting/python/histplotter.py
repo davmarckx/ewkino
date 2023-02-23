@@ -43,8 +43,8 @@ def getminmax(datahist, mchist, yaxlog, margin=True):
     histmax = max(histmax,datahist.GetBinContent(datahist.GetMaximumBin())
                             +datahist.GetBinErrorUp(datahist.GetMaximumBin()))
     if not yaxlog:
-	if margin: histmax *= 1.5
-	return (0, histmax)
+        if margin: histmax *= 1.5
+        return (0, histmax)
     # find minimum (manually to avoid zero and small dummy values)
     histmin = histmax
     for i in range(1,mchist.GetNbinsX()+1):
@@ -62,10 +62,10 @@ def drawbincontent(mchistlist,mchisterror,tag):
     text.SetTextSize(22);
     taghist = mchistlist[findbytitle(mchistlist,tag)]
     for i in range(1, taghist.GetNbinsX()+1):
-	xcoord  = taghist.GetXaxis().GetBinCenter(i)
-	ycoord  = mchisterror.GetBinContent(i)+mchisterror.GetBinErrorUp(i)
-	printvalue = taghist.GetBinContent(i)
-	text.DrawLatex(xcoord, ycoord+0.3, '{:.2f}'.format(printvalue))
+        xcoord  = taghist.GetXaxis().GetBinCenter(i)
+        ycoord  = mchisterror.GetBinContent(i)+mchisterror.GetBinErrorUp(i)
+        printvalue = taghist.GetBinContent(i)
+        text.DrawLatex(xcoord, ycoord+0.3, '{:.2f}'.format(printvalue))
     return None
 
 def plotdatavsmc(outfile, datahist, mchistlist,
@@ -121,15 +121,15 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     if datalabel is None: datalabel = "Data"
     # if no labelmap, use histogram titles
     if labelmap is None: 
-	labelmap = {}
-	for hist in mchistlist: labelmap[hist.GetTitle()] = hist.GetTitle()
+        labelmap = {}
+        for hist in mchistlist: labelmap[hist.GetTitle()] = hist.GetTitle()
     # if no colormap, use default colors
     if colormap is None:
-	clist = ([ROOT.kRed-7,ROOT.kOrange,ROOT.kCyan-7,ROOT.kYellow+1,ROOT.kBlue-10,
+        clist = ([ROOT.kRed-7,ROOT.kOrange,ROOT.kCyan-7,ROOT.kYellow+1,ROOT.kBlue-10,
 		    ROOT.kBlue-6,ROOT.kTeal-5,ROOT.kMagenta-7])
-	colormap = {}
-	for i,hist in enumerate(mchistlist):
-	    colormap[hist.GetTitle()] = clist[ i%len(clist) ]
+        colormap = {}
+        for i,hist in enumerate(mchistlist):
+            colormap[hist.GetTitle()] = clist[ i%len(clist) ]
     # y-axis title and range for bottom pad
     if p2yaxtitle is None: p2yaxtitle = datalabel+' / Pred.'
     if p2yaxrange is None: p2yaxrange = (0.,1.999)
@@ -155,9 +155,9 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     rightmargin = 0.05
     # legend box
     if p1legendbox is None: 
-	p1legendbox = [leftmargin+0.35,1-p1topmargin-0.3,1-rightmargin-0.03,1-p1topmargin-0.03]
+        p1legendbox = [leftmargin+0.35,1-p1topmargin-0.3,1-rightmargin-0.03,1-p1topmargin-0.03]
     if p1legendncols is None:
-	p1legendncols = 2
+        p1legendncols = 2
     p2legendbox = [leftmargin+0.03,0.84,1-rightmargin-0.03,0.97]
     # extra info box parameters
     if infoleft is None: infoleft = leftmargin+0.05
@@ -171,7 +171,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     nprimarybins = None
     secondarybinlabels = None
     if( binlabels is not None and isinstance(binlabels,tuple) ): 
-	varmode = 'double'
+        varmode = 'double'
         nprimarybins = len(binlabels[0])
         secondarybinlabels = binlabels[1]
         binlabels = binlabels[0]*len(secondarybinlabels)
@@ -181,13 +181,13 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     mchistlist = orderhistograms(mchistlist)
     # get signals to the back (i.e. on top of the plot)
     if signals is not None:
-	for signal in signals[::-1]:
-	    sindex = findbytitle(mchistlist,signal)
-	    if(sindex>-1):
-		indices = list(range(len(mchistlist)))
-		indices.remove(sindex)
-		indices = indices+[sindex]
-		mchistlist = [mchistlist[i] for i in indices]
+        for signal in signals[::-1]:
+            sindex = findbytitle(mchistlist,signal)
+            if(sindex>-1):
+                indices = list(range(len(mchistlist)))
+                indices.remove(sindex)
+                indices = indices+[sindex]
+                mchistlist = [mchistlist[i] for i in indices]
 
     ### operations on mc histograms
     mchistsum = mchistlist[0].Clone()
@@ -195,7 +195,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     mchiststack = ROOT.THStack("mchiststack","")
     for hist in mchistlist:
         stackcol( hist, colormap.get(hist.GetTitle(), ROOT.kBlack) )
-	ht.cliphistogram(hist)
+        ht.cliphistogram(hist)
         mchistsum.Add(hist)
         mchiststack.Add(hist)
 
@@ -204,24 +204,24 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     mcstaterror = mchistsum.Clone()
     # in case of dostat=False: mcsysthist represents total variation to plot
     if not dostat:
-	if mcsysthist is None:
-	    raise Exception('ERROR in histplotter.py: option dostat = False'
+        if mcsysthist is None:
+            raise Exception('ERROR in histplotter.py: option dostat = False'
 		    +' is not compatible with mcsysthist = None')
-	else:
-	    for i in range(1,mchistsum.GetNbinsX()+1):
-		mcerror.SetBinError(i,mcsysthist.GetBinContent(i))
+        else:
+            for i in range(1,mchistsum.GetNbinsX()+1):
+                mcerror.SetBinError(i,mcsysthist.GetBinContent(i))
     # in case of dostat=True: add stat errors and syst errors quadratically
     else:
-	if mcstathist is not None:
-	    # take statistical variations from externally provided histograms
-	    for i in range(1,mchistsum.GetNbinsX()+1):
-		mcstaterror.SetBinError(i,mcstathist.GetBinContent(i))
-		mcerror.SetBinError(i,mcstathist.GetBinContent(i))
-	if mcsysthist is not None:
-	    for i in range(1,mchistsum.GetNbinsX()+1):
-		staterror = mcstaterror.GetBinError(i)
-		systerror = mcsysthist.GetBinContent(i)
-		mcerror.SetBinError(i,np.sqrt(np.power(staterror,2)+np.power(systerror,2)))
+        if mcstathist is not None:
+            # take statistical variations from externally provided histograms
+            for i in range(1,mchistsum.GetNbinsX()+1):
+                mcstaterror.SetBinError(i,mcstathist.GetBinContent(i))
+                mcerror.SetBinError(i,mcstathist.GetBinContent(i))
+        if mcsysthist is not None:
+            for i in range(1,mchistsum.GetNbinsX()+1):
+                staterror = mcstaterror.GetBinError(i)
+                systerror = mcsysthist.GetBinContent(i)
+                mcerror.SetBinError(i,np.sqrt(np.power(staterror,2)+np.power(systerror,2)))
     mcerror.SetLineWidth(0)
     mcerror.SetMarkerStyle(0)
     mcerror.SetFillStyle(3254)
@@ -241,19 +241,19 @@ def plotdatavsmc(outfile, datahist, mchistlist,
             scerror.SetBinError(i,0.)
     # in case of dostat=False: plot only total scaled variation, same style as unscaled
     if not dostat:
-	scstaterror.Reset()
-	scerror.SetLineWidth(0)
-	scerror.SetMarkerStyle(0)
-	scerror.SetFillStyle(3254)
-	scerror.SetFillColor(ROOT.kBlack)
+        scstaterror.Reset()
+        scerror.SetLineWidth(0)
+        scerror.SetMarkerStyle(0)
+        scerror.SetFillStyle(3254)
+        scerror.SetFillColor(ROOT.kBlack)
     # in case of dostat=True: plot total and stat only scaled variation
     else:
-	scstaterror.SetFillStyle(1001)
-	scstaterror.SetFillColor(ROOT.kGray+1)
-	scstaterror.SetMarkerStyle(0)
-	scerror.SetFillStyle(3254)
+        scstaterror.SetFillStyle(1001)
+        scstaterror.SetFillColor(ROOT.kGray+1)
+        scstaterror.SetMarkerStyle(0)
+        scerror.SetFillStyle(3254)
         scerror.SetFillColor(ROOT.kBlack)
-	scerror.SetMarkerStyle(0)
+        scerror.SetMarkerStyle(0)
 
     ### operations on data histogram
     datahist.SetMarkerStyle(markerstyle)
@@ -347,7 +347,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     # draw header
     lumistr = ''
     if lumi is not None:
-	lumistr = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
+        lumistr = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
     pt.drawLumi(pad1,extratext=extracmstext,lumitext=lumistr)
 
     # draw extra info
@@ -355,27 +355,27 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     tinfo.SetTextFont(10*infofont+3)
     tinfo.SetTextSize(infosize)
     for i,info in enumerate(extrainfos):
-	vspace = 0.05*(float(infosize)/20)
-	tinfo.DrawLatexNDC(infoleft,infotop-(i+1)*vspace, info)
+        vspace = 0.05*(float(infosize)/20)
+        tinfo.DrawLatexNDC(infoleft,infotop-(i+1)*vspace, info)
 
     # draw secondary bin labels and vertical lines
     if varmode=='double':
-	tsecondarybinlabels = ROOT.TLatex()
-	tsecondarybinlabels.SetTextFont(10*labelfont+3)
-	tsecondarybinlabels.SetTextSize(labelsize)
-	tsecondarybinlabels.SetTextAlign(21)
+        tsecondarybinlabels = ROOT.TLatex()
+        tsecondarybinlabels.SetTextFont(10*labelfont+3)
+        tsecondarybinlabels.SetTextSize(labelsize)
+        tsecondarybinlabels.SetTextAlign(21)
         vlines = []
-	for i,label in enumerate(secondarybinlabels):
-	    labelxpos = 0.5 + i*nprimarybins + nprimarybins/2.
+        for i,label in enumerate(secondarybinlabels):
+            labelxpos = 0.5 + i*nprimarybins + nprimarybins/2.
             labelxposndc = (labelxpos-ROOT.gPad.GetX1())/(ROOT.gPad.GetX2()-ROOT.gPad.GetX1())
-	    labelyposndc = 0.65
-	    tsecondarybinlabels.DrawLatexNDC(labelxposndc, labelyposndc, label)
-	    if i!=0:
-		linexpos = 0.5+i*nprimarybins
-		vline = ROOT.TLine(linexpos, mcerror.GetMinimum(), linexpos, histmax)
-		vline.SetLineColor(ROOT.kBlack)
+            labelyposndc = 0.65
+            tsecondarybinlabels.DrawLatexNDC(labelxposndc, labelyposndc, label)
+            if i!=0:
+                linexpos = 0.5+i*nprimarybins
+                vline = ROOT.TLine(linexpos, mcerror.GetMinimum(), linexpos, histmax)
+                vline.SetLineColor(ROOT.kBlack)
                 vline.SetLineStyle(ROOT.kDashed)
-		vline.Draw()
+                vline.Draw()
                 vlines.append(vline)
 
     ### make the lower part of the plot
@@ -387,9 +387,9 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	#xax.SetOption("I") 
 	# does not work properly since it is not defined for TAxis, only TGAxis (?)
 	# option 2:
-	xax.SetNdivisions(xax.GetNbins()*2,0,0,ROOT.kFALSE)
-	for i in range(0,xax.GetNbins()+1):
-	    xax.ChangeLabel(2*i+1,-1,-1,-1,-1,-1," ")
+        xax.SetNdivisions(xax.GetNbins()*2,0,0,ROOT.kFALSE)
+        for i in range(0,xax.GetNbins()+1):
+            xax.ChangeLabel(2*i+1,-1,-1,-1,-1,-1," ")
 	# works, but half-integer ticks are still there...
 	# option 3: 
 	#xax.SetNdivisions(xax.GetNbins(),0,0,ROOT.kFALSE)
@@ -405,8 +405,8 @@ def plotdatavsmc(outfile, datahist, mchistlist,
             print(msg)
         else:
             for i in range(1,scerror.GetNbinsX()+1): 
-		label = str(binlabels[i-1])
-		xax.SetBinLabel(i, label)
+                label = str(binlabels[i-1])
+                xax.SetBinLabel(i, label)
     else: xax.SetNdivisions(10,5,0,ROOT.kTRUE)
     xax.SetLabelSize(labelsize)
     xax.SetLabelFont(10*labelfont+3)
