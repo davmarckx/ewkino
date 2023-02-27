@@ -24,11 +24,11 @@ def swapaxes( hist ):
     swappedhist.GetYaxis().SetTitle(hist.GetXaxis().GetTitle())
 
     for i in range(1,nbinsx+1):
-	for j in range(1,nbinsy+1):
-	    c = hist.GetBinContent(i,j)
-	    e = hist.GetBinError(i,j)
-	    swappedhist.SetBinContent(j,i,c)
-	    swappedhist.SetBinError(j,i,e)
+        for j in range(1,nbinsy+1):
+            c = hist.GetBinContent(i,j)
+            e = hist.GetBinError(i,j)
+            swappedhist.SetBinContent(j,i,c)
+            swappedhist.SetBinError(j,i,e)
     return swappedhist
 
 def geterrorhist( hist ):
@@ -36,9 +36,9 @@ def geterrorhist( hist ):
     errorhist = hist.Clone()
     errorhist.Reset()
     for i in range(0,hist.GetNbinsX()+2):
-	for j in range(0,hist.GetNbinsY()+2):
-	    error = hist.GetBinError(i,j)
-	    errorhist.SetBinContent(i,j,error)
+        for j in range(0,hist.GetNbinsY()+2):
+            error = hist.GetBinError(i,j)
+            errorhist.SetBinContent(i,j,error)
     return errorhist
 
 def getzeroerrorhist( hist ):
@@ -86,16 +86,16 @@ def getsmallouterflowhist( hist ):
 
     # fill the bins
     for i in range(2,nxbins+2):
-	for j in range(2,nybins+2):
-	    exthist.SetBinContent(i,j,hist.GetBinContent(i-1,j-1))
-	    exthist.SetBinError(i,j,hist.GetBinError(i-1,j-1))
+        for j in range(2,nybins+2):
+            exthist.SetBinContent(i,j,hist.GetBinContent(i-1,j-1))
+            exthist.SetBinError(i,j,hist.GetBinError(i-1,j-1))
     return exthist
 
 
 def print2dhist( hist ):
     for i in range(0,hist.GetNbinsX()+2):
         for j in range(0,hist.GetNbinsY()+2):
-	    print('--- bin {} {} ---'.format(i,j))
+            print('--- bin {} {} ---'.format(i,j))
             content = hist.GetBinContent(i,j)
             print('content: '+str(content))
             error = hist.GetBinError(i,j)
@@ -187,8 +187,8 @@ def plot2dhistogram(hist, outfilepath, outfmts=['.png'],
     hist.GetZaxis().SetTitleSize(axtitlesize)
 
     if logx:
-	c1.SetLogx()
-	hist.GetXaxis().SetMoreLogLabels()
+        c1.SetLogx()
+        hist.GetXaxis().SetMoreLogLabels()
 	
     if logy:
         c1.SetLogy()

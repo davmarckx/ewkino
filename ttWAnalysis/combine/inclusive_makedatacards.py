@@ -10,21 +10,21 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20230111_single'
+topdir = '/user/llambrec/public/output_20230206_single'
   
 years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 #years = ['run2']
 
 regions = ({
     'signalregion_dilepton_inclusive': '_eventBDT',
-    'signalregion_trilepton': '_eventBDT',
+    #'signalregion_trilepton': '_eventBDT',
     #'wzcontrolregion': '_yield',
     #'zzcontrolregion': '_yield',
     #'zgcontrolregion': '_yield',
-    'trileptoncontrolregion': '_nJets',
-    'fourleptoncontrolregion': '_nJets',
-    'npcontrolregion_dilepton_inclusive': '_eventBDT',
-    'cfcontrolregion': '_nJets'
+    #'trileptoncontrolregion': '_nJets',
+    #'fourleptoncontrolregion': '_nJets',
+    #'npcontrolregion_dilepton_inclusive': '_eventBDT',
+    #'cfcontrolregion': '_nJets'
 })
   
 inputfiletag = 'merged_npfromdata_cffromdata/merged.root'

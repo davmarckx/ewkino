@@ -135,7 +135,7 @@ if __name__=="__main__":
     xlabels = None
     labelsize = None
     if( var.iscategorical and var.xlabels is not None ):
-	xlabels = var.xlabels
+        xlabels = var.xlabels
         labelsize = 15
 
     # make the plot

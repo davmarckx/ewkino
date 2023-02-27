@@ -13,10 +13,11 @@ import os
 topdir = sys.argv[1]
 
 regions = []
-for r in ['wzcontrolregion']: regions.append(r)
-for r in ['zzcontrolregion','zgcontrolregion']: regions.append(r)
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+#for r in ['wzcontrolregion']: regions.append(r)
+#for r in ['zzcontrolregion','zgcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
 
 npmodes = ['npfromsim','npfromdata']
 

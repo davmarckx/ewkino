@@ -74,5 +74,6 @@
 #include "weights/src/ReweighterPrefire.cc"
 #include "weights/src/ReweighterNJets.cc"
 #include "weights/src/ReweighterEmpty.cc"
+#include "weights/src/ReweighterTrigger.cc"
 #include "weights/src/CombinedReweighter.cc"
 #include "weights/src/ConcreteReweighterFactory.cc"

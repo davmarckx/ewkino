@@ -670,3 +670,72 @@ def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize
     return mlp
 
 
+<<<<<<< HEAD
+    trainloader = DataLoader(traindata, batch_size=batchsize, shuffle=True)
+    testloader = DataLoader(testdata, batch_size=batchsize, shuffle=False)
+    mlp = MCGCN(dropval, traindata[0],nheads,self_loops)
+    loss_function = nn.CrossEntropyLoss(reduction='none',weight=torch.tensor(classweight))
+    optimizer = torch.optim.AdamW(mlp.parameters(), lr=learr)
+
+    num_epochs = epochs
+    loss_vals=  []
+    valloss_vals = []
+    # Run the training loop
+    for epoch in range(0, num_epochs):
+        epoch_loss= []
+        epoch_valloss = []
+        print(f'Starting epoch {epoch+1}')
+        for i, data in enumerate(trainloader, 0):
+            targets, trainweight = data.y.float(), data.w.float()
+            newouts = []
+            for value in targets:
+                if value == 0:
+                    newouts.append([1, 0, 0, 0, 0])
+                elif value == 1:
+                    newouts.append([0, 1, 0, 0, 0])
+                elif value == 2:
+                    newouts.append([0, 0, 1, 0, 0])
+                elif value == 3:
+                    newouts.append([0, 0, 0, 1, 0])
+                elif value == 4:
+                    newouts.append([0, 0, 0, 0, 1])
+            targets = torch.from_numpy(np.array(newouts)).float()
+            #print(targets)
+            
+            #targets = targets.reshape((targets.shape[0], 5))
+            optimizer.zero_grad()
+            outputs = mlp(data.x, data.edge_index, data.batch)
+
+            #print(outputs) 
+            loss = loss_function(outputs, targets)
+            loss = (trainweight * loss).mean()
+            loss.backward()
+            epoch_loss.append(loss.item())
+            optimizer.step()
+            valloss = 0
+            for testdat in testloader:
+                newtouts = []
+                for value in testdat.y.float():
+                    if value == 0:
+                        newtouts.append([1, 0, 0, 0, 0])
+                    elif value == 1:
+                        newtouts.append([0, 1, 0, 0, 0])
+                    elif value == 2:
+                        newtouts.append([0, 0, 1, 0, 0])
+                    elif value == 3:
+                        newtouts.append([0, 0, 0, 1, 0])
+                    elif value == 4:
+                        newtouts.append([0, 0, 0, 0, 1])
+                valoutputs = mlp(testdat.x, testdat.edge_index, testdat.batch)
+                valtargets = torch.from_numpy(np.array(newtouts)).float()
+                #valtargets = valtargets.reshape((valtargets.shape[0], 2))
+                vallosst = loss_function(valoutputs, valtargets)
+                valloss += (testdat.w.float() * vallosst).mean()
+            epoch_valloss.append(valloss.item()/len(testloader))
+        loss_vals.append(sum(epoch_loss)/len(epoch_loss))
+        valloss_vals.append(sum(epoch_valloss)/len(epoch_valloss))
+    status = status + sparse
+    my_plot(np.linspace(1, num_epochs, num_epochs).astype(int), loss_vals, valloss_vals, dropval,epochs,learr,beta1,beta2,batchsize,status)
+    return mlp
+=======
+>>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e
