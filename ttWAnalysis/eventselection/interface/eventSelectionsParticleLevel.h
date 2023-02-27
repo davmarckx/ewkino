@@ -13,6 +13,8 @@ namespace eventSelectionsParticleLevel{
     bool passDiLeptonPtThresholds(const Event& event);
     std::pair<int,int> nJetsNBJets(const Event& event);
     bool passMllMassVeto(const Event& event);
+    // no selection
+    bool pass_noselection(Event& event);
     // signal regions
     bool pass_signalregion_dilepton_inclusive(Event& event);
     bool pass_signalregion_dilepton_ee(Event&);

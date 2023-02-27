@@ -260,5 +260,41 @@
   "xhigh": "1.0",
   "axtitle": "BDT output",
   "unit": ""
+},
+{
+  "name": "_deltaPhiLeadingLeptonPair",
+  "variable": "_deltaPhiLeadingLeptonPair",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.15",
+  "axtitle": "\\Delta \\Phi (l_{1},l_{2})",
+  "unit": ""
+},
+{
+  "name": "_deltaEtaLeadingLeptonPair",
+  "variable": "_deltaEtaLeadingLeptonPair",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.",
+  "axtitle": "\\Delta \\eta (l_{1},l_{2})",
+  "unit": ""
+},
+{
+  "name": "_deltaRLeadingLeptonPair",
+  "variable": "_deltaRLeadingLeptonPair",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.",
+  "axtitle": "\\Delta R (l_{1},l_{2})",
+  "unit": ""
+},
+{
+  "name": "_mLeadingLeptonPair",
+  "variable": "_mLeadingLeptonPair",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "m (l_{1},l_{2})",
+  "unit": "GeV"
 }
 ]

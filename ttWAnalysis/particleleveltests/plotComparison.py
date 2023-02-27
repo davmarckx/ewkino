@@ -18,6 +18,8 @@ if __name__=='__main__':
   parser.add_argument('--inputfile', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
+  parser.add_argument('--onlyparticlelevel', default=False, action='store_true')
+  parser.add_argument('--onlydetectorlevel', default=False, action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -79,7 +81,7 @@ if __name__=='__main__':
     xaxtitle = axtitle
     if( axtitle is not None and unit is not None ):
       xaxtitle += ' ({})'.format(unit)
-    yaxtitle = 'Events'
+    yaxtitle = 'Arbitrary units'
     outfile = os.path.join(args.outputdir, varname)
     lumi = None
     extrainfos = []
@@ -89,11 +91,21 @@ if __name__=='__main__':
     #    xlabels = var.xlabels
     #    labelsize = 15
 
+    # make lists to plot
+    plotlist = [dlhist,plhist]
+    labellist = ['Detector level','Particle level']
+    if args.onlydetectorlevel:
+      plotlist = [plotlist[0]]
+      labellist = [labellist[0]]
+    if args.onlyparticlelevel:
+      plotlist = [plotlist[1]]
+      labellist = [labellist[1]]
+
     # make plot
-    mhp.plotmultihistograms( [dlhist,plhist],
+    mhp.plotmultihistograms( plotlist,
             figname=outfile, xaxtitle=xaxtitle, yaxtitle=yaxtitle,
             normalize=False, normalizefirst=False,
-            dolegend=True, labellist=['Detector level','Particle level'],
+            dolegend=True, labellist=labellist,
             colorlist=None,
             logy=False,
             drawoptions='',

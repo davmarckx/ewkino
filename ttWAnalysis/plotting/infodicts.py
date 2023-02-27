@@ -7,8 +7,8 @@ def get_region_dict():
   res = {}
   res['signalregion_dilepton_inclusive'] = 'Signal region 2L'
   res['signalregion_dilepton_ee'] = 'Signal region 2L (ee)'
-  res['signalregion_dilepton_me'] = 'Signal region 2L (em)'
-  res['signalregion_dilepton_em'] = 'Signal region 2L (me)'
+  res['signalregion_dilepton_em'] = 'Signal region 2L (em)'
+  res['signalregion_dilepton_me'] = 'Signal region 2L (me)'
   res['signalregion_dilepton_mm'] = 'Signal region 2L (mm)'
   res['signalregion_trilepton'] = 'Signal region 3L'
   res['wzcontrolregion'] = 'WZ control region'

@@ -13,11 +13,13 @@ runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
 years = ['2016PreVFP','2016PostVFP','2017','2018']
@@ -26,7 +28,11 @@ years.append('run2')
 npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
-unblind = False
+unblind = True
+
+dummysystematics = True
+
+rawsystematics = False
 
 dolog = True
 
@@ -55,6 +61,8 @@ for year in years:
           continue
         thisoutputdir = '{}_{}_{}_{}'.format(year,region,npmode,cfmode)
         if not unblind: thisoutputdir += '_blind'
+        if rawsystematics: thisoutputdir += '_rawsystematics'
+        if dummysystematics: thisoutputdir += '_dummysystematics'
         thisoutputdir = os.path.join(inputdir, subdir, 'plots', thisoutputdir)
         cmd = 'python prefitplots.py'
         cmd += ' --inputfile '+inputfile
@@ -66,6 +74,8 @@ for year in years:
         cmd += ' --datatag '+datatag
         cmd += ' --colormap '+colormap
         if unblind: cmd += ' --unblind'
+        if rawsystematics: cmd += ' --rawsystematics'
+        if dummysystematics: cmd += ' --dummysystematics'
         if dolog: cmd += ' --dolog'
         if signals is not None:
           cmd += ' --signals '+' '.join(signals)

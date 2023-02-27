@@ -22,9 +22,14 @@ plot.ModTDRStyle(width=700, l=0.13)
 ROOT.gStyle.SetNdivisions(510, "XYZ")
 ROOT.gStyle.SetMarkerSize(0.7)
 
-NAMECOUNTER = 0
-
 def read(scan, param, files, ycut):
+    # input arguments:
+    # - scan: name for this scan
+    # - param: name of the POI
+    # - files: root files containing the likelihood data
+    # - ycut: maximum y-value
+    # returns:
+    # a TGraph
     goodfiles = [f for f in files if plot.TFileIsGood(f)]
     limit = plot.MakeTChain(goodfiles, 'limit')
     graph = plot.TGraphFromTree(limit, param, '2*deltaNLL', 'quantileExpected > -1.5')
@@ -32,7 +37,7 @@ def read(scan, param, files, ycut):
     graph.Sort()
     plot.RemoveGraphXDuplicates(graph)
     plot.RemoveGraphYAbove(graph, ycut)
-    # graph.Print()
+    #graph.Print()
     return graph
 
 
@@ -47,10 +52,15 @@ def BuildScan(scan, param, files, color, yvals, ycut):
         if graph.GetY()[i] == 0.:
             bestfit = graph.GetX()[i]
     graph.SetMarkerColor(color)
-    spline = ROOT.TSpline3("spline3", graph)
-    global NAMECOUNTER
-    func = ROOT.TF1('splinefn'+str(NAMECOUNTER), partial(Eval, spline), graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
-    NAMECOUNTER += 1
+    spline = ROOT.TSpline3(scan, graph)
+    # note: the TF1 creation gives weird memory errors sometimes,
+    #       cause not yet understood, and fix doesn't work...
+    # original:
+    #func = ROOT.TF1(scan, partial(Eval, spline), graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
+    # attempt at fix:
+    def evalspline(x, params):
+	return spline.Eval(x[0])
+    func = ROOT.TF1(scan, evalspline, graph.GetX()[0], graph.GetX()[graph.GetN() - 1], 1)
     func.SetLineColor(color)
     func.SetLineWidth(3)
     assert(bestfit is not None)
@@ -124,17 +134,19 @@ if args.translate is not None:
 # define y-axis coordinates where to calculate intersections and draw horizontal lines
 yvals = [1., 4.]
 
+# build the scan of the main file
+main_scan = BuildScan(args.output+'0', args.POI, [args.main], args.main_color, yvals, args.y_cut)
 
-main_scan = BuildScan(args.output, args.POI, [args.main], args.main_color, yvals, args.y_cut)
-
+# build other scans if requested
 other_scans = [ ]
 other_scans_opts = [ ]
 if args.others is not None:
-    for oargs in args.others:
+    for i,oargs in enumerate(args.others):
         splitargs = oargs.split(':')
         other_scans_opts.append(splitargs)
-        other_scans.append(BuildScan(args.output, args.POI, [splitargs[0]], int(splitargs[2]), yvals, args.y_cut))
-
+        other_scan = BuildScan( args.output+str(i), args.POI, [splitargs[0]], 
+                                int(splitargs[2]), yvals, args.y_cut)
+        other_scans.append(other_scan)
 
 canv = ROOT.TCanvas(args.output, args.output)
 pads = plot.OnePad()
@@ -167,6 +179,8 @@ for other in other_scans:
         other['graph'].SetMarkerSize(0.4)
     other['graph'].Draw('PSAME')
 
+print('checkpoint 2')
+
 # draw lines
 line = ROOT.TLine()
 line.SetLineColor(16)
@@ -188,7 +202,7 @@ for other in other_scans:
         other['func'].SetLineWidth(2)
     other['func'].Draw('SAME')
 
-
+print('checkpoint 3')
 
 box = ROOT.TBox(axishist.GetXaxis().GetXmin(), 0.625*args.y_max, axishist.GetXaxis().GetXmax(), args.y_max)
 box.Draw()
@@ -209,6 +223,8 @@ if args.breakdown is None:
         textfit = '#color[%s]{%s = %.3f{}^{#plus %.3f}_{#minus %.3f}}' % (
           other_scans_opts[i][2], fixed_name, other['val'][0], other['val'][1], abs(other['val'][2]))
         pt.AddText(textfit)
+
+print('checkpoint 4')
 
 # add text regarding the breakdown of uncertainties
 if args.breakdown is not None:
@@ -243,6 +259,8 @@ if args.breakdown is not None:
             lo = v_lo[i]
         textfit += '{}^{#plus %.3f}_{#minus %.3f}(%s)' % (hi, abs(lo), br)
     pt.AddText(textfit)
+
+print('checkpoint 5')
 
 # draw extra text
 pt.SetTextAlign(31)

@@ -14,7 +14,8 @@ from samplelisttools import readsamplelist
 
 
 # fixed settings
-event_selections = (['signalregion_dilepton_inclusive',
+event_selections = (['noselection',
+                     'signalregion_dilepton_inclusive',
 		     'signalregion_dilepton_ee',
 		     'signalregion_dilepton_em',
 		     'signalregion_dilepton_me',

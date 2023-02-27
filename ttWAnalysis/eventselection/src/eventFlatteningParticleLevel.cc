@@ -17,10 +17,10 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
 	{"_yield",0.5},
 	{"_nJets",0}, {"_nBJets",0},
 	{"_nMuons",0},{"_nElectrons",0},
-	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
-	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
-	{"_jetPtLeading",0.}, {"_jetPtSubLeading",0.},
-	{"_jetEtaLeading",0.}, {"_jetEtaSubLeading",0.},
+	{"_leptonPtLeading",-1.}, {"_leptonPtSubLeading",-1.}, {"_leptonPtTrailing",-1.},
+	{"_leptonEtaLeading",-99.}, {"_leptonEtaSubLeading",-99.}, {"_leptonEtaTrailing",-99.},
+	{"_jetPtLeading",-1.}, {"_jetPtSubLeading",-1.},
+	{"_jetEtaLeading",-99.}, {"_jetEtaSubLeading",-99.},
 	{"_nJetsNBJetsCat",-1}
     };
     return varmap;    

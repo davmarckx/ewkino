@@ -39,13 +39,14 @@ Float_t _dPhill_max = 0;
 Float_t _HT = 0;
 Float_t _nJets = 0;
 Float_t _nBJets = 0;
+Float_t _nLooseBJets = 0;
+Float_t _nTightBJets = 0;
 Float_t _dRlWrecoil = 0;
 Float_t _dRlWbtagged = 0;
 Float_t _M3l = 0;
 Float_t _abs_eta_max = 0;
 Float_t _MET_pt = 0;
 Float_t _MET_phi = 0;
-
 // BDT output score
 Float_t _eventBDT = 0.;
 // other variables
@@ -83,7 +84,11 @@ Float_t _l2sip3d = 0.;//new
 Float_t _lW_pt = 0.;
 Float_t _Z_pt = 0.;
 Float_t year = 1.;
-
+// variables for checking low-mass resonances
+Float_t _deltaPhiLeadingLeptonPair = 0;
+Float_t _deltaEtaLeadingLeptonPair = 0;
+Float_t _deltaRLeadingLeptonPair = 0;
+Float_t _mLeadingLeptonPair = 0;
 // categorization variables
 Int_t _nJetsNBJetsCat = -1;
 Int_t _nJetsNZCat = -1;
@@ -123,6 +128,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _HT = varmap["_HT"];
     _nJets = varmap["_nJets"];
     _nBJets = varmap["_nBJets"];
+    _nLooseBJets = varmap["_nLooseBJets"];
+    _nTightBJets = varmap["_nTightBJets"];
     _dRlWrecoil = varmap["_dRlWrecoil"];
     _dRlWbtagged = varmap["_dRlWbtagged"];
     _M3l = varmap["_M3l"];
@@ -166,6 +173,10 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _l2dz = varmap["_l2dz"];
     _l2sip3d = varmap["_l2sip3d"];
 
+    _deltaPhiLeadingLeptonPair = varmap["_deltaPhiLeadingLeptonPair"];
+    _deltaEtaLeadingLeptonPair = varmap["_deltaEtaLeadingLeptonPair"];
+    _deltaRLeadingLeptonPair = varmap["_deltaRLeadingLeptonPair"];
+    _mLeadingLeptonPair = varmap["_mLeadingLeptonPair"];
 
     _nJetsNBJetsCat = varmap["_nJetsNBJetsCat"];
     _nJetsNZCat = varmap["_nJetsNZCat"];
@@ -225,7 +236,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
         {"_lT",0},
 	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},
 	{"_dPhill_max",0},{"_HT",0},{"_nJets",0},
-	{"_nBJets",0},{"_dRlWrecoil",0},{"_dRlWbtagged",0},
+	{"_nBJets",0},{"_nLooseBJets",0},{"nTightBJets",0},
+	{"_dRlWrecoil",0},{"_dRlWbtagged",0},
 	{"_M3l",0},{"_abs_eta_max",0},{"_MET_phi",0},{"_MET_pt",0},
 
 	{"_eventBDT",0},
@@ -253,6 +265,12 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_lW_charge",0}, {"_lW_pt",0.}, {"_Z_pt",0.},
         {"_l1dxy",0.},{"_l1dz",0.},{"_l1sip3d",0.},
         {"_l2dxy",0.},{"_l2dz",0.},{"_l2sip3d",0.},
+
+	{"_deltaPhiLeadingLeptonPair",0.}, 
+	{"_deltaEtaLeadingLeptonPair",0.},
+	{"_deltaRLeadingLeptonPair",0.},
+	{"_mLeadingLeptonPair",0.},
+
         {"_nJetsNBJetsCat",-1}, {"_nJetsNZCat",-1}
     };
     return varmap;    
@@ -293,6 +311,8 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_HT", &_HT, "_HT/F");
     outputTree->Branch("_nJets", &_nJets, "_nJets/F");
     outputTree->Branch("_nBJets", &_nBJets, "_nBJets/F");
+    outputTree->Branch("_nLooseBJets", &_nLooseBJets, "_nLooseBJets/F");
+    outputTree->Branch("_nTightBJets", &_nTightBJets, "_nTightBJets/F");
     outputTree->Branch("_dRlWrecoil", &_dRlWrecoil, "_dRlWrecoil/F");
     outputTree->Branch("_dRlWbtagged", &_dRlWbtagged, "_dRlWbtagged/F");
     outputTree->Branch("_M3l", &_M3l, "_M3l/F");
@@ -337,6 +357,13 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_l2dxy", &_l2dxy, "_l2dxy/F");
     outputTree->Branch("_l2dz", &_l2dz, "_l2dz/F");
     outputTree->Branch("_l2sip3d", &_l2sip3d, "_l2sip3d/F");
+
+    // variables for checking low-mass resonances
+    outputTree->Branch("deltaPhiLeadingLeptonPair", &_deltaPhiLeadingLeptonPair, "_deltaPhiLeadingLeptonPair/F");
+    outputTree->Branch("deltaEtaLeadingLeptonPair", &_deltaEtaLeadingLeptonPair, "_deltaEtaLeadingLeptonPair/F");
+    outputTree->Branch("deltaRLeadingLeptonPair", &_deltaRLeadingLeptonPair, "_deltaRLeadingLeptonPair/F");
+    outputTree->Branch("mLeadingLeptonPair", &_mLeadingLeptonPair, "_mLeadingLeptonPair/F");
+
     // categorization variables
     outputTree->Branch("_nJetsNBJetsCat", &_nJetsNBJetsCat, "_nJetsNBJetsCat/I");
     outputTree->Branch("_nJetsNZCat", &_nJetsNZCat, "_nJetsNZCat/I");
@@ -445,19 +472,29 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
         varmap["_leptonEtaTrailing"] = lepcollection[2].eta();
-       
     }
+
+    // lepton pair properties
+    if(lepcollection.numberOfLightLeptons()>=2){
+	varmap["_deltaPhiLeadingLeptonPair"] = deltaPhi(lepcollection[0],lepcollection[1]);
+	varmap["_deltaEtaLeadingLeptonPair"] = deltaEta(lepcollection[0],lepcollection[1]);
+	varmap["_deltaRLeadingLeptonPair"] = deltaR(lepcollection[0],lepcollection[1]);
+	varmap["_mLeadingLeptonPair"] = (lepcollection[0]+lepcollection[1]).mass();
+    }
+
     // jet pt
     jetcollection.sortByPt();
     if(jetcollection.size()>=1) varmap["_jetPtLeading"] = jetcollection[0].pt();
     if(jetcollection.size()>=2) varmap["_jetPtSubLeading"] = jetcollection[1].pt();
     if(jetcollection.size()>=1) varmap["_jetEtaLeading"] = jetcollection[0].eta();
     if(jetcollection.size()>=2) varmap["_jetEtaSubLeading"] = jetcollection[1].eta();
+    
     // jet CSVs and flavors
     if(jetcollection.size()>=1) varmap["_deepCSV_leading"] = jetcollection[0].deepCSV();
     if(jetcollection.size()>=2) varmap["_deepCSV_subLeading"] = jetcollection[1].deepCSV();
     if(jetcollection.size()>=1) varmap["_deepFlavor_leading"] = jetcollection[0].deepFlavor();
     if(jetcollection.size()>=2) varmap["_deepFlavor_subLeading"] = jetcollection[1].deepFlavor();    
+    
     // jet masses
     TLorentzVector LV1;
     TLorentzVector LV2;
@@ -469,11 +506,14 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         LV2.SetPtEtaPhiE(jetcollection[1].pt(),jetcollection[1].eta(),jetcollection[1].phi(),jetcollection[1].energy());
         varmap["_jetMassSubLeading"] = LV2.M();
     }
+
     // other more or less precomputed event variables
     varmap["_lT"] = lepcollection.scalarPtSum() + met.pt();
     varmap["_HT"] = jetcollection.scalarPtSum();
     varmap["_nJets"] = jetcollection.size();
     varmap["_nBJets"] = bjetcollection.size();
+    varmap["_nLooseBJets"] = jetcollection.looseBTagCollection().size();
+    varmap["_nTightBJets"] = jetcollection.tightBTagCollection().size();
     for(LeptonCollection::const_iterator lIt = lepcollection.cbegin();
 	    lIt != lepcollection.cend(); lIt++){
         std::shared_ptr<Lepton> lep = *lIt;
@@ -495,7 +535,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 		 varmap["_leptonMVATOP_min"] = mu->leptonMVATOP();
 	    }
         }
-    }   
+    }
 
     int lWindex = 0;
     // set mT
@@ -506,15 +546,49 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // find lepton from W and set its properties
     // (note: code runs but is rather meaningless if no or multiple OSSF pairs are present, 
     // e.g. in some control regions)
-    if(event.hasOSSFLightLeptonPair()){ 
+    if( lepcollection.size()>=3 && event.hasOSSFLightLeptonPair() ){ 
 	lWindex = event.WLeptonIndex();
-    } 
-    LeptonCollection::const_iterator lIt = lepcollection.cbegin();
-    for(int i=0; i<lWindex; i++){++lIt;}
-    Lepton& lW = **lIt;
-    varmap["_lW_asymmetry"] = fabs(lW.energy())*lW.charge();
-    varmap["_lW_charge"] = lW.charge();
-    varmap["_lW_pt"] = lW.pt();
+	LeptonCollection::const_iterator lIt = lepcollection.cbegin();
+	for(int i=0; i<lWindex; i++){++lIt;}
+	Lepton& lW = **lIt;
+	varmap["_lW_asymmetry"] = fabs(lW.energy())*lW.charge();
+	varmap["_lW_charge"] = lW.charge();
+	varmap["_lW_pt"] = lW.pt();
+
+	// top reconstruction
+	std::pair< double, double > pmz = pmzcandidates(lW, met);
+	std::pair< double, int > topresults = besttopcandidate(jetcollection,
+                                            lW, met, pmz.first, pmz.second);
+	int taggedbindex = topresults.second;
+	if(jetcollection.numberOfMediumBTaggedJets()==0) taggedbindex = 0;
+
+	// find index of recoiling jet
+	int recoilindex = -1;
+	for(JetCollection::const_iterator jIt = jetcollection.cbegin();
+            jIt != jetcollection.cend(); jIt++){
+	    if(jIt-jetcollection.cbegin() != taggedbindex){
+		recoilindex = jIt-jetcollection.cbegin();
+		break;
+	    }
+	}
+
+	// set properties of recoiling jet
+	if(recoilindex>=0 and jetcollection.size()>0){
+	    JetCollection::const_iterator jIt = jetcollection.cbegin();
+	    for(int i=0; i<recoilindex; i++){jIt++;}
+	    Jet& recoiljet = **jIt;
+	    varmap["_dRlWrecoil"] = deltaR(lW,recoiljet);
+	    varmap["_abs_eta_recoil"] = fabs(recoiljet.eta());
+	}
+    
+	// set properties of tagged b-jet
+	if(taggedbindex>=0 and jetcollection.size()>0){
+	    JetCollection::const_iterator tbjIt = jetcollection.cbegin();
+	    for(int i=0; i<taggedbindex; i++){tbjIt++;}
+	    Jet& taggedbjet = **tbjIt;
+	    varmap["_dRlWbtagged"] = deltaR(lW,taggedbjet);
+	}
+    }
 
     // find reconstructed Z mass and pt
     if(event.hasOSSFLightLeptonPair()){
@@ -523,23 +597,6 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	varmap["_bestZMass"] = zbosonresults.second;
 	varmap["_Z_pt"] = (event.leptonCollection()[zbosonresults.first.first]
 			    + event.leptonCollection()[zbosonresults.first.second]).pt();
-    }
-    
-    // top reconstruction
-    std::pair< double, double > pmz = pmzcandidates(lW, met);
-    std::pair< double, int > topresults = besttopcandidate(jetcollection,
-					    lW, met, pmz.first, pmz.second);
-    int taggedbindex = topresults.second;
-    if(jetcollection.numberOfMediumBTaggedJets()==0) taggedbindex = 0;
-
-    // find index of recoiling jet
-    int recoilindex = -1;
-    for(JetCollection::const_iterator jIt = jetcollection.cbegin();
-	    jIt != jetcollection.cend(); jIt++){
-	if(jIt-jetcollection.cbegin() != taggedbindex){
-	    recoilindex = jIt-jetcollection.cbegin();
-	    break;
-	}
     }
 
     // loop over jets and find relevant quantities
@@ -562,19 +619,6 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
             if((jet+jet2).pt()>varmap["_pTjj_max"]) varmap["_pTjj_max"] = (jet+jet2).pt();
         } 
     }
-    if(recoilindex>=0 and jetcollection.size()>0){
-	JetCollection::const_iterator jIt = jetcollection.cbegin();
-	for(int i=0; i<recoilindex; i++){jIt++;}
-	Jet& recoiljet = **jIt;
-	varmap["_dRlWrecoil"] = deltaR(lW,recoiljet);
-	varmap["_abs_eta_recoil"] = fabs(recoiljet.eta());
-    }
-    if(taggedbindex>=0 and jetcollection.size()>0){
-	JetCollection::const_iterator tbjIt = jetcollection.cbegin();
-	for(int i=0; i<taggedbindex; i++){tbjIt++;}
-	Jet& taggedbjet = **tbjIt;
-	varmap["_dRlWbtagged"] = deltaR(lW,taggedbjet);
-    }
 
     // loop over leptons and find some kinematic properties
     PhysicsObject l3vec;
@@ -591,7 +635,10 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
             if(deltaR(lep,bjet)<varmap["_dRlb_min"]) varmap["_dRlb_min"] = deltaR(lep,bjet);
         }
     }
-    varmap["_M3l"] = event.leptonSystem().mass();
+
+    if(lepcollection.size()>0){
+	varmap["_M3l"] = event.leptonSystem().mass();
+    }
 
     // evaluate BDT
     if( bdt ){

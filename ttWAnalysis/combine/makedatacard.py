@@ -18,13 +18,16 @@ from processinfo import ProcessInfoCollection, ProcessCollection
 from datacardtools import writedatacard
 from uncertaintytools import remove_systematics_default
 from uncertaintytools import add_systematics_default
+from uncertaintytools import remove_systematics_all
+from uncertaintytools import add_systematics_dummy
 
 
 def makeProcessInfoCollection( inputfile, year, region, variable, processes, 
   signals=[], strict_signals=True,
   includetags=[], excludetags=[], 
   adddata=True, datatag='data',
-  rawsystematics=False, verbose=False ):
+  rawsystematics=False, dummysystematics=False,
+  verbose=False ):
   ### make a ProcessInfoCollection with specified parameters
 
   # get all relevant histograms
@@ -94,7 +97,7 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
     PIC.makesig( p )
 
   # manage systematics
-  if not rawsystematics:
+  if( not rawsystematics and not dummysystematics ):
     (removedforall, removedspecific) = remove_systematics_default( PIC, year=year )
     for el in removedforall: shapesyslist.remove(el)
     for p in PIC.plist:
@@ -103,6 +106,10 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
         if( p in el and el in shapesyslist ):
           shapesyslist.remove(el)
     normsyslist = add_systematics_default( PIC, year=year )
+  elif( dummysystematics ):
+    (removedforall, _) = remove_systematics_all( PIC )
+    for el in removedforall: shapesyslist.remove(el)
+    normsyslist = add_systematics_dummy( PIC )
   else: normsyslist = []
 
   return (PIC, shapesyslist, normsyslist)
@@ -128,6 +135,11 @@ if __name__=="__main__":
                       help='Comma-separated list of systematic tags to include')
   parser.add_argument('--excludetags', default=None,
                       help='Comma-separated list of systematic tags to exclude')
+  parser.add_argument('--rawsystematics', default=False, action='store_true',
+                      help='Take the systematics from the input file without modifications'
+                          +' (i.e. no disablings and no adding of norm uncertainties).')
+  parser.add_argument('--dummysystematics', default=False, action='store_true',
+                      help='Use dummy systematics (see uncertaintytools for details).')
   args = parser.parse_args()
 
   # print arguments
@@ -167,6 +179,8 @@ if __name__=="__main__":
     signals=signals, strict_signals=False,
     includetags=includetags, excludetags=excludetags, 
     adddata=adddata, datatag=args.datatag,
+    rawsystematics=args.rawsystematics,
+    dummysystematics=args.dummysystematics,
     verbose=True)
 
   # write the datacard

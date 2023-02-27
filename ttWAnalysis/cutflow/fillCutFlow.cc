@@ -24,6 +24,7 @@ Perform cutflow study
 #include "../eventselection/interface/eventSelectionsParticleLevel.h"
 
 std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
+			const std::string& level,
 			long nEvents,
 			int maxCutFlowValue ){
     // make a TH1D containing the output of cutflow event selection.
@@ -54,8 +55,11 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 
 	// choose here which function to pass
 	std::tuple<int,std::string> cutFlowTuple;
-	//cutFlowTuple = eventSelections::pass_signalregion_dilepton_inclusive_cutflow( event, "tight", "nominal", true );
-	cutFlowTuple = eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive_cutflow(event);
+	if(level=="detector"){
+	    cutFlowTuple = eventSelections::pass_signalregion_dilepton_inclusive_cutflow( event, "tight", "nominal", true );
+	} else if(level=="particle"){
+	    cutFlowTuple = eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive_cutflow(event);
+	}
 
 	// check the returned values
 	int cutFlowValue = std::get<0>(cutFlowTuple);
@@ -82,13 +86,11 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 int main( int argc, char* argv[] ){
 
     std::cerr<<"###starting###"<<std::endl;
-    if( argc != 5 ){
+    if( argc != 6 ){
         std::cerr << "ERROR: cutFlow requires the following arguments: " << std::endl;
 	std::cerr << "- input_file_path" << std::endl;
 	std::cerr << "- output_file_path" << std::endl;
-	//std::cerr << "- event_selection" << std::endl;
-	//std::cerr << "- selection_type" <<std::endl;
-	//std::cerr << "- variation" << std::endl;
+	std::cerr << "- selection level" << std::endl;
 	std::cerr << "- nevents" << std::endl;
 	std::cerr << "- max_cutflow_value" << std::endl;
 	return -1;
@@ -97,18 +99,20 @@ int main( int argc, char* argv[] ){
     std::vector< std::string > argvStr( &argv[0], &argv[0] + argc );
     std::string& input_file_path = argvStr[1];
     std::string& output_file_path = argvStr[2];
-    //std::string& event_selection = argvStr[3];
-    //std::string& selection_type = argvStr[4];
-    //std::string& variation = argvStr[5];
-    long nevents = std::stol(argvStr[3]);
-    int max_cutflow_value = std::stoi(argvStr[4]);
+    std::string& level = argvStr[3];
+    long nevents = std::stol(argvStr[4]);
+    int max_cutflow_value = std::stoi(argvStr[5]);
    
     bool validInput = rootFileTools::nTupleIsReadable( input_file_path );
     if(!validInput){ return -1; }
+
+    if( level!="detector" && level!="particle" ){
+	throw std::runtime_error("ERROR: level not recognized.");
+    }
  
     // make the cutflow histogram
     std::shared_ptr<TH1D> cutFlowHist = makeCutFlowHistogram( 
-			input_file_path, nevents, max_cutflow_value );
+			input_file_path, level, nevents, max_cutflow_value );
 
     // write to output file
     TFile* outputFilePtr = TFile::Open( output_file_path.c_str() , "RECREATE" );

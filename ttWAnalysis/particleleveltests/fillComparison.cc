@@ -155,7 +155,7 @@ void fillHistograms(const std::string& inputDirectory,
     std::cout << "starting event loop for " << numberOfEntries << " events." << std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
         if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
-	
+
 	// initialize map of variables
 	std::map<std::string,double> varmap = eventFlattening::initVarMap();
 	std::map<std::string,double> varmapPL = eventFlatteningParticleLevel::initVarMap();
@@ -181,6 +181,7 @@ void fillHistograms(const std::string& inputDirectory,
 				          varmap.at(variable), weight);
 		}
 	    } // end loop over selection types at detector level
+	    
 	    // do selection at particle level
 	    std::string selectionType = "particlelevel";
 	    std::string instanceName = es+"_"+selectionType;
@@ -191,8 +192,11 @@ void fillHistograms(const std::string& inputDirectory,
             for(HistogramVariable histVar: histvars){
                 std::string variableName = histVar.name();
                 std::string variable = histVar.variable();
-                histogram::fillValue( histMap.at(instanceName).at(variableName).get(),
-                                      varmapPL.at(variable), weight);
+                //histogram::fillValue( histMap.at(instanceName).at(variableName).get(),
+                //                      varmapPL.at(variable), weight);
+		// alternative: do not use histogram::fillValue but use TH1->Fill directly,
+		// in order to put values out of bounds in under- and overflow bins.
+		histMap.at(instanceName).at(variableName).get()->Fill(varmapPL.at(variable), weight);
             }
 	} // end loop over event selections
     } // end loop over events

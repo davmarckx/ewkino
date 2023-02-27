@@ -25,12 +25,14 @@ bool passES(Event& event, const std::string& eventselection,
     static std::map< std::string, std::function< 
 	bool(Event&, const std::string&, const std::string&, const bool) > > 
 	    ESFunctionMap = {
+		// no selection
+		{ "noselection", pass_noselection },    
 		// signal regions
-		{ "signalregion_dilepton_inclusive", pass_signalregion_dilepton_inclusive},
-		{ "signalregion_dilepton_ee", pass_signalregion_dilepton_ee},
-		{ "signalregion_dilepton_em", pass_signalregion_dilepton_em},
-		{ "signalregion_dilepton_me", pass_signalregion_dilepton_me},
-		{ "signalregion_dilepton_mm", pass_signalregion_dilepton_mm},
+		{ "signalregion_dilepton_inclusive", pass_signalregion_dilepton_inclusive },
+		{ "signalregion_dilepton_ee", pass_signalregion_dilepton_ee },
+		{ "signalregion_dilepton_em", pass_signalregion_dilepton_em },
+		{ "signalregion_dilepton_me", pass_signalregion_dilepton_me },
+		{ "signalregion_dilepton_mm", pass_signalregion_dilepton_mm },
 		{ "signalregion_trilepton", pass_signalregion_trilepton },
 		// prompt control regions
 		{ "wzcontrolregion", pass_wzcontrolregion },
@@ -292,6 +294,19 @@ bool passMllMassVeto( const Event& event ){
 
 // dedicated functions to check if event passes certain conditions //
 
+// -------------
+// no selection 
+// -------------
+
+bool pass_noselection(Event& event, const std::string& selectiontype,
+			const std::string& variation, const bool selectbjets){
+    cleanLeptonsAndJets(event);
+    if(selectiontype=="dummy"){} // dummy to avoid unused parameter warning
+    if(variation=="dummy"){} // dummy to avoid unused parameter warning
+    if(selectbjets){} // dummy to avoid unused parameter warning
+    return true;
+}
+
 // ---------------
 // signal regions 
 // ---------------
@@ -325,9 +340,8 @@ bool passMllMassVeto( const Event& event ){
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false;
+    if(selectbjets){ if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false; }
     if( njetsnbjets.first < 2 ) return false;
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return true;
 }*/
 
@@ -348,6 +362,8 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     event.sortLeptonsByPt();
     if(event.leptonCollection()[0].pt() < 25. 
         || event.leptonCollection()[1].pt() < 15. ) return false;
+    // re-added on 20/02/2023: invariant mass safety
+    if( event.leptonSystem().mass()<30. ) return false;
     // leptons must be same sign
     if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
     else{ if( !event.leptonsAreSameSign() ) return false; }
@@ -364,19 +380,19 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnloosebjets.second < 2 ) return false;
+    if( selectbjets ){ if( njetsnloosebjets.second < 2 ) return false; }
     if( njetsnbjets.first < 3 ) return false;
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return true;
 }
 
-std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusive_cutflow(
+/*std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusive_cutflow(
     Event& event, 
     const std::string& selectiontype,
     const std::string& variation, 
     const bool selectbjets){
     // copy of pass_signalregion_dilepton_inclusive
     // but different return type to allow cutflow studies
+    // legacy version used before 06/02/2023, maybe return to it later
     cleanLeptonsAndJets(event);
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
@@ -409,6 +425,50 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     if( njetsnbjets.first < 2 ) return std::make_tuple(11, "Fail jets");
     if(selectbjets){} // dummy to avoid unused parameter warning
     return std::make_tuple(12, "Pass");
+}*/
+
+std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusive_cutflow(
+    Event& event, 
+    const std::string& selectiontype,
+    const std::string& variation,
+    const bool selectbjets){
+    // copy of pass_signalregion_dilepton_inclusive
+    // but different return type to allow cutflow studies
+    // new version used on 06/02/2023 for dummy xsec measurement sync with Oviedo.
+    cleanLeptonsAndJets(event);
+    // apply trigger, pt thresholds and mll veto
+    if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
+    if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
+    if(!hasnFOLeptons(event,2,true)) return std::make_tuple(2, "Fail 2 FO leptons");
+    if(!passMllMassVeto(event)) return std::make_tuple(3, "Fail low mass veto");
+    if(not passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
+    // do lepton selection for different types of selections
+    if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(5, "Fail 2 tight leptons");
+    event.sortLeptonsByPt();
+    if(event.leptonCollection()[0].pt() < 25.
+        || event.leptonCollection()[1].pt() < 15. ) return std::make_tuple(6, "Fail pT thresholds");
+    // re-added on 20/02/2023: invariant mass safety
+    if( event.leptonSystem().mass()<30. ) return std::make_tuple(7, "Fail invariant mass veto");
+    // leptons must be same sign
+    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return std::make_tuple(8, "Fail same sign"); }
+    else{ if( !event.leptonsAreSameSign() ) return std::make_tuple(8, "Fail same sign"); }
+    // Z veto for electrons
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isElectron()
+        && event.hasZTollCandidate(10., true) ) return std::make_tuple(9, "Fail electron Z veto");
+    // MET cut for electrons
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isElectron() ){
+        if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(10, "Fail MET"); }
+        else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(10, "Fail MET"); }
+    }
+    // number of jets and b-jets
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
+    if( njetsnloosebjets.second < 2 ) return std::make_tuple(11, "Fail b-jets");
+    if( njetsnbjets.first < 3 ) return std::make_tuple(12, "Fail jets");
+    if(selectbjets){} // dummy to avoid unused parameter warning
+    return std::make_tuple(13, "Pass");
 }
 
 bool pass_signalregion_dilepton_ee(Event& event, const std::string& selectiontype,
@@ -471,9 +531,8 @@ bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
     if( !event.hasOSLeptonPair() ) return false;
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 ) return false;
+    if( selectbjets ){ if( njetsnbjets.second < 1 ) return false; }
     if( njetsnbjets.first < 2 ) return false;
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return true; 
 }
 
@@ -744,9 +803,8 @@ bool pass_npcontrolregion_dilepton_inclusive(
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false;
+    if(selectbjets){ if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false; }
     if( njetsnbjets.first < 2 ) return false;
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return true;
 }
 

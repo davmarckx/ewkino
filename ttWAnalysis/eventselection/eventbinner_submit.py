@@ -7,6 +7,7 @@ import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
@@ -40,7 +41,7 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 variables = '../variables/variables_main.json'
 
 #bdtfile = None
-bdtfile = '../bdtweights/XGBfinal_all.root'
+bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
 
 nevents = 1e6
 

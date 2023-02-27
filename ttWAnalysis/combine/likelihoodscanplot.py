@@ -20,6 +20,10 @@ if __name__=='__main__':
   parser.add_argument('--datacarddir', required=True)
   parser.add_argument('--cards', required=True, nargs='+')
   parser.add_argument('--pois', default=['r'], nargs='+')
+  parser.add_argument('--doexp', default=False, action='store_true')
+  parser.add_argument('--doexpstat', default=False, action='store_true')
+  parser.add_argument('--doobs', default=False, action='store_true')
+  parser.add_argument('--doobsstat', default=False, action='store_true')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()
 
@@ -34,6 +38,7 @@ if __name__=='__main__':
   for card in args.cards:
     for poi in args.pois:
       print('Making command for card {} POI {}...'.format(card,poi))
+
       # find all relevant files
       fls = []
       labels = []
@@ -41,29 +46,50 @@ if __name__=='__main__':
       poitag = '' if poi=='r' else '_{}'.format(poi)
       basename = 'higgsCombine{}_out_likelihoodscan_{}.MultiDimFit.mH120.root'
       obs = basename.format(card,'obs',poitag)
-      if os.path.exists(os.path.join(args.datacarddir,obs)):
-        fls.append(obs)
-        labels.append('Observed')
-        colors.append(ROOT.kBlue+1)
-        print('  adding file {}'.format(obs))
+      if args.doobs:
+        if os.path.exists(os.path.join(args.datacarddir,obs)):
+          fls.append(obs)
+          labels.append('Observed')
+          colors.append(ROOT.kBlue+1)
+          print('  adding file {}'.format(obs))
+        else:
+          msg = 'WARNING: requested to plot observed likelihood'
+          msg += ' but file {} could not be found in {}'.format(obs,args.datacarddir)
+          print(msg)
       obsstat = basename.format(card,'obs_stat',poi)
-      #if os.path.exists(os.path.join(args.datacarddir,obsstat)):
-      #  fls.append(obsstat)
-      #  labels.append('Observed (stat. only)')
-      #  colors.append(ROOT.kAzure-4)
-      #  print('  adding file {}'.format(obsstat))
+      if args.doobsstat:
+        if os.path.exists(os.path.join(args.datacarddir,obsstat)):
+          fls.append(obsstat)
+          labels.append('Observed (stat. only)')
+          colors.append(ROOT.kAzure-4)
+          print('  adding file {}'.format(obsstat))
+        else:
+          msg = 'WARNING: requested to plot observed stat-only likelihood'
+          msg += ' but file {} could not be found in {}'.format(obsstat,args.datacarddir)
+          print(msg)
       exp = basename.format(card,'exp',poi)
-      if os.path.exists(os.path.join(args.datacarddir,exp)):
-        fls.append(exp)
-        labels.append('Expected')
-        colors.append(ROOT.kMagenta+2)
-        print('  adding file {}'.format(exp))
+      if args.doexp:
+        if os.path.exists(os.path.join(args.datacarddir,exp)):
+          fls.append(exp)
+          labels.append('Expected')
+          colors.append(ROOT.kMagenta+2)
+          print('  adding file {}'.format(exp))
+        else:
+          msg = 'WARNING: requested to plot expected likelihood'
+          msg += ' but file {} could not be found in {}'.format(exp,args.datacarddir)
+          print(msg)
       expstat = basename.format(card,'exp_stat',poi)
-      #if os.path.exists(os.path.join(args.datacarddir,expstat)):
-      #  fls.append(expstat)
-      #  labels.append('Expected (stat. only)')
-      #  colors.append(ROOT.kViolet-4)
-      #  print('  adding file {}'.format(expstat))
+      if args.doexpstat:
+        if os.path.exists(os.path.join(args.datacarddir,expstat)):
+          fls.append(expstat)
+          labels.append('Expected (stat. only)')
+          colors.append(ROOT.kViolet-4)
+          print('  adding file {}'.format(expstat))
+        else:
+          msg = 'WARNING: requested to plot expected stat-only likelihood'
+          msg += ' but file {} could not be found in {}'.format(expstat,args.datacarddir)
+          print(msg)
+
       if len(fls)==0:
         print('No files found for this card/POI combination, skipping...')
         continue

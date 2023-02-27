@@ -63,6 +63,12 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
       rmspecific[p].append('isrNorm*')
       rmspecific[p].append('fsrNorm*')
 
+  # remove nJets/nBJets uncertainties for all but WZ and ZZ
+  for p in processes:
+    if( p=='WZ' or p=='ZZ' ): continue
+    rmspecific[p].append('njets')
+    rmspecific[p].append('nbjets')
+
   # remove individual qcd and pdf variations
   # (if not done so before)
   rmforall.append('qcdScalesShapeVar*')
@@ -110,6 +116,11 @@ def remove_systematics_default( processinfo, year=None ):
           removedspecific[p].append(s)
   return (removedforall, removedspecific)
 
+def remove_systematics_all( processinfo ):
+  ### disable all shape systematics in a processinfo
+  for s in processinfo.slist:
+    processinfo.disablesys( s, processinfo.plist )
+  return (processinfo.slist, dict())
 
 def add_systematics_default( processinfo, year=None ):
   ### default sequence of adding some norm systematics
@@ -162,4 +173,20 @@ def add_systematics_default( processinfo, year=None ):
     normsyslist.append(source)
  
   # return list of all norm systematics that were added
+  return normsyslist
+
+def add_systematics_dummy( processinfo ):
+  normsyslist = []
+  norms = dict()
+  for p in processinfo.plist:
+    if( p=='Nonprompt' or p=='Chargeflips' ): norms[p] = 1.3
+    elif( p.startswith('TTW') ): continue
+    else: norms[p] = 1.15
+  for process,mag in norms.items():
+    source = 'Norm_{}'.format(process)
+    impacts = {}
+    for p in processinfo.plist: impacts[p] = '-'
+    impacts[process] = mag
+    processinfo.addnormsys( source, impacts )
+    normsyslist.append(source)
   return normsyslist

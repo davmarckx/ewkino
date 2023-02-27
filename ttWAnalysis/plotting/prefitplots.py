@@ -25,6 +25,8 @@ from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../combine/'))
 from uncertaintytools import remove_systematics_default
 from uncertaintytools import add_systematics_default
+from uncertaintytools import remove_systematics_all
+from uncertaintytools import add_systematics_dummy
 
 
 if __name__=="__main__":
@@ -54,9 +56,11 @@ if __name__=="__main__":
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true')
-  parser.add_argument('--rawsystematics', action='store_true',
+  parser.add_argument('--rawsystematics', default=False, action='store_true',
                       help='Take the systematics from the input file without modifications'
                           +' (i.e. no disablings and no adding of norm uncertainties).')
+  parser.add_argument('--dummysystematics', default=False, action='store_true',
+                      help='Use dummy systematics (see uncertaintytools for details).')
   args = parser.parse_args()
 
   # print arguments
@@ -139,9 +143,12 @@ if __name__=="__main__":
   print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
   # manage systematics (not yet needed here, but useful for printing the correct info)
-  if not args.rawsystematics:
+  if( not args.rawsystematics and not args.dummysystematics ):
     _ = remove_systematics_default( PIC, year=args.year )
     _ = add_systematics_default( PIC, year=args.year )
+  if args.dummysystematics:
+    _ = remove_systematics_all( PIC )
+    _ = add_systematics_dummy( PIC )
   #print('Constructed following ProcessInfoCollection from histogram list:')
   #print(PIC)
 
@@ -205,9 +212,12 @@ if __name__=="__main__":
     PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag, datatag=args.datatag )
 
     # manage systematics
-    if not args.rawsystematics:
+    if( not args.rawsystematics and not args.dummysystematics ):
       _ = remove_systematics_default( PIC, year=args.year )
       _ = add_systematics_default( PIC, year=args.year )
+    if args.dummysystematics:
+      _ = remove_systematics_all( PIC )
+      _ = add_systematics_dummy( PIC )
 
     # make a ProcessCollection
     PC = ProcessCollection( PIC, args.inputfile )

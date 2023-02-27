@@ -12,11 +12,11 @@ topdir = sys.argv[1]
 years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
 
 npmodes = []
-npmodes.append( 'npfromsim' )
+#npmodes.append( 'npfromsim' )
 npmodes.append( 'npfromdata' )
 
 cfmodes = []
-cfmodes.append( 'cffromsim' )
+#cfmodes.append( 'cffromsim' )
 cfmodes.append( 'cffromdata' )
 
 rename = 'processes/rename_processes.json'

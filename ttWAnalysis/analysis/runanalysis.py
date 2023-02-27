@@ -75,6 +75,7 @@ if __name__=='__main__':
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--bdt', default=None, type=apt.path_or_none)
+  parser.add_argument('--bdtcut', default=None, type=float)
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--exe', default='runanalysis', 
@@ -154,25 +155,30 @@ if __name__=='__main__':
 
   # check bdt weight file
   bdt = 'nobdt'
+  bdtcut = -99
   if( args.bdt is not None ):
     if not os.path.exists(args.bdt):
       raise Exception('ERROR: BDT file {} does not exist'.format(args.bdt))
     bdt = args.bdt
+  if( args.bdtcut is not None ):
+    bdtcut = args.bdtcut
+  if( args.bdt is None and args.bdtcut is not None ):
+    msg = 'ERROR: you have specified a BDT cut value but no BDT weights file.'
+    raise Exception(msg)
 
   # parse systematics
   if len(systematics)==0: systematics = ['none']
   systematics = ','.join(systematics)
-  print(systematics)
 
   # loop over input files and submit jobs
   commands = []
   for i in range(nsamples):
     # make the basic command
-    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, electroncfmap, 
-                    args.nevents, args.forcenevents, bdt )
+                    args.nevents, args.forcenevents, bdt, bdtcut )
     # manage particle level splitting
     if( args.exe=='runanalysis2' ):
       if( args.splitprocess is not None 

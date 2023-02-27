@@ -32,9 +32,11 @@ if __name__=='__main__':
   if method == 'fitdiagnostics': method = 'FitDiagnostics'
 
   # find all workspaces in the directory
-  wspaces = ([ f for f in os.listdir(args.datacarddir)
-               if (fnmatch.fnmatch(f,'datacard_*.root')
-                   or fnmatch.fnmatch(f,'dc_combined_*.root') ) ])
+  wspaces = []
+  for f in os.listdir(args.datacarddir):
+    if not (fnmatch.fnmatch(f,'datacard_*.root') or fnmatch.fnmatch(f,'dc_combined_*.root') ): continue
+    if 'likelihoodscan' in f: continue
+    wspaces.append(f)
   if len(wspaces)==0:
     raise Exception('ERROR: no combine workspaces found, terminating.')
 

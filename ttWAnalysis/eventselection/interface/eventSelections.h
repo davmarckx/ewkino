@@ -18,6 +18,9 @@ bool hasnFOLeptons(Event&, int, bool select);
 bool hasnTightLeptons(Event&, int, bool select);
 bool allLeptonsArePrompt(const Event&);
 // pass functions
+// no selection
+bool pass_noselection(Event& event, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 // signal regions
 bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);

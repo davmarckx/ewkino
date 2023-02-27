@@ -52,6 +52,8 @@ class ReweighterBTagShape: public Reweighter{
 	std::map< std::string, std::map< int, double >> calcAverageOfWeights(
                                     const Sample& sample,
                                     long unsigned numberOfEntries=0 ) const;
+	int getNJets( const Event& event, const std::string& variation ) const;
+        int getNJets( const Event& event ) const;
 
     private:
 
@@ -64,8 +66,6 @@ class ReweighterBTagShape: public Reweighter{
 	std::vector<std::string> _systematics;
 	std::map< std::string, std::map< std::string, std::map<int,double >>> _normFactors;
 
-	int getNJets( const Event& event, const std::string& variation ) const;
-        int getNJets( const Event& event ) const;
 	double weight( const Jet& jet, const std::string& variation ) const;
 	double weight( const Event& event, const std::string& variation ) const;
 };
