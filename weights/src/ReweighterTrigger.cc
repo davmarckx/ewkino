@@ -52,11 +52,23 @@ std::vector<double> leptonPts(const Event& event){
 // ------------
 // note: new version, suitable for UL analyses.
 
+<<<<<<< HEAD
 ReweighterTrigger::ReweighterTrigger(const std::string& triggerWeightPath, const std::string& year) {
     // input arguments:
     // - triggerWeightPath: path to a root file containing directly the reweighting factors
     //                      for this combination of leptons (currently ../weightFilesUL/triggerSF/scalefactors_allYears.root)
     // - eventClass: combination of leptons for which we want trigger efficiencies
+=======
+ReweighterTrigger::ReweighterTrigger(
+    const std::string& triggerWeightPath, 
+    const std::string& year,
+    const double uncertainty ) {
+    // input arguments:
+    // - triggerWeightPath: path to a root file containing histograms with reweighting factors
+    //   (currently ../weightFilesUL/triggerSF/scalefactors_allYears.root)
+    // - year: data taking year
+    // - uncerainty: double with systematic uncertainty (e.g. 0.02 for 2%)
+>>>>>>> master
 
     triggerWeights_ee = getMCTriggerHistogram(triggerWeightPath, year, "ee");
     triggerWeights_ee->SetDirectory( gROOT );
@@ -70,6 +82,11 @@ ReweighterTrigger::ReweighterTrigger(const std::string& triggerWeightPath, const
     triggerWeights_me = getMCTriggerHistogram(triggerWeightPath, year, "me");
     triggerWeights_me->SetDirectory( gROOT );
 
+<<<<<<< HEAD
+=======
+    systUnc = uncertainty;
+
+>>>>>>> master
     isUL = true;
 }
 
@@ -103,8 +120,14 @@ double ReweighterTrigger::weight(
     // input arguments:
     // - event: event for which to retrieve the weight
     // - weightHist: histogram containing the weights
+<<<<<<< HEAD
     std::vector<double> pts = leptonPts(event);
     return histogram::contentAtValues( weightHist.get(), event.leptonCollection()[0].pt(), event.leptonCollection()[1].pt() );
+=======
+    return histogram::contentAtValues( weightHist.get(),
+	event.leptonCollection()[0].pt(),
+	event.leptonCollection()[1].pt() );
+>>>>>>> master
 }
 
 double ReweighterTrigger::weight( const Event& event ) const{
@@ -113,7 +136,10 @@ double ReweighterTrigger::weight( const Event& event ) const{
     event.sortLeptonsByPt();
     bool flavor1 = event.leptonCollection()[0].isMuon();     // 0 if electron, 1 if muon
     bool flavor2 = event.leptonCollection()[1].isMuon();     // 0 if electron, 1 if muon
+<<<<<<< HEAD
 
+=======
+>>>>>>> master
     if(!flavor1 && !flavor2){return weight( event,  triggerWeights_ee);}
     if(flavor1 && flavor2){return weight( event,  triggerWeights_mm);}
     if(flavor1 && !flavor2){return weight( event,  triggerWeights_me);}
@@ -123,14 +149,22 @@ double ReweighterTrigger::weight( const Event& event ) const{
 
 double ReweighterTrigger::weightDown( const Event& event ) const{
     // retrieve down-varied weight for and event
+<<<<<<< HEAD
     if(!hasnTightLeptons(event, 2)){return 0.98*weight( event);}
     if(!hasnTightLeptons(event, 3)){return 0.98;}
     return 1;
+=======
+    return weight(event)*(1-systUnc);
+>>>>>>> master
 }
 
 double ReweighterTrigger::weightUp( const Event& event ) const{
     // retrieve up-varied weight for an event
+<<<<<<< HEAD
     if(!hasnTightLeptons(event, 2)){return 1.02*weight( event);}
     if(!hasnTightLeptons(event,3)){return 1.02;}
     return 1;
+=======
+    return weight(event)*(1+systUnc);
+>>>>>>> master
 }

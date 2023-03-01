@@ -336,10 +336,11 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     std::vector<std::string> variations = {"jes","hf","lf","hfstats1","hfstats2",
                                         "lfstats1","lfstats2","cferr1","cferr2" };
     // step 3: make the reweighter
-    /*std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
+    std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
 	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
-    reweighterBTagShape->initialize(samples, 0);
-    combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );*/
+    //reweighterBTagShape->initialize(samples, 0);
+    // (above line is commented out -> do not initialize, do it manually in calling)
+    combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );
 
     // make pileup reweighter
     std::string pileupWeightPath = stringTools::formatDirectoryName( weightDirectory )

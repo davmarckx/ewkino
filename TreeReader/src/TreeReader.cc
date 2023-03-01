@@ -385,8 +385,8 @@ std::pair<double, int> TreeReader::getHCounterInfo() const{
 
 
 void TreeReader::initSample( const Sample& samp,
-                             const bool doInitTree,
-                             const bool doInitHCounter ){ 
+    const bool doInitTree,
+    const bool doInitHCounter ){ 
     //update current sample
     // old comment from Willem:
     // "I wonder if the extra copy can be avoided here, 
@@ -410,7 +410,7 @@ void TreeReader::initSample( const Sample& samp,
     // where the tree is stored in the root directory...
     if( !_currentTreePtr ) _currentTreePtr = (TTree*) _currentFilePtr->Get( "blackJackAndHookersTree" );
     checkCurrentTree();
-    if( doInitTree) initTree();
+    if( doInitTree ) initTree();
     if( !samp.isData() && doInitHCounter ){
 
         //read sum of simulated event weights

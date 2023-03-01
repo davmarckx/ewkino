@@ -63,6 +63,11 @@ const Reweighter* CombinedReweighter::operator[]( const std::string& name ) cons
     return it->second.get();
 }
 
+Reweighter* CombinedReweighter::getReweighter( const std::string& name ){
+    auto it = findAndCheckReweighter( name, reweighterMap );
+    return it->second.get();
+}
+
 
 // get weights
 
