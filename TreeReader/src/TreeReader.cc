@@ -384,7 +384,9 @@ std::pair<double, int> TreeReader::getHCounterInfo() const{
 }
 
 
-void TreeReader::initSample( const Sample& samp ){ 
+void TreeReader::initSample( const Sample& samp,
+    const bool doInitTree,
+    const bool doInitHCounter ){ 
     //update current sample
     // old comment from Willem:
     // "I wonder if the extra copy can be avoided here, 
@@ -405,8 +407,8 @@ void TreeReader::initSample( const Sample& samp ){
     // implicitly called above when opening a new TFile."
     _currentTreePtr = (TTree*) _currentFilePtr->Get( "blackJackAndHookers/blackJackAndHookersTree" );
     checkCurrentTree();
-    initTree();
-    if( !samp.isData() ){
+    if( doInitTree ) initTree();
+    if( !samp.isData() && doInitHCounter ){
 
         //read sum of simulated event weights
         TH1D* hCounter = new TH1D( "hCounter", "Events counter", 1, 0, 1 );
