@@ -24,6 +24,7 @@ class CombinedReweighter{
 	bool hasReweighter( const std::string& name ) const;
 	std::vector<std::string> getReweighterNames() const;
         const Reweighter* operator[]( const std::string& ) const;
+	Reweighter* getReweighter( const std::string& );
 
 	// get weights
         double totalWeight( const Event& ) const;
