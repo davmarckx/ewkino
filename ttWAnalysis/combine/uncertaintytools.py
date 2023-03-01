@@ -79,6 +79,10 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   rmforall.append('JECGrouped*')
   rmforall.append('JECGrouped_Total*')
 
+  # remove b-tagging shape uncertainties for nonprompt
+  # (the data is not yet correctly filled with nominal for these systematics)
+  rmspecific['Nonprompt'].append('bTag_shape*')
+
   # remove uncertainties for other years
   # (cleaner, but not strictly needed since they are set to nominal anyway)
   if( year is not None and allyears is not None and year in allyears ):
@@ -141,8 +145,8 @@ def add_systematics_default( processinfo, year=None ):
       normsyslist.append(source)
 
   # add trigger uncertainty
-  # to be updated later in case of non-flat uncertainty!
-  if year is not None:
+  # now implemented as reweighter + non-flat uncertainty!
+  '''if year is not None:
     impacts = {}
     for p in processinfo.plist: impacts[p] = 1.02
     source = 'Trigger_{}'.format(year)
@@ -151,7 +155,7 @@ def add_systematics_default( processinfo, year=None ):
       processinfo.disablesys( source, ['Nonprompt'] )
     if 'Chargeflips' in processinfo.plist:
       processinfo.disablesys( source, ['Chargeflips'] )
-    normsyslist.append(source)
+    normsyslist.append(source)'''
 
   # add individual norm uncertainties
   norms = ({
