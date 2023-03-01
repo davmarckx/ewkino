@@ -29,6 +29,7 @@ std::string systematicTools::systematicType( const std::string systematic ){
             or systematic=="electronIDStat"
             or systematic=="pileup"
 	    or systematic=="prefire"
+	    or systematic=="trigger"
             or systematic=="njets"
             or systematic=="nbjets"
             or systematic=="bTag_heavy" 

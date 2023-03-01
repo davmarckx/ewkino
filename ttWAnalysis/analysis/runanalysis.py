@@ -34,10 +34,10 @@ systematics = ([
   "electronIDSyst",
   "electronIDStat",
   "pileup",
-  #"luminosity",
+  "trigger",
   "prefire",
   # b-tagging
-  #"bTag_shape" # not yet implemented
+  "bTag_shape",
   # scale uncertainties
   "fScale",
   "fScaleNorm",

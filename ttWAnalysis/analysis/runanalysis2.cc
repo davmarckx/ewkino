@@ -30,6 +30,7 @@
 #include "../../weights/interface/ReweighterBTagShape.h"
 
 // include analysis tools
+#include "../btagging/interface/bTaggingTools.h"
 #include "../eventselection/interface/eventSelections.h"
 #include "../eventselection/interface/eventFlattening.h"
 #include "../eventselection/interface/eventSelectionsParticleLevel.h"
@@ -302,11 +303,6 @@ std::map< std::string,     // process
     return histMap;
 }
 
-void setBTagShapeNorm( ){
-    // normalize the b-tag shape reweighter
-    // to implement later
-}
-
 
 void fillSystematicsHistograms(
 	    const std::string& inputDirectory, 
@@ -366,12 +362,36 @@ void fillSystematicsHistograms(
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
 					"../../weights/", year, thissample );
     
-    // normalize the bTag shape reweighter if present
+    // initialize the b-tagging shape reweighter if needed
     bool hasBTagShapeReweighter = reweighter.hasReweighter("bTag_shape");
-    if( hasBTagShapeReweighter ){
-	setBTagShapeNorm( ); // to implement
-    }
-    
+    std::vector<std::string> bTagShapeSystematics;
+    std::map< std::string, std::map< std::string, std::map< int, double >>> bTagWeightMap;
+    if( hasBTagShapeReweighter and !treeReader.isData() ){
+        // find available b-tagging systematics
+        std::cout << "finding available b-tagging systematics..." << std::endl;
+        bTagShapeSystematics = dynamic_cast<const ReweighterBTagShape*>(
+            reweighter["bTag_shape"] )->availableSystematics();
+        std::cout << "found following b-tagging systematics:" << std::endl;
+        for(std::string el: bTagShapeSystematics){
+            std::cout << "  - " << el << std::endl;
+        }
+        // read b-tagging shape reweighting normalization factors from txt file
+        std::string txtInputFile = "../btagging/output_20230215/";
+        // (hard-coded for now, maybe replace by argument later)
+        txtInputFile += year + "/" + inputFileName;
+        if( !systemTools::fileExists(txtInputFile) ){
+            std::string msg = "ERROR in loading b-tagging normalization factors:";
+            msg += " file " + txtInputFile + " does not exist.";
+            throw std::runtime_error(msg);
+        }
+        std::vector<std::string> variationsToRead = {"central"};
+        for( std::string var: bTagShapeSystematics ){
+            variationsToRead.push_back("up_"+var);
+            variationsToRead.push_back("down_"+var);
+        }
+        bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
+    }   
+ 
     // determine global sample properties related to pdf and scale variations
     unsigned numberOfScaleVariations = 0;
     unsigned numberOfPdfVariations = 0;
@@ -478,25 +498,6 @@ void fillSystematicsHistograms(
 	event.jetInfo().printGroupedJECVariations();
     }
 
-    // determine global sample properties related to bTag shape systematics
-    std::vector<std::string> bTagShapeSystematics;
-    bool considerbtagshape = (std::find(systematics.begin(),systematics.end(),"bTag_shape")
-				!=systematics.end());
-    if( considerbtagshape && !hasBTagShapeReweighter ){
-	std::string msg = "ERROR: bTag_shape uncertainties requested,";
-	msg.append( " but no bTag_shape reweighter present" );
-	throw std::invalid_argument( msg );
-    }
-    if( considerbtagshape ){
-	std::cout << "finding available b-tagging systematics..." << std::endl;
-	bTagShapeSystematics = dynamic_cast<const ReweighterBTagShape*>( 
-	    reweighter["bTag_shape"] )->availableSystematics();
-	std::cout << "found following b-tagging systematics:" << std::endl;
-	for(std::string el: bTagShapeSystematics){
-	    std::cout << "  - " << el << std::endl;
-	}
-    }
-
     // make output collection of histograms
     std::cout << "making output collection of histograms..." << std::endl;
     std::vector<std::string> processNames = {processName};
@@ -578,6 +579,13 @@ void fillSystematicsHistograms(
 		passParticleLevel = true;
 		varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
 	    }
+        }
+
+	// set  the correct normalization factors for b-tag reweighting
+        if( hasBTagShapeReweighter && !treeReader.isData() ){
+            dynamic_cast<ReweighterBTagShape*>(
+                reweighter.getReweighter("bTag_shape") )->setNormFactors( treeReader.currentSample(),
+                bTagWeightMap[event_selection] );
         }
 
 	// loop over selection types
@@ -796,24 +804,29 @@ void fillSystematicsHistograms(
 		// skip checking other systematics as they are mutually exclusive
                 continue;
 	    }
-	    /*// special case for bTag_shape reweighting (several systematics)
+	    // special case for bTag_shape reweighting (several systematics)
 	    else if(systematic=="bTag_shape"){
 		double nombweight = reweighter["bTag_shape"]->weight( event );
-		for(std::string btagsys: bTagShapeSystematics){
-		    double upweight = varmap["_normweight"]*nEntriesReweight / nombweight
-					* dynamic_cast<const ReweighterBTagShape*>(
-					    reweighter["bTag_shape"])->weightUp( event, btagsys );
-		    double downweight = varmap["_normweight"]*nEntriesReweight / nombweight
+                for(std::string btagsys: bTagShapeSystematics){
+                    double upWeight = varmap["_normweight"]*nEntriesReweight / nombweight
+                                        * dynamic_cast<const ReweighterBTagShape*>(
+                                            reweighter["bTag_shape"])->weightUp( event, btagsys );
+                    double downWeight = varmap["_normweight"]*nEntriesReweight / nombweight
                                         * dynamic_cast<const ReweighterBTagShape*>(
                                             reweighter["bTag_shape"])->weightDown( event, btagsys );
-		    for(std::string variable : variables){
-			fillVarValue(histMap[thisPName][variable][systematic+"_"+btagsys+"Up"],
-			    getVarValue(variable,varmap),upweight);
-			fillVarValue(histMap[thisPName][variable][systematic+"_"+btagsys+"Down"],
-			    getVarValue(variable,varmap),downweight);
-		    }
-		}
-	    }*/
+                    for(DoubleHistogramVariable histVar: histVars){
+                        std::string variableName = histVar.name();
+                        std::string primaryVariable = histVar.primaryVariable();
+			std::string secondaryVariable = histVar.secondaryVariable();
+                        fillHistogram( histMap, thisProcessName, event_selection, selection_type, systematic+"_"+btagsys+"Up",
+                                    histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), upWeight,
+				    doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
+                        fillHistogram( histMap, thisProcessName, event_selection, selection_type, systematic+"_"+btagsys+"Down",
+                                    histVar, varmap.at(primaryVariable), varmap.at(secondaryVariable), downWeight,
+                                    doSplitParticleLevel, passParticleLevel, varmapParticleLevel.at(secondaryVariable) );
+                    }
+                }
+	    }
 	    // ELSE apply nominal weight (already in variable nominalWeight)
 	    else if(systematic=="fScale" && hasValidQcds){
 		double upWeight = nominalWeight * event.generatorInfo().relativeWeight_MuR_1_MuF_2()

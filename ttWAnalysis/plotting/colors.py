@@ -113,6 +113,7 @@ def getcolormap_systematics():
     cmap['bTag_heavy'] = ROOT.kGreen+1
     cmap['bTag_light'] = ROOT.kGreen+3
     cmap['prefire'] = ROOT.kGreen+3
+    cmap['trigger'] = ROOT.kGreen+3
 
     # btag weights also in green
     cmap['bTag_shape_lf'] = ROOT.kGreen+1
