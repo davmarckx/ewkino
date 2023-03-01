@@ -350,8 +350,11 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
         std::make_shared< ReweighterPileup >( pileupWeightPath ) );
 
     // make Trigger reweighter
-    std::string triggerWeightPath = stringTools::formatDirectoryName( weightDirectory ) + "weightFilesUL/triggerSF/scalefactors_allYears.root";
-    combinedReweighter.addReweighter( "trigger", std::make_shared< ReweighterTrigger >( triggerWeightPath, year ) );
+    std::string triggerWeightPath = stringTools::formatDirectoryName( weightDirectory );
+    triggerWeightPath += "weightFilesUL/triggerSF/triggerSF.root";
+    double uncertainty = 0.02;
+    combinedReweighter.addReweighter( "trigger", 
+	std::make_shared< ReweighterTrigger >( triggerWeightPath, year, uncertainty ) );
 
     // make prefire reweighter
     combinedReweighter.addReweighter( "prefire", std::make_shared< ReweighterPrefire >() );
