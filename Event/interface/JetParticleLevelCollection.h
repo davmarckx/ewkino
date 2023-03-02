@@ -21,6 +21,9 @@ class JetParticleLevelCollection : public PhysicsObjectCollection< JetParticleLe
     public:
         JetParticleLevelCollection( const TreeReader& );
 
+        //make jet collection with b-tagged jets 
+        JetParticleLevelCollection PLbJetCollection() const;
+
 	// count objects
 	size_type numberOfJets() const;
 	size_type numberOfBJets() const;
@@ -29,7 +32,9 @@ class JetParticleLevelCollection : public PhysicsObjectCollection< JetParticleLe
 	void sortByPt();
 
     private:
-        
+       //build JetCollection of jets satisfying a certain requirement
+       JetParticleLevelCollection buildSubCollection( bool (JetParticleLevel::*passSelection)() const ) const; 
+       JetParticleLevelCollection( const std::vector< std::shared_ptr< JetParticleLevel > >& jetVector ) : PhysicsObjectCollection< JetParticleLevel >( jetVector ) {}
 };
 
 

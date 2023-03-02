@@ -40,7 +40,7 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
  
     // get correct object collections and met
     JetParticleLevelCollection jetcollection = event.jetParticleLevelCollection();
-    JetParticleLevelCollection bjetcollection = jetcollection.mediumBTagCollection();
+    JetParticleLevelCollection bjetcollection = jetcollection.PLbJetCollection();
     MetParticleLevel met = event.metParticleLevel();
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
 
@@ -65,9 +65,9 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
         varmap["_leptonAbsEtaLeading"] = fabs(lepcollection[0].eta());
         varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaLeading"];
 
-        for(JetCollection::const_iterator jIt = jetcollection.cbegin();
+        for(JetParticleLevelCollection::const_iterator jIt = jetcollection.cbegin();
             jIt != jetcollection.cend(); jIt++){
-            Jet& jet = **jIt;
+            JetParticleLevel& jet = **jIt;
             if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
         } 
     }

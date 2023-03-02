@@ -42,11 +42,11 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json' # single variables
-#variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_main.json' # single variables
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
-bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
+bdtfile = '../bdtweights/XGBfinal_all.root'
 bdtcut = 0.7
 
 outputdir = 'output_20230216_single_bdtcut0p7'
