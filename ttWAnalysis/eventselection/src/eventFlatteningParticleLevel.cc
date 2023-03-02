@@ -24,7 +24,7 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
 	{"_jetEtaLeading",0.}, {"_jetEtaSubLeading",0.},
         {"_jetAbsEtaLeading",0.}, {"_jetAbsEtaSubLeading",0.},
         {"_bjetPtLeading",0.},{"_bjetEtaLeading",0.},{"_bjetAbsEtaLeading",0.},
-	{"_nJetsNBJetsCat",-1},{"HT",0.}
+	{"_nJetsNBJetsCat",-1},{"_HT",0.},{"_dRl1jet",99.},{"_dRl1l2",99.},{"_leptonMaxEta",0.}
     };
     return varmap;    
 }
@@ -63,11 +63,21 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
 	varmap["_leptonPtLeading"] = lepcollection[0].pt();
 	varmap["_leptonEtaLeading"] = lepcollection[0].eta();
         varmap["_leptonAbsEtaLeading"] = fabs(lepcollection[0].eta());
+        varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaLeading"];
+
+        for(JetCollection::const_iterator jIt = jetcollection.cbegin();
+            jIt != jetcollection.cend(); jIt++){
+            Jet& jet = **jIt;
+            if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
+        } 
     }
     if(lepcollection.numberOfLightLeptons()>=2){
 	varmap["_leptonPtSubLeading"] = lepcollection[1].pt();
 	varmap["_leptonEtaSubLeading"] = lepcollection[1].eta();
         varmap["_leptonAbsEtaSubLeading"] = fabs(lepcollection[1].eta());
+        if( varmap["_leptonAbsEtaSubLeading"] > varmap["_leptonMaxEta"]){ varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaSubLeading"]; }
+
+        varmap["_dRl1l2"] = deltaR(lepcollection[0],lepcollection[1]);
     }
     if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
