@@ -65,8 +65,11 @@ print(other1["class"])
 
 X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventNN',
        '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region','_chargeflipweight','_fakeRateFlavour', '_bestZMass'], axis=1)
+X.loc[X['class'] == 'TT', 'class'] = 0
 X.loc[X['class'] == 'TTW', 'class'] = 1
-X.loc[X['class'] != 1, 'class'] = 0
+X.loc[X['class'] == 'TTZ', 'class'] = 2
+X.loc[X['class'] == 'TTH', 'class'] = 2
+X.loc[X['class'] == 'TTG', 'class'] = 3
 
 X_other =  other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventNN',
        '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield','_chargeflipweight','_fakeRateFlavour', '_bestZMass'], axis=1)
