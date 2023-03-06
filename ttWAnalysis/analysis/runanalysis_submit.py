@@ -6,7 +6,7 @@
 import os
 import sys
 
-exe = 'runanalysis'
+exe = 'runanalysis2'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
@@ -49,7 +49,7 @@ variables = '../variables/variables_particlelevel_double.json' # double variable
 bdtfile = '../bdtweights/XGBfinal_all.root'
 bdtcut = 0.0
 
-outputdir = 'output_runanalysis'
+outputdir = 'output_runanalysis2'
 
 nevents = -1
 runlocal = False

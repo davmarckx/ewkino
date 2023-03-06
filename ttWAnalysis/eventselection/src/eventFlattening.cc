@@ -93,7 +93,11 @@ Float_t _l2sip3d = 0.;//new
 Float_t _lW_pt = 0.;
 Float_t _Z_pt = 0.;
 Float_t year = 1.;
-
+// variables for checking low-mass resonances
+Float_t _deltaPhiLeadingLeptonPair = 0;
+Float_t _deltaEtaLeadingLeptonPair = 0;
+Float_t _deltaRLeadingLeptonPair = 0;
+Float_t _mLeadingLeptonPair = 0;
 // categorization variables
 Int_t _nJetsNBJetsCat = -1;
 Int_t _nJetsNZCat = -1;
@@ -186,6 +190,10 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _l2dz = varmap["_l2dz"];
     _l2sip3d = varmap["_l2sip3d"];
 
+    _deltaPhiLeadingLeptonPair = varmap["_deltaPhiLeadingLeptonPair"];
+    _deltaEtaLeadingLeptonPair = varmap["_deltaEtaLeadingLeptonPair"];
+    _deltaRLeadingLeptonPair = varmap["_deltaRLeadingLeptonPair"];
+    _mLeadingLeptonPair = varmap["_mLeadingLeptonPair"];
 
     _nJetsNBJetsCat = varmap["_nJetsNBJetsCat"];
     _nJetsNZCat = varmap["_nJetsNZCat"];
@@ -272,6 +280,11 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_fakeRateFlavour",-1},
     
 	{"_bestZMass",0.},
+
+        {"_deltaPhiLeadingLeptonPair",0.}, 
+        {"_deltaEtaLeadingLeptonPair",0.},
+        {"_deltaRLeadingLeptonPair",0.},
+        {"_mLeadingLeptonPair",0.},
 	
 	{"_lW_charge",0}, {"_lW_pt",0.}, {"_Z_pt",0.},
         {"_l1dxy",0.},{"_l1dz",0.},{"_l1sip3d",0.},
@@ -372,7 +385,15 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_l2dxy", &_l2dxy, "_l2dxy/F");
     outputTree->Branch("_l2dz", &_l2dz, "_l2dz/F");
     outputTree->Branch("_l2sip3d", &_l2sip3d, "_l2sip3d/F");
-    // categorization variables
+
+    // variables for checking low-mass resonances
+    outputTree->Branch("deltaPhiLeadingLeptonPair", &_deltaPhiLeadingLeptonPair, "_deltaPhiLeadingLeptonPair/F");
+    outputTree->Branch("deltaEtaLeadingLeptonPair", &_deltaEtaLeadingLeptonPair, "_deltaEtaLeadingLeptonPair/F");
+    outputTree->Branch("deltaRLeadingLeptonPair", &_deltaRLeadingLeptonPair, "_deltaRLeadingLeptonPair/F");
+    outputTree->Branch("mLeadingLeptonPair", &_mLeadingLeptonPair, "_mLeadingLeptonPair/F");
+ 
+
+   // categorization variables
     outputTree->Branch("_nJetsNBJetsCat", &_nJetsNBJetsCat, "_nJetsNBJetsCat/I");
     outputTree->Branch("_nJetsNZCat", &_nJetsNZCat, "_nJetsNZCat/I");
     }
@@ -493,6 +514,14 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         varmap["_leptonEtaTrailing"] = lepcollection[2].eta();
         varmap["_leptonAbsEtaTrailing"] = fabs(lepcollection[2].eta()); 
     }
+
+    if(lepcollection.numberOfLightLeptons()>=2){
+        varmap["_deltaPhiLeadingLeptonPair"] = deltaPhi(lepcollection[0],lepcollection[1]);
+        varmap["_deltaEtaLeadingLeptonPair"] = deltaEta(lepcollection[0],lepcollection[1]);
+        varmap["_deltaRLeadingLeptonPair"] = deltaR(lepcollection[0],lepcollection[1]);
+        varmap["_mLeadingLeptonPair"] = (lepcollection[0]+lepcollection[1]).mass();
+    }
+
     // jet pt
     jetcollection.sortByPt();
     if(jetcollection.size()>=1) varmap["_jetPtLeading"] = jetcollection[0].pt();
