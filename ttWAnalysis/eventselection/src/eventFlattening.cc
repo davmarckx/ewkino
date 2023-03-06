@@ -40,6 +40,8 @@ Float_t _dPhill_max = 0;
 Float_t _HT = 0;
 Float_t _nJets = 0;
 Float_t _nBJets = 0;
+Float_t _nLooseBJets = 0;
+Float_t _nTightBJets = 0;
 Float_t _dRlWrecoil = 0;
 Float_t _dRlWbtagged = 0;
 Float_t _M3l = 0;
@@ -138,6 +140,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _HT = varmap["_HT"];
     _nJets = varmap["_nJets"];
     _nBJets = varmap["_nBJets"];
+    _nLooseBJets = varmap["_nLooseBJets"];
+    _nTightBJets = varmap["_nTightBJets"];
     _dRlWrecoil = varmap["_dRlWrecoil"];
     _dRlWbtagged = varmap["_dRlWbtagged"];
     _M3l = varmap["_M3l"];
@@ -253,7 +257,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
         {"_lT",0},
 	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},{"_dRl1jet",99.},
 	{"_dPhill_max",0},{"_HT",0},{"_nJets",0},
-	{"_nBJets",0},{"_dRlWrecoil",0},{"_dRlWbtagged",0},
+	{"_nBJets",0},{"_nLooseBJets",0},{"nTightBJets",0},
+        {"_dRlWrecoil",0},{"_dRlWbtagged",0},
 	{"_M3l",0},{"_abs_eta_max",0},{"_MET_phi",0},{"_MET_pt",0},
 
 	{"_eventBDT",0},
@@ -330,6 +335,8 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_HT", &_HT, "_HT/F");
     outputTree->Branch("_nJets", &_nJets, "_nJets/F");
     outputTree->Branch("_nBJets", &_nBJets, "_nBJets/F");
+    outputTree->Branch("_nLooseBJets", &_nLooseBJets, "_nLooseBJets/F");
+    outputTree->Branch("_nTightBJets", &_nTightBJets, "_nTightBJets/F");
     outputTree->Branch("_dRlWrecoil", &_dRlWrecoil, "_dRlWrecoil/F");
     outputTree->Branch("_dRlWbtagged", &_dRlWbtagged, "_dRlWbtagged/F");
     outputTree->Branch("_M3l", &_M3l, "_M3l/F");
@@ -559,6 +566,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_HT"] = jetcollection.scalarPtSum();
     varmap["_nJets"] = jetcollection.size();
     varmap["_nBJets"] = bjetcollection.size();
+    varmap["_nLooseBJets"] = jetcollection.looseBTagCollection().size();
+    varmap["_nTightBJets"] = jetcollection.tightBTagCollection().size();
     for(LeptonCollection::const_iterator lIt = lepcollection.cbegin();
 	    lIt != lepcollection.cend(); lIt++){
         std::shared_ptr<Lepton> lep = *lIt;

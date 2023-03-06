@@ -260,8 +260,7 @@
   "xhigh": "1.0",
   "axtitle": "BDT output",
   "unit": ""
-}
-]/*,
+},
 {
   "name": "_deltaPhiLeadingLeptonPair",
   "variable": "_deltaPhiLeadingLeptonPair",
@@ -298,5 +297,4 @@
   "axtitle": "m (l_{1},l_{2})",
   "unit": "GeV"
 }
-*/
 ]
