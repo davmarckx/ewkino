@@ -17,11 +17,14 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
 	{"_yield",0.5},
 	{"_nJets",0}, {"_nBJets",0},
 	{"_nMuons",0},{"_nElectrons",0},
-	{"_leptonPtLeading",-1.}, {"_leptonPtSubLeading",-1.}, {"_leptonPtTrailing",-1.},
-	{"_leptonEtaLeading",-99.}, {"_leptonEtaSubLeading",-99.}, {"_leptonEtaTrailing",-99.},
-	{"_jetPtLeading",-1.}, {"_jetPtSubLeading",-1.},
-	{"_jetEtaLeading",-99.}, {"_jetEtaSubLeading",-99.},
-	{"_nJetsNBJetsCat",-1}
+	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
+	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
+        {"_leptonAbsEtaLeading",0.}, {"_leptonAbsEtaSubLeading",0.}, {"_leptonAbsEtaTrailing",0.},
+	{"_jetPtLeading",0.}, {"_jetPtSubLeading",0.},
+	{"_jetEtaLeading",0.}, {"_jetEtaSubLeading",0.},
+        {"_jetAbsEtaLeading",0.}, {"_jetAbsEtaSubLeading",0.},
+        {"_bjetPtLeading",0.},{"_bjetEtaLeading",0.},{"_bjetAbsEtaLeading",0.},
+	{"_nJetsNBJetsCat",-1},{"_HT",0.},{"_dRl1jet",99.},{"_dRl1l2",99.},{"_leptonMaxEta",0.}
     };
     return varmap;    
 }
@@ -37,6 +40,7 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
  
     // get correct object collections and met
     JetParticleLevelCollection jetcollection = event.jetParticleLevelCollection();
+    JetParticleLevelCollection bjetcollection = jetcollection.PLbJetCollection();
     MetParticleLevel met = event.metParticleLevel();
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
 
@@ -58,29 +62,55 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
     if(lepcollection.numberOfLightLeptons()>=1){
 	varmap["_leptonPtLeading"] = lepcollection[0].pt();
 	varmap["_leptonEtaLeading"] = lepcollection[0].eta();
+        varmap["_leptonAbsEtaLeading"] = fabs(lepcollection[0].eta());
+        varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaLeading"];
+
+        for(JetParticleLevelCollection::const_iterator jIt = jetcollection.cbegin();
+            jIt != jetcollection.cend(); jIt++){
+            JetParticleLevel& jet = **jIt;
+            if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
+        } 
     }
     if(lepcollection.numberOfLightLeptons()>=2){
 	varmap["_leptonPtSubLeading"] = lepcollection[1].pt();
 	varmap["_leptonEtaSubLeading"] = lepcollection[1].eta();
+        varmap["_leptonAbsEtaSubLeading"] = fabs(lepcollection[1].eta());
+        if( varmap["_leptonAbsEtaSubLeading"] > varmap["_leptonMaxEta"]){ varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaSubLeading"]; }
+
+        varmap["_dRl1l2"] = deltaR(lepcollection[0],lepcollection[1]);
     }
     if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
         varmap["_leptonEtaTrailing"] = lepcollection[2].eta();
+        varmap["_leptonAbsEtaTrailing"] = fabs(lepcollection[2].eta());
     }
 
     // number of jets and b-jets
     varmap["_nJets"] = jetcollection.numberOfJets();
     varmap["_nBJets"] = jetcollection.numberOfBJets();
 
+    // HT
+    varmap["_HT"] = jetcollection.scalarPtSum();
+
     // jet pt and eta
     jetcollection.sortByPt();
     if(jetcollection.numberOfJets()>=1){
 	varmap["_jetPtLeading"] = jetcollection[0].pt();
 	varmap["_jetEtaLeading"] = jetcollection[0].eta();
+        varmap["_jetAbsEtaLeading"] = fabs(jetcollection[0].eta());
     }
     if(jetcollection.numberOfJets()>=2){
 	varmap["_jetPtSubLeading"] = jetcollection[1].pt();
 	varmap["_jetEtaSubLeading"] = jetcollection[1].eta();
+        varmap["_jetAbsEtaSubLeading"] = fabs(jetcollection[1].eta());
+    }
+
+    // b jet pt
+    bjetcollection.sortByPt();
+    if(bjetcollection.numberOfJets()>=1){
+        varmap["_bjetPtLeading"] = bjetcollection[0].pt();
+        varmap["_bjetEtaLeading"] = bjetcollection[0].eta();
+        varmap["_bjetAbsEtaLeading"] = fabs(bjetcollection[0].eta());
     }
 
     // definition of categorization variables

@@ -7,6 +7,22 @@ JetParticleLevelCollection::JetParticleLevelCollection( const TreeReader& treeRe
     }
 }
 
+JetParticleLevelCollection JetParticleLevelCollection::buildSubCollection( bool (JetParticleLevel::*passSelection)() const ) const{
+    std::vector< std::shared_ptr< JetParticleLevel > > jetVector;
+    for( const auto& jetPtr : *this ){
+        if( ( *jetPtr.*passSelection )() ){
+
+            //jets are shared between collections!
+            jetVector.push_back( jetPtr );
+            }
+        }
+        return JetParticleLevelCollection( jetVector );
+}
+
+JetParticleLevelCollection JetParticleLevelCollection::PLbJetCollection() const{
+    return buildSubCollection( &JetParticleLevel::isBJet );
+}
+                            
 JetParticleLevelCollection::size_type JetParticleLevelCollection::numberOfJets() const{
     // return number of jets in this collection (i.e. size)
     return size();

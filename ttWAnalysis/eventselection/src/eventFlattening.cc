@@ -35,6 +35,7 @@ Float_t _MT = 0;
 Float_t _pTjj_max = 0;
 Float_t _dRlb_min = 99.;
 Float_t _dRl1l2 =99.;
+Float_t _dRl1jet =99.;
 Float_t _dPhill_max = 0;
 Float_t _HT = 0;
 Float_t _nJets = 0;
@@ -47,6 +48,7 @@ Float_t _M3l = 0;
 Float_t _abs_eta_max = 0;
 Float_t _MET_pt = 0;
 Float_t _MET_phi = 0;
+
 // BDT output score
 Float_t _eventBDT = 0.;
 // other variables
@@ -60,15 +62,24 @@ Float_t _leptonPtSubLeading = 0.;
 Float_t _leptonPtTrailing = 0.;
 Float_t _leptonEtaLeading = 0.;
 Float_t _leptonEtaSubLeading = 0.;
+Float_t _leptonMaxEta = 0.;
 Float_t _leptonEtaTrailing = 0.;
+Float_t _leptonAbsEtaLeading = 0.;
+Float_t _leptonAbsEtaSubLeading = 0.;
+Float_t _leptonAbsEtaTrailing = 0.;
 Float_t _leptonELeading = 0.;//new/done
 Float_t _leptonESubLeading = 0.;//new/done
 Float_t _jetPtLeading = 0.;
 Float_t _jetPtSubLeading = 0.;
 Float_t _jetEtaLeading = 0.;
 Float_t _jetEtaSubLeading = 0.;
+Float_t _jetAbsEtaLeading = 0.;
+Float_t _jetAbsEtaSubLeading = 0.;
 Float_t _jetMassLeading = 0.;//new/done
 Float_t _jetMassSubLeading = 0.;//new/done
+Float_t _bjetPtLeading = 0.;
+Float_t _bjetEtaLeading = 0.;
+Float_t _bjetAbsEtaLeading = 0.;
 Float_t _numberOfVertices = 0.;
 Int_t _fakeRateFlavour = -1;
 Float_t _bestZMass = 0.;
@@ -123,7 +134,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _MT = varmap["_MT"];
     _pTjj_max = varmap["_pTjj_max"];
     _dRlb_min = varmap["_dRlb_min"];
-    _dRl1l2 = varmap["_dRl1l2"];    
+    _dRl1l2 = varmap["_dRl1l2"];
+    _dRl1jet = varmap["_dRl1jet"];    
     _dPhill_max = varmap["_dPhill_max"];
     _HT = varmap["_HT"];
     _nJets = varmap["_nJets"];
@@ -152,14 +164,23 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _leptonEtaLeading = varmap["_leptonEtaLeading"];
     _leptonEtaSubLeading = varmap["_leptonEtaSubLeading"];
     _leptonEtaTrailing = varmap["_leptonEtaTrailing"];
+    _leptonAbsEtaLeading = varmap["_leptonAbsEtaLeading"];
+    _leptonAbsEtaSubLeading = varmap["_leptonAbsEtaSubLeading"];
+    _leptonAbsEtaTrailing = varmap["_leptonAbsEtaTrailing"];
+    _leptonMaxEta = varmap["_leptonMaxEta"];
     _leptonELeading = varmap["_leptonELeading"];
     _leptonESubLeading = varmap["_leptonESubLeading"];
     _jetPtLeading = varmap["_jetPtLeading"];
     _jetPtSubLeading = varmap["_jetPtSubLeading"];
     _jetEtaLeading = varmap["_jetEtaLeading"];
     _jetEtaSubLeading = varmap["_jetEtaSubLeading"];
+    _jetAbsEtaLeading = varmap["_jetAbsEtaLeading"];
+    _jetAbsEtaSubLeading = varmap["_jetAbsEtaSubLeading"];
     _jetMassLeading = varmap["_jetMassLeading"];
     _jetMassSubLeading = varmap["_jetMassSubLeading"];
+    _bjetPtLeading = varmap["_bjetPtLeading"];
+    _bjetEtaLeading = varmap["_bjetEtaLeading"];
+    _bjetAbsEtaLeading = varmap["_bjetAbsEtaLeading"];
     _numberOfVertices = varmap["_numberOfVertices"];
     _fakeRateFlavour = varmap["_fakeRateFlavour"];
     _bestZMass = varmap["_bestZMass"];
@@ -234,10 +255,10 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_deepCSV_max",0},{"_deepCSV_leading",0},{"_deepCSV_subLeading",0},
         {"_deepFlavor_max",0},{"_deepFlavor_leading",0},{"_deepFlavor_subLeading",0},
         {"_lT",0},
-	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},
+	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},{"_dRl1jet",99.},
 	{"_dPhill_max",0},{"_HT",0},{"_nJets",0},
 	{"_nBJets",0},{"_nLooseBJets",0},{"nTightBJets",0},
-	{"_dRlWrecoil",0},{"_dRlWbtagged",0},
+        {"_dRlWrecoil",0},{"_dRlWbtagged",0},
 	{"_M3l",0},{"_abs_eta_max",0},{"_MET_phi",0},{"_MET_pt",0},
 
 	{"_eventBDT",0},
@@ -251,26 +272,28 @@ std::map< std::string, double > eventFlattening::initVarMap(){
         {"_leptonChargeLeading",0}, {"_leptonChargeSubLeading",0},	
 	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
 	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
+        {"_leptonAbsEtaLeading",0.}, {"_leptonAbsEtaSubLeading",0.}, {"_leptonAbsEtaTrailing",0.},
+        {"_leptonMaxEta",0.},
         {"_leptonELeading",0.}, {"_leptonESubLeading",0.},
 	{"_jetPtLeading",0.}, {"_jetPtSubLeading",0.},
         {"_jetEtaLeading",0.}, {"_jetEtaSubLeading",0.},
+        {"_jetAbsEtaLeading",0.}, {"_jetAbsEtaSubLeading",0.},
         {"_jetMassLeading",0.}, {"_jetMassSubLeading",0.},
-
+        {"_bjetPtLeading",0.},{"_bjetEtaLeading",0.},{"_bjetAbsEtaLeading",0.},
 	{"_numberOfVertices",0},
 	
 	{"_fakeRateFlavour",-1},
     
 	{"_bestZMass",0.},
+
+        {"_deltaPhiLeadingLeptonPair",0.}, 
+        {"_deltaEtaLeadingLeptonPair",0.},
+        {"_deltaRLeadingLeptonPair",0.},
+        {"_mLeadingLeptonPair",0.},
 	
 	{"_lW_charge",0}, {"_lW_pt",0.}, {"_Z_pt",0.},
         {"_l1dxy",0.},{"_l1dz",0.},{"_l1sip3d",0.},
         {"_l2dxy",0.},{"_l2dz",0.},{"_l2sip3d",0.},
-
-	{"_deltaPhiLeadingLeptonPair",0.}, 
-	{"_deltaEtaLeadingLeptonPair",0.},
-	{"_deltaRLeadingLeptonPair",0.},
-	{"_mLeadingLeptonPair",0.},
-
         {"_nJetsNBJetsCat",-1}, {"_nJetsNZCat",-1}
     };
     return varmap;    
@@ -290,7 +313,7 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_leptonreweight", &_leptonreweight, "_leptonreweight/F");
     outputTree->Branch("_nonleptonreweight", &_nonleptonreweight, "_nonleptonreweight/F");
     outputTree->Branch("_fakerateweight", &_fakerateweight, "_fakerateweight/F");
-    outputTree->Branch("_chargeflipweight", &_chargeflipweight, "_chargeflipweight/F"); 
+    outputTree->Branch("_chargeflipweight", &_chargeflipweight, "_chargeflipweight/F");
    
     // event BDT variables
     outputTree->Branch("_abs_eta_recoil", &_abs_eta_recoil, "_abs_eta_recoil/F");
@@ -307,6 +330,7 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_pTjj_max", &_pTjj_max, "_pTjj_max/F");
     outputTree->Branch("_dRlb_min", &_dRlb_min, "_dRlb_min/F");
     outputTree->Branch("_dRl1l2", &_dRl1l2, "_dRl1l2/F");
+    outputTree->Branch("_dRl1jet", &_dRl1jet, "_dRl1jet/F");
     outputTree->Branch("_dPhill_max", &_dPhill_max, "_dPhill_max/F");
     outputTree->Branch("_HT", &_HT, "_HT/F");
     outputTree->Branch("_nJets", &_nJets, "_nJets/F");
@@ -337,14 +361,25 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_leptonEtaLeading", &_leptonEtaLeading, "_leptonEtaLeading/F");
     outputTree->Branch("_leptonEtaSubLeading", &_leptonEtaSubLeading, "_leptonEtaSubLeading/F");
     outputTree->Branch("_leptonEtaTrailing", &_leptonEtaTrailing, "_leptonEtaTrailing/F");
+    outputTree->Branch("_leptonAbsEtaLeading", &_leptonAbsEtaLeading, "_leptonAbsEtaLeading/F");
+    outputTree->Branch("_leptonAbsEtaSubLeading", &_leptonAbsEtaSubLeading, "_leptonAbsEtaSubLeading/F");
+    outputTree->Branch("_leptonAbsEtaTrailing", &_leptonAbsEtaTrailing, "_leptonAbsEtaTrailing/F");
+    outputTree->Branch("_leptonMaxEta", &_leptonMaxEta, "_leptonMaxEta/F");
+
     outputTree->Branch("_leptonELeading", &_leptonELeading, "_leptonELeading/F");
     outputTree->Branch("_leptonESubLeading", &_leptonESubLeading, "_leptonESubLeading/F");
     outputTree->Branch("_jetPtLeading", &_jetPtLeading, "_jetPtLeading/F");
     outputTree->Branch("_jetPtSubLeading", &_jetPtSubLeading, "_jetPtSubLeading/F");
     outputTree->Branch("_jetEtaLeading", &_jetEtaLeading, "_jetEtaLeading/F");
+    outputTree->Branch("_jetAbsEtaLeading", &_jetAbsEtaLeading, "_jetAbsEtaLeading/F");
+    outputTree->Branch("_jetAbsEtaSubLeading", &_jetAbsEtaSubLeading, "_jetAbsEtaSubLeading/F");
     outputTree->Branch("_jetEtaSubLeading", &_jetEtaSubLeading, "_jetEtaSubLeading/F");
     outputTree->Branch("_jetMassLeading", &_jetMassLeading, "_jetMassLeading/F");
     outputTree->Branch("_jetMassSubLeading", &_jetMassSubLeading, "_jetMassSubLeading/F");
+    outputTree->Branch("_bjetPtLeading", &_bjetPtLeading, "_bjetPtLeading/F");
+    outputTree->Branch("_bjetEtaLeading", &_bjetEtaLeading, "_bjetEtaLeading/F");
+    outputTree->Branch("_bjetAbsEtaLeading", &_bjetAbsEtaLeading, "_bjetAbsEtaLeading/F");
+
     outputTree->Branch("_numberOfVertices", &_numberOfVertices, "_numberOfVertices/F");
     outputTree->Branch("_fakeRateFlavour", &_fakeRateFlavour, "_fakeRateFlavour/I");
     outputTree->Branch("_bestZMass", &_bestZMass, "_bestZMass/F");
@@ -363,8 +398,9 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("deltaEtaLeadingLeptonPair", &_deltaEtaLeadingLeptonPair, "_deltaEtaLeadingLeptonPair/F");
     outputTree->Branch("deltaRLeadingLeptonPair", &_deltaRLeadingLeptonPair, "_deltaRLeadingLeptonPair/F");
     outputTree->Branch("mLeadingLeptonPair", &_mLeadingLeptonPair, "_mLeadingLeptonPair/F");
+ 
 
-    // categorization variables
+   // categorization variables
     outputTree->Branch("_nJetsNBJetsCat", &_nJetsNBJetsCat, "_nJetsNBJetsCat/I");
     outputTree->Branch("_nJetsNZCat", &_nJetsNZCat, "_nJetsNZCat/I");
     }
@@ -453,33 +489,44 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     if(lepcollection.numberOfLightLeptons()>=1){
 	varmap["_leptonPtLeading"] = lepcollection[0].pt();
 	varmap["_leptonEtaLeading"] = lepcollection[0].eta();
+        varmap["_leptonAbsEtaLeading"] = fabs(lepcollection[0].eta());
+        varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaLeading"];
         varmap["_leptonELeading"] = lepcollection[0].energy();
         varmap["_leptonChargeLeading"] = lepcollection[0].charge();
         varmap["_l1dxy"] = lepcollection[0].dxy();
         varmap["_l1dz"] = lepcollection[0].dz();
         varmap["_l1sip3d"] = lepcollection[0].sip3d();
+
+        for(JetCollection::const_iterator jIt = jetcollection.cbegin();
+            jIt != jetcollection.cend(); jIt++){
+            Jet& jet = **jIt;
+            if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
+        }
     }
     if(lepcollection.numberOfLightLeptons()>=2){
 	varmap["_leptonPtSubLeading"] = lepcollection[1].pt();
 	varmap["_leptonEtaSubLeading"] = lepcollection[1].eta();
+        varmap["_leptonAbsEtaSubLeading"] = fabs(lepcollection[1].eta());
         varmap["_leptonESubLeading"] = lepcollection[1].energy();
         varmap["_leptonChargeSubLeading"] = lepcollection[1].charge();
         varmap["_dRl1l2"] = deltaR(lepcollection[0],lepcollection[1]);
         varmap["_l2dxy"] = lepcollection[1].dxy();
         varmap["_l2dz"] = lepcollection[1].dz();
         varmap["_l2sip3d"] = lepcollection[1].sip3d();
+
+        if( varmap["_leptonAbsEtaSubLeading"] > varmap["_leptonMaxEta"]){ varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaSubLeading"]; }
     }
     if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
         varmap["_leptonEtaTrailing"] = lepcollection[2].eta();
+        varmap["_leptonAbsEtaTrailing"] = fabs(lepcollection[2].eta()); 
     }
 
-    // lepton pair properties
     if(lepcollection.numberOfLightLeptons()>=2){
-	varmap["_deltaPhiLeadingLeptonPair"] = deltaPhi(lepcollection[0],lepcollection[1]);
-	varmap["_deltaEtaLeadingLeptonPair"] = deltaEta(lepcollection[0],lepcollection[1]);
-	varmap["_deltaRLeadingLeptonPair"] = deltaR(lepcollection[0],lepcollection[1]);
-	varmap["_mLeadingLeptonPair"] = (lepcollection[0]+lepcollection[1]).mass();
+        varmap["_deltaPhiLeadingLeptonPair"] = deltaPhi(lepcollection[0],lepcollection[1]);
+        varmap["_deltaEtaLeadingLeptonPair"] = deltaEta(lepcollection[0],lepcollection[1]);
+        varmap["_deltaRLeadingLeptonPair"] = deltaR(lepcollection[0],lepcollection[1]);
+        varmap["_mLeadingLeptonPair"] = (lepcollection[0]+lepcollection[1]).mass();
     }
 
     // jet pt
@@ -488,13 +535,21 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     if(jetcollection.size()>=2) varmap["_jetPtSubLeading"] = jetcollection[1].pt();
     if(jetcollection.size()>=1) varmap["_jetEtaLeading"] = jetcollection[0].eta();
     if(jetcollection.size()>=2) varmap["_jetEtaSubLeading"] = jetcollection[1].eta();
-    
+    if(jetcollection.size()>=1) varmap["_jetAbsEtaLeading"] = fabs(jetcollection[0].eta());
+    if(jetcollection.size()>=2) varmap["_jetAbsEtaSubLeading"] = fabs(jetcollection[1].eta());
+
+    // bjet info
+    if(bjetcollection.size()>=1){
+        varmap["_bjetPtLeading"] = bjetcollection[0].pt();
+        varmap["_bjetEtaLeading"] = bjetcollection[0].eta();
+        varmap["_bjetAbsEtaLeading"] = fabs(bjetcollection[0].eta());
+    }
+
     // jet CSVs and flavors
     if(jetcollection.size()>=1) varmap["_deepCSV_leading"] = jetcollection[0].deepCSV();
     if(jetcollection.size()>=2) varmap["_deepCSV_subLeading"] = jetcollection[1].deepCSV();
     if(jetcollection.size()>=1) varmap["_deepFlavor_leading"] = jetcollection[0].deepFlavor();
     if(jetcollection.size()>=2) varmap["_deepFlavor_subLeading"] = jetcollection[1].deepFlavor();    
-    
     // jet masses
     TLorentzVector LV1;
     TLorentzVector LV2;
@@ -506,7 +561,6 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         LV2.SetPtEtaPhiE(jetcollection[1].pt(),jetcollection[1].eta(),jetcollection[1].phi(),jetcollection[1].energy());
         varmap["_jetMassSubLeading"] = LV2.M();
     }
-
     // other more or less precomputed event variables
     varmap["_lT"] = lepcollection.scalarPtSum() + met.pt();
     varmap["_HT"] = jetcollection.scalarPtSum();
@@ -535,7 +589,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 		 varmap["_leptonMVATOP_min"] = mu->leptonMVATOP();
 	    }
         }
-    }
+    }   
 
     int lWindex = 0;
     // set mT
@@ -546,49 +600,15 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // find lepton from W and set its properties
     // (note: code runs but is rather meaningless if no or multiple OSSF pairs are present, 
     // e.g. in some control regions)
-    if( lepcollection.size()>=3 && event.hasOSSFLightLeptonPair() ){ 
+    if(event.hasOSSFLightLeptonPair()){ 
 	lWindex = event.WLeptonIndex();
-	LeptonCollection::const_iterator lIt = lepcollection.cbegin();
-	for(int i=0; i<lWindex; i++){++lIt;}
-	Lepton& lW = **lIt;
-	varmap["_lW_asymmetry"] = fabs(lW.energy())*lW.charge();
-	varmap["_lW_charge"] = lW.charge();
-	varmap["_lW_pt"] = lW.pt();
-
-	// top reconstruction
-	std::pair< double, double > pmz = pmzcandidates(lW, met);
-	std::pair< double, int > topresults = besttopcandidate(jetcollection,
-                                            lW, met, pmz.first, pmz.second);
-	int taggedbindex = topresults.second;
-	if(jetcollection.numberOfMediumBTaggedJets()==0) taggedbindex = 0;
-
-	// find index of recoiling jet
-	int recoilindex = -1;
-	for(JetCollection::const_iterator jIt = jetcollection.cbegin();
-            jIt != jetcollection.cend(); jIt++){
-	    if(jIt-jetcollection.cbegin() != taggedbindex){
-		recoilindex = jIt-jetcollection.cbegin();
-		break;
-	    }
-	}
-
-	// set properties of recoiling jet
-	if(recoilindex>=0 and jetcollection.size()>0){
-	    JetCollection::const_iterator jIt = jetcollection.cbegin();
-	    for(int i=0; i<recoilindex; i++){jIt++;}
-	    Jet& recoiljet = **jIt;
-	    varmap["_dRlWrecoil"] = deltaR(lW,recoiljet);
-	    varmap["_abs_eta_recoil"] = fabs(recoiljet.eta());
-	}
-    
-	// set properties of tagged b-jet
-	if(taggedbindex>=0 and jetcollection.size()>0){
-	    JetCollection::const_iterator tbjIt = jetcollection.cbegin();
-	    for(int i=0; i<taggedbindex; i++){tbjIt++;}
-	    Jet& taggedbjet = **tbjIt;
-	    varmap["_dRlWbtagged"] = deltaR(lW,taggedbjet);
-	}
-    }
+    } 
+    LeptonCollection::const_iterator lIt = lepcollection.cbegin();
+    for(int i=0; i<lWindex; i++){++lIt;}
+    Lepton& lW = **lIt;
+    varmap["_lW_asymmetry"] = fabs(lW.energy())*lW.charge();
+    varmap["_lW_charge"] = lW.charge();
+    varmap["_lW_pt"] = lW.pt();
 
     // find reconstructed Z mass and pt
     if(event.hasOSSFLightLeptonPair()){
@@ -597,6 +617,23 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	varmap["_bestZMass"] = zbosonresults.second;
 	varmap["_Z_pt"] = (event.leptonCollection()[zbosonresults.first.first]
 			    + event.leptonCollection()[zbosonresults.first.second]).pt();
+    }
+    
+    // top reconstruction
+    std::pair< double, double > pmz = pmzcandidates(lW, met);
+    std::pair< double, int > topresults = besttopcandidate(jetcollection,
+					    lW, met, pmz.first, pmz.second);
+    int taggedbindex = topresults.second;
+    if(jetcollection.numberOfMediumBTaggedJets()==0) taggedbindex = 0;
+
+    // find index of recoiling jet
+    int recoilindex = -1;
+    for(JetCollection::const_iterator jIt = jetcollection.cbegin();
+	    jIt != jetcollection.cend(); jIt++){
+	if(jIt-jetcollection.cbegin() != taggedbindex){
+	    recoilindex = jIt-jetcollection.cbegin();
+	    break;
+	}
     }
 
     // loop over jets and find relevant quantities
@@ -619,6 +656,19 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
             if((jet+jet2).pt()>varmap["_pTjj_max"]) varmap["_pTjj_max"] = (jet+jet2).pt();
         } 
     }
+    if(recoilindex>=0 and jetcollection.size()>0){
+	JetCollection::const_iterator jIt = jetcollection.cbegin();
+	for(int i=0; i<recoilindex; i++){jIt++;}
+	Jet& recoiljet = **jIt;
+	varmap["_dRlWrecoil"] = deltaR(lW,recoiljet);
+	varmap["_abs_eta_recoil"] = fabs(recoiljet.eta());
+    }
+    if(taggedbindex>=0 and jetcollection.size()>0){
+	JetCollection::const_iterator tbjIt = jetcollection.cbegin();
+	for(int i=0; i<taggedbindex; i++){tbjIt++;}
+	Jet& taggedbjet = **tbjIt;
+	varmap["_dRlWbtagged"] = deltaR(lW,taggedbjet);
+    }
 
     // loop over leptons and find some kinematic properties
     PhysicsObject l3vec;
@@ -635,10 +685,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
             if(deltaR(lep,bjet)<varmap["_dRlb_min"]) varmap["_dRlb_min"] = deltaR(lep,bjet);
         }
     }
-
-    if(lepcollection.size()>0){
-	varmap["_M3l"] = event.leptonSystem().mass();
-    }
+    varmap["_M3l"] = event.leptonSystem().mass();
 
     // evaluate BDT
     if( bdt ){

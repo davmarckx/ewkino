@@ -146,7 +146,31 @@ with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_proc
 
 print("load datasets")
 #load dataset######################################
-if year == "all":
+if year == "allcombined":
+    if nr_events > 0:
+        traindata = random.sample(pd.read_pickle('../ML_dataframes/trainsets/graphtrainset_.pkl'.format(sparse)),4*nr_events)
+        testdata = random.sample(pd.read_pickle('../ML_dataframes/trainsets/graphtestset_'.format(sparse)),nr_events)
+        otherdata = random.sample(pd.read_pickle('../ML_dataframes/trainsets/graphotherset_'.format(sparse)),4*nr_events)
+
+    else:
+        print("train")
+        thread1 = myThread(1, "Thread-1", '../ML_dataframes/trainsets/graphtrainset_'.format(sparse))
+        print("test")
+        thread2 = myThread(2, "Thread-2", '../ML_dataframes/trainsets/graphtestset_'.format(sparse))
+        print("other")
+        thread3 = myThread(3, "Thread-3", '../ML_dataframes/trainsets/graphotherset_'.format(sparse))
+        print("2018 done")
+        thread1.start()
+        thread2.start()
+        thread3.start()
+        thread1.join()
+        thread2.join()
+        thread3.join()
+        traindata = thread1.data
+        testdata = thread2.data
+        otherdata = thread3.data
+
+elif year == "all":
     if nr_events > 0:
         traindata = random.sample(pd.read_pickle('../ML_dataframes/trainsets/graphtrainset_multiclass_2018_{}_smallGNN.pkl'.format(sparse)),4*nr_events)
         testdata = random.sample(pd.read_pickle('../ML_dataframes/trainsets/graphtestset_multiclass_2018_{}_smallGNN.pkl'.format(sparse)),nr_events)
