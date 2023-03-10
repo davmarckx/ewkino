@@ -7,9 +7,9 @@
   "xhigh": "2.5",
   "axtitle": "Number of muons in event",
   "shorttitle": "N(#mu)",
-  "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2"]
+  "xlabels": ["0", "1", "2"],
+  "bins": [-0.5, 0.5, 1.5, 2.5]
 },
 {
   "name": "_nElectrons",
@@ -19,9 +19,9 @@
   "xhigh": "2.5",
   "axtitle": "Number of electrons in event",
   "shorttitle": "N(e)",
-  "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2"]
+  "xlabels": ["0", "1", "2"],
+  "bins": [-0.5, 0.5, 1.5, 2.5]
 },
 {
   "name": "_nJets",
@@ -31,7 +31,9 @@
   "xhigh": "5.5",
   "axtitle": "Number of jets",
   "shorttitle": "N(jets)",
-  "unit": ""
+  "iscategorical": "true",
+  "xlabels": ["2", "3", "4", "5"],
+  "bins": [1.5, 2.5, 3.5, 4.5, 5.5]
 },
 {
   "name": "_nBJets",
@@ -41,54 +43,207 @@
   "xhigh": "3.5",
   "axtitle": "Number of b-tagged jets",
   "shorttitle": "N(b-jets)",
-  "unit": ""
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"],
+  "bins": [-0.5, 0.5, 1.5, 2.5, 3.5]
 },
 {
   "name": "_leptonPtLeading",
   "variable": "_leptonPtLeading",
-  "bins": [0.0, 50.0, 75.0, 100.0, 200.0],
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "200.0",
   "axtitle": "Leading lepton p_{T}",
   "shorttitle": "p_{T}(l_{1})",
-  "unit": "GeV"
+  "unit": "GeV",
+  "bins": [0.0, 50.0, 75.0, 100.0, 200.0]
 },
 {
   "name": "_leptonPtSubLeading",
   "variable": "_leptonPtSubLeading",
-  "bins": [0.0, 30.0, 50.0, 100.0],
+  "nbins": "3",
+  "xlow": "0.0",
+  "xhigh": "100.0",
   "axtitle": "Subleading lepton p_{T}",
   "shorttitle": "p_{T}(l_{2})",
-  "unit": "GeV"
+  "unit": "GeV",
+  "bins": [0.0, 30.0, 50.0, 100.0]
 },
 {
   "name": "_leptonEtaLeading",
   "variable": "_leptonEtaLeading",
-  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "nbins": "4",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
   "axtitle": "Leading lepton pseudorapidity",
   "shorttitle": "#eta(l_{1})",
-  "unit": ""
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+},
+{
+  "name": "_leptonAbsEtaLeading",
+  "variable": "_leptonAbsEtaLeading",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading lepton pseudorapidity (abs)",
+  "shorttitle": "|#eta(l_{1})|",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
 },
 {
   "name": "_leptonEtaSubLeading",
   "variable": "_leptonEtaSubLeading",
-  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "nbins": "4",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
   "axtitle": "Subleading lepton pseudorapidity",
   "shorttitle": "#eta(l_{2})",
-  "unit": ""
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+},
+{
+  "name": "_leptonAbsEtaSubLeading",
+  "variable": "_leptonAbsEtaSubLeading",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Subleading lepton pseudorapidity (abs)",
+  "shorttitle": "|#eta(l_{2})|",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
 },
 {
   "name": "_jetPtLeading",
   "variable": "_jetPtLeading",
-  "bins": [25.0, 100.0, 200.0, 300.0],
+  "nbins": "3",
+  "xlow": "25.0",
+  "xhigh": "300.0",
   "axtitle": "Leading jet p_{T}",
   "shorttitle": "p_{T}(jet_{1})",
-  "unit": "GeV"
+  "unit": "GeV",
+  "bins": [25.0, 100.0, 200.0, 300.0]
 },
 {
   "name": "_jetEtaLeading",
   "variable": "_jetEtaLeading",
-  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5],
+  "nbins": "4",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
   "axtitle": "Leading jet pseudorapidity",
   "shorttitle": "#eta(jet_{1})",
-  "unit": ""
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+},
+{
+  "name": "_jetAbsEtaLeading",
+  "variable": "_jetAbsEtaLeading",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading jet pseudorapidity (abs)",
+  "shorttitle": "|#eta(jet_{1})|",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+},
+{
+  "name": "_jetPtSubLeading",
+  "variable": "_jetPtSubLeading",
+  "nbins": "3",
+  "xlow": "25.0",
+  "xhigh": "100.0",
+  "axtitle": "Subleading jet p_{T}",
+  "shorttitle": "p_{T}(jet_{2})",
+  "unit": "GeV",
+  "bins": [25.0, 50.0, 75.0, 100.0]
+},
+{
+  "name": "_jetEtaSubLeading",
+  "variable": "_jetEtaSubLeading",
+  "nbins": "4",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading jet pseudorapidity",
+  "shorttitle": "#eta(jet_{2})",
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+},
+{
+  "name": "_jetAbsEtaSubLeading",
+  "variable": "_jetAbsEtaSubLeading",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Subleading jet pseudorapidity (abs)",
+  "shorttitle": "|#eta(jet_{2})|",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+},
+{
+  "name": "_bjetPtLeading",
+  "variable": "_bjetPtLeading",
+  "nbins": "3",
+  "xlow": "25.0",
+  "xhigh": "300.0",
+  "axtitle": "Leading b-tagged jet p_{T}",
+  "shorttitle": "p_{T}(bjet_{1})",
+  "unit": "GeV",
+  "bins": [25.0, 100.0, 200.0, 300.0]
+},
+{
+  "name": "_bjetEtaLeading",
+  "variable": "_bjetEtaLeading",
+  "nbins": "4",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading b-tagged jet pseudorapidity",
+  "shorttitle": "#eta(bjet_{1})",
+  "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+},
+{
+  "name": "_bjetAbsEtaLeading",
+  "variable": "_bjetAbsEtaLeading",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading b-tagged jet pseudorapidity (abs)",
+  "shorttitle": "|#eta(bjet_{1})|",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+},
+{
+  "name": "_dRl1jet",
+  "variable": "_dRl1jet",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "3.0",
+  "axtitle": "\\Delta R (l_{1},jet)",
+  "shorttitle": "\\Delta R (l_{1},jet)",
+  "unit": "",
+  "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+},
+{
+  "name": "_dRl1l2",
+  "variable": "_dRl1l2",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "3.0",
+  "axtitle": "\\Delta R (l_{1},l_{2})",
+  "shorttitle": "\\Delta R (l_{1},l_{2})",
+  "unit": "",
+  "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+},
+{
+  "name": "_leptonMaxEta",
+  "variable": "_leptonMaxEta",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Lepton maximum pseudorapidity (abs)",
+  "shorttitle": "|#eta(l)_{max}|",
+  "unit": "",
+  "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+},
+{
+  "name": "_HT",
+  "variable": "_HT",
+  "nbins": "4",
+  "xlow": "0.0",
+  "xhigh": "1000.0",
+  "axtitle": "H_{T}",
+  "shorttitle": "H_{T}",
+  "unit": "GeV",
+  "bins": [0.0, 250.0, 500.0, 750.0, 1000.0]
 }
 ]

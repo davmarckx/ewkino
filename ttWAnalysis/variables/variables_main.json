@@ -177,6 +177,15 @@
   "unit": ""
 },
 {
+  "name": "_leptonAbsEtaLeading",
+  "variable": "_leptonAbsEtaLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading lepton pseudorapidity (abs)",
+  "unit": ""
+},
+{
   "name": "_leptonEtaSubLeading",
   "variable": "_leptonEtaSubLeading",
   "nbins": "20",
@@ -186,12 +195,30 @@
   "unit": ""
 },
 {
+  "name": "_leptonAbsEtaSubLeading",
+  "variable": "_leptonAbsEtaSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Subleading lepton pseudorapidity (abs)",
+  "unit": ""
+},
+{
   "name": "_leptonEtaTrailing",
   "variable": "_leptonEtaTrailing",
   "nbins": "20",
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Trailing lepton pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_leptonAbsEtaTrailing",
+  "variable": "_leptonAbsEtaTrailing",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Trailing lepton pseudorapidity (abs)",
   "unit": ""
 },
 {
@@ -213,6 +240,15 @@
   "unit": ""
 },
 {
+  "name": "_jetAbsEtaLeading",
+  "variable": "_jetAbsEtaLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading jet pseudorapidity (abs)",
+  "unit": ""
+},
+{
   "name": "_jetPtSubLeading",
   "variable": "_jetPtSubLeading",
   "nbins": "20",
@@ -228,6 +264,42 @@
   "xlow": "-2.5",
   "xhigh": "2.5",
   "axtitle": "Subleading jet pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_jetAbsEtaSubLeading",
+  "variable": "_jetAbsEtaSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Subleading jet pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_bjetPtLeading",
+  "variable": "_bjetPtLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "100.0",
+  "axtitle": "Leading b-tagged jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_bjetEtaLeading",
+  "variable": "_bjetEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading b-tagged jet pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_bjetAbsEtaLeading",
+  "variable": "_bjetAbsEtaLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Leading b-tagged jet pseudorapidity",
   "unit": ""
 },
 {
@@ -296,5 +368,32 @@
   "xhigh": "100.0",
   "axtitle": "m (l_{1},l_{2})",
   "unit": "GeV"
+},
+{
+  "name": "_dRl1jet",
+  "variable": "_dRl1jet",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.",
+  "axtitle": "\\Delta R (l_{1},jet)",
+  "unit": ""
+},
+{
+  "name": "_dRl1l2",
+  "variable": "_dRl1l2",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.",
+  "axtitle": "\\Delta R (l_{1},l_{2})",
+  "unit": ""
+},
+{
+  "name": "_leptonMaxEta",
+  "variable": "_leptonMaxEta",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "2.5",
+  "axtitle": "Lepton maximum pseudorapidity (abs)",
+  "unit": ""
 }
 ]

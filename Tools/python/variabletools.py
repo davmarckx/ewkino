@@ -282,35 +282,61 @@ def write_variables_txt( variables, txtfile ):
     for line in lines:
       f.write(line+'\n')
 
+def get_variable_lines( variable ):
+  ### internal helper function for write_variables_json
+  vardict = variable.to_dict()
+  ordered_keys = (['name','variable','nbins','xlow','xhigh',
+                     'axtitle','shorttitle','unit','iscategorical','xlabels',
+                     'comments', 'bins'])
+  lines = []
+  lines.append('{')
+  for key in ordered_keys:
+    if key not in vardict: continue
+    value = vardict[key]
+    # formatting operations on the value
+    if( isinstance(value,str) ):
+      if( '\\' in value ): value = value.replace('\\','\\\\')
+    if( isinstance(value,str) or isinstance(value,float) or isinstance(value,int)):
+      value = '"{}"'.format(value)
+    if( isinstance(value,list) ):
+      value = str(value)
+      value = value.replace('\'','"')
+    # write the line
+    lines.append('  "{}": {},'.format(key,value))
+  lines[-1] = lines[-1].rstrip(',')
+  lines.append('}')
+  return lines
+
 def write_variables_json( variables, jsonfile, builtin=False ):
   ### write a collection of variables to json format
-  for var in variables:
-    if isinstance(var, DoubleHistogramVariable): builtin=True
-    # (custom method not supported for DoubleHistogramVariable)
-  varlist = []
-  for var in variables: varlist.append( var.to_dict() )
   if builtin:
     # use builtin json.dump
     # easier, but not easily readable
+    varlist = []
+    for var in variables: varlist.append( var.to_dict() )
     with open(jsonfile, 'w') as f:
       json.dump(varlist, f)
   else:
     # manual parsing
-    ordered_keys = (['name','variable','nbins','xlow','xhigh',
-                     'axtitle','shorttitle','unit','iscategorical','xlabels',
-                     'comments', 'bins'])
     lines = []
     lines.append('[')
-    for vardict in varlist:
-      lines.append('{')
-      for key in ordered_keys:
-        if key not in vardict: continue
-        value = vardict[key]
-        if( isinstance(value,str) ):
-          if( '\\' in value ): value = value.replace('\\','\\\\')
-        lines.append('  "{}": "{}",'.format(key,value))
-      lines[-1] = lines[-1].rstrip(',')
-      lines.append('},')
+    for variable in variables:
+      thislines = []
+      if isinstance(variable, HistogramVariable):
+        thislines = get_variable_lines(variable)
+      if isinstance(variable, DoubleHistogramVariable):
+        thislines1 = get_variable_lines(variable.primary)
+        thislines2 = get_variable_lines(variable.secondary)
+        thislines = []
+        thislines.append('{ "name": '+'"{}",'.format(variable.name))
+        thislines.append('  "primary":')
+        for l in thislines1: thislines.append('  {}'.format(l))
+        thislines[-1] += ','
+        thislines.append('  "secondary":')
+        for l in thislines2: thislines.append('  {}'.format(l))
+        thislines.append('}')
+      for l in thislines: lines.append(l)
+      lines[-1] += ','
     lines[-1] = lines[-1].rstrip(',')
     lines.append(']')
     with open(jsonfile, 'w') as f:
