@@ -670,7 +670,11 @@ def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize
     return mlp
 
 
-<<<<<<< HEAD
+def trainMCGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize,status,nheads=1,self_loops=True, epochs=15, manualNjobs=4):
+    torch.manual_seed(42)
+    torch.set_num_threads(manualNjobs)
+
+
     trainloader = DataLoader(traindata, batch_size=batchsize, shuffle=True)
     testloader = DataLoader(testdata, batch_size=batchsize, shuffle=False)
     mlp = MCGCN(dropval, traindata[0],nheads,self_loops)
@@ -737,5 +741,3 @@ def trainGCN(traindata,testdata,classweight, dropval,learr,beta1,beta2,batchsize
     status = status + sparse
     my_plot(np.linspace(1, num_epochs, num_epochs).astype(int), loss_vals, valloss_vals, dropval,epochs,learr,beta1,beta2,batchsize,status)
     return mlp
-=======
->>>>>>> 2b902f0fd89e846c9d1dc8d098f31ab4ea001b6e

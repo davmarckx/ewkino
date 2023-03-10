@@ -24,15 +24,15 @@ with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_proc
 
 print("load datasets")
 #load dataset######################################
-alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2018_dilep_sNN.pkl').sample(frac = fract)
-alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2017_dilep_sNN.pkl').sample(frac = fract)
-alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2016PostVFP_dilep_sNN.pkl').sample(frac = fract)
-alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2016PreVFP_dilep_sNN.pkl').sample(frac = fract)
+alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2018_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2017_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2016PostVFP_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallGNN_2016PreVFP_dilep_sNN.pkl').sample(frac = fract,random_state=88)
 
-other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2018_dilep_sNN.pkl').sample(frac = fract)
-other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2017_dilep_sNN.pkl').sample(frac = fract)
-other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2016PostVFP_dilep_sNN.pkl').sample(frac = fract)
-other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2016PreVFP_dilep_sNN.pkl').sample(frac = fract)
+other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2018_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2017_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2016PostVFP_dilep_sNN.pkl').sample(frac = fract,random_state=88)
+other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallGNN_2016PreVFP_dilep_sNN.pkl').sample(frac = fract,random_state=88)
 
 alle1["datayear"] = 4
 alle2["datayear"] = 3
@@ -65,8 +65,11 @@ print(other1["class"])
 
 X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventNN',
        '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region','_chargeflipweight','_fakeRateFlavour', '_bestZMass'], axis=1)
+X.loc[X['class'] == 'TT', 'class'] = 0
 X.loc[X['class'] == 'TTW', 'class'] = 1
-X.loc[X['class'] != 1, 'class'] = 0
+X.loc[X['class'] == 'TTZ', 'class'] = 2
+X.loc[X['class'] == 'TTH', 'class'] = 2
+X.loc[X['class'] == 'TTG', 'class'] = 3
 
 X_other =  other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventNN',
        '_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield','_chargeflipweight','_fakeRateFlavour', '_bestZMass'], axis=1)
@@ -266,14 +269,14 @@ plt.close()
 
 
 ########################### save them
-file_name = "../ML_dataframes/trainsets/graphtrainset_smallGNN_dilep_sNN.pkl"
+file_name = "../ML_dataframes/trainsets/graphtrainset_MC_HZComb.pkl"
 # save boostfeaturemap to keep up to date
 pickle.dump(traindata, open(file_name, "wb"))
 
-file_name = "../ML_dataframes/trainsets/graphtestset_smallGNN_dilep_sNN.pkl"
+file_name = "../ML_dataframes/trainsets/graphtestset_MC_HZComb.pkl"
 # save boostfeaturemap to keep up to date
 pickle.dump(testdata, open(file_name, "wb"))
 
-file_name = "../ML_dataframes/trainsets/graphotherset_smallGNN_dilep_sNN.pkl"
+file_name = "../ML_dataframes/trainsets/graphotherset_MC_HZComb.pkl"
 # save boostfeaturemap to keep up to date
 pickle.dump(otherdata, open(file_name, "wb"))
