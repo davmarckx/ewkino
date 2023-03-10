@@ -45,6 +45,7 @@ if __name__=='__main__':
   # do loading and initial selection
   histnames = ht.loadhistnames(args.inputfile, mustcontainall=mustcontainall)
   print('Resulting number of histograms: {}'.format(len(histnames)))
+  for histname in histnames: print('  {}'.format(histname))
 
   # make a ProcessInfoCollection to extract information
   PIC = ProcessInfoCollection.fromhistlist( histnames, args.region+'_'+variablename, 
