@@ -1,0 +1,21 @@
+{
+  "signalregion_dilepton_inclusive__leptonPtLeading": [0.0, 50.0, 75.0, 100.0, 200.0],
+  "signalregion_dilepton_inclusive__leptonPtSubLeading": [0.0, 30.0, 50.0, 100.0],
+  "signalregion_dilepton_inclusive__leptonEtaLeading": [-2.5, -0.5, 0.0, 0.5, 2.5],
+  "signalregion_dilepton_inclusive__leptonAbsEtaLeading": [0.0, 0.5, 1.0, 1.5, 2.5],
+  "signalregion_dilepton_inclusive__leptonEtaSubLeading": [-2.5, -0.5, 0.0, 0.5, 2.5],
+  "signalregion_dilepton_inclusive__leptonAbsEtaSubLeading": [0.0, 0.5, 1.0, 1.5, 2.5],
+  "signalregion_dilepton_inclusive__jetPtLeading": [25.0, 100.0, 200.0, 300.0],
+  "signalregion_dilepton_inclusive__jetEtaLeading": [-2.5, -0.5, 0.0, 0.5, 2.5],
+  "signalregion_dilepton_inclusive__jetAbsEtaLeading": [0.0, 0.5, 1.0, 1.5, 2.5],
+  "signalregion_dilepton_inclusive__jetPtSubLeading": [25.0, 100.0, 150.0, 200.0],
+  "signalregion_dilepton_inclusive__jetEtaSubLeading": [-2.5, -0.5, 0.0, 0.5, 2.5],
+  "signalregion_dilepton_inclusive__jetAbsEtaSubLeading": [0.0, 0.5, 1.0, 1.5, 2.5],
+  "signalregion_dilepton_inclusive__bjetPtLeading": [25.0, 100.0, 150.0, 200.0],
+  "signalregion_dilepton_inclusive__bjetEtaLeading": [-2.5, -0.5, 0.0, 0.5, 2.5],
+  "signalregion_dilepton_inclusive__bjetAbsEtaLeading": [0.0, 0.5, 1.0, 1.5, 2.5],
+  "signalregion_dilepton_inclusive__dRl1jet": [0.0, 1.0, 1.5, 2.0, 3.0],
+  "signalregion_dilepton_inclusive__dRl1l2": [0.0, 1.5, 2.5, 3.5, 5.0],
+  "signalregion_dilepton_inclusive__leptonMaxEta": [0.0, 0.75, 1.5, 2.0, 2.5],
+  "signalregion_dilepton_inclusive__HT": [0.0, 200.0, 400.0, 600.0, 1000.0]
+}
