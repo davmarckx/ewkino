@@ -22,21 +22,22 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
 npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
-unblind = True
+unblind = False
 
-dummysystematics = True
+dummysystematics = False
 
 rawsystematics = False
 
 dolog = True
 
-variables = '../variables/variables_main.json'
+#variables = '../variables/variables_main.json' # single variables
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
 colormap = 'ttw'
 
@@ -45,7 +46,8 @@ filemode = 'split'
 datatag = 'Data'
 
 #signals = None
-signals = ['TTW']
+#signals = ['TTW'] # for single variables
+signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
 
 cmds = []
 for year in years:

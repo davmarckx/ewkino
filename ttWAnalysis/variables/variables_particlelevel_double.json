@@ -165,9 +165,9 @@
     "nbins": "4",
     "xlow": "-2.5",
     "xhigh": "2.5",
-    "axtitle": "Leading lepton pseudorapidity",
+    "axtitle": "Leading lepton #eta",
     "shorttitle": "#eta(l_{1})",
-    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
   }
 },
 { "name": "_eventBDTleptonAbsEtaLeading",
@@ -188,9 +188,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "2.5",
-    "axtitle": "Leading lepton pseudorapidity (abs)",
+    "axtitle": "Leading lepton |#eta|",
     "shorttitle": "|#eta(l_{1})|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 0.5, 1.0, 1.5, 2.5]
   }
 },
 { "name": "_eventBDTleptonEtaSubLeading",
@@ -211,9 +211,9 @@
     "nbins": "4",
     "xlow": "-2.5",
     "xhigh": "2.5",
-    "axtitle": "Subleading lepton pseudorapidity",
+    "axtitle": "Subleading lepton #eta",
     "shorttitle": "#eta(l_{2})",
-    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
   }
 },
 { "name": "_eventBDTleptonAbsEtaSubLeading",
@@ -234,9 +234,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "2.5",
-    "axtitle": "Subleading lepton pseudorapidity (abs)",
+    "axtitle": "Subleading lepton |#eta|",
     "shorttitle": "|#eta(l_{2})|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 0.5, 1.0, 1.5, 2.5]
   }
 },
 { "name": "_eventBDTjetPtLeading",
@@ -281,9 +281,9 @@
     "nbins": "4",
     "xlow": "-2.5",
     "xhigh": "2.5",
-    "axtitle": "Leading jet pseudorapidity",
+    "axtitle": "Leading jet #eta",
     "shorttitle": "#eta(jet_{1})",
-    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
   }
 },
 { "name": "_eventBDTjetAbsEtaLeading",
@@ -304,9 +304,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "2.5",
-    "axtitle": "Leading jet pseudorapidity (abs)",
+    "axtitle": "Leading jet |#eta|",
     "shorttitle": "|#eta(jet_{1})|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 0.5, 1.0, 1.5, 2.5]
   }
 },
 { "name": "_eventBDTjetPtSubLeading",
@@ -326,11 +326,11 @@
     "variable": "_jetPtSubLeading",
     "nbins": "3",
     "xlow": "25.0",
-    "xhigh": "100.0",
+    "xhigh": "200.0",
     "axtitle": "Subleading jet p_{T}",
     "shorttitle": "p_{T}(jet_{2})",
     "unit": "GeV",
-    "bins": [25.0, 50.0, 75.0, 100.0]
+    "bins": [25.0, 100.0, 150.0, 200.0]
   }
 },
 { "name": "_eventBDTjetEtaSubLeading",
@@ -351,9 +351,9 @@
     "nbins": "4",
     "xlow": "-2.5",
     "xhigh": "2.5",
-    "axtitle": "Subleading jet pseudorapidity",
+    "axtitle": "Subleading jet #eta",
     "shorttitle": "#eta(jet_{2})",
-    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
   }
 },
 { "name": "_eventBDTjetAbsEtaSubLeading",
@@ -374,9 +374,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "2.5",
-    "axtitle": "Subleading jet pseudorapidity (abs)",
+    "axtitle": "Subleading jet |#eta|",
     "shorttitle": "|#eta(jet_{2})|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 0.5, 1.0, 1.5, 2.5]
   }
 },
 { "name": "_eventBDTbjetPtLeading",
@@ -396,11 +396,11 @@
     "variable": "_bjetPtLeading",
     "nbins": "3",
     "xlow": "25.0",
-    "xhigh": "300.0",
+    "xhigh": "200.0",
     "axtitle": "Leading b-tagged jet p_{T}",
     "shorttitle": "p_{T}(bjet_{1})",
     "unit": "GeV",
-    "bins": [25.0, 100.0, 200.0, 300.0]
+    "bins": [25.0, 100.0, 150.0, 200.0]
   }
 },
 { "name": "_eventBDTbjetEtaLeading",
@@ -421,9 +421,9 @@
     "nbins": "4",
     "xlow": "-2.5",
     "xhigh": "2.5",
-    "axtitle": "Leading b-tagged jet pseudorapidity",
+    "axtitle": "Leading b-tagged jet #eta",
     "shorttitle": "#eta(bjet_{1})",
-    "bins": [-2.5, -1.5, 0.0, 1.5, 2.5]
+    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
   }
 },
 { "name": "_eventBDTbjetAbsEtaLeading",
@@ -444,9 +444,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "2.5",
-    "axtitle": "Leading b-tagged jet pseudorapidity (abs)",
+    "axtitle": "Leading b-tagged jet |#eta|",
     "shorttitle": "|#eta(bjet_{1})|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 0.5, 1.0, 1.5, 2.5]
   }
 },
 { "name": "_eventBDTdRl1jet",
@@ -467,9 +467,9 @@
     "nbins": "4",
     "xlow": "0.0",
     "xhigh": "3.0",
-    "axtitle": "\\Delta R (l_{1},jet)",
-    "shorttitle": "\\Delta R (l_{1},jet)",
-    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+    "axtitle": "#Delta R (l_{1} , jet)",
+    "shorttitle": "#Delta R (l_{1} , jet)",
+    "bins": [0.0, 1.0, 1.5, 2.0, 3.0]
   }
 },
 { "name": "_eventBDTdRl1l2",
@@ -489,10 +489,10 @@
     "variable": "_dRl1l2",
     "nbins": "4",
     "xlow": "0.0",
-    "xhigh": "3.0",
-    "axtitle": "\\Delta R (l_{1},l_{2})",
-    "shorttitle": "\\Delta R (l_{1},l_{2})",
-    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+    "xhigh": "5.0",
+    "axtitle": "#Delta R (l_{1} , l_{2})",
+    "shorttitle": "#Delta R (l_{1} , l_{2})",
+    "bins": [0.0, 1.5, 2.5, 3.5, 5.0]
   }
 },
 { "name": "_eventBDTleptonMaxEta",
@@ -539,7 +539,7 @@
     "axtitle": "H_{T}",
     "shorttitle": "H_{T}",
     "unit": "GeV",
-    "bins": [0.0, 250.0, 500.0, 750.0, 1000.0]
+    "bins": [0.0, 200.0, 400.0, 600.0, 1000.0]
   }
 }
 ]

@@ -107,7 +107,9 @@ def decorrelate_systematics_in_file(renamedict, rfile,
             nomkeyname = tag.replace(s, '_nominal')
             if nomkeyname not in keynamelist:
               raise Exception('ERROR in decorrelate_systematics_in_file:'
-                             +' nominal histogram {} not found'.format(nomkeyname))
+                             +' nominal histogram {} not found'.format(nomkeyname)
+                             +' (required for found key {}'.format(keyname)
+                             +' in file {})'.format(rfile))
             hist = f.Get(str(nomkeyname))
             hist = hist.Clone()
             for otheryear in allyears:

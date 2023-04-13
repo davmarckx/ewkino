@@ -35,8 +35,10 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Plot differential cross-section')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--year', required=True)
+  parser.add_argument('--inputfile', required=True, type=os.path.abspath,
+                      help='Path to input root file with theoretical differential distributions.')
+  parser.add_argument('--year', required=True,
+                      help='Data-taking year (only used for plot aesthetics)')
   parser.add_argument('--region', required=True)
   parser.add_argument('--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'

@@ -75,6 +75,9 @@ bool eventSelectionsParticleLevel::passDiLeptonPtThresholds(const Event& event){
     event.leptonParticleLevelCollection().sortByPt();
     if(event.leptonParticleLevelCollection()[0].pt() < 25.
         || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
+    //if(event.leptonParticleLevelCollection()[0].pt() < 25.
+    //    || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
+    // (temp for syncing with ATLAS+CMS note)
     return true;
 }
 
@@ -142,6 +145,8 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive(Event& e
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
     if( njetsnbjets.second < 1 ) return false;
     if( njetsnbjets.first < 3 ) return false;
+    //if( njetsnbjets.second < 2 ) return false; // temp for syncing with ATLAS+CMS note
+    //if( njetsnbjets.first < 4 ) return false; // temp for syncing with ATLAS+CMS note
     return true;
 }
 

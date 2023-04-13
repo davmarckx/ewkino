@@ -19,6 +19,7 @@ if __name__=='__main__':
   parser.add_argument('--outputfile', required=True)
   parser.add_argument('--method', default='multidimfit', choices=['multidimfit'])
   parser.add_argument('--usedata', default=False, action='store_true')
+  parser.add_argument('--usecr', default=False, action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -40,8 +41,10 @@ if __name__=='__main__':
   varnames = [var.name for var in variables]
   for varname in varnames:
     # find relevant workspace in the directory
+    starttag = 'datacard'
+    if args.usecr: starttag = 'dc_combined'
     wspaces = ([ f for f in os.listdir(args.datacarddir)
-                 if (f.startswith('dc_combined') and varname in f and f.endswith('.root')) ])
+                 if (f.startswith(starttag) and varname in f and f.endswith('.root')) ])
     if len(wspaces)!=1:
       print('ERROR: wrong number of workspaces, skipping variable {}.'.format(varname))
       continue
@@ -53,6 +56,11 @@ if __name__=='__main__':
     # read total result
     totdict = opt.read_multidimfit(args.datacarddir, card,
                    statonly=False, usedata=args.usedata, pois='auto')
+    # check for errors
+    if( len(statdict.keys())==0 or len(totdict.keys())==0 ):
+      msg = 'WARNING: some values appear to be missing for workspace {};'.format(wspace)
+      msg += ' please check combine output files for unexpected format or failed fits.'
+      print(msg)
     # format
     thisinfo = []
     for key in sorted(totdict.keys()):

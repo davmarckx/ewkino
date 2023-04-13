@@ -45,6 +45,30 @@ bool passFakeRateSkim( Event& event ){
 }
 
 
+bool passDiLightLeptonSkim( Event& event ){
+    // event passes if
+    // - number of light leptons >= 2
+    event.selectLooseLeptons();
+    event.cleanElectronsFromLooseMuons();
+    event.removeTaus();
+    if( event.numberOfLightLeptons() < 2 ) return false;
+    return true;
+}
+
+
+bool passMultiLightLeptonSkim( Event& event ){
+    // event passes if
+    // - number of light leptons >= 3
+    // - OR number of light leptons = 2 and they are same sign
+    event.selectLooseLeptons();
+    event.cleanElectronsFromLooseMuons();
+    event.removeTaus();
+    if( event.numberOfLightLeptons() > 2 ) return true;
+    if( event.numberOfLightLeptons() < 2 ) return false;
+    return (event.leptonCollection()[0].charge()==event.leptonCollection()[1].charge());
+}
+
+
 bool passSkim( Event& event, const std::string& skimCondition ){
     static std::map< std::string, std::function< bool(Event&) > > skimFunctionMap = {
         { "noskim", [](Event&){ return true; } },
@@ -52,7 +76,9 @@ bool passSkim( Event& event, const std::string& skimCondition ){
         { "dilepton", passDileptonSkim },
         { "trilepton", passTrileptonSkim },
         { "fourlepton", passFourLeptonSkim },
-        { "fakerate", passFakeRateSkim }
+        { "fakerate", passFakeRateSkim },
+	{ "dilightlepton", passDiLightLeptonSkim },
+	{ "multilightlepton", passMultiLightLeptonSkim }
     };
     auto it = skimFunctionMap.find( skimCondition );
     if( it == skimFunctionMap.cend() ){

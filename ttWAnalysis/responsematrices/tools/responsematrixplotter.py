@@ -49,14 +49,13 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     p1topmargin = 0.07
     p1bottommargin = 0.05
     p2topmargin = 0.02
-    p2bottommargin = 0.35
+    p2bottommargin = 0.5
     p3topmargin = 0.02
-    p3bottommargin = 0.05
+    p3bottommargin = 0.1
     leftmargin = 0.15
     rightmargin = 0.2
     p1titleoffset = 1.5
-    p2titleoffset = 2
-    p3titleoffset = 2
+    p2titleoffset = 3
     xmin = hist.GetXaxis().GetXmin()
     xmax = hist.GetXaxis().GetXmax()
     ymin = hist.GetYaxis().GetXmin()
@@ -64,8 +63,6 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     # get the height of the underflow bin to draw a separating line
     ybins = hist.GetNbinsY()
     xbins = hist.GetNbinsX()
-    print(ybins)
-    print(xbins)
     YShape = hist.ProjectionY('shape') 
     lowedge = YShape.GetBinLowEdge(ybins)
     zmin = hist.GetMinimum()
@@ -82,8 +79,8 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     # legend boxes
     p2legendbox = ([leftmargin+0.03, 1-p2topmargin-0.13,
                     1-rightmargin-0.03, 1-p2topmargin-0.03])
-    p3legendbox = ([leftmargin+0.03, 1-p3topmargin-0.13,
-                    0.3, 1-p3topmargin-0.03])
+    p3legendbox = ([leftmargin+0.03, 1-p3topmargin-0.23,
+                    1-rightmargin-0.03, 1-p3topmargin-0.03])
     # create canvas
     c1 = ROOT.TCanvas("c1","c1")
     c1.SetCanvasSize(cwidth, cheight)
@@ -98,11 +95,10 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     pad1.SetFrameLineWidth(2)
     pad1.Draw()
 
-
     # create pad for efficiency
-    pad3 = ROOT.TPad("pad3", "pad3", 0., 0.175, 1., 0.35)
-    pad3.SetTopMargin(p2topmargin)
-    pad3.SetBottomMargin(p2bottommargin)
+    pad3 = ROOT.TPad("pad3", "pad3", 0., 0.23, 1., 0.35)
+    pad3.SetTopMargin(p3topmargin)
+    pad3.SetBottomMargin(p3bottommargin)
     pad3.SetLeftMargin(leftmargin)
     pad3.SetRightMargin(rightmargin)
     pad3.SetTicks(1,1)
@@ -111,7 +107,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     pad3.Draw()
 
     # create pad for stability and purity
-    pad2 = ROOT.TPad("pad2", "pad2", 0., 0., 1., 0.175)
+    pad2 = ROOT.TPad("pad2", "pad2", 0., 0., 1., 0.23)
     pad2.SetTopMargin(p2topmargin)
     pad2.SetBottomMargin(p2bottommargin)
     pad2.SetLeftMargin(leftmargin)
@@ -146,7 +142,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
       hist.GetZaxis().SetTitleFont(axtitlefont*10+3)
       hist.GetZaxis().SetTitleSize(axtitlesize)
 
-    ### operations on stability and purity ###
+    ### operations on efficiency, stability and purity ###
    
     # style operations
     stability.SetLineWidth(3)
@@ -181,11 +177,13 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     stability.GetXaxis().SetLabelSize(labelsize)
     stability.GetYaxis().SetLabelFont(labelfont*10+3)
     stability.GetYaxis().SetLabelSize(labelsize)
+    stability.GetYaxis().SetNdivisions(3)
 
-    efficiency.GetXaxis().SetLabelFont(labelfont*10+3)
-    efficiency.GetXaxis().SetLabelSize(labelsize)
+    efficiency.GetXaxis().SetTitleSize(0)
+    efficiency.GetXaxis().SetLabelSize(0)
     efficiency.GetYaxis().SetLabelFont(labelfont*10+3)
     efficiency.GetYaxis().SetLabelSize(labelsize)
+    efficiency.GetYaxis().SetNdivisions(3)
 
     # make legend
     p2legend = ROOT.TLegend(p2legendbox[0], p2legendbox[1],
@@ -229,13 +227,13 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     hist.Draw( drawoptions )
     if not ybins == xbins:
         myline = ROOT.TLine(xmin,lowedge,xmax,lowedge)
-        myline.SetLineColorAlpha(2, 1) # black 1, red 2, blue 4, darkgray 12-14
+        myline.SetLineColorAlpha(2, 1)
         myline.SetLineWidth(3)
         myline.SetLineStyle(9)    
         myline.Draw("same")
     if histtitle is not None: ttitle.DrawLatexNDC(leftmargin,0.9,histtitle)
     pt.drawLumi(c1, extratext=extracmstext, cmstext_size_factor=0.6,
-        cms_in_grid=True, lumitext=lumitext)
+        cms_in_grid=False, lumitext=lumitext)
 
     # draw extra info
     tinfo = ROOT.TLatex()
@@ -251,7 +249,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     purity.Draw('same')
     p2legend.Draw('same')
 
-   # draw all objects in the efficiency pad
+    # draw all objects in the efficiency pad
     pad3.cd()
     efficiency.GetXaxis().SetLimits(xmin,xmax)
     efficiency.Draw()

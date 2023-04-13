@@ -6,17 +6,17 @@
 import os
 import sys
 
-exe = 'runanalysis2'
+exe = 'runanalysis'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
@@ -26,10 +26,10 @@ dtypes = ['sim','data']
 
 selection_types = []
 selection_types.append('tight')
-selection_types.append('prompt')
+#selection_types.append('prompt')
 selection_types.append('fakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
+#selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
@@ -42,16 +42,16 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-#variables = '../variables/variables_main.json' # single variables
-variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
-bdtfile = '../bdtweights/XGBfinal_all.root'
-bdtcut = 0.0
+bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
+bdtcut = 0.7
 
-outputdir = 'output_runanalysis2'
+outputdir = 'output_20230314_single_bdtcut0p7'
 
-nevents = -1
+nevents = 1e6
 runlocal = False
 
 submit_selection_types_combined = True

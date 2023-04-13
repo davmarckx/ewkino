@@ -35,15 +35,33 @@ Fill response matrices
 
 std::map< std::string, std::map< std::string, std::shared_ptr<TH2D> > > initResponseMap(
     const std::vector<HistogramVariable> histvars,
-    const std::vector<std::string> instanceNames ){
+    const std::vector<std::string> instanceNames,
+    int finebins ){
     // initialize the output histogram map
+    // note: the argument finebins overrides the number of bins of the histvars;
+    //       it can be used to set a very fine binning (e.g. 1000 bins)
+    //       to allow automatic bin edge optimization at a later stage;
+    //       use 0 to take the bins from histvars.
     std::map< std::string, std::map< std::string, std::shared_ptr<TH2D> > > histMap;
     // loop over instances (could be e.g. event selection regions)
     for(std::string instanceName: instanceNames){
-        // make a set of thistograms
+        // make a set of histograms for this instance
         std::map<std::string, std::shared_ptr<TH2D>> hists;
-        hists = variableTools::initializeHistograms2D( histvars );
-        // loop over variables
+        if( finebins<=0 ){
+	    hists = variableTools::initializeHistograms2D( histvars );
+	} else{
+	    for( HistogramVariable var: histvars ){
+		std::shared_ptr<TH2D> hist;
+		hist = std::make_shared<TH2D>(
+		    var.name().c_str(), var.name().c_str(),
+		    finebins, var.xlow(), var.xhigh(),
+		    finebins, var.xlow(), var.xhigh() );
+		hist->SetDirectory(0);
+		hist->Sumw2();
+		hists[var.name()] = hist;
+	    }
+	}
+        // add the histograms to the total structure
         for(unsigned int i=0; i<histvars.size(); ++i){
             std::string variable = histvars[i].name();
             std::string name = instanceName+"_"+variable;
@@ -62,7 +80,8 @@ void fillHistograms(
     unsigned long nEvents,
     const std::string& outputDirectory,
     const std::vector<std::string>& eventSelections,
-    const std::vector<HistogramVariable> histvars){
+    const std::vector<HistogramVariable> histvars,
+    int finebins ){
     std::cout << "=== start function fillHistograms ===" << std::endl;
     
     // initialize TreeReader from input file
@@ -80,8 +99,8 @@ void fillHistograms(
     std::cout << "initializing Reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     reweighterFactory = std::shared_ptr<ReweighterFactory>( 
-	//new EmptyReweighterFactory() ); // for testing
-	new Run2ULReweighterFactory() ); // for real
+	new EmptyReweighterFactory() ); // for testing
+	//new Run2ULReweighterFactory() ); // for real
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
@@ -90,7 +109,7 @@ void fillHistograms(
     // make output collection of histograms
     std::cout << "making output collection of histograms..." << std::endl;
     std::map< std::string,std::map< std::string,std::shared_ptr<TH2D>> > histMap =
-        initResponseMap( histvars, eventSelections );
+        initResponseMap( histvars, eventSelections, finebins );
 
     // do event loop
     long unsigned numberOfEntries = treeReader.numberOfEntries();
@@ -173,11 +192,11 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    if( argc < 8 ){
+    if( argc < 9 ){
         std::cerr << "ERROR: event binning requires at different number of arguments to run...:";
         std::cerr << " input_directory, sample_list, sample_index, output_directory,";
 	std::cerr << " variable_file, event_selection,";
-	std::cerr << " nevents" << std::endl;
+	std::cerr << " nevents finebins" << std::endl;
         return -1;
     }
 
@@ -191,6 +210,7 @@ int main( int argc, char* argv[] ){
     std::string& event_selection = argvStr[6];
     std::vector<std::string> event_selections = stringTools::split(event_selection,",");
     unsigned long nevents = std::stoul(argvStr[7]);
+    int finebins = std::stoi(argvStr[8]);
 
     // print arguments
     std::cout << "Found following arguments:" << std::endl;
@@ -201,6 +221,7 @@ int main( int argc, char* argv[] ){
     std::cout << "  - variable file: " << variable_file << std::endl;
     std::cout << "  - event selection: " << event_selection << std::endl;
     std::cout << "  - number of events: " << std::to_string(nevents) << std::endl;
+    std::cout << "  - number of finebins (0 for default): " << std::to_string(finebins) << std::endl;
 
     // read variables
     std::vector<HistogramVariable> histvars = variableTools::readVariables( variable_file );
@@ -234,7 +255,8 @@ int main( int argc, char* argv[] ){
 		    nevents,
 		    output_directory,
 		    event_selections,
-		    histvars );
+		    histvars,
+                    finebins );
     std::cerr << "###done###" << std::endl;
     return 0;
 }

@@ -17,6 +17,8 @@ if __name__=='__main__':
   parser.add_argument('--method', default='multidimfit',
     choices=['multidimfit','fitdiagnostics'])
   parser.add_argument('--usedata', default=False, action='store_true')
+  parser.add_argument('--useelementary', default=False, action='store_true')
+  parser.add_argument('--usecombined', default=False, action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -33,8 +35,14 @@ if __name__=='__main__':
 
   # find all workspaces in the directory
   wspaces = []
+  matchtags = []
+  if args.useelementary: matchtags.append('datacard_*.root')
+  if args.usecombined: matchtags.append('dc_combined_*.root')
   for f in os.listdir(args.datacarddir):
-    if not (fnmatch.fnmatch(f,'datacard_*.root') or fnmatch.fnmatch(f,'dc_combined_*.root') ): continue
+    match = False
+    for matchtag in matchtags:
+      if fnmatch.fnmatch(f,matchtag): match = True
+    if not match: continue
     if 'likelihoodscan' in f: continue
     wspaces.append(f)
   if len(wspaces)==0:

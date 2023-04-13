@@ -60,7 +60,7 @@ if len(sys.argv)>5:
         elif sysarg[0]=='version': version_name = sysarg[1]
 	elif sysarg[0]=='runmode': runmode = sysarg[1]
         else: 
-            raise Exception('ERROR: optional argument '+sysargi[0]+' not recognized!')
+            raise Exception('ERROR: optional argument '+sysarg[0]+' not recognized!')
 
 # print command line args for checking
 print('Running with the follwing options:')
@@ -88,7 +88,8 @@ if not os.path.exists(sample_list):
 
 # check skim condition
 allowed_skim_conditions = ["noskim", "singlelepton", "dilepton", 
-			    "trilepton", "fourlepton", "fakerate"]
+			    "trilepton", "fourlepton", "fakerate",
+			    "dilightlepton", "multilightlepton"]
 if skim_condition not in allowed_skim_conditions:
     raise Exception('ERROR: skim condition {} not valid. Options are {}'.format(
 			skim_condition, allowed_skim_conditions))

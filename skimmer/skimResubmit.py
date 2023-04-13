@@ -1,11 +1,11 @@
 ################################
 # resubmit stuck skimming jobs #
 ################################
-# note: experimental, not yet sufficiently tested
 
 import os
 import sys
-import checkLogs as cl
+sys.path.append('../jobSubmission')
+import jobCheck as jc
  
 if __name__=='__main__':
 
@@ -28,7 +28,7 @@ if __name__=='__main__':
     efiles = []
     for efile in allefiles:
         # error checking
-        if cl.check_start_done(efile): efiles.append(efile)
+        if jc.check_start_done(efile): efiles.append(efile)
     print('found {} error log files corresponding to unfinished jobs.'.format(len(efiles)))
 
     # sort the list of error log files
@@ -40,35 +40,19 @@ if __name__=='__main__':
 	jobid = efile.split('_')[3]
         jobids.append(jobid)
 
-    # check corresponding output log files and find first file to be skimmed
-    sfiles = []
+    # check corresponding output log files and find corresponding executable
+    shfiles = []
     for efile in efiles:
 	ofile = efile.replace('_err_', '_out_')
 	with open(ofile,'r') as f:
 	   firstline = f.readline()
-	sfile = firstline.replace('skimming ', '').strip(' \n')
-	sfiles.append(sfile)
-
-    # make a list of executables and corresponding first skimmed files
-    shfiles = [fname for fname in os.listdir(os.getcwd())
-                if ('cjob_' in fname and '.sh' in fname and skimsubmitter in fname)]
-    firstskimfiles = []
-    for shfile in shfiles:
-	with open(shfile,'r') as f:
-	    firstline = f.readlines()[6]
-	skimfile = firstline.split(' ')[1].strip(' \n')
-	firstskimfiles.append(skimfile)
-
-    # match both lists of first files to be skimmed
-    eshfiles = []
-    for sfile in sfiles:
-	for i,fsfile in enumerate(firstskimfiles):
-	    if sfile==fsfile: eshfiles.append(shfiles[i])
+	shfile = firstline.replace('###exename###: ', '').strip(' \n')
+	shfiles.append(shfile)
 
     # do some printing and checks
-    print('found {} executables to resubmit:'.format(len(eshfiles)))
-    for i in range(len(eshfiles)):
-	print(' - job {} -> executable {}'.format(jobids[i], eshfiles[i]))
+    print('found {} executables to resubmit:'.format(len(shfiles)))
+    for i in range(len(shfiles)):
+	print(' - job {} -> executable {}'.format(jobids[i], shfiles[i]))
     print('continue with resubmission?')
     go = raw_input()
     if go!='y': sys.exit()
@@ -83,15 +67,15 @@ if __name__=='__main__':
     jobfile = 'cjob_'+skimsubmitter+'.txt'
     with open(jobfile,'r') as f:
 	lines = f.readlines()
-    for eshfile in eshfiles:
-	lines[0] = 'executable = {}\n'.format(eshfile)
+    for shfile in shfiles:
+	lines[0] = 'executable = {}\n'.format(shfile)
 	with open(jobfile,'w') as f:
 	    for line in lines: f.write(line)
 	os.system('condor_submit {}'.format(jobfile))
 
     # remove old version of error, output and log files
     print('removing old log files...')
-    for i in range(len(eshfiles)):
+    for i in range(len(shfiles)):
         efile = efiles[i]
         ofile = efile.replace('_err_', '_out_')
         lfile = efile.replace('_err_', '_log_')

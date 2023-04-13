@@ -140,6 +140,9 @@ def plotdifferential(
 	    else:
 		hist.SetBinContent(j,hist.GetBinContent(j)/scale)
 		hist.SetBinError(j,hist.GetBinError(j)/scale)
+    # special case when data histogram was empty (e.g. for only plotting MC)
+    if datahist.Integral() < 1e-12:
+	for hist in allratiohists: hist.Reset()
  
     ### make legend for upper plot and add all histograms
     legend = ROOT.TLegend(plegendbox[0],plegendbox[1],plegendbox[2],plegendbox[3])

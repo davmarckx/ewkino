@@ -27,6 +27,7 @@ if __name__=='__main__':
   parser.add_argument('--variables', required=True, type=os.path.abspath)
   parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
   parser.add_argument('--nevents', default=0, type=int)
+  parser.add_argument('--finebins', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
@@ -76,14 +77,14 @@ if __name__=='__main__':
   commands = []
   for i in range(nsamples):
     # make the command
-    command = exe + ' {} {} {} {} {} {} {}'.format(
+    command = exe + ' {} {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.outputdir,
-                    variablestxt, event_selections, args.nevents )
+                    variablestxt, event_selections, args.nevents, args.finebins )
     commands.append(command)
 
   # submit the jobs
   if args.runmode=='local':
     for command in commands: os.system(command)
   elif args.runmode=='condor':
-    ct.submitCommandsAsCondorCluster( 'cjob_eventbinner', commands,
+    ct.submitCommandsAsCondorCluster( 'cjob_fillresponsematrices', commands,
                                       cmssw_version=CMSSW_VERSION ) 

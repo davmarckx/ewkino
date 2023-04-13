@@ -371,3 +371,19 @@ def printhistograms( histfile, mustcontainall=[], mustcontainone=[],
 		    maynotcontainone=maynotcontainone,
 		    maynotcontainall=maynotcontainall)[1]
     for hist in selhists: printhistogram(hist,naninfo=naninfo)
+
+def print2dhistogram(hist):
+    infostr = '### {} ###\n'.format(hist.GetName())
+    for i in range(0,hist.GetNbinsX()+2):
+        for j in range(0,hist.GetNbinsY()+2):
+            bininfo = '  -----------\n'
+            bininfo += '  bin x: {} -> {}\n'.format(
+		hist.GetXaxis().GetBinLowEdge(i),
+                hist.GetXaxis().GetBinLowEdge(i)+hist.GetXaxis().GetBinWidth(i))
+	    bininfo += '      y: {} -> {}\n'.format(
+		hist.GetYaxis().GetBinLowEdge(j),
+                hist.GetYaxis().GetBinLowEdge(j)+hist.GetYaxis().GetBinWidth(j))
+	    bininfo += '  content: {}\n'.format(hist.GetBinContent(i,j))
+	    bininfo += '  error: {}\n'.format(hist.GetBinError(i,j))
+	    infostr += bininfo
+    print(infostr)
