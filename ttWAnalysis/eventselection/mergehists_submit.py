@@ -9,7 +9,8 @@ import os
 
 topdir = sys.argv[1]
 
-years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2018']
 
 npmodes = []
 #npmodes.append( 'npfromsim' )
@@ -26,7 +27,7 @@ selectmode = 'custom'
 
 doclip = True
 
-runmode = 'condor'
+runmode = 'local'
 
 for year in years:
   for npmode in npmodes:

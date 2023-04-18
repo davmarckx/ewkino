@@ -7,13 +7,14 @@ import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-#for r in ['signalregion_trilepton']: regions.append(r)
-#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-#for r in ['cfcontrolregion']: regions.append(r)
+for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2018']
 
 selection_types = []
 selection_types.append('tight')
@@ -28,7 +29,7 @@ variations.append('nominal')
 
 dtypes = []
 dtypes.append('sim')
-#dtypes.append('data')
+dtypes.append('data')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'

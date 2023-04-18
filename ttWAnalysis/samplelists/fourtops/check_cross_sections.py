@@ -10,6 +10,7 @@ from samplelisttools import readsamplelist
 if __name__=='__main__':
 
   samplelists = sys.argv[1:]
+  print('Checking sample lists: {}'.format(samplelists))
   samplexsec = {}
   mask = []
   for samplelist in samplelists:
