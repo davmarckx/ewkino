@@ -3,22 +3,23 @@ import os
 
 if __name__=='__main__':
 
-  topfolder = '../analysis/output_20230111_single'
+  topfolder = '../analysis/output_20230418_single'
   outputdir = 'output_test'
   years = ['run2']
   regions = ['signalregion_dilepton_inclusive']
   processes = ({ 
-                 'allprocesses': 'all' 
+                 'allprocesses': 'all',
+		 'ttwprocess': 'TTW'
               })
   variables = '../variables/variables_eventbdt.json'
   datatag = 'Data'
   includetags = ({ 
                    'allsys': None,
-                   'jets': 'JEC,JER,Uncl',
-                   'leptons': 'electron,muon',
-                   'scales': 'Scale',
-                   'pdf': 'pdf',
-                   'other': 'pileup,prefire'
+                   #'jets': 'JEC,JER,Uncl',
+                   #'leptons': 'electron,muon',
+                   #'scales': 'Scale',
+                   #'pdf': 'pdf',
+                   #'other': 'pileup,prefire'
                 })
   includeraw = True
 

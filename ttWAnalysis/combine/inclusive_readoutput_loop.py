@@ -10,7 +10,8 @@ if __name__=='__main__':
   datacarddir = sys.argv[1]
 
   commands = []
-  for obstag in ['exp','obs']:
+  #for obstag in ['exp','obs']:
+  for obstag in ['exp']:
     outtxtfile = os.path.join(datacarddir,'summary_{}.txt'.format(obstag))
     outpngfile = outtxtfile.replace('.txt','.png')
     cmd1 = 'python inclusive_readoutput.py'

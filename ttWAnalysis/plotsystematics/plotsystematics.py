@@ -159,6 +159,9 @@ if __name__=="__main__":
   splittag = args.region+'_'+variablenames[0]
   print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag, datatag=args.datatag )
+  if not args.rawsystematics:
+      _ = remove_systematics_default( PIC, year=args.year )
+  # (note: removing systematics here has no impact except on printing)
   print('Constructed following ProcessInfoCollection from histogram list:')
   print(PIC)
 

@@ -81,7 +81,7 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
   # remove b-tagging shape uncertainties for nonprompt
   # (the data is not yet correctly filled with nominal for these systematics)
-  rmspecific['Nonprompt'].append('bTag_shape*')
+  if 'Nonprompt' in rmspecific.keys(): rmspecific['Nonprompt'].append('bTag_shape*')
 
   # remove uncertainties for other years
   # (cleaner, but not strictly needed since they are set to nominal anyway)

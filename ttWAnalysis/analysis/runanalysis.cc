@@ -35,6 +35,8 @@ std::string modProcessName( const std::string processName, const std::string sel
     // small internal helper function
     std::string modProcessName = processName;
     if( selectionType=="fakerate" ) modProcessName = "nonprompt";
+    if( selectionType=="efakerate" ) modProcessName = "nonprompte";
+    if( selectionType=="mfakerate" ) modProcessName = "nonpromptm";
     if( selectionType=="chargeflips" ) modProcessName = "chargeflips";
     return modProcessName;
 }
@@ -98,7 +100,7 @@ std::map< std::string,     // process
                     // (except for selection type "fakerate", in which case systematic histograms
                     // should be added and filled with nominal values,
                     // in order to correctly merge with MC with the same selection type).
-		    if( isData && selectionType!="fakerate" ) continue;
+		    if( isData && !(selectionType=="fakerate" || selectionType=="efakerate" || selectionType=="mfakerate") ) continue;
                     // for MC, specifically for selection type "chargeflips",
                     // skip initialization of systematic histograms as well,
                     // in order to correctly merge with data with the same selection type.
@@ -208,7 +210,9 @@ void fillSystematicsHistograms(
     // load fake rate maps if needed
     std::shared_ptr<TH2D> frmap_muon;
     std::shared_ptr<TH2D> frmap_electron;
-    if(std::find(selection_types.begin(),selection_types.end(),"fakerate")!=selection_types.end()){
+    if(std::find(selection_types.begin(),selection_types.end(),"fakerate")!=selection_types.end()
+	|| std::find(selection_types.begin(),selection_types.end(),"efakerate")!=selection_types.end()
+	|| std::find(selection_types.begin(),selection_types.end(),"mfakerate")!=selection_types.end()){
 	std::cout << "reading fake rate maps..." << std::endl;
         frmap_muon = readFakeRateTools::readFRMap(muonFRMap, "muon", year);
         frmap_electron = readFakeRateTools::readFRMap(electronFRMap, "electron", year);
@@ -248,7 +252,7 @@ void fillSystematicsHistograms(
             std::cout << "  - " << el << std::endl;
 	}
 	// read b-tagging shape reweighting normalization factors from txt file
-	std::string txtInputFile = "../btagging/output_20230215/";
+	std::string txtInputFile = "../btagging/output_20230418/";
 	// (hard-coded for now, maybe replace by argument later)
 	txtInputFile += year + "/" + inputFileName;
 	if( !systemTools::fileExists(txtInputFile) ){
@@ -473,7 +477,7 @@ void fillSystematicsHistograms(
 		// for fake rates from data, need to create systematic histograms
 		// (in order for the merging to work properly);
 		// loop over all systematics and fill with nominal values
-		if(event.isData() && selection_type=="fakerate"){
+		if(event.isData() && (selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate")){
 		    for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
 			if(stringTools::stringContains(mapelement.first,"nominal")) continue;
 			histogram::fillValue( mapelement.second.get(),
@@ -961,7 +965,7 @@ void fillSystematicsHistograms(
     for(std::string selection_type: selection_types){
 	// modify the process name for some selection types
         std::string thisProcessName = modProcessName(processName,selection_type);
-	if( treeReader.isData() && selection_type!="fakerate" ) continue;
+	if( treeReader.isData() && !(selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate") ) continue;
         if( selection_type=="chargeflips" ) continue;
 	for( std::string systematic : systematics ){
 	    if(systematic=="pdfShapeVar"){
@@ -1082,7 +1086,7 @@ void fillSystematicsHistograms(
 		storeLheVars = true;
 		doClip = false;
 	    }
-	    if( selection_type == "fakerate" ) doClip = false;
+	    if( selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate" ) doClip = false;
 	    // first find nominal histogram for this variable
 	    std::shared_ptr<TH1D> nominalhist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at("nominal");
 	    // if nominal histogram is empty, fill with dummy value (needed for combine);

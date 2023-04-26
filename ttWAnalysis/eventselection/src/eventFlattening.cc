@@ -455,7 +455,9 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     }
 
     // in case of running in mode "fakerate", take into account fake rate weight
-    if(selection_type=="fakerate"){
+    if(selection_type=="fakerate"
+	|| selection_type=="efakerate"
+	|| selection_type=="mfakerate"){
 	double frweight = readFakeRateTools::fakeRateWeight(event,frMap_muon,frMap_electron);
 	if(event.isMC()) frweight *= -1;
 	varmap["_normweight"] *= frweight;
@@ -729,8 +731,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     
     // (note: default is -1)
     if( nbjets==0 ) varmap["_nJetsNBJetsCat"] = std::min(njets,4);
-    else if( nbjets==1 ) varmap["_nJetsNBJetsCat"] = 5 + std::min(njets,4) - 1;
-    else if( nbjets>1 ) varmap["_nJetsNBJetsCat"] = 9 + std::min(njets,4) - 2;
+    else if( nbjets==1 ) varmap["_nJetsNBJetsCat"] = 5 + std::min(njets,5) - 1;
+    else if( nbjets>1 ) varmap["_nJetsNBJetsCat"] = 10 + std::min(njets,5) - 2;
     // (note: default is -1)
     if( nZ==2 ) varmap["_nJetsNZCat"] = 0;
     else if( nZ==1 ){

@@ -10,13 +10,14 @@ exe = 'runanalysis'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
 for r in ['signalregion_trilepton']: regions.append(r)
-#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-#for r in ['cfcontrolregion']: regions.append(r)
+for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
@@ -28,6 +29,8 @@ selection_types = []
 selection_types.append('tight')
 #selection_types.append('prompt')
 selection_types.append('fakerate')
+selection_types.append('efakerate')
+selection_types.append('mfakerate')
 selection_types.append('chargeflips')
 #selection_types.append('chargegood')
 selection_types.append('irreducible')
@@ -47,9 +50,9 @@ variables = '../variables/variables_main.json' # single variables
 
 #bdtfile = None
 bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
-bdtcut = 0.7
+bdtcut = None
 
-outputdir = 'output_20230314_single_bdtcut0p7'
+outputdir = 'output_20230418_single'
 
 nevents = 1e6
 runlocal = False

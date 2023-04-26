@@ -53,8 +53,10 @@ std::map< std::string,std::map< std::string,std::shared_ptr<TH1D>> > initHistMap
             std::string instanceName = es+"_"+st;
             std::string thisProcessName = processName;
             if( st=="fakerate" ) thisProcessName = "nonprompt";
+            if( st=="efakerate" ) thisProcessName = "nonprompte";
+            if( st=="mfakerate" ) thisProcessName = "nonpromptm";
             if( st=="chargeflips" ) thisProcessName = "chargeflips";
-	    // make a set of thistograms
+	    // make a set of histograms
 	    std::map<std::string, std::shared_ptr<TH1D>> hists;
 	    hists = variableTools::initializeHistograms( histvars );
 	    // loop over variables
@@ -106,11 +108,12 @@ void fillHistograms(const std::string& inputDirectory,
     std::shared_ptr<TH2D> frmap_muon;
     std::shared_ptr<TH2D> frmap_electron;
     for(std::string st: selection_types){
-	if(st=="fakerate"){
+	if(st=="fakerate" || st=="efakerate" || st=="mfakerate"){
 	    std::cout << "reading fake rate maps..." << std::endl;
 	    frmap_muon = readFakeRateTools::readFRMap(muonfrmap, "muon", year);
 	    frmap_electron = readFakeRateTools::readFRMap(electronfrmap, "electron", year);
 	    std::cout << "read fake rate maps." << std::endl;
+            break;
 	}
     }
 
@@ -129,8 +132,8 @@ void fillHistograms(const std::string& inputDirectory,
     std::cout << "initializing reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     reweighterFactory = std::shared_ptr<ReweighterFactory>( 
-	//new EmptyReweighterFactory() ); // for testing
-	new Run2ULReweighterFactory() ); // for real
+	new EmptyReweighterFactory() ); // for testing
+	//new Run2ULReweighterFactory() ); // for real
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
@@ -222,7 +225,7 @@ void fillHistograms(const std::string& inputDirectory,
 		// as negative values are allowed at this stage.
 		bool doClip = true;
 		if( stringTools::stringContains(variableName,"fineBinned") ) doClip = false;
-		if( st == "fakerate") doClip = false;
+		if( st=="fakerate" || st=="efakerate" || st=="mfakerate" ) doClip = false;
 		// find the histogram for this variable
 		std::shared_ptr<TH1D> hist = histMap[instanceName][variableName];
 		// if histogram is empty, fill with dummy value (needed for combine);

@@ -133,10 +133,14 @@ def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
   if( npmode=='npfromsim' and cfmode=='cffromsim' ): tags = ['_tight_']
   elif( npmode=='npfromdata' and cfmode=='cffromsim' ): 
     tags = ['_prompt_', '_fakerate_']
+  elif( npmode=='npfromdatasplit' and cfmode=='cffromsim' ):
+    tags = ['_prompt_', '_efakerate_', '_mfakerate_']
   elif( npmode=='npfromsim' and cfmode=='cffromdata' ): 
     tags = ['_chargegood_', '_chargeflips_']
   elif( npmode=='npfromdata' and cfmode=='cffromdata' ): 
     tags = ['_irreducible_', '_fakerate_', '_chargeflips_']
+  elif( npmode=='npfromdatasplit' and cfmode=='cffromdata' ):
+    tags = ['_irreducible_', '_efakerate_', '_mfakerate_', '_chargeflips_']
   else:
     raise Exception('ERROR in select_histograms_in_file:'
             +' invalid combination of npmode {}'.format(npmode)
@@ -258,7 +262,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Merge histograms')
   parser.add_argument('--directory', required=True, type=os.path.abspath)
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata'])
+  parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata','npfromdatasplit'])
   parser.add_argument('--cfmode', required=True, choices=['cffromsim','cffromdata'])
   parser.add_argument('--rename', default=None, type=apt.path_or_none)
   parser.add_argument('--renamemode', default='fast', choices=['custom','rootmv','fast'])

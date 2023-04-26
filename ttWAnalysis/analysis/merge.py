@@ -22,7 +22,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Merge analysis histogram files')
   parser.add_argument('--directory', required=True, type=os.path.abspath)
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata'])
+  parser.add_argument('--npmode', required=True, choices=['npfromsim','npfromdata','npfromdatasplit'])
   parser.add_argument('--cfmode', required=True, choices=['cffromsim','cffromdata'])
   parser.add_argument('--rename', default=None, type=apt.path_or_none)
   parser.add_argument('--renamemode', default='fast', choices=['custom','rootmv','fast'])
@@ -61,6 +61,14 @@ if __name__=='__main__':
     dirstomerge.append(os.path.join(args.directory,'irreducible'))
     dirstomerge.append(os.path.join(args.directory,'fakerate'))
     dirstomerge.append(os.path.join(args.directory,'chargeflips'))
+  elif( args.npmode=='npfromdatasplit' and args.cfmode=='cffromdata' ):
+    dirstomerge.append(os.path.join(args.directory,'irreducible'))
+    dirstomerge.append(os.path.join(args.directory,'efakerate'))
+    dirstomerge.append(os.path.join(args.directory,'mfakerate'))
+    dirstomerge.append(os.path.join(args.directory,'chargeflips'))
+  else:
+    msg = 'ERROR: this combination of npmode and cfmode was not yet implemented.'
+    raise Exception(msg)
   # do the check
   for d in dirstomerge:
     if not os.path.exists(d):

@@ -32,6 +32,10 @@ bool pass_signalregion_dilepton_me(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_mm(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_plus(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_minus(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 // prompt control regions

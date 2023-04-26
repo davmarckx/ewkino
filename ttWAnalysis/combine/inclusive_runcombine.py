@@ -28,10 +28,19 @@ def getcardcombinations(datacarddir, verbose=False):
   cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
   cards_cr = lt.subselect_strings(cards_all,mustcontainone=['controlregion'])[1]
   # per year
-  combineddict['dc_combined_2016PreVFP.txt'] = [c for c in cards_all if '2016PreVFP' in c]
-  combineddict['dc_combined_2016PostVFP.txt'] = [c for c in cards_all if '2016PostVFP' in c]
-  combineddict['dc_combined_2017.txt'] = [c for c in cards_all if '2017' in c]
-  combineddict['dc_combined_2018.txt'] = [c for c in cards_all if '2018' in c]
+  #combineddict['dc_combined_2016PreVFP.txt'] = [c for c in cards_all if '2016PreVFP' in c]
+  #combineddict['dc_combined_2016PostVFP.txt'] = [c for c in cards_all if '2016PostVFP' in c]
+  #combineddict['dc_combined_2017.txt'] = [c for c in cards_all if '2017' in c]
+  #combineddict['dc_combined_2018.txt'] = [c for c in cards_all if '2018' in c]
+  # per channel
+  #combineddict['dc_combined_ee.txt'] = [c for c in cards_sr if '_ee' in c] + cards_cr
+  #combineddict['dc_combined_em.txt'] = [c for c in cards_sr if '_em' in c] + cards_cr
+  #combineddict['dc_combined_me.txt'] = [c for c in cards_sr if '_me' in c] + cards_cr
+  #combineddict['dc_combined_mm.txt'] = [c for c in cards_sr if '_mm' in c] + cards_cr
+  #combineddict['dc_combined_trilepton.txt'] = [c for c in cards_sr if '_trilepton' in c] + cards_cr
+  # per sign
+  combineddict['dc_combined_plus.txt'] = [c for c in cards_sr if '_plus' in c] + cards_cr
+  combineddict['dc_combined_minus.txt'] = [c for c in cards_sr if '_minus' in c] + cards_cr
   # all signal regions
   combineddict['dc_combined_signalregions.txt'] = cards_sr[:]
   # all control regions

@@ -17,7 +17,7 @@ bool passES(Event& event, const std::string& eventselection,
     // check if selectiontype is valid
     std::vector< std::string > seltypes{ "tight", 
 					 "prompt", "chargegood", "irreducible",
-					 "fakerate", "chargeflips" };
+					 "fakerate", "efakerate", "mfakerate", "chargeflips" };
     if( std::find(seltypes.cbegin(), seltypes.cend(), selectiontype)==seltypes.cend() ){
 	throw std::invalid_argument("unknown selection type: "+selectiontype);
     }
@@ -33,6 +33,8 @@ bool passES(Event& event, const std::string& eventselection,
 		{ "signalregion_dilepton_em", pass_signalregion_dilepton_em },
 		{ "signalregion_dilepton_me", pass_signalregion_dilepton_me },
 		{ "signalregion_dilepton_mm", pass_signalregion_dilepton_mm },
+		{ "signalregion_dilepton_plus", pass_signalregion_dilepton_plus },
+		{ "signalregion_dilepton_minus", pass_signalregion_dilepton_minus },
 		{ "signalregion_trilepton", pass_signalregion_trilepton },
 		// prompt control regions
 		{ "wzcontrolregion", pass_wzcontrolregion },
@@ -209,23 +211,52 @@ bool doLeptonSelection( Event& event, std::string selectiontype, int nleptons ){
     if(selectiontype=="tight"){
 	// normal selection of tight leptons for data vs MC
         if(!hasnTightLeptons(event, nleptons, true)) return false;
-    } if(selectiontype=="prompt" || selectiontype=="irreducible"){
+    } else if(selectiontype=="prompt"){
 	// selection of tight prompt leptons (for nonprompt from data)
         if(!hasnTightLeptons(event, nleptons, true)) return false;
         if(event.isMC() and !allLeptonsArePrompt(event)) return false;
-    } if(selectiontype=="chargegood" || selectiontype=="irreducible"){
+    } else if(selectiontype=="chargegood"){
 	// selection of tight leptons with correct charge (for charge flips from data)
 	if(!hasnTightLeptons(event, nleptons, true)) return false;
 	if(event.isMC() and !allLeptonsAreCorrectCharge(event)) return false;
-    } if(selectiontype=="fakerate"){
+    } else if(selectiontype=="irreducible"){
+	// combination of prompt and chargegood (for both nonprompt and charge flips from data)
+	if(!hasnTightLeptons(event, nleptons, true)) return false;
+        if(event.isMC() and !allLeptonsArePrompt(event)) return false;
+        if(event.isMC() and !allLeptonsAreCorrectCharge(event)) return false;
+    } else if(selectiontype=="fakerate"){
 	// selection of at least one non-tight leptons (for nonprompt from data)
         if(hasnTightLeptons(event, nleptons, false)) return false;
         if(event.isMC() and !allLeptonsArePrompt(event)) return false;
-    } if(selectiontype=="chargeflips"){
+    } else if(selectiontype=="efakerate"){
+	// same as above but electron fake only (for splitting in muon and electron fakes)
+	if(hasnTightLeptons(event, nleptons, false)) return false;
+        if(event.isMC() and !allLeptonsArePrompt(event)) return false;
+	for( const auto& leptonPtr : event.leptonCollection() ){
+	    if( !leptonPtr->isTight() ){
+		if( !leptonPtr->isElectron() ) return false;
+		break;
+	    }
+	}
+    } else if(selectiontype=="mfakerate"){
+	// same as above but muon fakes only (for splitting in muon and electron fakes)
+	if(hasnTightLeptons(event, nleptons, false)) return false;
+        if(event.isMC() and !allLeptonsArePrompt(event)) return false;
+	for( const auto& leptonPtr : event.leptonCollection() ){
+            if( !leptonPtr->isTight() ){
+		if( !leptonPtr->isMuon() ) return false;
+		break;
+	    }
+        }
+    } else if(selectiontype=="chargeflips"){
 	// selection of OS events with tight leptons
 	// (note: OS/SS selection has to be done in specific selection functions!)
 	if(!hasnTightLeptons(event, nleptons, true)) return false;
         if(event.isMC()) return false;
+    } else{
+	std::string msg = "ERROR in eventSelections.cc / doLeptonSelection:";
+	msg.append(" selection type " + selectiontype + " not recognized.");
+	throw std::invalid_argument(msg);
     }
     return true;
 }
@@ -372,11 +403,9 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
         && event.leptonCollection()[1].isElectron()
         && event.hasZTollCandidate(10., true) ) return false;
     // MET cut for electrons
-    if( event.leptonCollection()[0].isElectron()
-        && event.leptonCollection()[1].isElectron() ){
-	if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
-	else{ if(event.getMet(variation).pt()<30.) return false; }
-    }
+    // re-added on 18/04/2023: MET cut for all lepton flavours
+    if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
+    else{ if(event.getMet(variation).pt()<30.) return false; }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
@@ -457,11 +486,9 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
         && event.leptonCollection()[1].isElectron()
         && event.hasZTollCandidate(10., true) ) return std::make_tuple(9, "Fail electron Z veto");
     // MET cut for electrons
-    if( event.leptonCollection()[0].isElectron()
-        && event.leptonCollection()[1].isElectron() ){
-        if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(10, "Fail MET"); }
-        else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(10, "Fail MET"); }
-    }
+    // re-added on 18/04/2023: MET cut for all lepton flavours
+    if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(10, "Fail MET"); }
+    else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(10, "Fail MET"); }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
@@ -508,6 +535,26 @@ bool pass_signalregion_dilepton_mm(Event& event, const std::string& selectiontyp
             selectiontype, variation, selectbjets) ){ return false; }
     if( event.leptonCollection()[0].isMuon()
         && event.leptonCollection()[1].isMuon() ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_plus(Event& event, const std::string& selectiontype,
+				const std::string& variation, const bool selectbjets){
+    // signal region with positive sign leptons
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].charge()==1
+        && event.leptonCollection()[1].charge()==1 ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_minus(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with negative sign leptons
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].charge()==-1
+        && event.leptonCollection()[1].charge()==-1 ){ return true; }
     return false;
 }
 
@@ -732,8 +779,8 @@ bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
     if(not passPhotonOverlapRemoval(event)) return false;       
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return false;
-    // inverted Z candidate veto
-    if( event.hasOSSFLightLeptonPair() && !event.hasZTollCandidate(halfwindow) ) return false;
+    // Z candidate
+    if( !(event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow)) ) return false;
     // invariant mass safety
     if(not passMllMassVeto(event)) return false;
     // sum of charges needs to 1 or -1
