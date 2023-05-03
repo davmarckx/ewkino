@@ -141,32 +141,35 @@ def getcolormap_systematics():
     # first three are obsolete and replaced by qcdScalesShapeEnv and qcdScalesNorm
     # last two are obsolete and replaced by isrShape and isrNorm
     cmap['fScale'] = ROOT.kMagenta
+    cmap['fScaleTotal'] = ROOT.kMagenta
+    cmap['fScaleShape'] = ROOT.kMagenta-1
     cmap['fScaleNorm'] = ROOT.kMagenta+1
-    cmap['rScale'] = ROOT.kMagenta+2
-    cmap['rScaleNorm'] = ROOT.kMagenta+3
+    cmap['rScale'] = ROOT.kMagenta+3
+    cmap['rScaleTotal'] = ROOT.kMagenta+3
+    cmap['rScaleShape'] = ROOT.kMagenta+2
+    cmap['rScaleNorm'] = ROOT.kMagenta+4
     cmap['rfScales'] = ROOT.kMagenta-7
+    cmap['rfScalesTotal'] = ROOT.kMagenta-7
+    cmap['rfScalesShape'] = ROOT.kMagenta-9
     cmap['rfScalesNorm'] = ROOT.kMagenta-8
-    cmap['isrScale'] = ROOT.kViolet+1
-    cmap['fsrScale'] = ROOT.kViolet+2
 
     # isr/fsr in shades of violet
+    cmap['isrTotal'] = ROOT.kViolet
     cmap['isrShape'] = ROOT.kViolet+1
-    cmap['isrNorm'] = ROOT.kViolet+1
-    cmap['isrShape_Xgamma'] = ROOT.kViolet+1
-    cmap['isrNorm_Xgamma'] = ROOT.kViolet+1
-    cmap['fsrShape'] = ROOT.kViolet+2
-    cmap['fsrNorm'] = ROOT.kViolet+2
+    cmap['isrNorm'] = ROOT.kViolet-1
+    cmap['fsrTotal'] = ROOT.kViolet+6
+    cmap['fsrShape'] = ROOT.kViolet+5
+    cmap['fsrNorm'] = ROOT.kViolet+7
 
     # qcd scale variations in magenta
     cmap['qcdScalesShapeVar'] = ROOT.kGray
+    cmap['qcdScalesTotalEnv'] = ROOT.kMagenta-8
     cmap['qcdScalesShapeEnv'] = ROOT.kMagenta-9
-    cmap['qcdScalesShapeEnv_tZq'] = ROOT.kMagenta-9
-    cmap['qcdScalesShapeEnv_Xgamma'] = ROOT.kMagenta-9
-    cmap['qcdScalesNorm'] = ROOT.kViolet+6
+    cmap['qcdScalesNorm'] = ROOT.kViolet-7
 
     # pdf variations in yellow
     cmap['pdfShapeVar'] = ROOT.kGray
-    cmap['pdfShapeEnv'] = ROOT.kOrange-3
+    cmap['pdfTotalRMS'] = ROOT.kOrange+8
     cmap['pdfShapeRMS'] = ROOT.kOrange+7
     cmap['pdfNorm'] = ROOT.kOrange-2
 
@@ -182,8 +185,8 @@ def getcolormap_ttw():
     cmap = {}
     cmap['nonprompt'] = define_color_hex('#ffe380')[0]
     cmap['Nonprompt'] = cmap['nonprompt']
-    cmap['nonprompte'] = define_color_hex('#ffe380')[0]
-    cmap['nonpromptm'] = define_color_hex('#fcda60')[0]
+    cmap['Nonprompt(e)'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt(m)'] = define_color_hex('#fcda60')[0]
     cmap['chargeflips'] = define_color_hex('#fcee1e')[0]
     cmap['Chargeflips'] = cmap['chargeflips']
     cmap['DY'] = define_color_hex('#ffd22e')[0]

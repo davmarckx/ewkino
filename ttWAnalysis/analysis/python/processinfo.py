@@ -212,6 +212,14 @@ class Process(object):
     ### get nominal histogram
     return self.hist
 
+  def get_allhists( self ):
+    ### get a list of all histograms
+    histlist = [self.hist]
+    for s in self.systhists.keys():
+      histlist.append(self.systhists[s][0])
+      histlist.append(self.systhists[s][1])
+    return histlist
+
   def get_yield( self, systematic=None ):
     ### get the yield
     if systematic is None:
@@ -626,6 +634,13 @@ class ProcessCollection(object):
   # to extend this class according to arising needs,
   # e.g. sum of nominal processes, linear sum of systematics,
   #      quadratic sum of systematics, ...
+
+  def get_allhists( self ):
+    ### return a list of all histograms
+    histlist = []
+    for pname in self.plist:
+      histlist += self.processes[pname].get_allhists()
+    return histlist
 
   def get_hist_sum( self, histlist ):
     ### internal helper function

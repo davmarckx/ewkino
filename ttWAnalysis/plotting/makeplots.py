@@ -32,6 +32,7 @@ if __name__=="__main__":
   parser.add_argument('--variables', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--colormap', default='default')
+  parser.add_argument('--signals', default=None, nargs='+')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true')
@@ -145,7 +146,8 @@ if __name__=="__main__":
 	    colormap=colormap,
 	    lumi=lumi, extracmstext=args.extracmstext,
             extrainfos=extrainfos, infosize=15,
-            binlabels=xlabels, labelsize=labelsize )
+            binlabels=xlabels, labelsize=labelsize,
+            signals=args.signals )
 
     if args.dolog:
       # make plot in log scale
@@ -157,4 +159,5 @@ if __name__=="__main__":
             colormap=colormap,
             lumi=lumi, extracmstext=args.extracmstext,
             extrainfos=extrainfos, infosize=15,
-            binlabels=xlabels, labelsize=labelsize )
+            binlabels=xlabels, labelsize=labelsize,
+            signals=args.signals )

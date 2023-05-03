@@ -95,7 +95,7 @@ std::map< std::string,     // process
 				histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
 			    }
 			}
-			if(systematic=="pdfTotalVar"){
+			else if(systematic=="pdfTotalVar"){
                             for(unsigned i=0; i<numberOfPdfVariations; ++i){
                                 std::string temp = systematic + std::to_string(i);
                                 histMap[processName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
@@ -221,8 +221,9 @@ void fillTheoryHistograms(
 	}
 	if(numberOfPdfVariations>=100){
 	    hasValidPdfs = true;
-	    for(unsigned i=0; i<numberOfPdfVariations; i++){ 
-		pdfXSecRatios.push_back( xsecs.get()->crossSectionRatio_pdfVar(i) ); }
+	    for(unsigned i=0; i<numberOfPdfVariations; i++){
+		double val = xsecs.get()->crossSectionRatio_pdfVar(i);
+		pdfXSecRatios.push_back( val ); }
 	    pdfMinXSecRatio = *std::min_element( pdfXSecRatios.begin(), pdfXSecRatios.end() );
 	    pdfMaxXSecRatio = *std::max_element( pdfXSecRatios.begin(), pdfXSecRatios.end() );
 	}
@@ -643,6 +644,10 @@ void fillTheoryHistograms(
 	    else if(systematic=="pdfShapeVar" && hasValidPdfs){
 		for(unsigned i=0; i<numberOfPdfVariations; ++i){
                     std::string temp = systematic + std::to_string(i);
+		    /*std::cout << "--------" << std::endl;
+		    std::cout << event.generatorInfo().relativeWeightPdfVar(i) << std::endl;
+		    std::cout << xsecs.get()->crossSectionRatio_pdfVar(i) << std::endl;
+		    std::cout << event.generatorInfo().relativeWeightPdfVar(i)/xsecs.get()->crossSectionRatio_pdfVar(i) << std::endl;*/
 		    double reweight = event.generatorInfo().relativeWeightPdfVar(i)
                                         / xsecs.get()->crossSectionRatio_pdfVar(i);
                     double pdfweight = nominalWeight * reweight;

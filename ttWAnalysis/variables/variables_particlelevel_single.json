@@ -26,26 +26,26 @@
 {
   "name": "_nJets",
   "variable": "_nJets",
-  "nbins": "4",
-  "xlow": "3.5",
+  "nbins": "5",
+  "xlow": "2.5",
   "xhigh": "7.5",
   "axtitle": "Number of jets",
   "shorttitle": "N(jets)",
   "iscategorical": "true",
-  "xlabels": ["4", "5", "6", "7"],
-  "bins": [3.5, 4.5, 5.5, 6.5, 7.5]
+  "xlabels": ["3", "4", "5", "6", "7"],
+  "bins": [2.5, 3.5, 4.5, 5.5, 6.5, 7.5]
 },
 {
   "name": "_nBJets",
   "variable": "_nBJets",
-  "nbins": "4",
-  "xlow": "-0.5",
+  "nbins": "3",
+  "xlow": "0.5",
   "xhigh": "3.5",
   "axtitle": "Number of b-tagged jets",
   "shorttitle": "N(b-jets)",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2", "3"],
-  "bins": [-0.5, 0.5, 1.5, 2.5, 3.5]
+  "xlabels": ["1", "2", "3"],
+  "bins": [0.5, 1.5, 2.5, 3.5]
 },
 {
   "name": "_leptonPtLeading",

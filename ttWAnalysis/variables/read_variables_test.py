@@ -9,8 +9,10 @@ import variabletools as vt
 
 if __name__=='__main__':
 
-  inputfile = sys.argv[1]
-  
-  varlist = vt.read_variables( inputfile )
-  for var in varlist:
-    print(var)
+  inputfiles = sys.argv[1:]
+
+  for inputfile in inputfiles:
+    print('Reading variable list {}...'.format(inputfile))
+    varlist = vt.read_variables( inputfile )
+    for var in varlist:
+      print(var)

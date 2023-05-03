@@ -561,6 +561,7 @@ def get_likelihoodscan_commands(datacarddir, card,
   ss_command += ' --algo grid'
   ss_command += ' --points {}'.format(npoints)
   ss_command += ' --robustFit=1'
+  if fastscan: ss_command += ' --fastScan'
   if not defaultpoi:
     ss_command += ' --redefineSignalPOIs {}'.format(','.join(pois))
   if poiranges is not None:

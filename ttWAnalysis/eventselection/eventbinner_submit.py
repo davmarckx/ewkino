@@ -11,11 +11,11 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
-years = ['2016PreVFP']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP']
 
 dtypes = []
 dtypes.append('sim')
@@ -51,7 +51,7 @@ nevents = 1e6
 
 runmode = 'condor'
 
-outputdir = 'output_20230426_testnpsplit'
+outputdir = 'output_20230426_npsplit'
 
 for year in years:
   for dtype in dtypes:

@@ -142,6 +142,9 @@ def read_multidimfit( datacarddir, card, statonly=False,
   if( correlations and mode=='txt' ):
     raise Exception('ERROR in outputparsetools.py / read_multidimfit:'
                    +' correlations can only be read in mode=="root", not "txt"')
+  if( pois=='auto' and mode=='root' ):
+    raise Exception('ERROR in outputparsetools.py / read_multidimfit:'
+                   +' pois=="auto" is not yet supported in mode=="root".')
 
   # define name of output file from input arguments
   if usedata: interpendix += obs

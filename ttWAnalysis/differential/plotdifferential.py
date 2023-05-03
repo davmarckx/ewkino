@@ -208,10 +208,27 @@ if __name__=='__main__':
     PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag )
     PC = ProcessCollection( PIC, args.inputfile )
 
+    # divide bin contents by bin widths in all histograms
+    for hist in PC.get_allhists():
+      for i in range(1,hist.GetNbinsX()+1):
+        binwidth = hist.GetBinWidth(i)
+        hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+        hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+
+    # make a second ProcessCollection and normalize all its histograms
+    # to unit surface area
+    PC_norm = ProcessCollection( PIC, args.inputfile )
+    for hist in PC_norm.get_allhists():
+      for i in range(1,hist.GetNbinsX()+1):
+        binwidth = hist.GetBinWidth(i)
+        hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+        hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+      hist.Scale(1./hist.Integral('width'))
+
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
     systhists = []
-    systematics = ['pdfTotalRMS','qcdScalesTotalEnv']
+    systematics = ['pdfTotalRMS','rfScalesTotal','isrTotal','fsrTotal']
     for process in processes:
       nominalhist = PC.processes[process].get_nominal()
       nominalhist.SetTitle( process.split('_')[0] )
@@ -221,6 +238,19 @@ if __name__=='__main__':
         systhist.SetBinError(i, rsshist.GetBinContent(i))
       nominalhists.append(nominalhist)
       systhists.append(systhist)
+
+    # do the same for normalized histograms
+    nominalhists_norm = []
+    systhists_norm = []
+    for process in processes:
+      nominalhist = PC_norm.processes[process].get_nominal()
+      nominalhist.SetTitle( process.split('_')[0] )
+      rsshist = PC_norm.processes[process].get_systematics_rss(systematics=systematics)
+      systhist = nominalhist.Clone()
+      for i in range(0, nominalhist.GetNbinsX()+2):
+        systhist.SetBinError(i, rsshist.GetBinContent(i))
+      nominalhists_norm.append(nominalhist)
+      systhists_norm.append(systhist)
 
     # do scaling with hCounter
     for i, process in enumerate(processes):
@@ -237,15 +267,6 @@ if __name__=='__main__':
       print('  --> rescaling factor: {}'.format(scale))
       nominalhists[i].Scale(scale)
       systhists[i].Scale(scale)
-
-    # divide bin contents by bin widths
-    for nominalhist,systhist in zip(nominalhists,systhists):
-      for i in range(1,nominalhist.GetNbinsX()+1):
-        binwidth = nominalhist.GetBinWidth(i)
-        nominalhist.SetBinContent(i, nominalhist.GetBinContent(i)/binwidth)
-	nominalhist.SetBinError(i, nominalhist.GetBinError(i)/binwidth)
-	systhist.SetBinContent(i, systhist.GetBinContent(i)/binwidth)
-        systhist.SetBinError(i, systhist.GetBinError(i)/binwidth)
 
     # find signal strengths
     datahist = nominalhists[0].Clone()
@@ -298,7 +319,10 @@ if __name__=='__main__':
     if var.shorttitle is not None: yaxdenom = var.shorttitle
     yaxunit = 'fb'
     if var.unit is not None: yaxunit += '/{}'.format(var.unit)
+    yaxunit_norm = ''
+    if var.unit is not None: yaxunit_norm = '(1/{})'.format(var.unit)
     yaxtitle = 'd#sigma / d{} ({})'.format(yaxdenom,yaxunit)
+    yaxtitle_norm = '1/#sigma d#sigma / d{} {}'.format(yaxdenom,yaxunit_norm)
     extracmstext = 'Preliminary'
 
     # set lumi value to display
@@ -319,6 +343,19 @@ if __name__=='__main__':
         statdatahist=statdatahist,
 	figname=figname,
         yaxtitle=yaxtitle, xaxtitle=xaxtitle,
+        drawoptions='hist e',
+        extracmstext=extracmstext,
+        lumitext=lumitext,
+        extrainfos=extrainfos, infosize=15 )
+
+    # make the plot with normalized distributions
+    figname_norm = figname+'_norm'
+    plotdifferential(
+        nominalhists_norm, datahist,
+        systhists=systhists_norm,
+        statdatahist=statdatahist,
+        figname=figname_norm,
+        yaxtitle=yaxtitle_norm, xaxtitle=xaxtitle,
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,

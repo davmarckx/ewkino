@@ -128,6 +128,9 @@ if __name__=="__main__":
                           +' use "all" to use all processes in the input file.')
   parser.add_argument('--signals', default=None,
                       help='Comma-separated list of process tags to consider as signal.')
+  parser.add_argument('--renamesignals', default=None,
+                      help='Comma-separated list (same length and order as --signals)'
+                          +'with new names for signals in data card.')
   parser.add_argument('--outputfile', required=True, type=os.path.abspath)
   parser.add_argument('--datatag', default='data')
   parser.add_argument('--dummydata', default=False, action='store_true')
@@ -160,6 +163,10 @@ if __name__=="__main__":
   signals = []
   if args.signals is not None: signals = args.signals.split(',')
 
+  # parse the string with rename signal tags
+  renamesignals = []
+  if args.renamesignals is not None: renamesignals = args.renamesignals.split(',')
+
   # parse include and exclude tags
   includetags = []
   if args.includetags is not None: includetags = args.includetags.split(',')
@@ -182,6 +189,10 @@ if __name__=="__main__":
     rawsystematics=args.rawsystematics,
     dummysystematics=args.dummysystematics,
     verbose=True)
+
+  # rename signals if requested
+  for oldname,newname in zip(signals,renamesignals):
+    PIC.changename(oldname, newname)
 
   # write the datacard
   writedatacard( outputdir, outputfilename, PIC,
