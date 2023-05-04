@@ -58,7 +58,8 @@ bdtcut = None
 
 splitprocess = None # do not split any process at particle level
 #splitprocess = 'TTW' # split TTW process at particle level
-splitvariables = '../variables/variables_particlelevel_single.json'
+splitvariables = None
+#splitvariables = '../variables/variables_particlelevel_single.json'
 
 outputdir = 'output_20230418_single'
 
@@ -94,7 +95,8 @@ for year in years:
     cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
     cmd += ' --exe ' + exe
-    cmd += ' --splitprocess TTW' # (only relevant for runanalysis2)
+    if splitprocess is not None: cmd += ' --splitprocess {}'.format(splitprocess)
+    if splitvariables is not None: cmd += ' --splitvarfile {}'.format(splitvariables)
     if runlocal: cmd += ' --runmode local'
     if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
     if bdtfile is not None: cmd += ' --bdt ' + bdtfile
