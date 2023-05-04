@@ -1,7 +1,10 @@
 #################################################################################################
 # A very simple submitter that runs runanalysis.py for a number of predefined regions and years #
 #################################################################################################
-# update: can also be used for the runanalysis2 executable.
+# - update: can also be used for the runanalysis2 executable!
+#   runanalysis2 is used for the signal region for differential measurements,
+#   where all samples are put into 2D histograms
+#   and additionally the signal is split into particle level bins.
 
 import os
 import sys
@@ -46,11 +49,16 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
 bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
 bdtcut = None
+
+splitprocess = None # do not split any process at particle level
+#splitprocess = 'TTW' # split TTW process at particle level
+splitvariables = '../variables/variables_particlelevel_single.json'
 
 outputdir = 'output_20230418_single'
 

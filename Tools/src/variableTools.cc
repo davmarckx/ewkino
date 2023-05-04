@@ -6,6 +6,23 @@ Tools for reading collections of histogram variables in txt format
 #include "../interface/variableTools.h"
 
 
+// internal helper functions
+
+int findBin( const std::vector<double>& binedges, double value ){
+    // small helper function to retrieve correct bin number
+    int bin = 0;
+    for( double binedge: binedges ){
+        if( binedge>value ) break;
+        bin++;
+    }
+    // add underflow to first bin
+    if( bin==0 ) bin = 1;
+    // add overflow to last bin
+    if( bin==(int)binedges.size() ) bin = (int)binedges.size()-1;
+    return bin;
+}
+
+
 // class definition of HistogramVariable //
 
 HistogramVariable::HistogramVariable(	const std::string& name,
@@ -47,6 +64,10 @@ std::string HistogramVariable::toString() const{
     for( double binedge: bins() ){ res.append( std::to_string(binedge)+"," ); }
     res.append(" )" );
     return res;
+}
+
+int HistogramVariable::findBinNumber( double value ) const{
+    return findBin( _bins, value );
 }
 
 std::shared_ptr<TH1D> HistogramVariable::initializeHistogram(
@@ -147,20 +168,6 @@ unsigned int DoubleHistogramVariable::nSecondaryBins() const{
 
 unsigned int DoubleHistogramVariable::nTotalBins() const{
     return nPrimaryBins()*nSecondaryBins();
-}
-
-int findBin( const std::vector<double>& binedges, double value ){
-    // small helper function to retrieve correct bin number
-    int bin = 0;
-    for( double binedge: binedges ){
-        if( binedge>value ) break;
-        bin++;
-    }
-    // add underflow to first bin
-    if( bin==0 ) bin = 1;
-    // add overflow to last bin
-    if( bin==(int)binedges.size() ) bin = (int)binedges.size()-1;
-    return bin;
 }
 
 int DoubleHistogramVariable::findBinNumber( double primaryValue, double secondaryValue ) const{

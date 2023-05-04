@@ -26,19 +26,58 @@
 #include "../../Tools/interface/SampleCrossSections.h"
 #include "../../weights/interface/ConcreteReweighterFactory.h"
 #include "../../weights/interface/ReweighterBTagShape.h"
+
+// include analysis tools
 #include "../btagging/interface/bTaggingTools.h"
 #include "../eventselection/interface/eventSelections.h"
 #include "../eventselection/interface/eventFlattening.h"
+#include "../eventselection/interface/eventSelectionsParticleLevel.h"
+#include "../eventselection/interface/eventFlatteningParticleLevel.h"
 
 
-std::string modProcessName( const std::string processName, const std::string selectionType ){
-    // small internal helper function
+std::string modProcessName( const std::string& processName, const std::string& selectionType ){
+    // small internal helper function to modify the process name.
+    // the process name is changed to
+    // - "nonprompt" for selection type "fakerate"
+    // - "chargeflips" for selection type "chargeflips"
+    // - else left unmodified.
     std::string modProcessName = processName;
     if( selectionType=="fakerate" ) modProcessName = "nonprompt";
     if( selectionType=="efakerate" ) modProcessName = "nonprompte";
     if( selectionType=="mfakerate" ) modProcessName = "nonpromptm";
     if( selectionType=="chargeflips" ) modProcessName = "chargeflips";
     return modProcessName;
+}
+
+
+std::vector<std::string> splitProcessNames(
+    const std::string& processName,
+    const std::vector<HistogramVariable>& splitParticleLevelVars,
+    const bool doSplitParticleLevel ){
+    // make process names split on particle level (if requested).
+    // the following process names are made (starting from process TTW and variable _nMuons as example):
+    // TTW0, TTW_nMuons1, ..., TTW_nMuonsN where N is the number of bins.
+    // note that TTW0 is intended for events that do not pass particle level selection.
+    // note: if the process name is "nonprompt" or "chargeflips",
+    //       the doSplitParticleLevel bool is bypassed to be always false
+    //       (as nonprompt and chargeflips are taken from data).
+    std::vector<std::string> splitProcessNames;
+    if( !doSplitParticleLevel
+        || processName=="nonprompt"
+        || processName=="nonprompte"
+        || processName=="nonpromptm"
+        || processName=="chargeflips" ){
+        splitProcessNames = {processName};
+    }
+    else{
+	splitProcessNames.push_back( processName+"0" );
+	for(const HistogramVariable& splitParticleLevelVar: splitParticleLevelVars){
+	    for(int i=1; i<=splitParticleLevelVar.nbins(); i++){
+		splitProcessNames.push_back( processName + splitParticleLevelVar.name() + std::to_string(i) );
+	    }
+        }
+    }
+    return splitProcessNames;
 }
 
 
@@ -50,15 +89,17 @@ std::map< std::string,     // process
     std::shared_ptr<TH1D> > > > > > initHistMap(
     const std::vector<std::string>& processNames,
     const bool isData,
+    const bool doSplitParticleLevel,
+    const std::vector<HistogramVariable>& splitParticleLevelVars,
     const std::vector<std::string>& eventSelections,
     const std::vector<std::string>& selectionTypes,
     const std::vector<HistogramVariable>& histVars,
     const std::vector<std::string>& systematics,
     unsigned numberOfPdfVariations=100,
     unsigned numberOfQcdScaleVariations=6,
-    const std::vector<std::string> allJecVariations={},
-    const std::vector<std::string> groupedJecVariations={},
-    const std::vector<std::string> bTagShapeSystematics={} ){
+    const std::vector<std::string>& allJecVariations={},
+    const std::vector<std::string>& groupedJecVariations={},
+    const std::vector<std::string>& bTagShapeSystematics={} ){
     // make map of histograms
     // the resulting map has five levels: 
     // map[process name][event selection][selection type][variable name][systematic]
@@ -81,10 +122,14 @@ std::map< std::string,     // process
 	for(std::string eventSelection: eventSelections){
 	    // loop over selection types
 	    for(std::string selectionType: selectionTypes){
-		std::string thisProcessName = modProcessName(processName,selectionType);
+		std::string modifiedProcessName = modProcessName(processName,selectionType);
 		// loop over variables
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
+		    // make process names split on particle level (if needed)
+                    std::vector<std::string> splittedProcessNames = splitProcessNames(modifiedProcessName,
+			splitParticleLevelVars, doSplitParticleLevel);
+                    for( std::string thisProcessName: splittedProcessNames ){
 		    // form the histogram name
 		    std::string baseName = thisProcessName+"_"+eventSelection+"_"+selectionType+"_"+variableName;
 		    baseName = stringTools::removeOccurencesOf(baseName," ");
@@ -169,12 +214,127 @@ std::map< std::string,     // process
 			    histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
 			    histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			}
-		    }
-		}
-	    }
+		    } // systematics
+		    } // particle level process names
+		} // variables
+	    } // selection types
+	} // event selections
+    } // process names
+    return histMap;
+}
+
+
+std::shared_ptr<TH1D> findHistogramToFill(
+    const std::map< std::string, // process
+            std::map< std::string, // event selection
+            std::map< std::string, // selection type
+            std::map< std::string, // variable
+            std::map< std::string, // systematic
+            std::shared_ptr<TH1D> > > > > >& histMap,
+    const std::string& processName,
+    const std::string& eventSelection,
+    const std::string& selectionType,
+    const std::string& systematic,
+    const HistogramVariable& variable,
+    bool doSplitParticleLevel,
+    const HistogramVariable& splitParticleLevelVar,
+    bool passParticleLevel,
+    double valueParticleLevel ){
+    // helper function to find the correct histogram to fill in the map.
+    // for the case where no split in particle level is made, this is straightforward;
+    // but in case of split, need to find the correctly modified process name.
+    // note: if the process name is "nonprompt" or "chargeflips",
+    //       the doSplitParticleLevel bool is bypassed to be always false
+    //       (as nonprompt and chargeflips are taken from data).
+    std::string thisProcessName = processName;
+    std::string variableName = variable.name();
+    if( doSplitParticleLevel
+	&& processName!="nonprompt" 
+	&& processName!="nonprompte" 
+	&& processName!="nonpromptm" 
+	&& processName!="chargeflips" ){
+        // if event does not pass particle level, use appendix 0
+        if( !passParticleLevel ){ thisProcessName = processName + "0"; }
+        // else use appendix bin number
+        else{
+            int binNumber = splitParticleLevelVar.findBinNumber( valueParticleLevel );
+            thisProcessName = processName + splitParticleLevelVar.name() + std::to_string(binNumber);
+        }
+    }
+    // find the histogram in the map
+    try{
+        return histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(systematic);
+    }
+    catch(...){
+        std::string msg = "ERROR in findHistogramToFill: histogram not found in the map!";
+        msg.append(" Error occurred for following key:\n");
+        msg.append("  - process name: "+thisProcessName+"\n");
+        msg.append("  - event selection: "+eventSelection+"\n");
+        msg.append("  - selection type: "+selectionType+"\n");
+        msg.append("  - variable name: "+variableName+"\n");
+        msg.append("  - systematic: "+systematic+"\n");
+        throw std::runtime_error(msg);
+    }
+}
+
+
+void fillHistogram(
+    const std::map< std::string, // process
+            std::map< std::string, // event selection
+            std::map< std::string, // selection type
+            std::map< std::string, // variable
+            std::map< std::string, // systematic
+            std::shared_ptr<TH1D> > > > > >& histMap,
+    const std::string& processName,
+    const std::string& eventSelection,
+    const std::string& selectionType,
+    const std::string& systematic,
+    const HistogramVariable& variable,
+    double value, double weight,
+    bool doSplitParticleLevel, 
+    const HistogramVariable& splitParticleLevelVar,
+    bool passParticleLevel,
+    double valueParticleLevel){
+    // small helper function to find correct histogram in the map and fill it.
+    std::shared_ptr<TH1D> histogramToFill = findHistogramToFill(
+        histMap, processName, eventSelection, selectionType, systematic,
+        variable, doSplitParticleLevel, splitParticleLevelVar, 
+	passParticleLevel, valueParticleLevel );
+    histogram::fillValue(histogramToFill.get(), value, weight);
+}
+
+
+void fillHistograms(
+    const std::map< std::string, // process
+            std::map< std::string, // event selection
+            std::map< std::string, // selection type
+            std::map< std::string, // variable
+            std::map< std::string, // systematic
+            std::shared_ptr<TH1D> > > > > >& histMap,
+    const std::string& processName,
+    const std::string& eventSelection,
+    const std::string& selectionType,
+    const std::string& systematic,
+    const HistogramVariable& variable,
+    double value, double weight,
+    bool doSplitParticleLevel,
+    const std::vector<HistogramVariable>& splitParticleLevelVars,
+    bool passParticleLevel,
+    const std::map<std::string, double>& varmapParticleLevel){
+    // extension of the above, looping over multiple variables at particle level
+    if( !doSplitParticleLevel || !passParticleLevel ){
+	fillHistogram( histMap, processName, eventSelection, selectionType, systematic,
+            variable, value, weight, doSplitParticleLevel, variable, false, 0. );
+	// (last three arguments are just dummy values needed for syntax but not used.)
+    }
+    else{
+	for( const HistogramVariable& splitParticleLevelVar: splitParticleLevelVars ){
+	    double valueParticleLevel = varmapParticleLevel.at(splitParticleLevelVar.variable());
+	    fillHistogram( histMap, processName, eventSelection, selectionType, systematic,
+		variable, value, weight, doSplitParticleLevel, splitParticleLevelVar,
+		passParticleLevel, valueParticleLevel );
 	}
     }
-    return histMap;
 }
 
 
@@ -191,6 +351,8 @@ void fillSystematicsHistograms(
             const std::string& electronCFMap,
 	    unsigned long nEntries,
             bool forceNEntries,
+	    bool doSplitParticleLevel,
+	    const std::vector<HistogramVariable>& splitParticleLevelVars,
 	    const std::string& bdtWeightsFile,
 	    double bdtCutValue,
             std::vector<std::string>& systematics ){
@@ -242,7 +404,7 @@ void fillSystematicsHistograms(
     bool hasBTagShapeReweighter = reweighter.hasReweighter("bTag_shape");
     std::vector<std::string> bTagShapeSystematics;
     std::map< std::string, std::map< std::string, std::map< int, double >>> bTagWeightMap;
-    if( hasBTagShapeReweighter and !treeReader.isData() ){
+    if( hasBTagShapeReweighter && !treeReader.isData() ){
 	// find available b-tagging systematics
 	std::cout << "finding available b-tagging systematics..." << std::endl;
         bTagShapeSystematics = dynamic_cast<const ReweighterBTagShape*>(
@@ -384,6 +546,7 @@ void fillSystematicsHistograms(
 	std::map< std::string, // systematic
         std::shared_ptr<TH1D> > > > > > histMap = initHistMap(
 	processNames, treeReader.isData(), 
+	doSplitParticleLevel, splitParticleLevelVars,
 	event_selections, selection_types, histVars, systematics,
 	numberOfPdfVariations, 6, 
 	allJECVariations, groupedJECVariations,
@@ -423,20 +586,37 @@ void fillSystematicsHistograms(
     }
     std::cout<<"starting event loop for "<<numberOfEntries<<" events."<<std::endl;
     for(long unsigned entry = 0; entry < numberOfEntries; entry++){
-        if(entry%10000 == 0) std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl;
+	// printouts for progress checking
+        if(entry%1000 == 0){
+            if(entry < 10000 || (entry%10000 == 0)){
+                std::cout<<"processed: "<<entry<<" of "<<numberOfEntries<<std::endl; }
+        }
 
 	// build the event
 	Event event = treeReader.buildEvent(
                         entry,
                         false,false,
                         considerjecall,
-                        considerjecgrouped);
+                        considerjecgrouped,
+			doSplitParticleLevel );
 
 	// initialize map of variables
         std::map<std::string,double> varmap = eventFlattening::initVarMap();
         // (store nominal event variables, call only once and use for all weight systematics)
         std::map<std::string,double> accvarmap = eventFlattening::initVarMap();
         // (store acceptance-modified event variables, can be overwritten per acceptance variation)
+	std::map<std::string,double> varmapParticleLevel = eventFlatteningParticleLevel::initVarMap();
+	// (store variables at particle level)
+
+	// calculate particle-level event variables
+	// note: event selection at particle level is always the signal region!
+        bool passParticleLevel = false;
+        if(doSplitParticleLevel){
+            if( eventSelectionsParticleLevel::passES(event, "signalregion_dilepton_inclusive") ){
+                passParticleLevel = true;
+                varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
+            }
+        }
 
 	// loop over event selections and selection types
 	for( std::string event_selection: event_selections ){
@@ -451,7 +631,7 @@ void fillSystematicsHistograms(
 	
 	// modify the process name for some selection types
 	std::string thisProcessName = modProcessName(processName,selection_type);
-	
+
 	// fill nominal histograms
 	bool passnominal = true;
 	double nominalWeight = 0;
@@ -472,8 +652,11 @@ void fillSystematicsHistograms(
 	    for(HistogramVariable histVar: histVars){
 		std::string variableName = histVar.name();
 		std::string variable = histVar.variable();
-		histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at("nominal").get(),
-				      varmap.at(variable), nominalWeight );
+		fillHistograms( histMap, thisProcessName, 
+		    event_selection, selection_type, "nominal",
+		    histVar, varmap.at(variable), nominalWeight,
+		    doSplitParticleLevel, splitParticleLevelVars,
+		    passParticleLevel, varmapParticleLevel );
 		// for fake rates from data, need to create systematic histograms
 		// (in order for the merging to work properly);
 		// loop over all systematics and fill with nominal values
@@ -522,8 +705,11 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
-			histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					      accvarmap.at(variable), weight);
+			fillHistograms( histMap, thisProcessName,
+			    event_selection, selection_type, upvar,
+			    histVar, accvarmap.at(variable), weight,
+			    doSplitParticleLevel, splitParticleLevelVars,
+			    passParticleLevel, varmapParticleLevel );
 		    }
 		}
 		// and with down variation
@@ -545,8 +731,11 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
                         std::string variableName = histVar.name();
                         std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-                                              accvarmap.at(variable), weight);
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, accvarmap.at(variable), weight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                     }
 		}
 		// skip checking other systematics as they are mutually exclusive
@@ -587,8 +776,11 @@ void fillSystematicsHistograms(
 			for(HistogramVariable histVar: histVars){
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
-			    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisupvar).get(),
-						  accvarmap.at(variable), weight);
+			    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, accvarmap.at(variable), weight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 			}
 		    }
 		    // and with down variation
@@ -618,8 +810,11 @@ void fillSystematicsHistograms(
 			for(HistogramVariable histVar: histVars){
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
-			    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+thisdownvar).get(),
-						  accvarmap.at(variable), weight);
+			    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, accvarmap.at(variable), weight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 			}
 		    }
 		}
@@ -641,10 +836,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
 		    std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(), 
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -662,10 +863,16 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
-			histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+btagsys+"Up").get(),
-                                          varmap.at(variable), upWeight);
-			histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(systematic+"_"+btagsys+"Down").get(),
-                                          varmap.at(variable), downWeight);
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, systematic+"_"+btagsys+"Up",
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, systematic+"_"+btagsys+"Down",
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		    }
 		}
 	    }
@@ -685,10 +892,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();	    
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -699,11 +912,17 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();      
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
-                }
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+		}
                 // skip checking other systematics as they are mutually exclusive
                 continue;
 	    }
@@ -722,10 +941,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -736,10 +961,16 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                 }
                 // skip checking other systematics as they are mutually exclusive
                 continue;
@@ -752,10 +983,16 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                 }
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -766,10 +1003,16 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                 }
                 // skip checking other systematics as they are mutually exclusive
                 continue;
@@ -787,10 +1030,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -801,10 +1050,16 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                 }
                 // skip checking other systematics as they are mutually exclusive
                 continue;
@@ -817,10 +1072,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-		    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -831,10 +1092,16 @@ void fillSystematicsHistograms(
                 for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                 }
                 // skip checking other systematics as they are mutually exclusive
                 continue;
@@ -853,10 +1120,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-					  varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-					  varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -884,8 +1157,11 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
 			std::string variableName = histVar.name();
 			std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
-					      varmap.at(variable), qcdweight);
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, temp,
+                            histVar, varmap.at(variable), qcdweight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		    }
                 }
 		// skip checking other systematics as they are mutually exclusive
@@ -897,10 +1173,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-                                          varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-                                          varmap.at(variable), downWeight);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -915,10 +1197,12 @@ void fillSystematicsHistograms(
 		    for(HistogramVariable histVar: histVars){
                         std::string variableName = histVar.name();
                         std::string variable = histVar.variable();
-                        histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(temp).get(),
-                                              varmap.at(variable), pdfweight);
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, temp,
+                            histVar, varmap.at(variable), pdfweight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
                     }		    
-
 		    // printouts for testing: 
                     /*double relweight = event.generatorInfo().relativeWeightPdfVar(i);
                     double xsecrat = xsecs.get()->crossSectionRatio_pdfVar(i);
@@ -939,10 +1223,16 @@ void fillSystematicsHistograms(
 		for(HistogramVariable histVar: histVars){
 		    std::string variableName = histVar.name();
                     std::string variable = histVar.variable();
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(upvar).get(),
-                                          varmap.at(variable), upWeight);
-                    histogram::fillValue( histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
-                                          varmap.at(variable), downWeight);   
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+                    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
 		}
 		// skip checking other systematics as they are mutually exclusive
                 continue;
@@ -964,7 +1254,7 @@ void fillSystematicsHistograms(
     for(std::string event_selection: event_selections){
     for(std::string selection_type: selection_types){
 	// modify the process name for some selection types
-        std::string thisProcessName = modProcessName(processName,selection_type);
+        std::string modifiedProcessName = modProcessName(processName,selection_type);
 	if( treeReader.isData() && !(selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate") ) continue;
         if( selection_type=="chargeflips" ) continue;
 	for( std::string systematic : systematics ){
@@ -973,6 +1263,9 @@ void fillSystematicsHistograms(
 		std::string upvar = "pdfShapeEnvUp";
 		std::string downvar = "pdfShapeEnvDown";
 		for(HistogramVariable histVar: histVars){
+		std::vector<std::string> splittedProcessNames = splitProcessNames(
+                    modifiedProcessName, splitParticleLevelVars, doSplitParticleLevel );
+                for( std::string thisProcessName: splittedProcessNames){
 		    // first initialize the up and down variations to be equal to nominal
 		    // (needed for correct envelope computation)
 		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
@@ -999,11 +1292,16 @@ void fillSystematicsHistograms(
 			std::cout << histMap[thisPName][variable][upvar]->GetBinContent(i) << std::endl;
 			std::cout << histMap[thisPName][variable][downvar]->GetBinContent(i) << std::endl;
 		    }*/
-		}
+		} // end loop over split process names
+		} // end loop over variables
 		// do rms
 		upvar = "pdfShapeRMSUp";
 		downvar = "pdfShapeRMSDown";
 		for(HistogramVariable histVar: histVars){
+		std::vector<std::string> splittedProcessNames = splitProcessNames(
+                    modifiedProcessName, splitParticleLevelVars, doSplitParticleLevel );
+                for( std::string thisProcessName: splittedProcessNames){
+		    // first find nominal
 		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
 		    // print for testing
 		    /*std::cout << variable << " before rmsing" << std::endl;
@@ -1024,12 +1322,16 @@ void fillSystematicsHistograms(
 			std::cout << histMap[thisPName][variable][upvar]->GetBinContent(i) << std::endl;
 			std::cout << histMap[thisPName][variable][downvar]->GetBinContent(i) << std::endl;
 		    }*/
-		}
+		} // end loop over split process names
+		} // end loop over variables
 	    }
 	    else if(systematic=="qcdScalesShapeVar"){
 		std::string upvar = "qcdScalesShapeEnvUp";
 		std::string downvar = "qcdScalesShapeEnvDown";
 		for(HistogramVariable histVar: histVars){
+		std::vector<std::string> splittedProcessNames = splitProcessNames(
+                    modifiedProcessName, splitParticleLevelVars, doSplitParticleLevel );
+                for( std::string thisProcessName: splittedProcessNames){
 		    // first initialize the up and down variations to be equal to nominal
 		    // (needed for correct envelope computation)
 		    std::shared_ptr<TH1D> nominalHist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(histVar.name()).at("nominal");
@@ -1058,7 +1360,8 @@ void fillSystematicsHistograms(
 		    std::cout << "scale down:" << std::endl;
 		    for(int i=1; i<histMap[thisPName][variable][downvar]->GetNbinsX()+1; ++i){
 			std::cout << histMap[thisPName][variable][downvar]->GetBinContent(i) << std::endl; }*/
-		}
+		} // end loop over split process names
+		} // end loop over variables
 	    }
 	} // end loop over systematics to fill envelope and/or RMS
     } } // end loop over event selections and selection types to fill envelope and/or RMS
@@ -1073,7 +1376,7 @@ void fillSystematicsHistograms(
 	outputFilePath += inputFileName;
 	TFile* outputFilePtr = TFile::Open( outputFilePath.c_str() , "RECREATE" );
 	// modify the process name for some selection types
-        std::string thisProcessName = modProcessName(processName,selection_type);
+        std::string modifiedProcessName = modProcessName(processName,selection_type);
 	// loop over variables
 	for(HistogramVariable histVar: histVars){
 	    std::string variableName = histVar.name();
@@ -1087,6 +1390,10 @@ void fillSystematicsHistograms(
 		doClip = false;
 	    }
 	    if( selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate" ) doClip = false;
+	    // loop over split process names
+            std::vector<std::string> splittedProcessNames = splitProcessNames(
+                modifiedProcessName, splitParticleLevelVars, doSplitParticleLevel );
+            for( std::string thisProcessName: splittedProcessNames){
 	    // first find nominal histogram for this variable
 	    std::shared_ptr<TH1D> nominalhist = histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName).at("nominal");
 	    // if nominal histogram is empty, fill with dummy value (needed for combine);
@@ -1149,7 +1456,8 @@ void fillSystematicsHistograms(
 		if( doClip ) histogram::clipHistogram(hist.get());
 		// save histograms
 		hist->Write();
-	    }
+	    } // end loop over rest of histograms
+	    } // end loop over split process names for writing histograms
 	} // end loop over variables for writing histograms
 	outputFilePtr->Close();
     } } // end loop over event selections and selection types for writing histograms
@@ -1160,7 +1468,7 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    int nargs = 15;
+    int nargs = 17;
     if( argc != nargs+1 ){
         std::cerr << "ERROR: runanalysis.cc requires " << std::to_string(nargs) << " arguments to run...: " << std::endl;
         std::cerr << "input_directory" << std::endl;
@@ -1177,6 +1485,8 @@ int main( int argc, char* argv[] ){
 	std::cerr << "forcenevents" << std::endl;
         std::cerr << "bdt weight file (use 'nobdt' to not evaluate the BDT)" << std::endl;
 	std::cerr << "bdt cut value (use a small value to not cut on BDT score)" << std::endl;
+	std::cerr << "do split at particle level" << std::endl;
+	std::cerr << "particle level split variable file (use dummy if no split)" << std::endl;
 	std::cerr << "systematics (comma-separated list) (use 'none' for no systematics)" << std::endl;
         return -1;
     }
@@ -1199,7 +1509,9 @@ int main( int argc, char* argv[] ){
     bool forcenevents = ( argvStr[12]=="true" || argvStr[12]=="True" );
     std::string& bdtWeightsFile = argvStr[13];
     double bdtCutValue = std::stod(argvStr[14]);
-    std::string& systematicstr = argvStr[15];
+    bool doSplitParticleLevel = ( argvStr[15]=="true" || argvStr[15]=="True" );
+    std::string& splitParticleLevelVarFile = argvStr[16];
+    std::string& systematicstr = argvStr[17];
     std::vector<std::string> systematics;
     if( systematicstr!="none" ){
 	systematics = stringTools::split(systematicstr,",");
@@ -1221,6 +1533,8 @@ int main( int argc, char* argv[] ){
     std::cout << "  - force number of events: " << std::to_string(forcenevents) << std::endl;
     std::cout << "  - BDT weights file: " << bdtWeightsFile << std::endl;
     std::cout << "  - BDT cut value: " << bdtCutValue << std::endl;
+    std::cout << "  - do split particle level: " << std::to_string(doSplitParticleLevel) << std::endl;
+    std::cout << "  - split particle level variable file: " << splitParticleLevelVarFile << std::endl;
     std::cout << "  - systematics:" << std::endl;
     for( std::string systematic: systematics ) std::cout << "      " << systematic << std::endl;
 
@@ -1236,8 +1550,9 @@ int main( int argc, char* argv[] ){
     for(HistogramVariable histVar: histVars){
         std::string variable = histVar.variable();
         if( emptymap.find(variable)==emptymap.end() ){
-            std::string msg = "ERROR: variable '"+variable+"' not recognized.";
-            throw std::runtime_error(msg);
+            std::string msg = "ERROR: variable " + variable + " not found";
+	    msg.append( " in the per-event variable map!" );
+            throw std::invalid_argument(msg);
         }
     }
 
@@ -1247,7 +1562,26 @@ int main( int argc, char* argv[] ){
     // check validity of systematics
     for(std::string systematic : systematics){
 	std::string testsyst = systematicTools::systematicType(systematic);
-	if(testsyst=="ERROR") return -1;
+	if(testsyst=="ERROR"){
+	    std::string msg = "ERROR: systematic " + testsyst + " returned an error.";
+            throw std::invalid_argument(msg);
+	}
+    }
+
+    // initialize variables for split at particle level if requested
+    std::vector<HistogramVariable> splitParticleLevelVars;
+    if( doSplitParticleLevel ){
+	splitParticleLevelVars = variableTools::readVariables( splitParticleLevelVarFile );
+	// check variables
+	std::map<std::string,double> emptymapPL = eventFlatteningParticleLevel::initVarMap();
+	for(const HistogramVariable& splitParticleLevelVar: splitParticleLevelVars){
+	    std::string variable = splitParticleLevelVar.variable();
+	    if( emptymapPL.find(variable)==emptymapPL.end() ){
+		std::string msg = "ERROR: variable " + variable + " not found";
+		msg.append(" in the particle-level per-event variable map.");
+		throw std::invalid_argument(msg);
+	    }
+        }
     }
 
     // fill the histograms
@@ -1255,6 +1589,7 @@ int main( int argc, char* argv[] ){
 			       histVars, event_selections, selection_types, 
 			       muonfrmap, electronfrmap, electroncfmap, 
                                nevents, forcenevents,
+			       doSplitParticleLevel, splitParticleLevelVars,
 			       bdtWeightsFile, bdtCutValue,
 			       systematics );
 

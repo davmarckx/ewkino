@@ -39,6 +39,7 @@ class HistogramVariable{
 	double xhigh() const{ return _xhigh; }
         std::vector<double> bins() const{ return _bins; }
 	std::string toString() const;
+	int findBinNumber( double value ) const;
 	std::shared_ptr<TH1D> initializeHistogram( const std::string& histName ) const;
 	std::shared_ptr<TH2D> initializeHistogram2D( const std::string& histName ) const;
 

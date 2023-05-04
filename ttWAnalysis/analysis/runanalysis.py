@@ -1,7 +1,10 @@
 ######################################################################
 # python script to run the runanalysis executable via job submission #
 ######################################################################
-# update: can also be used for the runanalysis2 executable.
+# - update: can also be used for the runanalysis2 executable!
+#   runanalysis2 is used for the signal region for differential measurements,
+#   where all samples are put into 2D histograms
+#   and additionally the signal is split into particle level bins.
 
 import sys
 import os
@@ -37,7 +40,7 @@ systematics = ([
   "trigger",
   "prefire",
   # b-tagging
-  "bTag_shape",
+  #"bTag_shape",
   # scale uncertainties
   "fScale",
   "fScaleNorm",
@@ -59,7 +62,7 @@ systematics = ([
   "njets",
   "nbjets"
 ])
-#systematics = []
+systematics = []
 
 
 if __name__=='__main__':
@@ -70,6 +73,9 @@ if __name__=='__main__':
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
+  # list of variables to make histograms for (in json format).
+  # - for runanalysis, should be a list of single variables.
+  # - for runanalysis2, should be a list of double variables.
   parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
   parser.add_argument('--selection_type', default='tight', choices=selection_types, nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
@@ -81,8 +87,16 @@ if __name__=='__main__':
   parser.add_argument('--exe', default='runanalysis', 
                       choices=['runanalysis','runanalysis2'])
   parser.add_argument('--splitprocess', default=None)
-  # (process to split at particle level; only for runsystematics2, 
-  #  ignored for runsystematics)
+  # process name to split at particle level (i.e. usually TTW in this analysis)
+  # - if None, no process will be split at particle level, this is the usual workflow
+  #   for an inclusive measurement with runanalysis.
+  # - if it is specified for runanalysis, the specified process will be split
+  #   according to an externally provided variable and binning (see below).
+  # - if it is specified for runanalysis2, the specified process will be split
+  #   according to the provided double variable (see --variables).
+  parser.add_argument('--splitvarfile', default=None)
+  # list containing the variable used for splitting at particle level
+  # (ignored if exe is runanalysis2 or if splitprocess is None)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
@@ -166,6 +180,17 @@ if __name__=='__main__':
     msg = 'ERROR: you have specified a BDT cut value but no BDT weights file.'
     raise Exception(msg)
 
+  # setup variable for splitting at particle level if requested
+  splitvartxt = 'none'
+  if( args.splitprocess is not None and args.exe=='runanalysis' ):
+    if( args.splitvarfile is None ):
+      msg = 'ERROR: you must specify --splitvarfile'
+      msg += ' if --splitprocess was specified for runanalysis.'
+      raise Exception(msg)
+    splitvarlist = read_variables( args.splitvarfile )
+    splitvartxt = args.splitvarfile.replace('.json','.txt')
+    write_variables_txt( splitvarlist, splitvartxt )
+
   # parse systematics
   if len(systematics)==0: systematics = ['none']
   systematics = ','.join(systematics)
@@ -180,11 +205,13 @@ if __name__=='__main__':
                     muonfrmap, electronfrmap, electroncfmap, 
                     args.nevents, args.forcenevents, bdt, bdtcut )
     # manage particle level splitting
-    if( args.exe=='runanalysis2' ):
-      if( args.splitprocess is not None 
-          and samples.get_samples()[i].process == args.splitprocess ):
-        command += ' true'
-      else: command += ' false'
+    if( args.splitprocess is not None 
+        and samples.get_samples()[i].process == args.splitprocess ):
+      command += ' true'
+    else: command += ' false'
+    # manage particle level splitting using external variable
+    if( args.exe=='runanalysis' ):
+      command += ' {}'.format(splitvartxt)
     # add systematics
     command += ' {}'.format(systematics)
     commands.append(command)

@@ -65,6 +65,8 @@ std::vector<std::string> splitProcessNames(
     std::vector<std::string> splitProcessNames;
     if( !doSplitParticleLevel 
 	|| processName=="nonprompt"
+	|| processName=="nonprompte"
+	|| processName=="nonpromptm"
 	|| processName=="chargeflips" ){ 
 	splitProcessNames = {processName}; 
     }
@@ -113,7 +115,11 @@ std::shared_ptr<TH1D> findHistogramToFill(
     //       (as nonprompt and chargeflips are taken from data).
     std::string variableName = variable.name();
     std::string thisProcessName = processName;
-    if( doSplitParticleLevel && processName!="nonprompt" && processName!="chargeflips" ){
+    if( doSplitParticleLevel 
+	&& processName!="nonprompt" 
+	&& processName!="nonprompte"
+	&& processName!="nonpromptm"
+	&& processName!="chargeflips" ){
 	// if event does not pass particle level, use appendix 0
 	if( !passParticleLevel ){ thisProcessName = processName + "0"; }
 	// else use appendix bin number
