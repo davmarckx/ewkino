@@ -50,7 +50,7 @@ for year in years:
     for npmode in npmodes:
       for cfmode in cfmodes:
         inputdir = os.path.join(topdir, year, region)
-        outputfile = os.path.join(topdir, year, region, 'merged_{}_{}'.format(npmode,cfmode), 'merged_split.root')
+        outputfile = os.path.join(topdir, year, region, 'merged_{}_{}'.format(npmode,cfmode), 'merged.root')
         cmd = 'python merge.py'
         cmd += ' --directory '+inputdir
         cmd += ' --outputfile '+outputfile
