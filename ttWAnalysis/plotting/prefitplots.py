@@ -54,6 +54,8 @@ if __name__=="__main__":
   parser.add_argument('--colormap', default='default')
   parser.add_argument('--signals', default=None, nargs='+')
   parser.add_argument('--extracmstext', default='Preliminary')
+  parser.add_argument('--splitvariable',default=None)
+  parser.add_argument('--splitprocess',default=None)
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true')
   parser.add_argument('--rawsystematics', default=False, action='store_true',
@@ -127,6 +129,12 @@ if __name__=="__main__":
   if not doallprocesses: 
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
+  if args.splitvariable is not None and args.splitprocess is not None:
+    mustcontainone = ['{}_{}'.format(args.splitprocess,args.splitvariable),'{}0_'.format(args.splitprocess)]
+    maynotcontainone=[args.splitprocess]
+    histnames_sig = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
+    histnames_back = lt.subselect_strings(histnames, maynotcontainone=maynotcontainone)[1]
+    histnames = histnames_sig + histnames_back
   # select regions
   mustcontainone = ['_{}_'.format(args.region)]
   histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
@@ -227,6 +235,15 @@ if __name__=="__main__":
     for process in PC.plist:
       simhists.append( PC.processes[process].hist )
 
+    # now we have to rename the split histograms back to TTW0,...,TTW3
+    if args.splitprocess is not None and args.splitvariable is not None:
+      for hist in simhists:
+        oldtitle = hist.GetTitle()
+        lastchar = oldtitle[-1]
+        if( lastchar.isdigit() ):
+          hist.SetName(args.splitprocess + lastchar)
+          hist.SetTitle(args.splitprocess + lastchar)
+
     # get the uncertainty histogram
     mcsysthist = PC.get_systematics_rss()
 
@@ -263,6 +280,8 @@ if __name__=="__main__":
     extrainfos = []
     extrainfos.append( args.year )
     extrainfos.append( regionname )
+    if args.splitvariable is not None and args.splitprocess is not None:
+        extrainfos.append( args.splitprocess + " split on PL " + args.splitvariable )
 
     # for double histogram variables,
     # make a labelmap for better legends
@@ -284,7 +303,9 @@ if __name__=="__main__":
 	    labelmap[oldtitle] = newtitle
 	else:
 	    labelmap[oldtitle] = oldtitle
-
+    
+    if args.splitvariable is not None and args.splitprocess is not None:
+      outfile += '_split_' + args.splitvariable
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 

@@ -12,30 +12,30 @@ import sys
 exe = 'runanalysis'
 
 regions = []
-for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
 for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['cfcontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2016PreVFP']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']
 
 dtypes = ['sim','data']
 #dtypes = ['sim']
 
 selection_types = []
 selection_types.append('tight')
-#selection_types.append('prompt')
+selection_types.append('prompt')
 selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
-#selection_types.append('chargegood')
+selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
@@ -53,15 +53,16 @@ variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
-bdtfile = '../bdtweights/v20230111/XGBfinal_all.root'
+#bdtfile = '../bdtweights/XGBfinal_all.root'
+bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
 bdtcut = None
 
-splitprocess = None # do not split any process at particle level
-#splitprocess = 'TTW' # split TTW process at particle level
-splitvariables = None
-#splitvariables = '../variables/variables_particlelevel_single.json'
+#splitprocess = None # do not split any process at particle level
+splitprocess = 'TTW' # split TTW process at particle level
+#splitvariables = None
+splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_20230418_single'
+outputdir = 'output_format'
 
 nevents = 1e6
 runlocal = False
