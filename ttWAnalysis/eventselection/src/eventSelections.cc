@@ -33,6 +33,10 @@ bool passES(Event& event, const std::string& eventselection,
 		{ "signalregion_dilepton_em", pass_signalregion_dilepton_em },
 		{ "signalregion_dilepton_me", pass_signalregion_dilepton_me },
 		{ "signalregion_dilepton_mm", pass_signalregion_dilepton_mm },
+                { "signalregion_dilepton_pmm", pass_signalregion_dilepton_pmm },
+                { "signalregion_dilepton_nmm", pass_signalregion_dilepton_nmm },
+                { "signalregion_dilepton_pee", pass_signalregion_dilepton_pee },
+                { "signalregion_dilepton_nee", pass_signalregion_dilepton_nee },
 		{ "signalregion_dilepton_plus", pass_signalregion_dilepton_plus },
 		{ "signalregion_dilepton_minus", pass_signalregion_dilepton_minus },
 		{ "signalregion_trilepton", pass_signalregion_trilepton },
@@ -508,6 +512,28 @@ bool pass_signalregion_dilepton_ee(Event& event, const std::string& selectiontyp
     return false;
 }
 
+bool pass_signalregion_dilepton_pee(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with two same sign electrons
+    if( !pass_signalregion_dilepton_inclusive(event,
+        selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isElectron()
+         && event.leptonCollection()[1].isElectron()
+         && event.leptonCollection()[0].charge() == 1 ){ return true; }
+    return false;
+    }
+
+bool pass_signalregion_dilepton_nee(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with two same sign electrons
+    if( !pass_signalregion_dilepton_inclusive(event,
+        selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isElectron()
+         && event.leptonCollection()[1].isElectron() 
+         && event.leptonCollection()[0].charge() == -1 ){ return true; }
+    return false;
+    }
+
 bool pass_signalregion_dilepton_em(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     // signal region with same sign electron and muon
@@ -515,6 +541,28 @@ bool pass_signalregion_dilepton_em(Event& event, const std::string& selectiontyp
             selectiontype, variation, selectbjets) ){ return false; }
     if( event.leptonCollection()[0].isElectron()
         && event.leptonCollection()[1].isMuon() ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_pem(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with same sign electron and muon
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isMuon() 
+        && event.leptonCollection()[0].charge() == 1 ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_nem(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with same sign electron and muon
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isMuon() 
+        && event.leptonCollection()[0].charge() == -1 ){ return true; }
     return false;
 }
 
@@ -528,6 +576,28 @@ bool pass_signalregion_dilepton_me(Event& event, const std::string& selectiontyp
     return false;
 }
 
+bool pass_signalregion_dilepton_pme(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with same sign muon and electron
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isMuon()
+        && event.leptonCollection()[1].isElectron() 
+        && event.leptonCollection()[0].charge() == 1 ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_nme(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with same sign muon and electron
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isMuon()
+        && event.leptonCollection()[1].isElectron() 
+        && event.leptonCollection()[0].charge() == -1 ){ return true; }
+    return false;
+}
+
 bool pass_signalregion_dilepton_mm(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     // signal region with two same sign muons
@@ -535,6 +605,28 @@ bool pass_signalregion_dilepton_mm(Event& event, const std::string& selectiontyp
             selectiontype, variation, selectbjets) ){ return false; }
     if( event.leptonCollection()[0].isMuon()
         && event.leptonCollection()[1].isMuon() ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_pmm(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with two same sign muons
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isMuon()
+        && event.leptonCollection()[1].isMuon() 
+        && event.leptonCollection()[0].charge() == 1 ){ return true; }
+    return false;
+}
+
+bool pass_signalregion_dilepton_nmm(Event& event, const std::string& selectiontype,
+                                const std::string& variation, const bool selectbjets){
+    // signal region with two same sign muons
+    if( !pass_signalregion_dilepton_inclusive(event,
+            selectiontype, variation, selectbjets) ){ return false; }
+    if( event.leptonCollection()[0].isMuon()
+        && event.leptonCollection()[1].isMuon() 
+        && event.leptonCollection()[0].charge() == -1 ){ return true; }
     return false;
 }
 
