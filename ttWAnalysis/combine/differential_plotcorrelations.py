@@ -14,6 +14,7 @@ import argparse
 import outputparsetools as opt
 sys.path.append(os.path.abspath('../../Tools/python'))
 from variabletools import read_variables
+import argparsetools as apt
 
 def make_cov_from_corr(corr, uncs):
   ### make a covariance matrix from a correlation matrix
@@ -55,8 +56,14 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Parse combine output')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--variables', required=True, type=os.path.abspath)
+  parser.add_argument('--inputfile', default=None, type=apt.path_or_none)
+  parser.add_argument('--datacarddir', default=None, type=apt.path_or_none)
+  parser.add_argument('--variables', default=None, type=apt.path_or_none)
+  # (note: one should either provide an input json file,
+  #  i.e. the output of differential_readoutput,
+  #  OR a datacard directory and variable list,
+  #  to make the plots without the intermediate step of differential_readoutput.
+  #  in the former case, the --method, --usedata and --usecr args are ignored.)
   parser.add_argument('--outputdir', required=True)
   parser.add_argument('--method', default='multidimfit', choices=['multidimfit'])
   parser.add_argument('--usedata', default=False, action='store_true')
@@ -69,62 +76,92 @@ if __name__=='__main__':
     print('  - {}: {}'.format(arg,getattr(args,arg)))
 
   # argument checking
-  if not os.path.exists(args.datacarddir):
-    raise Exception('ERROR: input directory {} does not exist.'.format(args.datacarddir))
+  readinput = False
+  if args.inputfile is not None:
+    # case when input file is provided
+    readinput = True
+    if not os.path.exists(args.inputfile):
+      raise Exception('ERROR: input file {} does not exist.'.format(args.inputfile))
+  else:
+    # case when datacard directory and variable list are provided
+    if not os.path.exists(args.datacarddir):
+      raise Exception('ERROR: input directory {} does not exist.'.format(args.datacarddir))
   method = args.method
   if method == 'multidimfit': method = 'MultiDimFit'
 
   # create output directory
   if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
 
+  # read input file if requested
+  infodict = None
+  if readinput:
+    with open(args.inputfile,'r') as f:
+      infodict = json.load(f)
+
   # loop over variables
-  variables = read_variables(args.variables)
-  varnames = [var.name for var in variables]
+  varnames = []
+  if readinput: varnames = infodict.keys()
+  else:
+    variables = read_variables(args.variables)
+    varnames = [var.name for var in variables]
   for varname in varnames:
 
-    # find relevant workspace in the directory
-    starttag = 'datacard'
-    if args.usecr: starttag = 'dc_combined'
-    wspaces = ([ f for f in os.listdir(args.datacarddir)
+    if not readinput:
+      # case where no input file is provided,
+      # need to read the results from datacard directory
+      starttag = 'datacard'
+      if args.usecr: starttag = 'dc_combined'
+      wspaces = ([ f for f in os.listdir(args.datacarddir)
                  if (f.startswith(starttag) and varname in f and f.endswith('.root')) ])
-    if len(wspaces)!=1:
-      print('ERROR: wrong number of workspaces, skipping variable {}.'.format(varname))
-      continue
-    wspace = wspaces[0]
-    card = wspace.replace('.root','.txt')
-    # first read results from txt file to get the pois
-    dummy = opt.read_multidimfit(args.datacarddir, card,
+      if len(wspaces)!=1:
+        print('ERROR: wrong number of workspaces, skipping variable {}.'.format(varname))
+        continue
+      wspace = wspaces[0]
+      card = wspace.replace('.root','.txt')
+      # first read results from txt file to get the pois
+      dummy = opt.read_multidimfit(args.datacarddir, card,
                    statonly=False, mode='txt',
                    usedata=args.usedata, pois='auto')
-    pois = sorted(dummy.keys())
-    npois = len(pois)
-    # read stat-only correlation
-    statresults = opt.read_multidimfit(args.datacarddir, card,
+      pois = sorted(dummy.keys())
+      npois = len(pois)
+      # read stat-only correlation
+      statresults = opt.read_multidimfit(args.datacarddir, card,
                    statonly=True, correlations=True, mode='root',
                    usedata=args.usedata, pois=pois)
-    statss = statresults[0]
-    statcorr = statresults[1]
-    # read total result
-    totresults = opt.read_multidimfit(args.datacarddir, card,
+      statss = statresults[0]
+      statcorr = statresults[1]
+      # read total result
+      totresults = opt.read_multidimfit(args.datacarddir, card,
                    statonly=False, correlations=True, mode='root',
                    usedata=args.usedata, pois=pois)
-    totss = totresults[0]
-    totcorr = totresults[1]
-    # check for errors
-    if( len(statss.keys())==0 or len(totss.keys())==0 ):
-      msg = 'WARNING: some values appear to be missing for workspace {};'.format(wspace)
-      msg += ' please check combine output files for unexpected format or failed fits.'
-      print(msg)
+      totss = totresults[0]
+      totcorr = totresults[1]
+      # check for errors
+      if( len(statss.keys())==0 or len(totss.keys())==0 ):
+        msg = 'WARNING: some values appear to be missing for workspace {};'.format(wspace)
+        msg += ' please check combine output files for unexpected format or failed fits.'
+        print(msg)
 
-    # make covariance matrices
-    (statcovdown, statcovup) = make_updown_cov_from_corr(statcorr, statss)
-    (totcovdown, totcovup) = make_updown_cov_from_corr(totcorr, totss)
-    syscovdown = copy.deepcopy(totcovdown)
-    syscovup = copy.deepcopy(totcovup)
-    for key1 in pois:
-      for key2 in pois:
-        syscovdown[key1][key2] = totcovdown[key1][key2] - statcovdown[key1][key2]
-        syscovup[key1][key2] = totcovup[key1][key2] - statcovup[key1][key2]
+      # make covariance matrices
+      (statcovdown, statcovup) = make_updown_cov_from_corr(statcorr, statss)
+      (totcovdown, totcovup) = make_updown_cov_from_corr(totcorr, totss)
+      syscovdown = copy.deepcopy(totcovdown)
+      syscovup = copy.deepcopy(totcovup)
+      for key1 in pois:
+        for key2 in pois:
+          syscovdown[key1][key2] = totcovdown[key1][key2] - statcovdown[key1][key2]
+          syscovup[key1][key2] = totcovup[key1][key2] - statcovup[key1][key2]
+
+    else:
+      # case where input file is provided
+      pois = sorted(infodict[varname]['pois'].keys())
+      npois = len(pois)
+      statcorr = infodict[varname]['statcorr']
+      totcorr = infodict[varname]['totcorr']
+      statcovdown = infodict[varname]['statcovdown']
+      statcovup = infodict[varname]['statcovup']
+      syscovdown = infodict[varname]['syscovdown']
+      syscovup = infodict[varname]['syscovup']
 
     # printouts to check the calculation
     doprint = False

@@ -7,6 +7,9 @@ import os
 import json
 import argparse
 import ROOT
+sys.path.append('tools')
+from uncertaintyprop import normalizexsec
+from uncertaintyprop import sstoxsec
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 import listtools as lt
@@ -59,6 +62,10 @@ if __name__=='__main__':
                       help='Comma-separated list of additional info to display on plot'
                           +' (e.g. simulation year or selection region).'
                           +' Use underscores for spaces.')
+  parser.add_argument('--absolute', default=False, action='store_true',
+                      help='If specified, do not divide by bin width,'
+                          +' so y-axis unit is in fb instead of fb/GeV.'
+                          +' Mostly for testing purposes.')
   args = parser.parse_args()
 
   # print arguments
@@ -208,22 +215,32 @@ if __name__=='__main__':
     PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag )
     PC = ProcessCollection( PIC, args.inputfile )
 
+    # make some copies of reference histograms before dividing by bin width
+    # (note: do not forget to scale by xsec and lumi below!)
+    nominalrefs = []
+    for process in processes:
+      nominalrefs.append( PC.processes[process].get_nominal().Clone() )
+
     # divide bin contents by bin widths in all histograms
-    for hist in PC.get_allhists():
-      for i in range(1,hist.GetNbinsX()+1):
-        binwidth = hist.GetBinWidth(i)
-        hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
-        hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+    if not args.absolute:
+      for hist in PC.get_allhists():
+        for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
 
     # make a second ProcessCollection and normalize all its histograms
     # to unit surface area
     PC_norm = ProcessCollection( PIC, args.inputfile )
     for hist in PC_norm.get_allhists():
-      for i in range(1,hist.GetNbinsX()+1):
-        binwidth = hist.GetBinWidth(i)
-        hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
-        hist.SetBinError(i, hist.GetBinError(i)/binwidth)
-      hist.Scale(1./hist.Integral('width'))
+      if not args.absolute:
+        for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+        hist.Scale(1./hist.Integral('width'))
+      else:
+        hist.Scale(1./hist.Integral())
 
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
@@ -252,28 +269,36 @@ if __name__=='__main__':
       nominalhists_norm.append(nominalhist)
       systhists_norm.append(systhist)
 
-    # do scaling with hCounter
+    # do scaling with hCounter (for non-normalized histograms)
     for i, process in enumerate(processes):
       hcounter = hcounters[i]
       xsection = xsections[i]
       sumweights = nominalhists[i].GetSumOfWeights()
       scale = xsection/hcounter
-      print('Rescaling process {}:'.format(process))
-      print('  - sum of weights in histogram: {}'.format(sumweights))
-      print('  - hcounter: {}'.format(hcounter))
-      print('  - xsection: {}'.format(xsection))
-      print('  --> selection efficiency: {}'.format(sumweights/hcounter))
-      print('  --> fiducial cross-section: {}'.format(sumweights/hcounter*xsection))
-      print('  --> rescaling factor: {}'.format(scale))
+      # printouts for testing
+      doprint = False
+      if doprint:
+        print('Rescaling process {}:'.format(process))
+        print('  - sum of weights in histogram: {}'.format(sumweights))
+        print('  - hcounter: {}'.format(hcounter))
+        print('  - xsection: {}'.format(xsection))
+        print('  --> selection efficiency: {}'.format(sumweights/hcounter))
+        print('  --> fiducial cross-section: {}'.format(sumweights/hcounter*xsection))
+        print('  --> rescaling factor: {}'.format(scale))
       nominalhists[i].Scale(scale)
       systhists[i].Scale(scale)
+      nominalrefs[i].Scale(scale)
 
     # find signal strengths
-    datahist = nominalhists[0].Clone()
-    statdatahist = nominalhists[0].Clone()
+    datahist = nominalrefs[0].Clone()
+    statdatahist = nominalrefs[0].Clone()
+    normdatahist = nominalrefs[0].Clone()
+    normstatdatahist = nominalrefs[0].Clone()
     if signalstrengths is None:
       datahist.Reset()
       statdatahist.Reset()
+      normdatahist.Reset()
+      normstatdatahist.Reset()
     else:
       thisss = signalstrengths.get(variablename,None)
       if thisss is None:
@@ -282,26 +307,61 @@ if __name__=='__main__':
         print(msg)
         datahist.Reset()
         statdatahist.Reset()
-      elif len(thisss)!=datahist.GetNbinsX():
+        normdatahist.Reset()
+        normstatdatahist.Reset()
+      elif len(thisss['pois'])!=datahist.GetNbinsX():
         msg = 'ERROR: number of signal strengths and number of bins do not agree'
         msg += ' for variable {},'.format(variablename)
         msg += ' setting data to zero.'
         print(msg)
         datahist.Reset()
         statdatahist.Reset()
+        normdatahist.Reset()
+        normstatdatahist.Reset()
       else:
+        # convert signal strengths to absolute cross sections
+        # (note: not divided by bin width, so values in fb)
+        pred = {}
+        for i in range(1, nominalrefs[0].GetNbinsX()+1):
+          pred['r_TTW{}'.format(i)] = datahist.GetBinContent(i)
+        thisxsec = sstoxsec(thisss, pred)
+        # fill the histograms for absolute cross sections
         for i in range(1, datahist.GetNbinsX()+1):
-          ss = thisss[i-1][0]
-          if len(thisss[i-1])==3:
-            error = max(thisss[i-1][1],thisss[i-1][2])
+          poi = 'r_TTW{}'.format(i)
+          if len(thisxsec['pois'][poi])==3:
+            error = max(thisxsec['pois'][poi][1], thisxsec['pois'][poi][2])
             staterror = 0
-          elif len(thisss[i-1])==5:
-            error = max(thisss[i-1][3],thisss[i-1][4])
-            staterror = max(thisss[i-1][1],thisss[i-1][2])
-          datahist.SetBinContent(i, datahist.GetBinContent(i)*ss)
-          datahist.SetBinError(i, datahist.GetBinContent(i)*error/ss)
-          statdatahist.SetBinContent(i, datahist.GetBinContent(i))
-          statdatahist.SetBinError(i, datahist.GetBinContent(i)*staterror/ss)
+          elif len(thisxsec['pois'][poi])==5:
+            error = max(thisxsec['pois'][poi][3], thisxsec['pois'][poi][4])
+            staterror = max(thisxsec['pois'][poi][1], thisxsec['pois'][poi][2])
+          datahist.SetBinContent(i, thisxsec['pois'][poi][0])
+          datahist.SetBinError(i, error)
+          statdatahist.SetBinContent(i, thisxsec['pois'][poi][0])
+          statdatahist.SetBinError(i, staterror)
+        # calculate normalized cross-sections
+        thisnormxsec = normalizexsec(thisxsec)
+        # fill normalized histograms
+        for i in range(1, normdatahist.GetNbinsX()+1):
+          poi = 'r_TTW{}'.format(i)
+          if len(thisnormxsec[poi])==3:
+            error = max(thisnormxsec[poi][1], thisnormxsec[poi][2])
+            staterror = 0
+          elif len(thisnormxsec[poi])==5:
+            errordown = (thisnormxsec[poi][1]**2 + thisnormxsec[poi][3]**2)**(0.5)
+            errorup = (thisnormxsec[poi][2]**2 + thisnormxsec[poi][4]**2)**(0.5)
+            error = max(errordown, errorup)
+            staterror = max(thisnormxsec[poi][1], thisnormxsec[poi][2])
+          normdatahist.SetBinContent(i, thisnormxsec[poi][0])
+          normdatahist.SetBinError(i, error)
+          normstatdatahist.SetBinContent(i, thisnormxsec[poi][0])
+          normstatdatahist.SetBinError(i, staterror)
+        # divide by bin width
+        if not args.absolute:
+          for hist in [datahist, statdatahist, normdatahist, normstatdatahist]:
+            for i in range(1,hist.GetNbinsX()+1):
+              binwidth = hist.GetBinWidth(i)
+              hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+              hist.SetBinError(i, hist.GetBinError(i)/binwidth)
 
     # make extra infos to display on plot
     extrainfos = []
@@ -323,6 +383,10 @@ if __name__=='__main__':
     if var.unit is not None: yaxunit_norm = '(1/{})'.format(var.unit)
     yaxtitle = 'd#sigma / d{} ({})'.format(yaxdenom,yaxunit)
     yaxtitle_norm = '1/#sigma d#sigma / d{} {}'.format(yaxdenom,yaxunit_norm)
+    if args.absolute:
+      yaxunit = 'fb'
+      yaxtitle = '#sigma ({})'.format(yaxunit)
+      yaxtitle_norm = '#sigma (normalized)'
     extracmstext = 'Preliminary'
 
     # set lumi value to display
@@ -351,9 +415,9 @@ if __name__=='__main__':
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'
     plotdifferential(
-        nominalhists_norm, datahist,
+        nominalhists_norm, normdatahist,
         systhists=systhists_norm,
-        statdatahist=statdatahist,
+        statdatahist=normstatdatahist,
         figname=figname_norm,
         yaxtitle=yaxtitle_norm, xaxtitle=xaxtitle,
         drawoptions='hist e',

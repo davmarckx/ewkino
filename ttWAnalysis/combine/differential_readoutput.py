@@ -5,8 +5,10 @@
 import sys
 import os
 import json
+import copy
 import argparse
 import outputparsetools as opt
+from differential_plotcorrelations import make_updown_cov_from_corr
 sys.path.append(os.path.abspath('../../Tools/python'))
 from variabletools import read_variables
 
@@ -30,16 +32,29 @@ if __name__=='__main__':
   # argument checking
   if not os.path.exists(args.datacarddir):
     raise Exception('ERROR: input directory {} does not exist.'.format(args.datacarddir))
+  if not args.outputfile.endswith('.json'):
+    raise Exception('ERROR: output file must have .json extension')
   method = args.method
   if method == 'multidimfit': method = 'MultiDimFit'
 
   # initialize result dict
+  # structure of the info dict:
+  # variable names:
+  #   'pois':
+  #     POI names:
+  #       list of [central, statdown, statup, total down, total up]
+  #   'syscovdown': dict of systematic down covariance matrix
+  #   'syscovup': dict of systematic up covariance matrix
+  #   'statcovdown': dict of statistical down covariance matrix
+  #   'statcovup': dict of statistical up covariance matrix
   info = {}
 
   # find and loop over variables
   variables = read_variables(args.variables)
   varnames = [var.name for var in variables]
   for varname in varnames:
+    print('Running on variable {}'.format(varname))
+
     # find relevant workspace in the directory
     starttag = 'datacard'
     if args.usecr: starttag = 'dc_combined'
@@ -50,23 +65,69 @@ if __name__=='__main__':
       continue
     wspace = wspaces[0]
     card = wspace.replace('.root','.txt')
-    # read stat-only result
-    statdict = opt.read_multidimfit(args.datacarddir, card,
-                   statonly=True, usedata=args.usedata, pois='auto')
+
+    # first read results from txt file to get the pois
+    dummy = opt.read_multidimfit(args.datacarddir, card,
+                   statonly=False, mode='txt',
+                   usedata=args.usedata, pois='auto')
+    pois = sorted(dummy.keys())
+    npois = len(pois)
+    print('  Found pois: {}'.format(pois))
+    # read stat-only correlation
+    try:
+      statresults = opt.read_multidimfit(args.datacarddir, card,
+                     statonly=True, correlations=True, mode='root',
+                     usedata=args.usedata, pois=pois)
+      statss = statresults[0]
+      statcorr = statresults[1]
+    except:
+      msg = 'WARNING: could not read stat-only results for variable {},'.format(varname)
+      msg += ' skipping this variable.'
+      print(msg)
+      continue
+    
     # read total result
-    totdict = opt.read_multidimfit(args.datacarddir, card,
-                   statonly=False, usedata=args.usedata, pois='auto')
+    try:
+      totresults = opt.read_multidimfit(args.datacarddir, card,
+                     statonly=False, correlations=True, mode='root',
+                     usedata=args.usedata, pois=pois)
+      totss = totresults[0]
+      totcorr = totresults[1]
+    except:
+      msg = 'WARNING: could not read total fit results for variable {},'.format(varname)
+      msg += ' skipping this variable.'
+      print(msg)
+      continue
+
     # check for errors
-    if( len(statdict.keys())==0 or len(totdict.keys())==0 ):
+    if( len(statss.keys())==0 or len(totss.keys())==0 ):
       msg = 'WARNING: some values appear to be missing for workspace {};'.format(wspace)
       msg += ' please check combine output files for unexpected format or failed fits.'
       print(msg)
+
+    # make covariance matrices
+    (statcovdown, statcovup) = make_updown_cov_from_corr(statcorr, statss)
+    (totcovdown, totcovup) = make_updown_cov_from_corr(totcorr, totss)
+    syscovdown = copy.deepcopy(totcovdown)
+    syscovup = copy.deepcopy(totcovup)
+    for key1 in pois:
+      for key2 in pois:
+        syscovdown[key1][key2] = totcovdown[key1][key2] - statcovdown[key1][key2]
+        syscovup[key1][key2] = totcovup[key1][key2] - statcovup[key1][key2]
+
     # format
-    thisinfo = []
-    for key in sorted(totdict.keys()):
-      (r,down,up) = totdict[key]
-      (_, statdown, statup) = statdict[key]
-      thisinfo.append( [r,statdown,statup,down,up] )
+    thisinfo = {}
+    thisinfo['pois'] = {}
+    for poi in pois:
+      (r,down,up) = totss[poi]
+      (_, statdown, statup) = statss[poi]
+      thisinfo['pois'][poi] = [r,statdown,statup,down,up]
+    thisinfo['statcorr'] = statcorr
+    thisinfo['totcorr'] = totcorr
+    thisinfo['syscovdown'] = syscovdown
+    thisinfo['syscovup'] = syscovup
+    thisinfo['statcovdown'] = statcovdown
+    thisinfo['statcovup'] = statcovup
     keyname = varname.replace('eventBDT','') # find cleaner way later
     info[keyname] = thisinfo
 
