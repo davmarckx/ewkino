@@ -45,9 +45,9 @@ def makepvalplot( binvalues, binedges, tdata, pval=None,
     if dolegend: ax.legend(loc='upper right')
     if title is not None: ax.set_title(title)
     if pval is not None: 
-	ax.text(0.65,0.7,'p-value: {}'.format(pval),transform=ax.transAxes)
+	ax.text(0.98,0.7,'p-value: {:.2f}'.format(pval),transform=ax.transAxes,ha='right')
     for i,info in enumerate(extrainfos):
-	ax.text(0.65,0.7-(i+1)*0.05,info,transform=ax.transAxes)
+	ax.text(0.98,0.7-(i+1)*0.05,info,transform=ax.transAxes,ha='right')
     return (fig,ax)
 
 
@@ -59,6 +59,10 @@ if __name__=='__main__':
     # (note: workspace can be a single workspace (.root extension) or a directory.
     #  in the latter case, all goodness of fit output files in that directory will be used
     #  to create a summary plot)
+    parser.add_argument('--includetags', default=[], nargs='+',
+      help='Tags to select workspaces to include (in case --workspace is a directory)')
+    parser.add_argument('--excludetags', default=[], nargs='+',
+      help='Tags to deselect workspaces to include (in case --workspace is a directory)')
     parser.add_argument('--outputfile', default=None)
     parser.add_argument('--nbins', type=int, default=30)
     parser.add_argument('--extrainfos', default=None,
@@ -105,10 +109,23 @@ if __name__=='__main__':
                       if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.123456.root'))])
         if len(datafiles)!=len(toyfiles):
             raise Exception('ERROR: numbers of data files and toy files do not agree.')
-        print('Found {} files.'.format(len(datafiles)))
+        print('Found {} files (before selection).'.format(len(datafiles)))
         names = [el.split('.')[0].replace('higgsCombine','') for el in datafiles]
         for name,df,tf in zip(names,datafiles,toyfiles):
+            # do selection
+            if len(args.excludetags)>0:
+                select = True
+                for tag in args.excludetags:
+                    if tag in name: select = False
+                if not select: continue
+            if len(args.includetags)>0:
+                select = False
+                for tag in args.includetags:
+                    if tag in name: select = True
+                if not select: continue
+            # add to file structure
             goffiles[name] = (os.path.join(args.workspace,df), os.path.join(args.workspace,tf))
+        print('Selected {} files.'.format(len(goffiles)))
 
     # loop over goodness of fit files and collect results
     info = {}
@@ -164,7 +181,12 @@ if __name__=='__main__':
         # case of summary plot
         else:
             names = sorted(info.keys())
-            fig,axs = plt.subplots(nrows=len(names), ncols=1)
+            # determine size of figure
+            figsize = None
+            if len(names)>8: figsize = (6.4, 4.8 + 0.4*(len(names)-8))
+            fig,axs = plt.subplots(nrows=len(names), ncols=1, figsize=figsize)
+            if len(names)>8: fig.subplots_adjust(bottom=0.11-0.003*(len(names)-8), top=0.88+0.005*(len(names)-8))
+            # fill individual axes
             for i,name in enumerate(names):
                 ax = axs[i]
                 (hist,binedges) = np.histogram( info[name]['ttoys'], bins=args.nbins, density=True )
@@ -173,7 +195,16 @@ if __name__=='__main__':
                                        fig=fig, ax=ax )
                 ax.set_xticks([])
                 ax.set_yticks([])
-                ax.text(0.65, 0.4, 'Fit: {}'.format(name), transform=ax.transAxes)
+                # modify name to display
+                # (note: depends on naming convention, not generally applicable)
+                displayname = name.replace('datacard_','').replace('dc_combined_','')
+                displayname = displayname.replace('_', ' ')
+                displayname = displayname.replace('signalregion','SR')
+                displayname = displayname.replace('controlregion','CR')
+                displayname = displayname.replace('dilepton','2L')
+                displayname = displayname.replace('trilepton','3L')
+                displayname = displayname.replace('fourlepton','4L')
+                ax.text(0.98, 0.3, 'Fit: {}'.format(displayname), transform=ax.transAxes, ha='right')
             fig.text(0.5, 0.03, 'Test statistic', ha='center', fontsize=15)
             fig.text(0.03, 0.5, 'Probability', va='center', rotation='vertical', fontsize=15)
             axs[0].legend(loc='lower center', bbox_to_anchor=(0., 1., 1.,1.), ncol=2)

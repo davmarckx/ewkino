@@ -35,12 +35,35 @@ if __name__=='__main__':
     # loop over workspaces
     for workspace in args.workspaces:
 
+        # check if provided workspace is actually a workspace or rather a datacard
+        dotext2ws = False
+        if workspace.endswith('.root'): pass
+        elif workspace.endswith('.txt'):
+            ws = os.path.splitext(workspace)[0] + '.root'
+            if os.path.exists(ws):
+                msg = 'WARNING: provided workspace {} seems to be a datacard,'.format(workspace)
+                msg += ' but the associated workspace {} exists,'.format(ws)
+                msg += ' will run on that one.'
+                print(msg)
+                workspace = ws
+            else:
+                msg = 'WARNING: provided workspace {} seems to be a datacard,'.format(workspace)
+                msg += ' and the associated workspace {} does not exist,'.format(ws)
+                msg += ' will create the workspace and run on it.'
+                print(msg)
+                dotext2ws = True
+
         # get directory and datacard from provided workspace
-        card = workspace.replace('.root','.txt')
+        card = os.path.splitext(workspace)[0] + '.txt'
         (datacarddir, card) = os.path.split(card)
 
         # execute goodness-of-fit commands
-        commands = cbt.get_gof_commands( datacarddir, card, ntoys=args.ntoys )
+        commands = []
+        if dotext2ws:
+            for c in cbt.get_workspace_commands( datacarddir, card ):
+                commands.append(c)
+        for c in cbt.get_gof_commands( datacarddir, card, ntoys=args.ntoys ):
+            commands.append(c)
         if( args.runmode=='condor' ):
             ct.submitCommandsAsCondorJob( 'cjob_gof_run', commands,
               cmssw_version=CMSSW_VERSION )
