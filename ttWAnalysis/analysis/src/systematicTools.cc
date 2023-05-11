@@ -32,6 +32,7 @@ std::string systematicTools::systematicType( const std::string systematic ){
 	    or systematic=="trigger"
             or systematic=="njets"
             or systematic=="nbjets"
+            or systematic=="njetscf"
             or systematic=="bTag_heavy" 
 	    // (old method, replaced by bTag_shape)
             or systematic=="bTag_light" 

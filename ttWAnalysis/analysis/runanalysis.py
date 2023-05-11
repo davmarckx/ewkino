@@ -60,7 +60,8 @@ systematics = ([
   "fsrNorm",
   # extra uncertainties for high jet multiplicities
   "njets",
-  "nbjets"
+  "nbjets",
+  "njetscf"
 ])
 systematics = []
 

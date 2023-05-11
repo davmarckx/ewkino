@@ -8,7 +8,8 @@
     "_bTag_shape_lfstats2",
     "_bTag_shape_hfstats1",
     "_bTag_shape_hfstats2",
-    "_trigger"
+    "_trigger",
+    "_njetscf"
   ],
   "decorrelate_processes": [
     "_qcdScalesNorm",

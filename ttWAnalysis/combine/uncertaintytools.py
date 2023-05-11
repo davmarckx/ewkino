@@ -69,6 +69,15 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
     rmspecific[p].append('njets')
     rmspecific[p].append('nbjets')
 
+  # remove second nJets uncertainty for all but chargeflips,
+  # and keep it only in 2017 and 2018
+  for p in processes:
+    if( p=='Chargeflips' ): continue
+    rmspecific[p].append('njetscf')
+  if year is not None:
+    if( year!='2017' and year!='2018' ):
+      rmspecific['Chargeflips'].append('njetscf')
+
   # remove individual qcd and pdf variations
   # (if not done so before)
   rmforall.append('qcdScalesShapeVar*')
