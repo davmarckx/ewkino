@@ -32,7 +32,7 @@ class ProcessInfo(object):
     self.pyield = pyield
     self.histname = histname
     self.systematics = systematics
-    for key,val in systematics:
+    for key,val in systematics.items():
       if not self.check_systematic_val( val ):
         msg = 'ERROR in ProcessInfo.init:'
         msg += ' systematics argument contains unrecognized value:'
@@ -614,6 +614,95 @@ class ProcessInfoCollection(object):
     f.Close()
     return parsehistlist(histnames, variable, **kwargs )
 
+  @staticmethod
+  def fromdatacard( datacard, adddata=False ):
+    ### convert a datacard to a ProcessInfoCollection
+    # note: for now only works on elementary datacards,
+    #       i.e. corresponding to a single plot.
+    with open(datacard, 'r') as f:
+        lines = [line.strip(' \t\n') for line in f.readlines()]
+    # group the lines in blocks divided by separators
+    # (note: depends on conventional datacard creation with separators!)
+    separator = '--------------------'
+    blocks = []
+    startidx = 0
+    for i,line in enumerate(lines):
+        if line==separator:
+            block = [lines[j] for j in range(startidx,i)]
+            blocks.append(block)
+            startidx = i+1
+    lastblock = [lines[j] for j in range(startidx,i+1)]
+    blocks.append(lastblock)
+    if len(blocks)!=7:
+        msg = 'ERROR: number of blocks is {}'.format(len(blocks))
+        msg += ' while 7 were expected.'
+        msg += ' Check the datacard formatting.'
+        raise Exception(msg)
+    # get a list of processes from the 'process' line
+    # (note: alternatively, could get it from the 'shapes' block,
+    #        but not sure if the correct order is guaranteed there)
+    pline = ''
+    pidline = ''
+    for i,line in enumerate(lines):
+        if line.startswith('process'):
+            pline = line
+            pidline = lines[i+1]
+            break
+    processes = pline.split()[1:]
+    pids = [int(el) for el in pidline.split()[1:]]
+    # get histogram base names from the 'shapes' block
+    hbase = {}
+    for line in blocks[1]:
+        elements = line.split()
+        p = elements[1]
+        if p=='data_obs': continue
+        hbase[p] = elements[4].replace('nominal','')
+    if sorted(hbase.keys())!=sorted(processes):
+        msg = 'ERROR: could not determine histogram base name for all processes.'
+        msg += ' Check the datacard formatting.'
+        raise Exception(msg)
+    # get systematics for each process
+    psysdict = {}
+    for p in processes: psysdict[p] = {}
+    for line in blocks[4]+blocks[5]:
+        elements = line.split()
+        systematic = elements[0]
+        stype = elements[1]
+        impacts = elements[2:]
+        if len(impacts)!=len(processes):
+            msg = 'ERROR: number of columns does not agree'
+            msg += ' for systematic {}.'.format(systematic)
+        for i,p in enumerate(processes):
+            if impacts[i]=='-':
+                psysdict[p][systematic] = '-'
+            elif( stype=='shape' and float(impacts[i])==1. ):
+                upname = hbase[p]+systematic+'Up'
+                downname = hbase[p]+systematic+'Down'
+                psysdict[p][systematic] = (upname, downname)
+            elif( stype=='lnN' ):
+                psysdict[p][systematic] = float(impacts[i])
+            else:
+                msg = 'ERROR: could not interpret systematic {}'.format(systematic)
+                msg += ' for process {}'.format(p)
+    # make a ProcessInfoCollection
+    PIC = ProcessInfoCollection()
+    for i,p in enumerate(processes):
+        PI = ProcessInfo(p, pid=pids[i], histname=hbase[p]+'nominal', systematics=psysdict[p])
+        PIC.addprocess(PI)
+    # add data if requested
+    if adddata:
+        dhname = ''
+        for line in blocks[1]:
+            elements = line.split()
+            p = elements[1]
+            if p=='data_obs':
+                dhname = elements[4]
+                break
+        if len(dhname)==0:
+            raise Exception('ERROR: could not find data histogram.')
+        PIC.adddata( dhname )
+    return PIC
+
 
 class ProcessCollection(object):
   ### collection of Process instances with common info and functions
@@ -630,6 +719,12 @@ class ProcessCollection(object):
     self.processes = {}
     for pname,pinfo in self.info.pinfos.items():
       self.processes[pname] = Process( pinfo, rootfile )
+    self.datahist = None
+    if self.info.datahistname is not None:
+      f = ROOT.TFile.Open(rootfile, 'read')
+      self.datahist = f.Get(self.info.datahistname)
+      self.datahist.SetDirectory(0)
+      f.Close()
 
   # to extend this class according to arising needs,
   # e.g. sum of nominal processes, linear sum of systematics,
