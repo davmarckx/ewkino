@@ -9,28 +9,31 @@ import condorTools as ct
 from jobSettings import CMSSW_VERSION
 
 inputdir = sys.argv[1]
-runmode = 'local'
+runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['signalregion_dilepton_plus']: regions.append(r)
+for r in ['signalregion_dilepton_minus']: regions.append(r)
+for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 years.append('run2')
 
-npmodes = ['npfromdata', 'npfromdatasplit']
+npmodes = ['npfromdata']#, 'npfromdatasplit']
 cfmodes = ['cffromdata']
 
 dolog = True
 
 variables = '../variables/variables_main.json'
+#variables = '../variables/variables_eventbdt.json'
 
 colormap = 'ttw'
 
