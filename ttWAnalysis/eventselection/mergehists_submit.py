@@ -28,7 +28,7 @@ selectmode = 'custom'
 
 doclip = True
 
-runmode = 'local'
+runmode = 'condor'
 
 for year in years:
   for npmode in npmodes:

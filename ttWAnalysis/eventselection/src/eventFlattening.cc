@@ -3,6 +3,7 @@
 // include constants (particle masses)
 #include "../../../constants/particleMasses.h"
 #include <TLorentzVector.h>
+#include <math.h>
 
 using namespace eventFlattening;
 // definition of the variables used for filling the ouput TTree
@@ -718,7 +719,9 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	auto y = bdt->Compute(x);
 	// std::cout<< y(0,0);
 	// get the score out of the RTensor
-	varmap["_eventBDT"] = float(y(0,0));
+	//varmap["_eventBDT"] = float(y(0,0));
+	auto y_norm = 2*float(y(0,0)) - 1;
+        varmap["_eventBDT"] = 1 / (1 + exp(-1*y_norm / 0.3));
     }
 
     // definition of categorization variables
