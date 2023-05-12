@@ -64,7 +64,7 @@ splitvariables = None
 
 outputdir = 'output_all_shape'
 
-nevents = -1
+nevents = 1e6
 runlocal = False
 
 submit_selection_types_combined = True

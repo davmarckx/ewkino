@@ -40,7 +40,7 @@ samplelistbase = 'samples_tttt_{}_{}.txt'
 #bdtfile = None
 bdtfile = '../bdtweights/XGBfinal_all.root'
 
-nevents = -1
+nevents = 1e6
 
 outputdir = 'flattened_3lep'
 
