@@ -8,7 +8,7 @@
 import sys
 import os
 
-def mergefolders( inputdir, years ):
+def mergefolders( inputdir, years,remove ):
   # loop over years
   for year in years:
     simdir = os.path.join(inputdir,year+'_sim')
@@ -23,18 +23,30 @@ def mergefolders( inputdir, years ):
       continue
     # make the commands
     cmds = []
-    cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),simdir) )
-    cmds.append( 'rm -r {}'.format(datadir) )
-    cmds.append( 'mv {} {}'.format(simdir,mergeddir) )
-    # run the commands
-    for cmd in cmds:
-      os.system(cmd)
+    if remove:
+      cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),simdir) )
+      cmds.append( 'rm -r {}'.format(datadir) )
+      cmds.append( 'mv {} {}'.format(simdir,mergeddir) )
+      # run the commands
+      for cmd in cmds:
+        os.system(cmd)
+    else:
+      cmds.append( 'mkdir {}'.format(mergeddir) )
+      cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),mergeddir) )
+      cmds.append( 'cp -rl {} {}'.format(os.path.join(simdir,'*'),mergeddir) )
+      # run the commands
+      for cmd in cmds:
+        os.system(cmd)
 
 if __name__=='__main__':
 
   # settings
   inputdir = sys.argv[1]
+  if len(sys.argv) == 3:
+      remove = (sys.argv[2] == "1")
+  else:
+      remove = True
   years = ['2016PreVFP','2016PostVFP','2017','2018']
 
   # call main function
-  mergefolders(inputdir, years)
+  mergefolders(inputdir, years, remove)

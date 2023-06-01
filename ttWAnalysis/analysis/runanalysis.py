@@ -61,9 +61,9 @@ systematics = ([
   # extra uncertainties for high jet multiplicities
   "njets",
   "nbjets",
-  "njetscf"
+  #"njetscf"
 ])
-systematics = []
+# systematics = []
 
 
 if __name__=='__main__':

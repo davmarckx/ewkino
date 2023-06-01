@@ -60,6 +60,7 @@ int main( int argc, char* argv[] ){
 
     // initialize some histograms
     HistInfo histInfo = HistInfo( "nVertices", "nVertices", 60, -0.5, 59.5 );
+    HistInfo histInfo_weights = HistInfo( "weights", "weights", 60, 0., 4. );
     std::map< std::string, std::map< std::string, std::shared_ptr<TH1D> >> histograms;
     std::vector< std::string > snapshots = {"unweightedpreselection",
 					    "unweightedpostselection",
@@ -70,6 +71,9 @@ int main( int argc, char* argv[] ){
 	histograms[snapshot]["up"] = histInfo.makeHist( snapshot+"_up" );
 	histograms[snapshot]["down"] = histInfo.makeHist( snapshot+"_down" );
     }
+    histograms["weights"]["nominal"] = histInfo_weights.makeHist( "weights_nominal" );
+    histograms["weights"]["up"] = histInfo_weights.makeHist( "weights_up" );
+    histograms["weights"]["down"] = histInfo_weights.makeHist( "weights_down" );
     
     // make the pileup reweighter
     std::string pileupWeightPath = std::string("../../weightFilesUL/pileupWeights/")
@@ -114,6 +118,10 @@ int main( int argc, char* argv[] ){
                                       nVertices, reweighterPileup->weightUp(event) );
             histogram::fillValue( histograms["weightedpostselection"]["down"].get(),
                                       nVertices, reweighterPileup->weightDown(event) );
+            histogram::fillValue( histograms["weights"]["up"].get(),
+                                      reweighterPileup->weightUp(event),1 );
+            histogram::fillValue( histograms["weights"]["down"].get(),
+                                      reweighterPileup->weightDown(event),1 );
 	}
     }
 
@@ -124,5 +132,7 @@ int main( int argc, char* argv[] ){
         histograms[snapshot]["up"]->Write();
         histograms[snapshot]["down"]->Write();
     }
+    histograms["weights"]["up"]->Write();
+    histograms["weights"]["down"]->Write();
     filePtr->Close();
 }

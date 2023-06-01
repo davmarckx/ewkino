@@ -8,6 +8,8 @@ import sys
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['ee','em','me','mm','plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['pee','pem','pme','pmm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['nee','nem','nme','nmm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
@@ -15,7 +17,7 @@ for r in ['ee','em','me','mm','plus','minus']: regions.append('signalregion_dile
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2016PreVFP']
+#years = ['2018']
 
 dtypes = []
 dtypes.append('sim')
@@ -40,7 +42,8 @@ cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
-variables = '../variables/variables_main.json'
+#variables = '../variables/variables_main.json'
+variables = '../variables/variables_eventbdt.json'
 
 #bdtfile = None
 #bdtfile = '../bdtweights/XGBfinal_all.root'
@@ -51,7 +54,7 @@ nevents = -1
 
 runmode = 'condor'
 
-outputdir = 'output_chargesplit_oldbdtv3newbgrd'
+outputdir = 'output_bdtscoretransform_v4'
 
 for year in years:
   for dtype in dtypes:

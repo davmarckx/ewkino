@@ -221,16 +221,16 @@ def makeJobDescription(name, exe, argstring=None,
     print('makeJobDescription created {}'.format(fname))
 
 #settings for each year, found with gridsearch
-years = ['2016PreVFP','2016PostVFP','2017','2018', 'all']
-lr = ['0.01','0.05','0.05','0.05','0.1']
-depth = '2'
-n_estimators = ['5','2','4','3','2']
+years = ['all']
+lr = ['0.1','0.1']
+depths = ['3','3']
+n_estimators = ['3000','2000']
 
 
 commands = []
 for i in range(len(years)):
-    print("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depth + " " + n_estimators[i])
-    commands.append("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depth + " " + n_estimators[i])
+    print("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depths[i] + " " + n_estimators[i])
+    commands.append("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depths[i] + " " + n_estimators[i])
 
 submitCommandsAsCondorCluster('cjob_ROC', commands, stdout=None, stderr=None, log=None,
                         cpus=4, mem=2048, disk=10240,

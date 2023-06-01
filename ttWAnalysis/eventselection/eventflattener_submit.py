@@ -7,29 +7,32 @@ import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
 
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
-years = ['2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2018']
 
 selection_types = []
 selection_types.append('tight')
 #selection_types.append('prompt')
 selection_types.append('fakerate')
-selection_types.append('chargeflips')
+#selection_types.append('chargeflips')
 #selection_types.append('chargegood')
-selection_types.append('irreducible')
+#selection_types.append('irreducible')
 
 variations = []
 variations.append('nominal')
+variations.append('JECUp')
+variations.append('JECDown')
+
 
 dtypes = []
 dtypes.append('sim')
-dtypes.append('data')
+#dtypes.append('data')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
@@ -38,11 +41,12 @@ samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
 #bdtfile = None
-bdtfile = '../bdtweights/XGBfinal_all.root'
+bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
 
-nevents = 1e6
 
-outputdir = 'output_test'
+nevents = -1
+
+outputdir = 'flattened_robustness'
 
 for year in years:
   for dtype in dtypes:

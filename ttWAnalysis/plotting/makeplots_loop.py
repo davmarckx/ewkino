@@ -16,6 +16,9 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['signalregion_dilepton_plus']: regions.append(r)
 for r in ['signalregion_dilepton_minus']: regions.append(r)
 for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['pee','pem','pme','pmm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['nee','nem','nme','nmm']: regions.append('signalregion_dilepton_{}'.format(r))
+
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
@@ -27,7 +30,7 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 years.append('run2')
 
-npmodes = ['npfromdata']#, 'npfromdatasplit']
+npmodes = ['npfromdata', 'npfromdatasplit']
 cfmodes = ['cffromdata']
 
 dolog = True

@@ -10,24 +10,24 @@ from jobSettings import CMSSW_VERSION
 import json
 
 inputdir = sys.argv[1]
-runmode = 'local'
+runmode = 'condor'
 
 regions = []
-#for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
-#years.append('run2')
+#years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+years.append('run2')
 
-npmodes = ['npfromdata']
+npmodes = ['npfromdatasplit']
 cfmodes = ['cffromdata']
 
 unblind = True
@@ -38,8 +38,8 @@ rawsystematics = False
 
 dolog = True
 
-variables = '../variables/variables_main.json' # single variables
-#variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
+#variables = '../variables/variables_main.json' # single variables
+variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_njets.json'
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
@@ -54,9 +54,9 @@ datatag = 'Data'
 signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
 
 # split variables can either be a list or a json file
-#splitvariables = ['nBJets','nMuons']
-splitvariables = '../variables/variables_particlelevel_single.json'
-splitprocess = 'TTW'
+splitvariables = ['nBJets']
+#splitvariables = '../variables/variables_particlelevel_single.json'
+splitprocess = 'TTQ'
 
 if isinstance(splitvariables,str):
     with open(splitvariables) as json_file:

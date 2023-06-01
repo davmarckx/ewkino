@@ -26,11 +26,27 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
                         const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_ee(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_pee(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_nee(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_em(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_pem(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_nem(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_me(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_pme(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_nme(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_mm(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_pmm(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_nmm(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_plus(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);

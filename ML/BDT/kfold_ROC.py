@@ -49,35 +49,35 @@ with open('/user/dmarckx/ewkino/ttWAnalysis/eventselection/processes/rename_proc
     dictio = json.load(json_file)
 
 
-fract = 0.001
+fract = 0.2
 if year != 'all':
     alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_{}_dilep_BDT.pkl'.format(year)).sample(frac=fract, random_state=13)
     alle1["year"] = 1
 
 
 else:
-    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2018_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2017_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PostVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
-    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_smallBDT_2016PreVFP_dilep_BDT.pkl').sample(frac=fract, random_state=13)
+    alle1 = pd.read_pickle('../ML_dataframes/trainsets/trainset_robustBDT_2018_robust_BDT.pkl').sample(frac=fract, random_state=13)
+    alle2 = pd.read_pickle('../ML_dataframes/trainsets/trainset_robustBDT_2017_robust_BDT.pkl').sample(frac=fract, random_state=13)
+    alle3 = pd.read_pickle('../ML_dataframes/trainsets/trainset_robustBDT_2016PostVFP_robust_BDT.pkl').sample(frac=fract, random_state=13)
+    alle4 = pd.read_pickle('../ML_dataframes/trainsets/trainset_robustBDT_2016PreVFP_robust_BDT.pkl').sample(frac=fract, random_state=13)
 
-    alle1["year"] = 1
+    alle1["year"] = 2
     alle2["year"] = 1
     alle3["year"] = 0
-    alle4["year"] = 0
+    alle4["year"] = -1
 
     alle1 = pd.concat([alle1, alle2,alle3,alle4], ignore_index=True)
 
 
-other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2018_dilep_BDT.pkl')
-other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2017_dilep_BDT.pkl')
-other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PostVFP_dilep_BDT.pkl')
-other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_smallBDT_2016PreVFP_dilep_BDT.pkl')
+other1 = pd.read_pickle('../ML_dataframes/trainsets/otherset_robustBDT_2018_robust_BDT.pkl')
+other2 = pd.read_pickle('../ML_dataframes/trainsets/otherset_robustBDT_2017_robust_BDT.pkl')
+other3 = pd.read_pickle('../ML_dataframes/trainsets/otherset_robustBDT_2016PostVFP_robust_BDT.pkl')
+other4 = pd.read_pickle('../ML_dataframes/trainsets/otherset_robustBDT_2016PreVFP_robust_BDT.pkl')
 
-other1["year"] = 1
+other1["year"] = 2
 other2["year"] = 1
 other3["year"] = 0
-other4["year"] = 0
+other4["year"] = -1
 
 other1 = pd.concat([other1,other2,other3,other4], ignore_index=True)
 
@@ -92,18 +92,18 @@ other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject th
 
 
 # make training and testing sets
-X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
-       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
 X.loc[X['class'] != 1, 'class'] = 0
 
 y = alle1['class'] 
 
 #make other validation sets
-X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt',
+X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
-       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry'], axis=1)
+       '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 X_other.loc[X_other['class'] != 1, 'class'] = 0
 
@@ -178,8 +178,8 @@ for train_index, test_index in cv.split(X, y):
         fontsize=20,
         transform=ax.transAxes)
     
-    fpr, tpr, thresholds = roc_curve(y_test2.to_numpy(), y_score, sample_weight = weight_test2)
-    fpr_other, tpr_other, tresholds = roc_curve(y_other2.to_numpy(), y_scoreother)
+    fpr, tpr, thresholds = roc_curve(y_test2.astype(int).to_numpy(), y_score.astype(float), sample_weight = weight_test2.astype(float))
+    fpr_other, tpr_other, tresholds = roc_curve(y_other2.astype(int).to_numpy(), y_scoreother.astype(float),sample_weight =weight_other2.astype(float))
     ax.plot(fpr,tpr,lw=1,alpha=0.3, label = "ROC fold {}".format(i))
     ax.plot(fpr_other,tpr_other,lw=1,alpha=0.3, label = "Other backgrounds fold {}".format(i))
     interp_tpr = np.interp(mean_fpr, fpr, tpr)
@@ -189,7 +189,7 @@ for train_index, test_index in cv.split(X, y):
     interp_tpr_other[0] = 0.0
     tprs_other.append(interp_tpr_other)
     aucs.append(roc_auc_score(y_test2, y_score))
-    aucs_other.append(roc_auc_score(y_other2, y_scoreother))
+    aucs_other.append(roc_auc_score(y_other2.astype(int), y_scoreother.astype(float)))
     i += 1
 
 ax.plot([0, 1], [0, 1], linestyle="--", lw=1, color="r", label="Chance", alpha=0.8)
@@ -264,4 +264,4 @@ plt.title("Receiver operating characteristic", fontsize=40)
 
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/kfoldROC_{}_".format(year) + "_" + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/kfoldROC_robustnessv3_{}_".format(year) + "_" + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")

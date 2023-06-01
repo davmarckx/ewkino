@@ -69,7 +69,7 @@ def binary_acc(y_pred, y_test):
 ################### class to convert dataset into tensors #################
 class Dataset(torch.utils.data.Dataset):
 
-    def __init__(self, X, y, y_reg=None,regression=False,weightage=None):
+    def __init__(self, X, y, y_reg=None,regression=False,weightage=None,lepscore):
         self.y_reg = None
         self.weight=None
         if not torch.is_tensor(X):
@@ -338,7 +338,7 @@ def TrainNN2(X_train, y_train,X_test,y_test,weights_train,weights_test,classweig
     trainloader = torch.utils.data.DataLoader(dataset, batch_size=batchsize, shuffle=True)
     mlp = SmallNetwork2(dropval)
   
-    loss_function = nn.CrossEntropyLoss(reduction='none',weight=torch.tensor(classweight))
+    loss_function = nn.CrossEntropyLoss(reduction='none',weight=torch.tensor(classweight)) 
     optimizer = torch.optim.AdamW(mlp.parameters(), lr=learr, betas = (beta1,beta2), amsgrad = False) # consider using AMSgrad when the network trains longer
   
     num_epochs = epochs
@@ -355,7 +355,7 @@ def TrainNN2(X_train, y_train,X_test,y_test,weights_train,weights_test,classweig
             targets = targets.reshape((targets.shape[0], 2))
             optimizer.zero_grad()
             outputs = mlp(inputs)
-            loss = loss_function(outputs, targets)
+            loss = loss_function(outputs, targets) 
             loss = (trainweight * loss).mean()
             loss.backward()
             epoch_loss.append(loss.item())
