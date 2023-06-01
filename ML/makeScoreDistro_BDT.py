@@ -313,7 +313,5 @@ plt.yticks(fontsize= 20)
 #plt.setp(ax.get_xticklabels(), rotation=-30, horizontalalignment='right')
 #plt.legend(title=r'$\bf{Event \; Type}$',prop=dict(weight='bold'),title_fontsize='xx-large', loc='upper right', fancybox=True)
 #ax.legend(['background before final selection','background after correlated BDT selection','background discrete mass decorrelated',"signal", 'background ANN selection'], loc="center right")
-if model_loc == "models/XGB_all_dummyanalysis136_4000_3_0.05.pkl":
-    plt.savefig("withNewTraining.png")
-else: 
-    plt.savefig("withOldExtendedTraining.png")
+
+plt.savefig("scoredistro_trainset.png")

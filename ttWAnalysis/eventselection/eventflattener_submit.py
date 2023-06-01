@@ -6,8 +6,8 @@ import os
 import sys
 
 regions = []
-#for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
 #for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
@@ -26,6 +26,9 @@ selection_types.append('fakerate')
 
 variations = []
 variations.append('nominal')
+variations.append('JECUp')
+variations.append('JECDown')
+
 
 dtypes = []
 dtypes.append('sim')
@@ -38,11 +41,12 @@ samplelistdir = '../samplelists/fourtops'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
 #bdtfile = None
-bdtfile = '../bdtweights/XGBfinal_all.root'
+bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
 
-nevents = 1e6
 
-outputdir = 'flattened_3lep'
+nevents = -1
+
+outputdir = 'flattened_robustness'
 
 for year in years:
   for dtype in dtypes:

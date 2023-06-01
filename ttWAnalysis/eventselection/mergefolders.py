@@ -42,10 +42,10 @@ if __name__=='__main__':
 
   # settings
   inputdir = sys.argv[1]
-  if len(sys.argv) == 2:
+  if len(sys.argv) == 3:
       remove = (sys.argv[2] == "1")
   else:
-      remove = False
+      remove = True
   years = ['2016PreVFP','2016PostVFP','2017','2018']
 
   # call main function

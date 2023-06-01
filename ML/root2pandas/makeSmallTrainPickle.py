@@ -19,7 +19,7 @@ path = path.format(year, region)
 
 dir_list = os.listdir(path)
 #these are the background classes we want to train on
-keeplist = ["TT","TX","TTX","TTZ"]
+keeplist = ["TT","TX","TTX","TTZ","TTH","TTG"]
 
 
 
@@ -42,6 +42,6 @@ for i in range(len(dir_list)):
         df["class"] = dir_list[i].split("_")[0]
         other = pd.concat([other,df], ignore_index=True)
 
-alle.to_pickle('../ML_dataframes/trainsets/trainset_smallBDT_' + year + '_' + region + '.pkl')
-other.to_pickle('../ML_dataframes/trainsets/otherset_smallBDT_' + year + '_' + region + '.pkl')
+alle.to_pickle('../ML_dataframes/trainsets/trainset_robustBDT_' + year + '_' + region + '.pkl')
+other.to_pickle('../ML_dataframes/trainsets/otherset_robustBDT_' + year + '_' + region + '.pkl')
 

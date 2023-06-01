@@ -26,7 +26,7 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 
 dtypes = ['sim','data']
-#dtypes = ['sim']
+#dtypes = ['data']
 
 selection_types = []
 selection_types.append('tight')
@@ -48,13 +48,16 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_main.json' # single variables
+#variables = "../variables/variables_inputfeatures.json"
+variables = '../variables/variables_eventbdt.json' # single variables
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
 #bdtfile = '../bdtweights/XGBfinal_all.root'
-bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root'
+#bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root' #current one 
+bdtfile = '../../ML/models/XGBrobustnessv2_all.root'
 bdtcut = None
 
 splitprocess = None # do not split any process at particle level
@@ -62,9 +65,9 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_all_shape'
+outputdir = 'output_runanalysis_robustness_bdt'
 
-nevents = 1e6
+nevents = -1
 runlocal = False
 
 submit_selection_types_combined = True

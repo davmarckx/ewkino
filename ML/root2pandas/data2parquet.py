@@ -10,11 +10,23 @@ import random
 
 
 
-sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/flattened_allfeatures/{}_signalregion_dilepton_inclusive/"
+sampledirectory = "/user/dmarckx/ewkino/ttWAnalysis/eventselection/flattened_robustness/{}_sim/signalregion_dilepton_inclusive_tight_{}/"
 def makePickle(filename, filetype, nr, year):
-    events = uproot.open(sampledirectory.format(year) + filename)
+    events = uproot.open(sampledirectory.format(year,"nominal") + filename)
+    events_up = uproot.open(sampledirectory.format(year,"JECUp") + filename)
+    events_down = uproot.open(sampledirectory.format(year,"JECDown") + filename)
+
     print(events["blackJackAndHookers/blackJackAndHookersTree"].keys())
     df = events["blackJackAndHookers/blackJackAndHookersTree"].arrays(list(events["blackJackAndHookers/blackJackAndHookersTree"].keys())[0:], library="pd")
+    df["nominal"] = 1
+    dfup = events_up["blackJackAndHookers/blackJackAndHookersTree"].arrays(list(events["blackJackAndHookers/blackJackAndHookersTree"].keys())[0:], library="pd")
+    df["nominal"] = 0
+
+    dfdown = events_down["blackJackAndHookers/blackJackAndHookersTree"].arrays(list(events["blackJackAndHookers/blackJackAndHookersTree"].keys())[0:], library="pd")
+    dfdown["nominal"] = 0
+
+    df = pd.concat([df,dfup,dfdown], ignore_index=True) 
+
     if type(df) is not pd.DataFrame:
         print("warning: it's a tuple of DFs! your root file isn't flattened and can't be guaranteed to be merged correctly")
         for i in range(len(df)):
@@ -28,10 +40,10 @@ def makePickle(filename, filetype, nr, year):
 
             df[0].drop(df[0].filter(regex='_y$').columns, axis=1, inplace=True)
             print(df[0])
-        df[0].to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/dilep_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
+        df[0].to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/robust_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
 
     else:
-        df.to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/dilep_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
+        df.to_pickle('/user/dmarckx/ewkino/ML/ML_dataframes/{}/robust_BDT/'.format(year) + filetype + '_' + str(nr) + '.bz2')
 
 
 print(sys.argv[1] + sys.argv[2] + sys.argv[3], sys.argv[4])

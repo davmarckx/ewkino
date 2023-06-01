@@ -21,4 +21,5 @@ if __name__=='__main__':
 
     (inputdir,inputfile) = os.path.split(inputfile)
     command = '{} {} {} {} {}'.format(exe, inputdir, inputfile, outputfile, nevents)
-    ct.submitCommandAsCondorJob( 'cjob_fillTestReweighterPileup', command )
+    ct.submitCommandAsCondorJob( 'cjob_fillTestReweighterPileup', command,cmssw_version='~/CMSSW_10_6_28' )
+
