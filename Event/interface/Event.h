@@ -84,21 +84,28 @@ class Event{
         double LT() const{ return _leptonCollectionPtr->scalarPtSum(); }
         double metPt() const{ return _metPtr->pt(); }
         
-        //jet selection and cleaning
+        // jet selection and cleaning
         void selectGoodJets() const{ _jetCollectionPtr->selectGoodJets(); }
-        void cleanJetsFromLooseLeptons( const double coneSize = 0.4 ) const{ _jetCollectionPtr->cleanJetsFromLooseLeptons( *_leptonCollectionPtr, coneSize ); }
-        void cleanJetsFromFOLeptons( const double coneSize = 0.4 ) const{ _jetCollectionPtr->cleanJetsFromFOLeptons( *_leptonCollectionPtr, coneSize ); }
-        void cleanJetsFromTightLeptons( const double coneSize = 0.4 ) const{ _jetCollectionPtr->cleanJetsFromTightLeptons( *_leptonCollectionPtr, coneSize ); }
+        void cleanJetsFromLooseLeptons( const double coneSize = 0.4 ) const{ 
+	    _jetCollectionPtr->cleanJetsFromLooseLeptons( *_leptonCollectionPtr, coneSize ); }
+        void cleanJetsFromFOLeptons( const double coneSize = 0.4 ) const{ 
+	    _jetCollectionPtr->cleanJetsFromFOLeptons( *_leptonCollectionPtr, coneSize ); }
+        void cleanJetsFromTightLeptons( const double coneSize = 0.4 ) const{ 
+	    _jetCollectionPtr->cleanJetsFromTightLeptons( *_leptonCollectionPtr, coneSize ); }
 
-        //user specified jet selection
+        // user specified jet selection
         void selectJets( bool (&passSelection)( const Jet& ) ){ _jetCollectionPtr->selectObjects( passSelection ); }
 
-        //b-tag collections
+	// particle level jet selection and cleaning
+	void selectGoodParticleLevelJets() const;
+	void cleanParticleLevelJetsFromLeptons( const double coneSize = 0.4 ) const;
+
+        // b-tag collections
         JetCollection looseBTagCollection() const{ return _jetCollectionPtr->looseBTagCollection(); }
         JetCollection mediumBTagCollection() const{ return _jetCollectionPtr->mediumBTagCollection(); }
         JetCollection tightBTagCollection() const{ return _jetCollectionPtr->tightBTagCollection(); }
 
-        //lepton selection and cleaning
+        // lepton selection and cleaning
         void selectLooseLeptons(){ _leptonCollectionPtr->selectLooseLeptons(); }
         void selectFOLeptons(){ _leptonCollectionPtr->selectFOLeptons(); }
         void selectTightLeptons(){ _leptonCollectionPtr->selectTightLeptons(); }
@@ -107,7 +114,10 @@ class Event{
         void cleanTausFromLooseLightLeptons( const double coneSize = 0.4 ){ _leptonCollectionPtr->cleanTausFromLooseLightLeptons( coneSize ); }
         void cleanTausFromFOLightLeptons( const double coneSize = 0.4 ){ _leptonCollectionPtr->cleanTausFromFOLightLeptons( coneSize ); }
 
-        //separate lepton flavor collections
+	// particle level leptons selection and cleaning
+	void selectGoodParticleLevelLeptons() const;
+
+        // separate lepton flavor collections
         MuonCollection muonCollection() const{ return _leptonCollectionPtr->muonCollection(); }
         ElectronCollection electronCollection() const{ return _leptonCollectionPtr->electronCollection(); }
         TauCollection tauCollection() const{ return _leptonCollectionPtr->tauCollection(); }

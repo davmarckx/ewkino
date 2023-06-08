@@ -82,6 +82,13 @@ void LeptonParticleLevelCollection::removeTaus(){
     selectObjects( &LeptonParticleLevel::isLightLepton );
 }
 
+void LeptonParticleLevelCollection::selectGoodLeptons(){
+    // remove bad leptons from the collection
+    // uses the inherited selectObjects method 
+    // (from PhysicsObjectCollection)
+    selectObjects( &LeptonParticleLevel::isGood );
+}
+
 void LeptonParticleLevelCollection::sortByPt(){
     // sort leptons in this collection by pt
     // uses the inherited sortByAttribute method

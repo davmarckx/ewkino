@@ -52,6 +52,7 @@ if __name__=='__main__':
                 })
   includeraw = True
   runLocal = False
+  includeraw = False
 
   cmds = []
   rawcmds = []

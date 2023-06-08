@@ -68,6 +68,19 @@ JetParticleLevel& JetParticleLevel::operator=( JetParticleLevel&& rhs ) noexcept
 }
 
 
+bool JetParticleLevel::isGood() const{
+    // basic selections on particle level jets.
+    // note: contrary to detector-level jets, this is not implemented in a
+    //       dedicated JetSelector class, because particle level selection
+    //       is supposed to be really simple and non-changing.
+    // note: for jets, all relevant cuts should already be in the ntuplizer,
+    //       but repeat here for safety if that should change.
+    if( pt() < 25. ) return false;
+    if( std::fabs(eta()) > 2.4 ) return false;
+    return true;
+}
+
+
 std::ostream& JetParticleLevel::print( std::ostream& os ) const{
     os << "Jet : ";
     PhysicsObject::print( os );

@@ -116,6 +116,9 @@ double ReweighterTrigger::weight(
 
 double ReweighterTrigger::weight( const Event& event ) const{
     // retrieve weight for an event, for safety apply tight criteria again
+    // note: only events with exactly 2 tight leptons get a reweighting factor!
+    // this is ok as the trigger efficiency for 3- and 4-lepton selections
+    // is measured to be compatible with 100%.
     if(!hasnTightLeptons(event, 2)){ return 1; }
     event.sortLeptonsByPt();
     bool flavor1 = event.leptonCollection()[0].isMuon();     // 0 if electron, 1 if muon

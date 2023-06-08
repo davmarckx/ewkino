@@ -19,7 +19,8 @@ def plotsinglehistogram(hist, figname,
 		yaxmin=None, yaxmax=None,
 	        writebincontent=False, bincontentfont=None, 
 	        bincontentsize=None, bincontentfmt=None,
-		extrainfos=[], infosize=None, infoleft=None, infotop=None ):
+		extrainfos=[], infosize=None, infoleft=None, infotop=None,
+                normalize=False ):
     ### drawing a single histogram
     # - label: string for the legend entry for this histogram.
     #	note: if label is 'auto', the implicit title of the TH1 will be used.
@@ -77,6 +78,16 @@ def plotsinglehistogram(hist, figname,
     pentryheight = 0.05
     plegendbox = ([leftmargin+0.3,1-topmargin-pentryheight,
                     1-rightmargin-0.03,1-topmargin-0.03])
+
+    ### normalize the histogram if requested
+    if normalize:
+	scale = hist.Integral("width")
+	if scale<1e-12:
+	    print('WARNING in singlehistplotter: histogram appears to be empty, cannot normalize.')
+	    scale = 1
+        for j in range(0,hist.GetNbinsX()+2):
+            hist.SetBinContent(j,hist.GetBinContent(j)/scale)
+            hist.SetBinError(j,hist.GetBinError(j)/scale)
 
     ### set histogram properties
     hist.SetLineColor(color)

@@ -31,6 +31,10 @@ class JetParticleLevelCollection : public PhysicsObjectCollection< JetParticleLe
 	// sorting
 	void sortByPt();
 
+	// selections and cleaning
+	void selectGoodJets();
+	void cleanJetsFromLeptons( const LeptonParticleLevelCollection&, const double coneSize = 0.4 );
+
     private:
        //build JetCollection of jets satisfying a certain requirement
        JetParticleLevelCollection buildSubCollection( bool (JetParticleLevel::*passSelection)() const ) const; 

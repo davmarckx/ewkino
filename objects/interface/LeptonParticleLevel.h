@@ -37,6 +37,7 @@ class LeptonParticleLevel : public PhysicsObject {
         bool isElectron() const{ return _flavor==0; }
         bool isTau() const{ return _flavor==2; }
         bool isLightLepton() const{ return (isMuon() || isElectron()); }
+	bool isGood() const;
 
 	static bool sameFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );
 	static bool differentFlavor( const LeptonParticleLevel&, const LeptonParticleLevel& );

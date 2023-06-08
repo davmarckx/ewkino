@@ -30,10 +30,15 @@ def trigger_to_summarylabel(trigger):
   if trigger=='anylepton': return 'All triggers'
   raise Exception('ERROR: trigger {} not recognized.'.format(trigger))
 
+def selection_to_label(selection):
+  if selection=='dilepton': return 'Dilepton selection'
+  if selection=='trilepton': return 'Trilepton selection'
+  raise Exception('ERROR: selection {} not recognized.'.format(selection))
+
 def selection_to_summarylabel(selection):
   if selection=='dilepton': return 'Dilepton selection'
   if selection=='trilepton': return 'Trilepton selection'
-  raise Exception('')
+  raise Exception('ERROR: selection {} not recognized.'.format(selection))
 
 def year_from_dirname(directory):
   if '2016PreVFP' in directory: return '2016PreVFP'
@@ -52,7 +57,9 @@ if __name__=='__main__':
   # parse arguments
   parser = argparse.ArgumentParser('Plot results of trigger correlation measurement')
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
+  parser.add_argument('--do_individual', action='store_true')
   parser.add_argument('--do_summary', action='store_true')
+  parser.add_argument('--do_errors', action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -99,6 +106,7 @@ if __name__=='__main__':
       # scale
       datahist.Scale(float(1)/datahist.Integral())
       # get values
+      # naive approach (without error calculation)
       n_none = datahist.GetBinContent(1,1)
       n_both = datahist.GetBinContent(2,2)
       n_ref_only = datahist.GetBinContent(2,1)
@@ -106,29 +114,75 @@ if __name__=='__main__':
       n_tot = datahist.Integral()
       n_ref = n_both + n_ref_only
       n_lep = n_both + n_lep_only
-      correlation = float(n_ref*n_lep)/(n_both*n_tot)
-      summary_info[selection][year][trigger] = correlation
+      correlation_naive = float(n_ref*n_lep)/(n_both*n_tot)
+      cerror_naive = 0
+      # alternative approach (with error calculation)
+      # note: errors are calculated with simple gaussian propagation;
+      # they will be overestimated because of ignoring correlations
+      # between factors in the equation.
+      n_none = ROOT.TH1D('n_none','n_none', 1, 0., 1.)
+      n_none.SetBinContent(1, datahist.GetBinContent(1,1))
+      n_none.SetBinError(1, datahist.GetBinError(1,1))
+      n_both = ROOT.TH1D('n_both','n_both', 1, 0., 1.)
+      n_both.SetBinContent(1, datahist.GetBinContent(2,2))
+      n_both.SetBinError(1, datahist.GetBinError(2,2))
+      n_ref_only = ROOT.TH1D('n_ref_only','n_ref_only', 1, 0., 1.)
+      n_ref_only.SetBinContent(1, datahist.GetBinContent(2,1))
+      n_ref_only.SetBinError(1, datahist.GetBinError(2,1))
+      n_lep_only = ROOT.TH1D('n_lep_only','n_lep_only', 1, 0., 1.)
+      n_lep_only.SetBinContent(1, datahist.GetBinContent(1,2))
+      n_lep_only.SetBinError(1, datahist.GetBinError(1,2))
+      n_tot = n_none.Clone()
+      n_tot.Add(n_both)
+      n_tot.Add(n_ref_only)
+      n_tot.Add(n_lep_only)
+      n_ref = n_ref_only.Clone()
+      n_ref.Add(n_both)
+      n_lep = n_lep_only.Clone()
+      n_lep.Add(n_both)
+      num = n_lep.Clone()
+      num.Multiply(n_ref)
+      denom = n_both.Clone()
+      denom.Multiply(n_tot)
+      ratio = num.Clone()
+      ratio.Divide(denom)
+      correlation = ratio.GetBinContent(1)
+      cerror = ratio.GetBinError(1)
+      # check if both methods agree on the nominal value
+      if( abs(correlation_naive-correlation) > 1e-6 ):
+        raise Exception('ERROR: alternative correlation calculations do not agree.')
+      summary_info[selection][year][trigger] = (correlation,cerror)
       nsummary += 1
+      # continue if individual plots are not needed
+      if not args.do_individual: continue
       # set plot properties
       xaxtitle = 'Passes reference triggers'
       yaxtitle = 'Passes lepton triggers'
       lumi = lumidict[year]
       lumistr = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
-      # make plot of correlation
-      figname = os.path.join(figdir,'correlation_{}.png'.format(trigger))
-      caxtitle = 'Counts (normalized to maximum)'
+      caxtitle = 'Number of events (normalized)'
+      datahist.GetXaxis().SetBinLabel(1, "No")
+      datahist.GetXaxis().SetBinLabel(2, "Yes")
+      datahist.GetXaxis().SetLabelSize(0.06)
+      datahist.GetYaxis().SetBinLabel(1, "No")
+      datahist.GetYaxis().SetBinLabel(2, "Yes")
+      datahist.GetYaxis().SetLabelSize(0.06)
       extrainfos = []
       extrainfos.append('{} data'.format(year))
       extrainfos.append(trigger_to_label(trigger))
+      extrainfos.append(selection_to_label(selection))
       extrainfos.append('')
-      extrainfos.append('Lepton triggers: {0:.3f}'.format(n_lep))
-      extrainfos.append('Reference triggers: {0:.3f}'.format(n_ref))
-      extrainfos.append('Both triggers: {0:.3f}'.format(n_both))
+      extrainfos.append('Lepton triggers: {0:.3f}'.format(n_lep.GetBinContent(1)))
+      extrainfos.append('Reference triggers: {0:.3f}'.format(n_ref.GetBinContent(1)))
+      extrainfos.append('Both triggers: {0:.3f}'.format(n_both.GetBinContent(1)))
       extrainfos.append('')
-      extrainfos.append('Lepton / total: {0:.3f}'.format(n_lep/n_tot))
-      extrainfos.append('Both / reference: {0:.3f}'.format(n_both/n_ref))
+      extrainfos.append('Lepton / total: {0:.3f}'.format(n_lep.GetBinContent(1)/n_tot.GetBinContent(1)))
+      extrainfos.append('Both / reference: {0:.3f}'.format(n_both.GetBinContent(1)/n_ref.GetBinContent(1)))
       extrainfos.append('')
       extrainfos.append('Correlation ratio: {0:.3f}'.format(correlation))
+      if args.do_errors: extrainfos.append('Estimated error: {0:.3f}'.format(cerror))
+      # make plot of correlation
+      figname = os.path.join(figdir,'correlation_{}.png'.format(trigger))
       plot2dhistogram(datahist, figname, outfmts=['.png'],
                     histtitle=None, logx=False, logy=False,
                     xtitle=xaxtitle, ytitle=yaxtitle, ztitle=caxtitle,
@@ -143,60 +197,56 @@ if __name__=='__main__':
                     infoleft=0.75, infotop=None )
 
   if args.do_summary:
-   
-    # first approach (with ROOT plotting) 
-    '''shist = ROOT.TH1D('shist', 'Correlation summary', nsummary, -0.5, nsummary-0.5)
-    bincounter = 1
-    for selection in sorted(summary_info.keys()):
-      for year in ['2016PreVFP','2016PostVFP','2017','2018']:
-        if not year in summary_info[selection].keys(): continue
-        for trigger in summary_info[selection][year].keys():
-          value = summary_info[selection][year][trigger]
-          label = '{} / {} / {}'.format(selection, year, trigger)
-          shist.SetBinContent(bincounter, value)
-          shist.SetBinError(bincounter, 0)
-	  shist.GetXaxis().SetBinLabel(bincounter, label)
-          bincounter += 1
-    shist.GetXaxis().LabelsOption('v')
-    xaxtitle = ''
-    yaxtitle = 'Correlation ratio'
-    title = 'Correlation summary'
-    drawoptions = ''
-    outputfile = os.path.join(args.inputdir,'summary.png')
-    plotsinglehistogram( shist, outputfile, title=title, 
-	                 xaxtitle=xaxtitle, yaxtitle=yaxtitle,
-                         yaxmin=0.8, yaxmax=1.2,
-                         label=None, color=None, drawoptions=drawoptions,
-                         lumitext='', extralumitext='',
-	                 bottommargin=0.65, topmargin=0.07)'''
-
-    # second approach (with matplotlib)
+  
+    # make lists of data, errors and labels 
     data = []
-    labels = []
-    selections = sorted(list(summary_info.keys()))
+    errors = []
+    tlabels = []
+    ylabels = []
+    slabels = []
+    selections = ['dilepton','trilepton']
     nselections = len(selections)
-    years = ([el for el in ['2016PreVFP','2016PostVFP','2017','2018'] 
-              if el in summary_info[selections[0]].keys()])
+    years = ['2016PreVFP','2016PostVFP','2017','2018'] 
     nyears = len(years)
-    triggers = ([el for el in ['singlelepton','dilepton','trilepton','anylepton']
-                 if el in summary_info[selections[0]][years[0]].keys()])
+    triggers = ['singlelepton','dilepton','trilepton','anylepton']
     ntriggers = len(triggers)
     for selection in selections:
       for year in years:
         for trigger in triggers:
-          value = summary_info[selection][year][trigger]
-          label = trigger_to_summarylabel(trigger)
+          # check if data entry exists
+          try: (value,error) = summary_info[selection][year][trigger]
+          except: continue
+          # skip some combinations
+          if(selection=='dilepton' and trigger=='trilepton'): continue
+          # add data to lists
+          tlabel = trigger_to_summarylabel(trigger)
+          slabel = selection_to_summarylabel(selection)
           data.append(value)
-          labels.append(label)
+          errors.append(error)
+          tlabels.append(tlabel)
+          ylabels.append(year)
+          slabels.append(slabel)
     fig,ax = plt.subplots()
     # make modified data and xax for ax.step to show last data point
     datamod = data[:]
     datamod.append(data[-1])
     datamod = np.array(datamod)
+    errorsmod = errors[:]
+    errorsmod.append(errors[-1])
+    errorsmod = np.array(errorsmod)
     xax = np.arange(0, len(data))
     xaxmod = np.arange(0, len(datamod))
-    ax.step(xaxmod, datamod, where='post', color='royalblue', linewidth=2)
-    ax.fill_between(xaxmod, datamod, y2=1., step='post', color='lightsteelblue')
+    # make basic plot without error plotting
+    if not args.do_errors:
+      ax.step(xaxmod, datamod, where='post', color='royalblue', linewidth=2)
+      ax.fill_between(xaxmod, datamod, y2=1.,
+        step='post', color='lightsteelblue')
+    # make basic plot with error plotting
+    else:
+      ax.axhline(y=1., color='red', linestyle='dashed')
+      ax.step(xaxmod, datamod, where='post', color='royalblue', linewidth=2)
+      ax.fill_between(xaxmod, datamod+errorsmod, y2=datamod-errorsmod, 
+        step='post', color='lightsteelblue')
     ax.grid(which='major')
     # set x and y ranges
     ax.set_xlim(0, len(data))
@@ -204,33 +254,39 @@ if __name__=='__main__':
     # set y-axis title and ticks
     ax.set_ylabel('Correlation ratio', fontsize=15)
     ax.tick_params(axis='y', labelsize=12)
-    # draw labels
+    # draw x-axis labels (i.e. trigger labels)
     ax.set_xticks([x+0.5 for x in xax])
-    ax.set_xticklabels(labels, rotation=60, ha='right')
-    # draw horizontal lines between years
-    stepsize = ntriggers
-    for pos in np.arange(stepsize,len(data),step=stepsize):
-      ax.axvline(pos, color='gray', linestyle='dashed')
-    # draw horizontal lines between selections
-    stepsize = ntriggers*nyears
-    for pos in np.arange(stepsize,len(data),step=stepsize):
-      ax.axvline(pos, color='k', linestyle='dashed', linewidth=2)
+    ax.set_xticklabels(tlabels, rotation=60, ha='right')
+    # draw horizontal lines between years and add year labels
+    start = 0
+    label = ylabels[0]
+    for i,newlabel in enumerate(ylabels):
+      if i==0: continue
+      if newlabel!=label:
+        ax.axvline(i, color='gray', linestyle='dashed')
+        ax.text(start+float(i-start)/2, 1.17, label,
+                horizontalalignment='center', fontsize=5)
+        start = i
+        label = newlabel
+    ax.text(start+float(i+1-start)/2, 1.17, label,
+            horizontalalignment='center', fontsize=5)
+    # draw horizontal lines between selections and add selection labels
+    start = 0
+    label = slabels[0]
+    for i,newlabel in enumerate(slabels):
+      if i==0: continue
+      if newlabel!=label:
+        ax.axvline(i, color='k', linestyle='dashed', linewidth=2)
+        ax.text(start+float(i-start)/2, 0.65, label,
+                horizontalalignment='center', fontsize=12)
+        start = i
+        label = newlabel
+    ax.text(start+float(i+1-start)/2, 0.65, label,
+            horizontalalignment='center', fontsize=12)
     # draw title
     ax.text(0., 1.05, 'Correlation summary', fontsize=15, transform=ax.transAxes)
     # set margins
     plt.subplots_adjust(bottom=0.3)
-    # add year labels
-    stepsize = ntriggers
-    for pos in np.arange(0,len(data),step=stepsize):
-      ax.text(pos+float(stepsize)/2, 1.17, years[pos/stepsize%nyears], 
-              horizontalalignment='center', fontsize=5)
-    # add selection labels
-    stepsize = ntriggers*nyears
-    for pos in np.arange(0,len(data),step=stepsize):
-      text = selections[pos/stepsize%nselections]
-      text = selection_to_summarylabel(text)
-      ax.text(pos+float(stepsize)/2, 0.65, text, 
-              horizontalalignment='center', fontsize=12)
     # save the figure
     outputfile = os.path.join(args.inputdir,'summary.png')
     fig.savefig(outputfile)

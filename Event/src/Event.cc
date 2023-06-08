@@ -258,6 +258,21 @@ MetParticleLevel& Event::metParticleLevel() const{
     return *_metParticleLevelPtr;
 }
 
+void Event::selectGoodParticleLevelJets() const{
+    checkParticleLevel();
+    _jetParticleLevelCollectionPtr->selectGoodJets();
+}
+
+void Event::cleanParticleLevelJetsFromLeptons( const double coneSize ) const{
+    checkParticleLevel();
+    _jetParticleLevelCollectionPtr->cleanJetsFromLeptons( *_leptonParticleLevelCollectionPtr, coneSize );
+}
+
+void Event::selectGoodParticleLevelLeptons() const{
+    checkParticleLevel();
+    _leptonParticleLevelCollectionPtr->selectGoodLeptons();
+}
+
 void Event::initializeZBosonCandidate(bool allowSameSign){
     // reconstruct the best Z boson
     

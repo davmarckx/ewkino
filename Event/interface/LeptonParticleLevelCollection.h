@@ -31,6 +31,7 @@ class LeptonParticleLevelCollection : public PhysicsObjectCollection< LeptonPart
 	bool hasOppositeSignSameFlavorPair();
 
 	// select objects
+	void selectGoodLeptons();
 	void removeTaus();
 
 	// sorting

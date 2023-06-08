@@ -64,6 +64,19 @@ LeptonParticleLevel& LeptonParticleLevel::operator=( LeptonParticleLevel&& rhs )
 }
 
 
+bool LeptonParticleLevel::isGood() const{
+    // basic selections on particle level leptons.
+    // note: contrary to detector-level leptons, this is not implemented in a
+    //       dedicated LeptonSelector class, because particle level selection
+    //       is supposed to be really simple and non-changing.
+    if( isTau() ) return false; // do not consider taus for now.
+    if( pt() < 10. ) return false;
+    if( isElectron() && std::fabs(eta()) > 2.5 ) return false;
+    if( isMuon() && std::fabs(eta()) > 2.4 ) return false;
+    return true;
+}
+
+
 bool LeptonParticleLevel::sameFlavor( const LeptonParticleLevel& lhs, const LeptonParticleLevel& rhs ){
     return ( 
         ( lhs.isMuon() && rhs.isMuon() ) ||

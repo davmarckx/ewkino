@@ -51,10 +51,12 @@ constexpr double halfwindow = 10;
 constexpr double halfwindow_wide = 15;
 
 void eventSelectionsParticleLevel::cleanLeptonsAndJets(Event& event){
-    // do lepton cleaning
+    // do lepton selection and cleaning
+    event.selectGoodParticleLevelLeptons();
     event.leptonParticleLevelCollection().removeTaus();
-    // do jet cleaning
-    // (to implement if needed)
+    // do jet selection and cleaning
+    event.selectGoodParticleLevelJets();
+    event.cleanParticleLevelJetsFromLeptons();
     // sort leptons and jets by pt
     event.leptonParticleLevelCollection().sortByPt();
     event.jetParticleLevelCollection().sortByPt();
