@@ -13,19 +13,20 @@ exe = 'runanalysis'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 
 dtypes = ['sim','data']
+#dtypes = ['sim']
 #dtypes = ['data']
 
 selection_types = []
@@ -49,8 +50,8 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
-#variables = "../variables/variables_inputfeatures.json"
-variables = '../variables/variables_eventbdt.json' # single variables
+variables = "../variables/variables_inputfeatures.json"
+#variables = '../variables/variables_eventbdt.json' # single variables
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
@@ -65,9 +66,9 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_runanalysis_robustness_bdt'
+outputdir = 'all_2306/output_runanalysis_normal_inputfeatures'
 
-nevents = -1
+nevents = 1e6
 runlocal = False
 
 submit_selection_types_combined = True

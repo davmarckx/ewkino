@@ -40,7 +40,7 @@ systematics = ([
   "trigger",
   "prefire",
   # b-tagging
-  #"bTag_shape",
+  "bTag_shape",
   # scale uncertainties
   "fScale",
   "fScaleNorm",

@@ -71,9 +71,10 @@ std::vector<std::string> splitProcessNames(
 	splitProcessNames = {processName}; 
     }
     else{
+        splitProcessNames.push_back( processName+"0" );
 	unsigned int nSecondaryBins = histVar.nSecondaryBins();
-        for(unsigned int i=0; i<=nSecondaryBins; i++){
-	    splitProcessNames.push_back( processName+std::to_string(i) );
+        for(unsigned int i=1; i<=nSecondaryBins; i++){
+	    splitProcessNames.push_back( processName + std::to_string(i) + stringTools::removeOccurencesOf(histVar.secondaryVariable(),"_") );
         }
     }
     return splitProcessNames;
@@ -125,7 +126,7 @@ std::shared_ptr<TH1D> findHistogramToFill(
 	// else use appendix bin number
 	else{
 	    int secondaryBinNumber = variable.findSecondaryBinNumber( secondaryValueParticleLevel );
-	    thisProcessName = processName + std::to_string(secondaryBinNumber);
+	    thisProcessName = processName + std::to_string(secondaryBinNumber)+ stringTools::removeOccurencesOf(variable.secondaryVariable(),"_");
 	}
     }
     // find the histogram in the map
@@ -401,6 +402,7 @@ void fillSystematicsHistograms(
         }
         bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
     }   
+    else if(treeReader.isData()){bTagShapeSystematics = {"cferr1", "cferr2", "hf", "hfstats1", "hfstats2", "lf", "lfstats1", "lfstats2"};}
  
     // determine global sample properties related to pdf and scale variations
     unsigned numberOfScaleVariations = 0;
