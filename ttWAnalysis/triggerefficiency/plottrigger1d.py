@@ -66,6 +66,7 @@ if __name__=='__main__':
     for f in files:
       if( f==mergedfilename ):
         mergedfiles.append(os.path.join(root,f))
+  print('Found {} files.'.format(len(mergedfiles)))
 
   # loop over all files
   for mergedfilepath in mergedfiles:
@@ -85,10 +86,10 @@ if __name__=='__main__':
 
     # set variables
     variables = [
-        {'name':'leptonptleading','xaxtitle':r'lepton p_{T}^{leading} (GeV)'},
-        {'name':'leptonptsubleading','xaxtitle':r'lepton p_{T}^{subleading} (GeV)'},
-        {'name':'leptonpttrailing','xaxtitle':r'lepton p_{T}^{trailing} (GeV)'},
-        {'name':'yield','xaxtitle':r'total efficiency'}
+        {'name':'leptonptleading','xaxtitle':r'Leading lepton p_{T} (GeV)'},
+        {'name':'leptonptsubleading','xaxtitle':r'Subleading lepton p_{T} (GeV)'},
+        {'name':'leptonpttrailing','xaxtitle':r'Trailing lepton p_{T} (GeV)'},
+        {'name':'yield','xaxtitle':r'Total yield'}
     ]
 
     # load all objects

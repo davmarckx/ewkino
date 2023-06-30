@@ -36,6 +36,7 @@ if __name__=='__main__':
     for f in files:
       if( f==mergedfilename ):
         mergedfiles.append(os.path.join(root,f))
+  print('Found {} files.'.format(len(mergedfiles)))
 
   # loop over all files
   for mergedfilepath in mergedfiles:

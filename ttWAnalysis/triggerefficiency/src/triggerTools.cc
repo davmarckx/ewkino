@@ -7,14 +7,9 @@ std::vector<double> triggerTools::ptThresholds(
     // return a vector of lepton pt thresholds
     if( id=="tzq" ){ return {25., 15., 10.}; }
     if( id=="ttz" ){ return {40., 20., 10.}; }
-    if( id=="ttwdilep" ){
-        if( channel=="mm"){ return {25., 20.}; }
-        if( channel=="me"){ return {25., 20.}; }
-        if( channel=="em"){ return {30., 20.}; }
-        if( channel=="ee"){ return {30., 20.}; }
-    }
+    if( id=="ttwdilep" ){ return {25., 15.}; }
     if( id=="ttwtrilep"){ return {25., 15., 15.}; }
-    if( id=="ttttfourlep" ){ return {25., 15., 15., 10.}; } // (?)
+    if( id=="ttttfourlep" ){ return {25., 15., 15., 10.}; }
     std::string msg = "ERROR in ptThresholds: id or channel not recognized";
     msg.append( " (id: "+id+", channel: "+channel+")." );
     throw std::runtime_error(msg);

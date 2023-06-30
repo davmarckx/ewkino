@@ -21,10 +21,8 @@ std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms(
 	    std::string fullName = prefix+"_"+flavour+"_"+numdenom;
 	    std::string mapName = flavour+"_"+numdenom;
 	    // define binning for 2D histograms
-	    std::vector< double > leadingPtBins = {30., 35., 45., 55., 75., 100., 150., 200.};
-	    if(flavour=="mm" || flavour=="me"){
-		leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.}; }
-	    const std::vector< double > trailingPtBins = {20., 25., 30., 35., 45., 55., 75., 100., 150., 200.};
+	    const std::vector< double > leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.};
+	    const std::vector< double > trailingPtBins = {15., 25., 30., 35., 45., 55., 75., 100., 150., 200.};
 	    // initialize histogram
 	    std::shared_ptr< TH2D > hist(
 		new TH2D( fullName.c_str(), 
@@ -49,8 +47,8 @@ void fillEvent(const Event& event, double weight,
 	throw std::runtime_error(msg);
     }
     // determine lepton pt
-    double leadpt = event.leptonCollection()[0].pt();
-    double trailpt = event.leptonCollection()[1].pt();
+    double leadpt = event.leptonCollection()[0].uncorrectedPt();
+    double trailpt = event.leptonCollection()[1].uncorrectedPt();
     // determine flavour composition
     std::string flavourstr = triggerTools::getFlavourString(event);
     // check corresponding histogram
@@ -134,6 +132,15 @@ void fillTriggerEfficiencyHistograms(
             if(event.leptonCollection().size()!=2) continue;
 	    if(event.met().pt() < 40) continue;
 	    if(event.leptonSystem().mass() < 20) continue;
+        }
+
+	// select two tight light leptons without additional selections
+	if(std::find(selectionTags.begin(),selectionTags.end(),"basic")!=selectionTags.end()){
+            event.selectLooseLeptons();
+            event.cleanElectronsFromLooseMuons();
+            event.removeTaus();
+            event.selectTightLeptons();
+            if(event.leptonCollection().size()!=2) continue;
         }
 
 	// additional selection: reco pt cuts

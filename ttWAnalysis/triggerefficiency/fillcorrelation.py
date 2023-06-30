@@ -10,6 +10,7 @@ from samplelisttools import readsamplelist
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = '~/CMSSW_12_4_6' # newer version needed for BDT evaluation
 
 if __name__=='__main__':
 

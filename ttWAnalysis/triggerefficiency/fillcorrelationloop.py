@@ -42,4 +42,6 @@ for year in years:
       command += ' --pt_threshold_id {}'.format(pt_threshold_id)
       command += ' --nevents {}'.format(nevents)
       command += ' --runmode {}'.format(runmode)
+      print('Now running:')
+      print(command)
       os.system(command)

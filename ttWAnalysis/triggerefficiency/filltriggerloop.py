@@ -16,10 +16,10 @@ years.append('2017')
 years.append('2018')
 
 event_selections = []
-#event_selections.append('3tight_recoptcuts')
-#event_selections.append('3fo_tightveto_recoptcuts')
-#event_selections.append('2tightss_recoptcuts')
-#event_selections.append('2foss_tightveto_recoptcuts')
+event_selections.append('3tight_recoptcuts')
+event_selections.append('3fo_tightveto_recoptcuts')
+event_selections.append('2tightss_recoptcuts')
+event_selections.append('2foss_tightveto_recoptcuts')
 event_selections.append('4tight_recoptcuts')
 event_selections.append('4fo_tightveto_recoptcuts')
 
@@ -59,13 +59,14 @@ for year in years:
 topdir = 'output_temp_2d'
 
 years = []
-#years.append('2016PreVFP')
-#years.append('2016PostVFP')
-#years.append('2017')
-#years.append('2018')
+years.append('2016PreVFP')
+years.append('2016PostVFP')
+years.append('2017')
+years.append('2018')
 
 event_selections = []
 event_selections.append('legacy_recoptcuts')
+event_selections.append('basic_recoptcuts')
 
 dtypes = []
 dtypes.append('sim')
