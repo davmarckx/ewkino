@@ -57,7 +57,8 @@ bool passES(Event& event, const std::string& eventselection,
 		{ "npcontrolregion_dilepton_me", pass_npcontrolregion_dilepton_me },
 		{ "npcontrolregion_dilepton_mm", pass_npcontrolregion_dilepton_mm },
 		// charge flip control region
-		{ "cfcontrolregion", pass_cfcontrolregion }
+		{ "cfcontrolregion", pass_cfcontrolregion },
+                { "cfjetscontrolregion", pass_cfjetscontrolregion }
 	    };
     auto it = ESFunctionMap.find( eventselection );
     if( it == ESFunctionMap.cend() ){
@@ -171,10 +172,14 @@ bool passTriLeptonPtThresholds(Event& event){
 
 bool passDiLeptonPtThresholds(Event& event){
     event.sortLeptonsByPt();
-    if(event.leptonCollection()[0].pt() < 25.
+    // original
+    /*if(event.leptonCollection()[0].pt() < 25.
         || event.leptonCollection()[1].pt() < 20.
         || (event.leptonCollection()[0].isElectron() 
-	    && event.leptonCollection()[0].pt() < 30.)) return false;
+	    && event.leptonCollection()[0].pt() < 30.)) return false;*/
+    // change to simpler (in sync with Oviedo)
+    if(event.leptonCollection()[0].pt() < 25.
+        || event.leptonCollection()[1].pt() < 15.) return false;
     return true;
 }
 
@@ -354,14 +359,15 @@ bool pass_noselection(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     // signal region with two same sign leptons,
     // inclusive in lepton flavours.
-    // legacy version used before 06/02/2023, maybe return to it later
+    // legacy version used before 06/02/2023, largely synchronized with Tu Thongs selection
+    // keep for reference but better to use version synchronized with Oviedo (see below).
     cleanLeptonsAndJets(event);
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,2,true)) return false;
-    if(not passDiLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return false;
     // leptons must be same sign
@@ -399,8 +405,7 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return false;
     event.sortLeptonsByPt();
-    if(event.leptonCollection()[0].pt() < 25. 
-        || event.leptonCollection()[1].pt() < 15. ) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
     // re-added on 20/02/2023: invariant mass safety
     if( event.leptonSystem().mass()<30. ) return false;
     // leptons must be same sign
@@ -435,8 +440,8 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
     if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
     if(!hasnFOLeptons(event,2,true)) return std::make_tuple(2, "Fail 2 FO leptons");
-    if(not passDiLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
-    if(not passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
+    if(!passDiLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
+    if(!passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(5, "Fail 2 tight leptons");
     // leptons must be same sign
@@ -482,8 +487,7 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(5, "Fail 2 tight leptons");
     event.sortLeptonsByPt();
-    if(event.leptonCollection()[0].pt() < 25.
-        || event.leptonCollection()[1].pt() < 15. ) return std::make_tuple(6, "Fail pT thresholds");
+    if(!passDiLeptonPtThresholds(event)) return std::make_tuple(6, "Fail pT thresholds");
     // re-added on 20/02/2023: invariant mass safety
     if( event.leptonSystem().mass()<30. ) return std::make_tuple(7, "Fail invariant mass veto");
     // leptons must be same sign
@@ -662,8 +666,8 @@ bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,3,true)) return false;
-    if(not passTriLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passTriLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return false;
     // Z candidate veto
@@ -691,8 +695,8 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_trilepton_cutflow
     if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
     if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
     if(!hasnFOLeptons(event,3,true)) return std::make_tuple(2, "Fail 3 FO leptons");
-    if(not passTriLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
-    if(not passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
+    if(!passTriLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
+    if(!passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return std::make_tuple(5, "Fail 3 tight leptons");
     // Z candidate veto
@@ -723,8 +727,8 @@ bool pass_wzcontrolregion(Event& event, const std::string& selectiontype,
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,3,true)) return false;
-    if(not passTriLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passTriLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return false;
     // require OSSF pair making a Z mass
@@ -754,8 +758,8 @@ bool pass_zzcontrolregion(Event& event, const std::string& selectiontype,
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,4,true)) return false;
-    if(not passTriLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passTriLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 4) ) return false;
     if(!event.hasOSSFLeptonPair()) return false;
@@ -871,8 +875,8 @@ bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,3,true)) return false;
-    if(not passTriLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;       
+    if(!passTriLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;       
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 3) ) return false;
     // Z candidate
@@ -895,11 +899,8 @@ bool pass_fourleptoncontrolregion(Event& event, const std::string& selectiontype
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event, 4, true)) return false;
     event.sortLeptonsByPt();
-    if(event.leptonCollection()[0].pt() < 25.
-        || event.leptonCollection()[1].pt() < 15.
-        || event.leptonCollection()[2].pt() < 15.
-        || event.leptonCollection()[3].pt() < 10. ) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passTriLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 4) ) return false;
     // require presence of OSSF pair
@@ -927,8 +928,8 @@ bool pass_npcontrolregion_dilepton_inclusive(
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,2,true)) return false;
-    if(not passDiLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return false;
     // leptons must be same sign
@@ -1005,8 +1006,8 @@ bool pass_cfcontrolregion(Event& event,
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event, 2, true)) return false;
-    if(not passDiLeptonPtThresholds(event)) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return false;
     // select di-electron events
@@ -1018,5 +1019,36 @@ bool pass_cfcontrolregion(Event& event,
     if(!event.hasZTollCandidate(halfwindow, true)) return false;
     if(variation=="dummy") return true; // dummy to avoid unused parameter warning
     if(selectbjets){} // dummy to avoid unused parameter warning
+    return true;
+}
+
+bool pass_cfjetscontrolregion(Event& event,
+            const std::string& selectiontype,
+            const std::string& variation,
+            const bool selectbjets){
+    // control region for charge flips with two same sign electrons on the Z peak
+    // and with additional jet and b-jet selection to be closer to the signal region
+    // (for potential including in the fit)
+    cleanLeptonsAndJets(event);
+    // apply trigger and pt thresholds
+    if(not event.passMetFilters()) return false;
+    if(not passAnyTrigger(event)) return false;
+    if(!hasnFOLeptons(event, 2, true)) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
+    // do lepton selection for different types of selections
+    if( !doLeptonSelection(event, selectiontype, 2) ) return false;
+    // select di-electron events
+    if(event.leptonCollection()[0].isMuon() || event.leptonCollection()[1].isMuon()) return false;
+    // leptons must be same sign
+    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
+    else{ if( !event.leptonsAreSameSign() ) return false; }
+    // leptons must make a Z candidate
+    if(!event.hasZTollCandidate(halfwindow, true)) return false;
+    if(variation=="dummy") return true; // dummy to avoid unused parameter warning
+    // number of jets and b-jets
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    if(selectbjets){ if( njetsnloosebjets.second < 1 ) return false; }
+    if( njetsnloosebjets.first < 2 ) return false;
     return true;
 }
