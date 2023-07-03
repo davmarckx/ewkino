@@ -414,9 +414,10 @@ void fillSystematicsHistograms(
             std::cout << "  - " << el << std::endl;
 	}
 	// read b-tagging shape reweighting normalization factors from txt file
-	std::string txtInputFile = "../btagging/output_20230418/";
+	std::string txtInputFile = "../btagging/output_20230630/";
 	// (hard-coded for now, maybe replace by argument later)
 	txtInputFile += year + "/" + inputFileName;
+        txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");
 	if( !systemTools::fileExists(txtInputFile) ){
 	    std::string msg = "ERROR in loading b-tagging normalization factors:";
 	    msg += " file " + txtInputFile + " does not exist.";

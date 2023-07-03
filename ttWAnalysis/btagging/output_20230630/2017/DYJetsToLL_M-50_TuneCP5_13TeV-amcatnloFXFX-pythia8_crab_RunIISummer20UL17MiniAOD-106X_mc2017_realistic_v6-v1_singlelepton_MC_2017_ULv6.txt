@@ -1,0 +1,863 @@
+cfcontrolregion cfjetscontrolregion fourleptoncontrolregion npcontrolregion_dilepton_ee npcontrolregion_dilepton_em npcontrolregion_dilepton_inclusive npcontrolregion_dilepton_me npcontrolregion_dilepton_mm nplownjetscontrolregion_dilepton_inclusive signalregion_dilepton_ee signalregion_dilepton_em signalregion_dilepton_inclusive signalregion_dilepton_me signalregion_dilepton_minus signalregion_dilepton_mm signalregion_dilepton_plus signalregion_trilepton trileptoncontrolregion wzcontrolregion zgcontrolregion zzcontrolregion 
+central down_cferr1 down_cferr2 down_hf down_hfstats1 down_hfstats2 down_jes down_jesAbsolute down_jesAbsolute_2017 down_jesBBEC1 down_jesBBEC1_2017 down_jesEC2 down_jesEC2_2017 down_jesFlavorQCD down_jesHF down_jesHF_2017 down_jesRelativeBal down_jesRelativeSample_2017 down_lf down_lfstats1 down_lfstats2 up_cferr1 up_cferr2 up_hf up_hfstats1 up_hfstats2 up_jes up_jesAbsolute up_jesAbsolute_2017 up_jesBBEC1 up_jesBBEC1_2017 up_jesEC2 up_jesEC2_2017 up_jesFlavorQCD up_jesHF up_jesHF_2017 up_jesRelativeBal up_jesRelativeSample_2017 up_lf up_lfstats1 up_lfstats2 
+cfcontrolregion central 0 1.000000 1 1.018278 2 1.042940 3 1.082621 4 1.199736 5 1.224595 6 1.133366 7 1.599818 
+cfcontrolregion down_cferr1 0 1.000000 1 0.999945 2 1.015602 3 1.053006 4 1.156617 5 1.125647 6 1.030628 7 1.397300 
+cfcontrolregion down_cferr2 0 1.000000 1 1.009960 2 1.032031 3 1.071581 4 1.190476 5 1.182843 6 1.086180 7 1.510448 
+cfcontrolregion down_hf 0 1.000000 1 1.037691 2 1.087724 3 1.158410 4 1.327848 5 1.342334 6 1.219187 7 1.956687 
+cfcontrolregion down_hfstats1 0 1.000000 1 1.017858 2 1.042334 3 1.081361 4 1.196820 5 1.221063 6 1.120784 7 1.601594 
+cfcontrolregion down_hfstats2 0 1.000000 1 1.018998 2 1.044362 3 1.085294 4 1.202568 5 1.230551 6 1.142354 7 1.606239 
+cfcontrolregion down_jes 0 1.000000 1 1.023950 2 1.053708 3 1.110044 4 1.242173 5 1.268629 6 1.127045 7 1.632482 
+cfcontrolregion down_jesAbsolute 0 1.000000 1 0.944990 2 0.923731 3 0.925701 4 0.955400 5 0.864824 6 0.876653 7 1.048265 
+cfcontrolregion down_jesAbsolute_2017 0 1.000000 1 0.944924 2 0.920001 3 0.921096 4 0.940091 5 0.860331 6 0.860164 7 1.015168 
+cfcontrolregion down_jesBBEC1 0 1.000000 1 0.945967 2 0.922293 3 0.929428 4 0.935883 5 0.882772 6 0.801475 7 1.041700 
+cfcontrolregion down_jesBBEC1_2017 0 1.000000 1 0.944908 2 0.919741 3 0.923324 4 0.939690 5 0.861564 6 0.860716 7 1.011282 
+cfcontrolregion down_jesEC2 0 1.000000 1 0.945569 2 0.920047 3 0.921370 4 0.942063 5 0.863221 6 0.882518 7 1.001758 
+cfcontrolregion down_jesEC2_2017 0 1.000000 1 0.945767 2 0.920570 3 0.922133 4 0.942537 5 0.865423 6 0.883060 7 1.002782 
+cfcontrolregion down_jesFlavorQCD 0 1.000000 1 1.020663 2 1.049525 3 1.095268 4 1.223140 5 1.268358 6 1.139976 7 1.643986 
+cfcontrolregion down_jesHF 0 1.000000 1 0.944801 2 0.918971 3 0.919668 4 0.937468 5 0.859115 6 0.880271 7 1.015369 
+cfcontrolregion down_jesHF_2017 0 1.000000 1 0.944695 2 0.918871 3 0.919199 4 0.936083 5 0.857680 6 0.880606 7 1.017590 
+cfcontrolregion down_jesRelativeBal 0 1.000000 1 1.018130 2 1.042680 3 1.081722 4 1.194130 5 1.224303 6 1.129259 7 1.580002 
+cfcontrolregion down_jesRelativeSample_2017 0 1.000000 1 0.944822 2 0.919977 3 0.922656 4 0.948457 5 0.863140 6 0.882121 7 1.001125 
+cfcontrolregion down_lf 0 1.000000 1 1.021493 2 1.047731 3 1.089264 4 1.220178 5 1.231159 6 1.195275 7 1.592019 
+cfcontrolregion down_lfstats1 0 1.000000 1 1.039973 2 1.089540 3 1.157295 4 1.305085 5 1.352804 6 1.303321 7 1.827709 
+cfcontrolregion down_lfstats2 0 1.000000 1 1.037245 2 1.083867 3 1.148380 4 1.295573 5 1.339318 6 1.274798 7 1.806305 
+cfcontrolregion up_cferr1 0 1.000000 1 1.040425 2 1.080808 3 1.125796 4 1.268852 5 1.353756 6 1.261564 7 1.978963 
+cfcontrolregion up_cferr2 0 1.000000 1 1.031340 2 1.064395 3 1.107880 4 1.234477 5 1.300540 6 1.208968 7 1.822247 
+cfcontrolregion up_hf 0 1.000000 1 0.996978 2 0.995599 3 1.004348 4 1.067647 5 1.105383 6 1.037517 7 1.269569 
+cfcontrolregion up_hfstats1 0 1.000000 1 1.018753 2 1.043653 3 1.083979 4 1.203061 5 1.228642 6 1.147728 7 1.597855 
+cfcontrolregion up_hfstats2 0 1.000000 1 1.017638 2 1.041680 3 1.080129 4 1.197192 5 1.219441 6 1.126048 7 1.593384 
+cfcontrolregion up_jes 0 1.000000 1 1.013296 2 1.032137 3 1.063569 4 1.150900 5 1.146853 6 1.152168 7 1.627111 
+cfcontrolregion up_jesAbsolute 0 1.000000 1 0.942650 2 0.914806 3 0.918721 4 0.912444 5 0.840841 6 0.916634 7 0.980886 
+cfcontrolregion up_jesAbsolute_2017 0 1.000000 1 0.944201 2 0.918760 3 0.919558 4 0.935373 5 0.856368 6 0.882797 7 1.026601 
+cfcontrolregion up_jesBBEC1 0 1.000000 1 0.944207 2 0.914322 3 0.916641 4 0.927842 5 0.875683 6 0.856831 7 1.021042 
+cfcontrolregion up_jesBBEC1_2017 0 1.000000 1 0.944203 2 0.918980 3 0.918197 4 0.939645 5 0.854525 6 0.877391 7 1.016169 
+cfcontrolregion up_jesEC2 0 1.000000 1 0.944051 2 0.918016 3 0.917286 4 0.932745 5 0.854931 6 0.879439 7 1.019107 
+cfcontrolregion up_jesEC2_2017 0 1.000000 1 0.944093 2 0.917885 3 0.916848 4 0.932111 5 0.853642 6 0.881937 7 1.012277 
+cfcontrolregion up_jesFlavorQCD 0 1.000000 1 1.016040 2 1.038651 3 1.074783 4 1.158067 5 1.191644 6 1.135330 7 1.645236 
+cfcontrolregion up_jesHF 0 1.000000 1 0.944746 2 0.918957 3 0.919122 4 0.936835 5 0.858920 6 0.878381 7 1.004173 
+cfcontrolregion up_jesHF_2017 0 1.000000 1 0.944638 2 0.918795 3 0.919077 4 0.936189 5 0.856865 6 0.880202 7 1.011376 
+cfcontrolregion up_jesRelativeBal 0 1.000000 1 1.018829 2 1.043391 3 1.084033 4 1.204262 5 1.227716 6 1.135464 7 1.612120 
+cfcontrolregion up_jesRelativeSample_2017 0 1.000000 1 0.944361 2 0.918887 3 0.923091 4 0.931120 5 0.856866 6 0.864158 7 1.016884 
+cfcontrolregion up_lf 0 1.000000 1 1.013534 2 1.035010 3 1.070654 4 1.176822 5 1.205146 6 1.071570 7 1.595812 
+cfcontrolregion up_lfstats1 0 1.000000 1 0.997125 2 0.998475 3 1.012976 4 1.103465 5 1.109045 6 0.985606 7 1.401178 
+cfcontrolregion up_lfstats2 0 1.000000 1 0.999772 2 1.003763 3 1.020962 4 1.111596 5 1.120558 6 1.007848 7 1.416856 
+cfjetscontrolregion central 0 1.000000 3 1.082621 4 1.199736 5 1.224595 6 1.133366 7 1.599818 
+cfjetscontrolregion down_cferr1 0 1.000000 3 1.053006 4 1.156617 5 1.125647 6 1.030628 7 1.397300 
+cfjetscontrolregion down_cferr2 0 1.000000 3 1.071581 4 1.190476 5 1.182843 6 1.086180 7 1.510448 
+cfjetscontrolregion down_hf 0 1.000000 3 1.158410 4 1.327848 5 1.342334 6 1.219187 7 1.956687 
+cfjetscontrolregion down_hfstats1 0 1.000000 3 1.081361 4 1.196820 5 1.221063 6 1.120784 7 1.601594 
+cfjetscontrolregion down_hfstats2 0 1.000000 3 1.085294 4 1.202568 5 1.230551 6 1.142354 7 1.606239 
+cfjetscontrolregion down_jes 0 1.000000 1 0.959715 2 1.006329 3 1.110044 4 1.242173 5 1.268629 6 1.127045 7 1.632482 
+cfjetscontrolregion down_jesAbsolute 0 1.000000 2 0.884143 3 0.925701 4 0.955400 5 0.864824 6 0.876653 7 1.048265 
+cfjetscontrolregion down_jesAbsolute_2017 0 1.000000 2 0.877911 3 0.921096 4 0.940091 5 0.860331 6 0.860164 7 1.015168 
+cfjetscontrolregion down_jesBBEC1 0 1.000000 2 0.880370 3 0.929428 4 0.935883 5 0.882772 6 0.801475 7 1.041700 
+cfjetscontrolregion down_jesBBEC1_2017 0 1.000000 2 0.711391 3 0.923324 4 0.939690 5 0.861564 6 0.860716 7 1.011282 
+cfjetscontrolregion down_jesEC2 0 1.000000 3 0.921370 4 0.942063 5 0.863221 6 0.882518 7 1.001758 
+cfjetscontrolregion down_jesEC2_2017 0 1.000000 3 0.922133 4 0.942537 5 0.865423 6 0.883060 7 1.002782 
+cfjetscontrolregion down_jesFlavorQCD 0 1.000000 2 1.001719 3 1.095268 4 1.223140 5 1.268358 6 1.139976 7 1.643986 
+cfjetscontrolregion down_jesHF 0 1.000000 3 0.919668 4 0.937468 5 0.859115 6 0.880271 7 1.015369 
+cfjetscontrolregion down_jesHF_2017 0 1.000000 3 0.919199 4 0.936083 5 0.857680 6 0.880606 7 1.017590 
+cfjetscontrolregion down_jesRelativeBal 0 1.000000 3 1.082312 4 1.194130 5 1.224303 6 1.129259 7 1.580002 
+cfjetscontrolregion down_jesRelativeSample_2017 0 1.000000 3 0.920441 4 0.948457 5 0.863140 6 0.882121 7 1.001125 
+cfjetscontrolregion down_lf 0 1.000000 3 1.089264 4 1.220178 5 1.231159 6 1.195275 7 1.592019 
+cfjetscontrolregion down_lfstats1 0 1.000000 3 1.157295 4 1.305085 5 1.352804 6 1.303321 7 1.827709 
+cfjetscontrolregion down_lfstats2 0 1.000000 3 1.148380 4 1.295573 5 1.339318 6 1.274798 7 1.806305 
+cfjetscontrolregion up_cferr1 0 1.000000 3 1.125796 4 1.268852 5 1.353756 6 1.261564 7 1.978963 
+cfjetscontrolregion up_cferr2 0 1.000000 3 1.107880 4 1.234477 5 1.300540 6 1.208968 7 1.822247 
+cfjetscontrolregion up_hf 0 1.000000 3 1.004348 4 1.067647 5 1.105383 6 1.037517 7 1.269569 
+cfjetscontrolregion up_hfstats1 0 1.000000 3 1.083979 4 1.203061 5 1.228642 6 1.147728 7 1.597855 
+cfjetscontrolregion up_hfstats2 0 1.000000 3 1.080129 4 1.197192 5 1.219441 6 1.126048 7 1.593384 
+cfjetscontrolregion up_jes 0 1.000000 3 1.068157 4 1.150900 5 1.146853 6 1.152168 7 1.627111 
+cfjetscontrolregion up_jesAbsolute 0 1.000000 3 0.916755 4 0.912444 5 0.840841 6 0.916634 7 0.980886 
+cfjetscontrolregion up_jesAbsolute_2017 0 1.000000 3 0.917859 4 0.935373 5 0.856368 6 0.882797 7 1.026601 
+cfjetscontrolregion up_jesBBEC1 0 1.000000 3 0.914311 4 0.927842 5 0.875683 6 0.856831 7 1.021042 
+cfjetscontrolregion up_jesBBEC1_2017 0 1.000000 3 0.917242 4 0.939645 5 0.854525 6 0.877391 7 1.016169 
+cfjetscontrolregion up_jesEC2 0 1.000000 3 0.917286 4 0.932745 5 0.854931 6 0.879439 7 1.019107 
+cfjetscontrolregion up_jesEC2_2017 0 1.000000 3 0.916848 4 0.932111 5 0.853642 6 0.881937 7 1.012277 
+cfjetscontrolregion up_jesFlavorQCD 0 1.000000 3 1.077493 4 1.158067 5 1.191644 6 1.135330 7 1.645236 
+cfjetscontrolregion up_jesHF 0 1.000000 3 0.919122 4 0.936835 5 0.858920 6 0.878381 7 1.004173 
+cfjetscontrolregion up_jesHF_2017 0 1.000000 3 0.919077 4 0.936189 5 0.856865 6 0.880202 7 1.011376 
+cfjetscontrolregion up_jesRelativeBal 0 1.000000 2 0.858675 3 1.084686 4 1.204262 5 1.227716 6 1.135464 7 1.612120 
+cfjetscontrolregion up_jesRelativeSample_2017 0 1.000000 2 0.681329 3 0.923182 4 0.931120 5 0.856866 6 0.864158 7 1.016884 
+cfjetscontrolregion up_lf 0 1.000000 3 1.070654 4 1.176822 5 1.205146 6 1.071570 7 1.595812 
+cfjetscontrolregion up_lfstats1 0 1.000000 3 1.012976 4 1.103465 5 1.109045 6 0.985606 7 1.401178 
+cfjetscontrolregion up_lfstats2 0 1.000000 3 1.020962 4 1.111596 5 1.120558 6 1.007848 7 1.416856 
+fourleptoncontrolregion central 0 1.000000 1 0.943046 2 0.910499 3 0.883094 
+fourleptoncontrolregion down_cferr1 0 1.000000 1 0.943046 2 0.910499 3 0.883094 
+fourleptoncontrolregion down_cferr2 0 1.000000 1 0.943046 2 0.910499 3 0.883094 
+fourleptoncontrolregion down_hf 0 1.000000 1 0.951708 2 0.929063 3 0.916115 
+fourleptoncontrolregion down_hfstats1 0 1.000000 1 0.942770 2 0.911132 3 0.884358 
+fourleptoncontrolregion down_hfstats2 0 1.000000 1 0.943572 2 0.911467 3 0.884495 
+fourleptoncontrolregion down_jes 0 1.000000 1 0.944811 2 0.883699 3 0.946301 
+fourleptoncontrolregion down_jesAbsolute 0 1.000000 1 0.942562 2 0.894580 3 0.902061 
+fourleptoncontrolregion down_jesAbsolute_2017 0 1.000000 1 0.942886 2 0.909494 3 0.888567 
+fourleptoncontrolregion down_jesBBEC1 0 1.000000 1 0.944437 2 0.900376 3 0.908867 
+fourleptoncontrolregion down_jesBBEC1_2017 0 1.000000 1 0.943552 2 0.909202 3 0.892776 
+fourleptoncontrolregion down_jesEC2 0 1.000000 1 0.942917 2 0.911799 3 0.901404 
+fourleptoncontrolregion down_jesEC2_2017 0 1.000000 1 0.942111 2 0.911897 3 0.902883 
+fourleptoncontrolregion down_jesFlavorQCD 0 1.000000 1 0.942319 2 0.893416 3 0.901232 
+fourleptoncontrolregion down_jesHF 0 1.000000 1 0.942726 2 0.910192 3 0.883340 
+fourleptoncontrolregion down_jesHF_2017 0 1.000000 1 0.943089 2 0.910579 3 0.883233 
+fourleptoncontrolregion down_jesRelativeBal 0 1.000000 1 0.941900 2 0.911958 3 0.881558 
+fourleptoncontrolregion down_jesRelativeSample_2017 0 1.000000 1 0.941013 2 0.915484 3 0.895940 
+fourleptoncontrolregion down_lf 0 1.000000 1 0.943192 2 0.906878 3 0.877076 
+fourleptoncontrolregion down_lfstats1 0 1.000000 1 0.982850 2 0.959025 3 0.947932 
+fourleptoncontrolregion down_lfstats2 0 1.000000 1 0.975293 2 0.949896 3 0.937085 
+fourleptoncontrolregion up_cferr1 0 1.000000 1 0.943046 2 0.910499 3 0.883094 
+fourleptoncontrolregion up_cferr2 0 1.000000 1 0.943046 2 0.910499 3 0.883094 
+fourleptoncontrolregion up_hf 0 1.000000 1 0.931221 2 0.886885 3 0.847868 
+fourleptoncontrolregion up_hfstats1 0 1.000000 1 0.943284 2 0.909822 3 0.881744 
+fourleptoncontrolregion up_hfstats2 0 1.000000 1 0.942519 2 0.909502 3 0.881657 
+fourleptoncontrolregion up_jes 0 1.000000 1 0.941164 2 0.940039 3 0.854743 
+fourleptoncontrolregion up_jesAbsolute 0 1.000000 1 0.940722 2 0.928780 3 0.887318 
+fourleptoncontrolregion up_jesAbsolute_2017 0 1.000000 1 0.942332 2 0.912436 3 0.890881 
+fourleptoncontrolregion up_jesBBEC1 0 1.000000 1 0.941160 2 0.923678 3 0.876180 
+fourleptoncontrolregion up_jesBBEC1_2017 0 1.000000 1 0.943326 2 0.913468 3 0.888624 
+fourleptoncontrolregion up_jesEC2 0 1.000000 1 0.943555 2 0.909721 3 0.870457 
+fourleptoncontrolregion up_jesEC2_2017 0 1.000000 1 0.943154 2 0.910341 3 0.872886 
+fourleptoncontrolregion up_jesFlavorQCD 0 1.000000 1 0.940978 2 0.930949 3 0.887648 
+fourleptoncontrolregion up_jesHF 0 1.000000 1 0.942622 2 0.910749 3 0.883684 
+fourleptoncontrolregion up_jesHF_2017 0 1.000000 1 0.942864 2 0.910627 3 0.882735 
+fourleptoncontrolregion up_jesRelativeBal 0 1.000000 1 0.940382 2 0.910495 3 0.885385 
+fourleptoncontrolregion up_jesRelativeSample_2017 0 1.000000 1 0.943642 2 0.907592 3 0.877365 
+fourleptoncontrolregion up_lf 0 1.000000 1 0.942144 2 0.911065 3 0.883839 
+fourleptoncontrolregion up_lfstats1 0 1.000000 1 0.904581 2 0.865040 3 0.822830 
+fourleptoncontrolregion up_lfstats2 0 1.000000 1 0.911357 2 0.873152 3 0.832281 
+npcontrolregion_dilepton_ee central 0 1.000000 3 1.161108 4 1.140462 5 1.482541 
+npcontrolregion_dilepton_ee down_cferr1 0 1.000000 3 1.107971 4 0.993473 5 1.466380 
+npcontrolregion_dilepton_ee down_cferr2 0 1.000000 3 1.142846 4 1.053850 5 1.494259 
+npcontrolregion_dilepton_ee down_hf 0 1.000000 3 1.290149 4 1.223889 5 1.968369 
+npcontrolregion_dilepton_ee down_hfstats1 0 1.000000 3 1.161999 4 1.141883 5 1.450200 
+npcontrolregion_dilepton_ee down_hfstats2 0 1.000000 3 1.163124 4 1.142680 5 1.490190 
+npcontrolregion_dilepton_ee down_jes 0 1.000000 2 1.177226 3 1.193766 4 1.101906 5 2.052561 
+npcontrolregion_dilepton_ee down_jesAbsolute 0 1.000000 2 1.390742 3 0.880941 4 0.810311 5 1.220827 
+npcontrolregion_dilepton_ee down_jesAbsolute_2017 0 1.000000 3 0.892314 4 0.843098 5 1.014401 
+npcontrolregion_dilepton_ee down_jesBBEC1 0 1.000000 2 0.862349 3 0.901188 4 0.818581 5 1.023335 
+npcontrolregion_dilepton_ee down_jesBBEC1_2017 0 1.000000 3 0.896317 4 0.842866 5 1.018360 
+npcontrolregion_dilepton_ee down_jesEC2 0 1.000000 3 0.901756 4 0.842008 5 1.019263 
+npcontrolregion_dilepton_ee down_jesEC2_2017 0 1.000000 3 0.903070 4 0.840925 5 1.017054 
+npcontrolregion_dilepton_ee down_jesFlavorQCD 0 1.000000 2 1.292794 3 1.160252 4 1.082478 5 1.898785 
+npcontrolregion_dilepton_ee down_jesHF 0 1.000000 3 0.895038 4 0.840266 5 1.017344 
+npcontrolregion_dilepton_ee down_jesHF_2017 0 1.000000 3 0.895618 4 0.839388 5 1.005040 
+npcontrolregion_dilepton_ee down_jesRelativeBal 0 1.000000 3 1.157472 4 1.141126 5 1.482412 
+npcontrolregion_dilepton_ee down_jesRelativeSample_2017 0 1.000000 3 0.896632 4 0.838748 5 1.056442 
+npcontrolregion_dilepton_ee down_lf 0 1.000000 3 1.162040 4 1.133080 5 1.625653 
+npcontrolregion_dilepton_ee down_lfstats1 0 1.000000 3 1.239579 4 1.240883 5 1.665333 
+npcontrolregion_dilepton_ee down_lfstats2 0 1.000000 3 1.230994 4 1.229177 5 1.672660 
+npcontrolregion_dilepton_ee up_cferr1 0 1.000000 3 1.234652 4 1.291411 5 1.530431 
+npcontrolregion_dilepton_ee up_cferr2 0 1.000000 3 1.201441 4 1.239269 5 1.504812 
+npcontrolregion_dilepton_ee up_hf 0 1.000000 3 1.049759 4 1.051356 5 1.087027 
+npcontrolregion_dilepton_ee up_hfstats1 0 1.000000 3 1.160143 4 1.138951 5 1.517117 
+npcontrolregion_dilepton_ee up_hfstats2 0 1.000000 3 1.159082 4 1.138236 5 1.476772 
+npcontrolregion_dilepton_ee up_jes 0 1.000000 3 1.108026 4 1.108846 5 1.449453 
+npcontrolregion_dilepton_ee up_jesAbsolute 0 1.000000 3 0.875425 4 0.829029 5 0.990075 
+npcontrolregion_dilepton_ee up_jesAbsolute_2017 0 1.000000 3 0.889566 4 0.841439 5 1.016277 
+npcontrolregion_dilepton_ee up_jesBBEC1 0 1.000000 3 0.878688 4 0.835431 5 0.998034 
+npcontrolregion_dilepton_ee up_jesBBEC1_2017 0 1.000000 3 0.892125 4 0.839731 5 1.006015 
+npcontrolregion_dilepton_ee up_jesEC2 0 1.000000 3 0.890885 4 0.837988 5 1.000864 
+npcontrolregion_dilepton_ee up_jesEC2_2017 0 1.000000 3 0.890782 4 0.837868 5 0.997004 
+npcontrolregion_dilepton_ee up_jesFlavorQCD 0 1.000000 3 1.131684 4 1.118450 5 1.474402 
+npcontrolregion_dilepton_ee up_jesHF 0 1.000000 3 0.896274 4 0.839937 5 1.006389 
+npcontrolregion_dilepton_ee up_jesHF_2017 0 1.000000 3 0.895938 4 0.839379 5 1.006136 
+npcontrolregion_dilepton_ee up_jesRelativeBal 0 1.000000 3 1.164089 4 1.144176 5 1.505119 
+npcontrolregion_dilepton_ee up_jesRelativeSample_2017 0 1.000000 3 0.886401 4 0.843756 5 1.008920 
+npcontrolregion_dilepton_ee up_lf 0 1.000000 3 1.155420 4 1.142199 5 1.346542 
+npcontrolregion_dilepton_ee up_lfstats1 0 1.000000 3 1.088327 4 1.048471 5 1.317354 
+npcontrolregion_dilepton_ee up_lfstats2 0 1.000000 3 1.095704 4 1.058311 5 1.312131 
+npcontrolregion_dilepton_em central 0 1.000000 3 1.249014 4 1.142959 
+npcontrolregion_dilepton_em down_cferr1 0 1.000000 3 1.092159 4 0.427909 
+npcontrolregion_dilepton_em down_cferr2 0 1.000000 3 1.162960 4 0.704328 
+npcontrolregion_dilepton_em down_hf 0 1.000000 3 1.332517 4 1.206930 
+npcontrolregion_dilepton_em down_hfstats1 0 1.000000 3 1.239870 4 1.144540 
+npcontrolregion_dilepton_em down_hfstats2 0 1.000000 3 1.256639 4 1.144697 
+npcontrolregion_dilepton_em down_jes 0 1.000000 3 1.267150 
+npcontrolregion_dilepton_em down_jesAbsolute 0 1.000000 3 0.845276 
+npcontrolregion_dilepton_em down_jesAbsolute_2017 0 1.000000 3 0.810669 4 0.000000 
+npcontrolregion_dilepton_em down_jesBBEC1 0 1.000000 3 0.809256 4 0.000000 
+npcontrolregion_dilepton_em down_jesBBEC1_2017 0 1.000000 3 0.808915 4 0.000000 
+npcontrolregion_dilepton_em down_jesEC2 0 1.000000 3 0.807898 4 0.000000 
+npcontrolregion_dilepton_em down_jesEC2_2017 0 1.000000 3 0.807460 4 0.000000 
+npcontrolregion_dilepton_em down_jesFlavorQCD 0 1.000000 3 1.250244 
+npcontrolregion_dilepton_em down_jesHF 0 1.000000 3 0.811268 4 0.000000 
+npcontrolregion_dilepton_em down_jesHF_2017 0 1.000000 3 0.808425 4 0.000000 
+npcontrolregion_dilepton_em down_jesRelativeBal 0 1.000000 3 1.247239 4 1.139762 
+npcontrolregion_dilepton_em down_jesRelativeSample_2017 0 1.000000 3 0.809976 4 0.000000 
+npcontrolregion_dilepton_em down_lf 0 1.000000 3 1.298825 4 1.130970 
+npcontrolregion_dilepton_em down_lfstats1 0 1.000000 3 1.315300 4 1.209280 
+npcontrolregion_dilepton_em down_lfstats2 0 1.000000 3 1.308470 4 1.202102 
+npcontrolregion_dilepton_em up_cferr1 0 1.000000 3 1.478668 4 1.815686 
+npcontrolregion_dilepton_em up_cferr2 0 1.000000 3 1.390540 4 1.586311 
+npcontrolregion_dilepton_em up_hf 0 1.000000 3 1.153776 4 1.074815 
+npcontrolregion_dilepton_em up_hfstats1 0 1.000000 3 1.260014 4 1.141312 
+npcontrolregion_dilepton_em up_hfstats2 0 1.000000 3 1.243668 4 1.141207 
+npcontrolregion_dilepton_em up_jes 0 1.000000 3 1.232365 4 1.023895 
+npcontrolregion_dilepton_em up_jesAbsolute 0 1.000000 3 0.806542 4 0.000000 
+npcontrolregion_dilepton_em up_jesAbsolute_2017 0 1.000000 3 0.809581 4 0.000000 
+npcontrolregion_dilepton_em up_jesBBEC1 0 1.000000 3 0.812307 4 0.000000 
+npcontrolregion_dilepton_em up_jesBBEC1_2017 0 1.000000 3 0.809924 4 0.000000 
+npcontrolregion_dilepton_em up_jesEC2 0 1.000000 3 0.807737 4 0.000000 
+npcontrolregion_dilepton_em up_jesEC2_2017 0 1.000000 3 0.806172 4 0.000000 
+npcontrolregion_dilepton_em up_jesFlavorQCD 0 1.000000 3 1.233622 4 1.080136 
+npcontrolregion_dilepton_em up_jesHF 0 1.000000 3 0.805819 4 0.000000 
+npcontrolregion_dilepton_em up_jesHF_2017 0 1.000000 3 0.806811 4 0.000000 
+npcontrolregion_dilepton_em up_jesRelativeBal 0 1.000000 3 1.254415 4 1.155623 
+npcontrolregion_dilepton_em up_jesRelativeSample_2017 0 1.000000 3 0.808118 4 0.000000 
+npcontrolregion_dilepton_em up_lf 0 1.000000 3 1.193135 4 1.149123 
+npcontrolregion_dilepton_em up_lfstats1 0 1.000000 3 1.186981 4 1.080004 
+npcontrolregion_dilepton_em up_lfstats2 0 1.000000 3 1.193278 4 1.086603 
+npcontrolregion_dilepton_inclusive central 0 1.000000 3 1.164504 4 1.253947 5 1.275665 
+npcontrolregion_dilepton_inclusive down_cferr1 0 1.000000 3 1.084594 4 1.118186 5 1.257467 
+npcontrolregion_dilepton_inclusive down_cferr2 0 1.000000 3 1.128071 4 1.174650 5 1.297631 
+npcontrolregion_dilepton_inclusive down_hf 0 1.000000 3 1.269539 4 1.421786 5 1.571959 
+npcontrolregion_dilepton_inclusive down_hfstats1 0 1.000000 3 1.162361 4 1.254939 5 1.262944 
+npcontrolregion_dilepton_inclusive down_hfstats2 0 1.000000 3 1.167656 4 1.257353 5 1.280755 
+npcontrolregion_dilepton_inclusive down_jes 0 1.000000 2 1.252826 3 1.192912 4 1.208893 5 1.638568 
+npcontrolregion_dilepton_inclusive down_jesAbsolute 0 1.000000 2 1.390742 3 0.884669 4 0.979099 5 0.895616 
+npcontrolregion_dilepton_inclusive down_jesAbsolute_2017 0 1.000000 3 0.875373 4 0.960360 5 0.907291 
+npcontrolregion_dilepton_inclusive down_jesBBEC1 0 1.000000 2 0.862349 3 0.887671 4 0.950337 5 0.836272 
+npcontrolregion_dilepton_inclusive down_jesBBEC1_2017 0 1.000000 3 0.876764 4 0.954355 5 0.910082 
+npcontrolregion_dilepton_inclusive down_jesEC2 0 1.000000 3 0.878748 4 0.969277 5 0.899803 
+npcontrolregion_dilepton_inclusive down_jesEC2_2017 0 1.000000 3 0.879655 4 0.969001 5 0.898716 
+npcontrolregion_dilepton_inclusive down_jesFlavorQCD 0 1.000000 2 1.323595 3 1.169421 4 1.182970 5 1.550414 
+npcontrolregion_dilepton_inclusive down_jesHF 0 1.000000 3 0.875791 4 0.963996 5 0.898700 
+npcontrolregion_dilepton_inclusive down_jesHF_2017 0 1.000000 3 0.875750 4 0.961728 5 0.892497 
+npcontrolregion_dilepton_inclusive down_jesRelativeBal 0 1.000000 3 1.161232 4 1.251774 5 1.274388 
+npcontrolregion_dilepton_inclusive down_jesRelativeSample_2017 0 1.000000 3 0.875430 4 0.965223 5 0.914938 
+npcontrolregion_dilepton_inclusive down_lf 0 1.000000 3 1.181070 4 1.246727 5 1.332703 
+npcontrolregion_dilepton_inclusive down_lfstats1 0 1.000000 3 1.237272 4 1.367205 5 1.422205 
+npcontrolregion_dilepton_inclusive down_lfstats2 0 1.000000 3 1.229190 4 1.359327 5 1.417698 
+npcontrolregion_dilepton_inclusive up_cferr1 0 1.000000 3 1.277170 4 1.394135 5 1.344892 
+npcontrolregion_dilepton_inclusive up_cferr2 0 1.000000 3 1.230784 4 1.345320 5 1.305495 
+npcontrolregion_dilepton_inclusive up_hf 0 1.000000 3 1.066911 4 1.097174 5 1.016010 
+npcontrolregion_dilepton_inclusive up_hfstats1 0 1.000000 3 1.167139 4 1.252894 5 1.289264 
+npcontrolregion_dilepton_inclusive up_hfstats2 0 1.000000 3 1.161917 4 1.250543 5 1.271348 
+npcontrolregion_dilepton_inclusive up_jes 0 1.000000 3 1.127170 4 1.127750 5 1.321734 
+npcontrolregion_dilepton_inclusive up_jesAbsolute 0 1.000000 3 0.859080 4 0.935746 5 0.871596 
+npcontrolregion_dilepton_inclusive up_jesAbsolute_2017 0 1.000000 3 0.871528 4 0.956047 5 0.897185 
+npcontrolregion_dilepton_inclusive up_jesBBEC1 0 1.000000 3 0.864797 4 0.858023 5 1.030647 
+npcontrolregion_dilepton_inclusive up_jesBBEC1_2017 0 1.000000 3 0.873440 4 0.962471 5 0.892416 
+npcontrolregion_dilepton_inclusive up_jesEC2 0 1.000000 3 0.873051 4 0.959303 5 0.892637 
+npcontrolregion_dilepton_inclusive up_jesEC2_2017 0 1.000000 3 0.872786 4 0.959290 5 0.890263 
+npcontrolregion_dilepton_inclusive up_jesFlavorQCD 0 1.000000 3 1.147632 4 1.190996 5 1.248290 
+npcontrolregion_dilepton_inclusive up_jesHF 0 1.000000 3 0.875610 4 0.961692 5 0.894228 
+npcontrolregion_dilepton_inclusive up_jesHF_2017 0 1.000000 3 0.875672 4 0.962001 5 0.893153 
+npcontrolregion_dilepton_inclusive up_jesRelativeBal 0 1.000000 3 1.167691 4 1.260444 5 1.286861 
+npcontrolregion_dilepton_inclusive up_jesRelativeSample_2017 0 1.000000 3 0.871105 4 0.973578 5 0.829595 
+npcontrolregion_dilepton_inclusive up_lf 0 1.000000 3 1.144388 4 1.254516 5 1.216557 
+npcontrolregion_dilepton_inclusive up_lfstats1 0 1.000000 3 1.096829 4 1.149981 5 1.143501 
+npcontrolregion_dilepton_inclusive up_lfstats2 0 1.000000 3 1.103928 4 1.156594 5 1.147522 
+npcontrolregion_dilepton_me central 0 1.000000 3 1.099807 4 1.713189 5 1.214344 
+npcontrolregion_dilepton_me down_cferr1 0 1.000000 3 1.027754 4 1.713189 5 1.188041 
+npcontrolregion_dilepton_me down_cferr2 0 1.000000 3 1.065476 4 1.713189 5 1.253878 
+npcontrolregion_dilepton_me down_hf 0 1.000000 3 1.166699 4 2.212413 5 1.402898 
+npcontrolregion_dilepton_me down_hfstats1 0 1.000000 3 1.094326 4 1.713285 5 1.216411 
+npcontrolregion_dilepton_me down_hfstats2 0 1.000000 3 1.102854 4 1.720972 5 1.217812 
+npcontrolregion_dilepton_me down_jes 0 1.000000 2 1.479624 3 1.113046 4 1.703002 5 1.224575 
+npcontrolregion_dilepton_me down_jesAbsolute 0 1.000000 3 0.908367 4 1.633466 5 0.570406 
+npcontrolregion_dilepton_me down_jesAbsolute_2017 0 1.000000 3 0.872137 4 1.737715 5 0.800180 
+npcontrolregion_dilepton_me down_jesBBEC1 0 1.000000 3 0.899730 4 1.743007 5 0.555678 
+npcontrolregion_dilepton_me down_jesBBEC1_2017 0 1.000000 3 0.870173 4 1.711173 5 0.801804 
+npcontrolregion_dilepton_me down_jesEC2 0 1.000000 3 0.869060 4 1.739565 5 0.797436 
+npcontrolregion_dilepton_me down_jesEC2_2017 0 1.000000 3 0.869280 4 1.739773 5 0.796826 
+npcontrolregion_dilepton_me down_jesFlavorQCD 0 1.000000 2 1.385196 3 1.105078 4 1.638402 5 1.202043 
+npcontrolregion_dilepton_me down_jesHF 0 1.000000 3 0.868365 4 1.723250 5 0.799973 
+npcontrolregion_dilepton_me down_jesHF_2017 0 1.000000 3 0.868426 4 1.715610 5 0.797902 
+npcontrolregion_dilepton_me down_jesRelativeBal 0 1.000000 3 1.097650 4 1.706199 5 1.210992 
+npcontrolregion_dilepton_me down_jesRelativeSample_2017 0 1.000000 3 0.865040 4 1.726894 5 0.797034 
+npcontrolregion_dilepton_me down_lf 0 1.000000 3 1.136987 4 1.707393 5 1.207470 
+npcontrolregion_dilepton_me down_lfstats1 0 1.000000 3 1.172726 4 1.878130 5 1.337015 
+npcontrolregion_dilepton_me down_lfstats2 0 1.000000 3 1.162233 4 1.885373 5 1.326084 
+npcontrolregion_dilepton_me up_cferr1 0 1.000000 3 1.186180 4 1.713189 5 1.327982 
+npcontrolregion_dilepton_me up_cferr2 0 1.000000 3 1.153693 4 1.713189 5 1.261676 
+npcontrolregion_dilepton_me up_hf 0 1.000000 3 1.030553 4 1.284488 5 1.022272 
+npcontrolregion_dilepton_me up_hfstats1 0 1.000000 3 1.106317 4 1.713084 5 1.212144 
+npcontrolregion_dilepton_me up_hfstats2 0 1.000000 3 1.097653 4 1.705405 5 1.210812 
+npcontrolregion_dilepton_me up_jes 0 1.000000 3 1.101984 4 1.201910 5 1.347866 
+npcontrolregion_dilepton_me up_jesAbsolute 0 1.000000 3 0.856521 4 1.638846 5 0.763937 
+npcontrolregion_dilepton_me up_jesAbsolute_2017 0 1.000000 3 0.865275 4 1.690720 5 0.797772 
+npcontrolregion_dilepton_me up_jesBBEC1 0 1.000000 3 0.862378 4 1.442544 5 1.103559 
+npcontrolregion_dilepton_me up_jesBBEC1_2017 0 1.000000 3 0.866176 4 1.719913 5 0.796772 
+npcontrolregion_dilepton_me up_jesEC2 0 1.000000 3 0.867161 4 1.704882 5 0.802735 
+npcontrolregion_dilepton_me up_jesEC2_2017 0 1.000000 3 0.868092 4 1.703277 5 0.800782 
+npcontrolregion_dilepton_me up_jesFlavorQCD 0 1.000000 3 1.114160 4 1.441043 5 1.157313 
+npcontrolregion_dilepton_me up_jesHF 0 1.000000 3 0.869004 4 1.709258 5 0.800151 
+npcontrolregion_dilepton_me up_jesHF_2017 0 1.000000 3 0.868719 4 1.715453 5 0.798284 
+npcontrolregion_dilepton_me up_jesRelativeBal 0 1.000000 3 1.102048 4 1.732330 5 1.217831 
+npcontrolregion_dilepton_me up_jesRelativeSample_2017 0 1.000000 3 0.869770 4 1.596038 5 0.560608 
+npcontrolregion_dilepton_me up_lf 0 1.000000 3 1.064120 4 1.707893 5 1.211963 
+npcontrolregion_dilepton_me up_lfstats1 0 1.000000 3 1.032385 4 1.561338 5 1.103156 
+npcontrolregion_dilepton_me up_lfstats2 0 1.000000 3 1.041666 4 1.555175 5 1.112339 
+npcontrolregion_dilepton_mm central 0 1.000000 3 1.226426 4 1.096499 5 0.839004 
+npcontrolregion_dilepton_mm down_cferr1 0 1.000000 3 1.066653 4 1.044271 5 0.839004 
+npcontrolregion_dilepton_mm down_cferr2 0 1.000000 3 1.141968 4 1.074749 5 0.839004 
+npcontrolregion_dilepton_mm down_hf 0 1.000000 3 1.313273 4 1.164536 5 0.889909 
+npcontrolregion_dilepton_mm down_hfstats1 0 1.000000 3 1.228398 4 1.097190 5 0.840774 
+npcontrolregion_dilepton_mm down_hfstats2 0 1.000000 3 1.228350 4 1.098856 5 0.841277 
+npcontrolregion_dilepton_mm down_jes 0 1.000000 3 1.283561 4 1.052285 
+npcontrolregion_dilepton_mm down_jesAbsolute 0 1.000000 3 0.942672 4 0.825900 
+npcontrolregion_dilepton_mm down_jesAbsolute_2017 0 1.000000 3 0.908440 4 0.822642 
+npcontrolregion_dilepton_mm down_jesBBEC1 0 1.000000 3 0.931475 4 0.823991 
+npcontrolregion_dilepton_mm down_jesBBEC1_2017 0 1.000000 3 0.906823 4 0.820435 
+npcontrolregion_dilepton_mm down_jesEC2 0 1.000000 3 0.895538 4 0.819044 5 0.848524 
+npcontrolregion_dilepton_mm down_jesEC2_2017 0 1.000000 3 0.899247 4 0.820075 5 0.849369 
+npcontrolregion_dilepton_mm down_jesFlavorQCD 0 1.000000 3 1.267457 4 1.042379 
+npcontrolregion_dilepton_mm down_jesHF 0 1.000000 3 0.902662 4 0.814777 5 0.838952 
+npcontrolregion_dilepton_mm down_jesHF_2017 0 1.000000 3 0.904160 4 0.813884 5 0.838656 
+npcontrolregion_dilepton_mm down_jesRelativeBal 0 1.000000 3 1.217590 4 1.092865 5 0.840502 
+npcontrolregion_dilepton_mm down_jesRelativeSample_2017 0 1.000000 3 0.897720 4 0.820404 5 0.844140 
+npcontrolregion_dilepton_mm down_lf 0 1.000000 3 1.215463 4 1.089821 5 0.829553 
+npcontrolregion_dilepton_mm down_lfstats1 0 1.000000 3 1.259041 4 1.203672 5 0.948392 
+npcontrolregion_dilepton_mm down_lfstats2 0 1.000000 3 1.262856 4 1.189372 5 0.927657 
+npcontrolregion_dilepton_mm up_cferr1 0 1.000000 3 1.506321 4 1.174253 5 0.839004 
+npcontrolregion_dilepton_mm up_cferr2 0 1.000000 3 1.388797 4 1.144572 5 0.839004 
+npcontrolregion_dilepton_mm up_hf 0 1.000000 3 1.141111 4 1.024220 5 0.784172 
+npcontrolregion_dilepton_mm up_hfstats1 0 1.000000 3 1.224363 4 1.095763 5 0.837068 
+npcontrolregion_dilepton_mm up_hfstats2 0 1.000000 3 1.224426 4 1.094174 5 0.836681 
+npcontrolregion_dilepton_mm up_jes 0 1.000000 3 1.101649 4 1.131175 5 0.834047 
+npcontrolregion_dilepton_mm up_jesAbsolute 0 1.000000 3 0.858888 4 0.793567 5 0.839140 
+npcontrolregion_dilepton_mm up_jesAbsolute_2017 0 1.000000 3 0.898075 4 0.807474 5 0.838147 
+npcontrolregion_dilepton_mm up_jesBBEC1 0 1.000000 3 0.889201 4 0.807067 5 0.836834 
+npcontrolregion_dilepton_mm up_jesBBEC1_2017 0 1.000000 3 0.902379 4 0.812244 5 0.838552 
+npcontrolregion_dilepton_mm up_jesEC2 0 1.000000 3 0.910229 4 0.816562 5 0.837663 
+npcontrolregion_dilepton_mm up_jesEC2_2017 0 1.000000 3 0.907017 4 0.818386 5 0.838480 
+npcontrolregion_dilepton_mm up_jesFlavorQCD 0 1.000000 3 1.188352 4 1.063828 5 0.842884 
+npcontrolregion_dilepton_mm up_jesHF 0 1.000000 3 0.900084 4 0.818785 5 0.839979 
+npcontrolregion_dilepton_mm up_jesHF_2017 0 1.000000 3 0.902976 4 0.815336 5 0.838810 
+npcontrolregion_dilepton_mm up_jesRelativeBal 0 1.000000 3 1.229185 4 1.094789 5 0.839173 
+npcontrolregion_dilepton_mm up_jesRelativeSample_2017 0 1.000000 3 0.907794 4 0.821701 
+npcontrolregion_dilepton_mm up_lf 0 1.000000 3 1.231985 4 1.098340 5 0.840383 
+npcontrolregion_dilepton_mm up_lfstats1 0 1.000000 3 1.193483 4 0.998808 5 0.742975 
+npcontrolregion_dilepton_mm up_lfstats2 0 1.000000 3 1.190663 4 1.010673 5 0.759248 
+nplownjetscontrolregion_dilepton_inclusive central 0 1.000000 1 1.037324 2 1.090715 
+nplownjetscontrolregion_dilepton_inclusive down_cferr1 0 1.000000 1 1.023233 2 1.071599 
+nplownjetscontrolregion_dilepton_inclusive down_cferr2 0 1.000000 1 1.031616 2 1.081510 
+nplownjetscontrolregion_dilepton_inclusive down_hf 0 1.000000 1 1.066285 2 1.145563 
+nplownjetscontrolregion_dilepton_inclusive down_hfstats1 0 1.000000 1 1.036968 2 1.089621 
+nplownjetscontrolregion_dilepton_inclusive down_hfstats2 0 1.000000 1 1.038210 2 1.092565 
+nplownjetscontrolregion_dilepton_inclusive down_jes 0 1.000000 1 1.042016 2 1.114432 
+nplownjetscontrolregion_dilepton_inclusive down_jesAbsolute 0 1.000000 1 0.972705 2 0.988568 
+nplownjetscontrolregion_dilepton_inclusive down_jesAbsolute_2017 0 1.000000 1 0.970828 2 0.983488 
+nplownjetscontrolregion_dilepton_inclusive down_jesBBEC1 0 1.000000 1 0.972868 2 0.985543 
+nplownjetscontrolregion_dilepton_inclusive down_jesBBEC1_2017 0 1.000000 1 0.970646 2 0.983079 
+nplownjetscontrolregion_dilepton_inclusive down_jesEC2 0 1.000000 1 0.971581 2 0.983600 
+nplownjetscontrolregion_dilepton_inclusive down_jesEC2_2017 0 1.000000 1 0.971863 2 0.984050 
+nplownjetscontrolregion_dilepton_inclusive down_jesFlavorQCD 0 1.000000 1 1.038898 2 1.103175 
+nplownjetscontrolregion_dilepton_inclusive down_jesHF 0 1.000000 1 0.970973 2 0.982625 
+nplownjetscontrolregion_dilepton_inclusive down_jesHF_2017 0 1.000000 1 0.970817 2 0.982110 
+nplownjetscontrolregion_dilepton_inclusive down_jesRelativeBal 0 1.000000 1 1.036943 2 1.089669 
+nplownjetscontrolregion_dilepton_inclusive down_jesRelativeSample_2017 0 1.000000 1 0.971409 2 0.982954 3 0.814789 
+nplownjetscontrolregion_dilepton_inclusive down_lf 0 1.000000 1 1.040803 2 1.097405 
+nplownjetscontrolregion_dilepton_inclusive down_lfstats1 0 1.000000 1 1.059230 2 1.136591 
+nplownjetscontrolregion_dilepton_inclusive down_lfstats2 0 1.000000 1 1.057448 2 1.132344 
+nplownjetscontrolregion_dilepton_inclusive up_cferr1 0 1.000000 1 1.055291 2 1.118126 
+nplownjetscontrolregion_dilepton_inclusive up_cferr2 0 1.000000 1 1.047608 2 1.108474 
+nplownjetscontrolregion_dilepton_inclusive up_hf 0 1.000000 1 1.006657 2 1.033920 
+nplownjetscontrolregion_dilepton_inclusive up_hfstats1 0 1.000000 1 1.037780 2 1.091924 
+nplownjetscontrolregion_dilepton_inclusive up_hfstats2 0 1.000000 1 1.036577 2 1.089016 
+nplownjetscontrolregion_dilepton_inclusive up_jes 0 1.000000 1 1.030827 2 1.074198 3 1.075351 
+nplownjetscontrolregion_dilepton_inclusive up_jesAbsolute 0 1.000000 1 0.969731 2 0.971735 3 0.958385 
+nplownjetscontrolregion_dilepton_inclusive up_jesAbsolute_2017 0 1.000000 1 0.969774 2 0.983066 3 0.826861 
+nplownjetscontrolregion_dilepton_inclusive up_jesBBEC1 0 1.000000 1 0.970766 2 0.973292 3 0.897459 
+nplownjetscontrolregion_dilepton_inclusive up_jesBBEC1_2017 0 1.000000 1 0.970094 2 0.980288 3 0.830078 
+nplownjetscontrolregion_dilepton_inclusive up_jesEC2 0 1.000000 1 0.970356 2 0.980933 
+nplownjetscontrolregion_dilepton_inclusive up_jesEC2_2017 0 1.000000 1 0.970187 2 0.981027 
+nplownjetscontrolregion_dilepton_inclusive up_jesFlavorQCD 0 1.000000 1 1.033961 2 1.083352 3 0.960366 
+nplownjetscontrolregion_dilepton_inclusive up_jesHF 0 1.000000 1 0.970831 2 0.982042 
+nplownjetscontrolregion_dilepton_inclusive up_jesHF_2017 0 1.000000 1 0.970760 2 0.981911 
+nplownjetscontrolregion_dilepton_inclusive up_jesRelativeBal 0 1.000000 1 1.037109 2 1.092477 3 0.822228 
+nplownjetscontrolregion_dilepton_inclusive up_jesRelativeSample_2017 0 1.000000 1 0.969536 2 0.982186 
+nplownjetscontrolregion_dilepton_inclusive up_lf 0 1.000000 1 1.032169 2 1.080752 
+nplownjetscontrolregion_dilepton_inclusive up_lfstats1 0 1.000000 1 1.015924 2 1.046755 
+nplownjetscontrolregion_dilepton_inclusive up_lfstats2 0 1.000000 1 1.017689 2 1.050778 
+signalregion_dilepton_ee central 0 1.000000 3 1.124783 4 1.153956 5 1.078968 7 1.416386 
+signalregion_dilepton_ee down_cferr1 0 1.000000 3 1.081197 4 1.118443 5 0.984110 7 1.416386 
+signalregion_dilepton_ee down_cferr2 0 1.000000 3 1.100837 4 1.138223 5 1.048940 7 1.416386 
+signalregion_dilepton_ee down_hf 0 1.000000 3 1.203493 4 1.264410 5 1.148334 7 1.668515 
+signalregion_dilepton_ee down_hfstats1 0 1.000000 3 1.124465 4 1.155428 5 1.080545 7 1.418152 
+signalregion_dilepton_ee down_hfstats2 0 1.000000 3 1.127038 4 1.156278 5 1.081541 7 1.422593 
+signalregion_dilepton_ee down_jes 0 1.000000 1 1.089290 2 1.111893 3 1.149403 4 1.165002 5 1.098922 7 1.324525 
+signalregion_dilepton_ee down_jesAbsolute 0 1.000000 2 1.202524 3 1.021829 4 0.989715 5 0.621308 7 1.415123 
+signalregion_dilepton_ee down_jesAbsolute_2017 0 1.000000 2 1.256295 3 1.014794 4 1.030220 5 0.618960 7 1.446285 
+signalregion_dilepton_ee down_jesBBEC1 0 1.000000 2 1.308628 3 1.008798 4 1.039788 5 0.625768 7 1.402638 
+signalregion_dilepton_ee down_jesBBEC1_2017 0 1.000000 3 1.016367 4 1.030204 5 0.621435 7 1.403730 
+signalregion_dilepton_ee down_jesEC2 0 1.000000 3 1.014233 4 1.037145 5 0.623587 7 1.401812 
+signalregion_dilepton_ee down_jesEC2_2017 0 1.000000 3 1.015314 4 1.037093 5 0.622796 7 1.412455 
+signalregion_dilepton_ee down_jesFlavorQCD 0 1.000000 2 1.122830 3 1.138290 4 1.148186 5 1.085441 7 1.411275 
+signalregion_dilepton_ee down_jesHF 0 1.000000 3 1.010511 4 1.032836 5 0.620021 7 1.411301 
+signalregion_dilepton_ee down_jesHF_2017 0 1.000000 3 1.010157 4 1.032910 5 0.620172 7 1.425406 
+signalregion_dilepton_ee down_jesRelativeBal 0 1.000000 3 1.127020 4 1.145698 5 1.076501 7 1.441331 
+signalregion_dilepton_ee down_jesRelativeSample_2017 0 1.000000 3 1.013021 4 1.035924 5 0.636809 7 1.372980 
+signalregion_dilepton_ee down_lf 0 1.000000 3 1.127998 4 1.145813 5 1.068207 7 1.397704 
+signalregion_dilepton_ee down_lfstats1 0 1.000000 3 1.203420 4 1.253590 5 1.202307 7 1.591704 
+signalregion_dilepton_ee down_lfstats2 0 1.000000 3 1.193812 4 1.244884 5 1.178725 7 1.585087 
+signalregion_dilepton_ee up_cferr1 0 1.000000 3 1.172000 4 1.201295 5 1.248728 7 1.416386 
+signalregion_dilepton_ee up_cferr2 0 1.000000 3 1.154918 4 1.182337 5 1.171204 7 1.416386 
+signalregion_dilepton_ee up_hf 0 1.000000 3 1.042767 4 1.039585 5 1.002207 7 1.153338 
+signalregion_dilepton_ee up_hfstats1 0 1.000000 3 1.125155 4 1.152075 5 1.077252 7 1.414167 
+signalregion_dilepton_ee up_hfstats2 0 1.000000 3 1.122682 4 1.151327 5 1.076346 7 1.409886 
+signalregion_dilepton_ee up_jes 0 1.000000 3 1.088519 4 1.124526 5 1.067675 7 1.497759 
+signalregion_dilepton_ee up_jesAbsolute 0 1.000000 3 0.997836 4 1.028099 5 0.629419 7 1.454715 
+signalregion_dilepton_ee up_jesAbsolute_2017 0 1.000000 3 1.006980 4 1.029122 5 0.619750 7 1.402694 
+signalregion_dilepton_ee up_jesBBEC1 0 1.000000 3 0.989239 4 1.046833 5 0.628915 7 1.492460 
+signalregion_dilepton_ee up_jesBBEC1_2017 0 1.000000 3 1.007351 4 1.030936 5 0.617248 7 1.447646 
+signalregion_dilepton_ee up_jesEC2 0 1.000000 3 1.006529 4 1.029059 5 0.619980 7 1.408322 
+signalregion_dilepton_ee up_jesEC2_2017 0 1.000000 3 1.005931 4 1.027702 5 0.620309 7 1.410516 
+signalregion_dilepton_ee up_jesFlavorQCD 0 1.000000 3 1.111975 4 1.120261 5 1.081218 7 1.476510 
+signalregion_dilepton_ee up_jesHF 0 1.000000 3 1.009610 4 1.033897 5 0.620910 7 1.406828 
+signalregion_dilepton_ee up_jesHF_2017 0 1.000000 3 1.010102 4 1.032207 5 0.619920 7 1.413485 
+signalregion_dilepton_ee up_jesRelativeBal 0 1.000000 3 1.128155 4 1.157386 5 1.079648 7 1.421653 
+signalregion_dilepton_ee up_jesRelativeSample_2017 0 1.000000 3 1.010931 4 1.026334 5 0.621553 7 1.430763 
+signalregion_dilepton_ee up_lf 0 1.000000 3 1.117433 4 1.152322 5 1.081849 7 1.425583 
+signalregion_dilepton_ee up_lfstats1 0 1.000000 3 1.050914 4 1.061828 5 0.968825 7 1.252456 
+signalregion_dilepton_ee up_lfstats2 0 1.000000 3 1.059655 4 1.069741 5 0.987890 7 1.261404 
+signalregion_dilepton_em central 0 1.000000 3 1.124634 4 1.176752 5 1.097293 
+signalregion_dilepton_em down_cferr1 0 1.000000 3 1.076888 4 1.176752 5 0.955840 
+signalregion_dilepton_em down_cferr2 0 1.000000 3 1.101492 4 1.176752 5 1.029520 
+signalregion_dilepton_em down_hf 0 1.000000 3 1.269795 4 1.254260 5 1.198609 
+signalregion_dilepton_em down_hfstats1 0 1.000000 3 1.122602 4 1.177765 5 1.092014 
+signalregion_dilepton_em down_hfstats2 0 1.000000 3 1.128690 4 1.179569 5 1.102346 
+signalregion_dilepton_em down_jes 0 1.000000 2 1.102191 3 1.147812 4 1.291900 5 0.932041 
+signalregion_dilepton_em down_jesAbsolute 0 1.000000 3 1.007480 4 1.217312 5 0.000000 
+signalregion_dilepton_em down_jesAbsolute_2017 0 1.000000 3 0.999295 4 1.199630 5 0.000000 
+signalregion_dilepton_em down_jesBBEC1 0 1.000000 3 0.996028 4 1.276747 5 0.000000 
+signalregion_dilepton_em down_jesBBEC1_2017 0 1.000000 3 0.998952 4 1.199994 5 0.000000 
+signalregion_dilepton_em down_jesEC2 0 1.000000 3 0.998955 4 1.183871 5 0.643071 
+signalregion_dilepton_em down_jesEC2_2017 0 1.000000 3 0.999327 4 1.185957 5 0.647064 
+signalregion_dilepton_em down_jesFlavorQCD 0 1.000000 2 0.886757 3 1.140654 4 1.223451 5 0.924338 
+signalregion_dilepton_em down_jesHF 0 1.000000 3 0.997677 4 1.178745 5 0.642068 
+signalregion_dilepton_em down_jesHF_2017 0 1.000000 3 0.996558 4 1.177664 5 0.645574 
+signalregion_dilepton_em down_jesRelativeBal 0 1.000000 3 1.118123 4 1.182651 5 1.178682 
+signalregion_dilepton_em down_jesRelativeSample_2017 0 1.000000 3 0.995537 4 1.190530 5 0.643481 
+signalregion_dilepton_em down_lf 0 1.000000 3 1.135050 4 1.168645 5 1.110197 
+signalregion_dilepton_em down_lfstats1 0 1.000000 3 1.202790 4 1.298788 5 1.181563 
+signalregion_dilepton_em down_lfstats2 0 1.000000 3 1.201707 4 1.279086 5 1.176058 
+signalregion_dilepton_em up_cferr1 0 1.000000 3 1.205314 4 1.176752 5 1.266104 
+signalregion_dilepton_em up_cferr2 0 1.000000 3 1.171067 4 1.176752 5 1.197138 
+signalregion_dilepton_em up_hf 0 1.000000 3 0.985323 4 1.092603 5 0.992350 
+signalregion_dilepton_em up_hfstats1 0 1.000000 3 1.126695 4 1.175569 5 1.102260 
+signalregion_dilepton_em up_hfstats2 0 1.000000 3 1.120761 4 1.173859 5 1.092385 
+signalregion_dilepton_em up_jes 0 1.000000 3 1.084062 4 1.179252 5 1.138544 
+signalregion_dilepton_em up_jesAbsolute 0 1.000000 3 0.988316 4 1.118475 5 0.610903 
+signalregion_dilepton_em up_jesAbsolute_2017 0 1.000000 3 0.987454 4 1.193405 5 0.641043 
+signalregion_dilepton_em up_jesBBEC1 0 1.000000 3 0.979257 4 1.177751 5 0.628572 
+signalregion_dilepton_em up_jesBBEC1_2017 0 1.000000 3 0.988174 4 1.184786 5 0.641312 
+signalregion_dilepton_em up_jesEC2 0 1.000000 3 0.995486 4 1.168521 5 0.642984 
+signalregion_dilepton_em up_jesEC2_2017 0 1.000000 3 0.996740 4 1.168552 5 0.638960 
+signalregion_dilepton_em up_jesFlavorQCD 0 1.000000 3 1.092465 4 1.212975 5 1.154508 
+signalregion_dilepton_em up_jesHF 0 1.000000 3 0.996716 4 1.173359 5 0.635923 
+signalregion_dilepton_em up_jesHF_2017 0 1.000000 3 0.996508 4 1.175887 5 0.642138 
+signalregion_dilepton_em up_jesRelativeBal 0 1.000000 3 1.125936 4 1.181345 5 1.101732 
+signalregion_dilepton_em up_jesRelativeSample_2017 0 1.000000 3 0.992417 4 1.189744 5 0.000000 
+signalregion_dilepton_em up_lf 0 1.000000 3 1.108349 4 1.178620 5 1.070860 
+signalregion_dilepton_em up_lfstats1 0 1.000000 3 1.051946 4 1.064845 5 1.018943 
+signalregion_dilepton_em up_lfstats2 0 1.000000 3 1.053166 4 1.081708 5 1.023910 
+signalregion_dilepton_inclusive central 0 1.000000 3 1.126715 4 1.191934 5 1.086717 7 1.154479 
+signalregion_dilepton_inclusive down_cferr1 0 1.000000 3 1.083365 4 1.147417 5 0.992026 7 1.103996 
+signalregion_dilepton_inclusive down_cferr2 0 1.000000 3 1.103941 4 1.174349 5 1.052143 7 1.142105 
+signalregion_dilepton_inclusive down_hf 0 1.000000 3 1.220228 4 1.296946 5 1.163524 7 1.314609 
+signalregion_dilepton_inclusive down_hfstats1 0 1.000000 3 1.125713 4 1.192226 5 1.086911 7 1.156320 
+signalregion_dilepton_inclusive down_hfstats2 0 1.000000 3 1.129403 4 1.194439 5 1.089876 7 1.158952 
+signalregion_dilepton_inclusive down_jes 0 1.000000 1 1.089290 2 1.101317 3 1.149012 4 1.241832 5 1.078062 7 1.058224 
+signalregion_dilepton_inclusive down_jesAbsolute 0 1.000000 2 1.216919 3 1.018621 4 1.035736 5 0.543644 7 0.707561 
+signalregion_dilepton_inclusive down_jesAbsolute_2017 0 1.000000 2 1.256295 3 1.017665 4 1.045689 5 0.607785 7 0.723142 
+signalregion_dilepton_inclusive down_jesBBEC1 0 1.000000 2 1.308628 3 1.013089 4 1.064783 5 0.616566 7 0.701319 
+signalregion_dilepton_inclusive down_jesBBEC1_2017 0 1.000000 3 1.018027 4 1.044525 5 0.609252 7 0.701865 
+signalregion_dilepton_inclusive down_jesEC2 0 1.000000 3 1.016468 4 1.040052 5 0.677709 7 0.700906 
+signalregion_dilepton_inclusive down_jesEC2_2017 0 1.000000 3 1.017262 4 1.039857 5 0.678071 7 0.706228 
+signalregion_dilepton_inclusive down_jesFlavorQCD 0 1.000000 2 1.077339 3 1.137738 4 1.208803 5 1.065303 7 1.104101 
+signalregion_dilepton_inclusive down_jesHF 0 1.000000 3 1.014043 4 1.036606 5 0.674262 7 0.705651 
+signalregion_dilepton_inclusive down_jesHF_2017 0 1.000000 3 1.013436 4 1.036088 5 0.675036 7 0.712703 
+signalregion_dilepton_inclusive down_jesRelativeBal 0 1.000000 3 1.126484 4 1.188642 5 1.100941 7 1.165597 
+signalregion_dilepton_inclusive down_jesRelativeSample_2017 0 1.000000 3 1.014928 4 1.039956 5 0.686456 7 0.686490 
+signalregion_dilepton_inclusive down_lf 0 1.000000 3 1.133309 4 1.200188 5 1.080543 7 1.138613 
+signalregion_dilepton_inclusive down_lfstats1 0 1.000000 3 1.204165 4 1.298881 5 1.207711 7 1.322565 
+signalregion_dilepton_inclusive down_lfstats2 0 1.000000 3 1.197011 4 1.286892 5 1.187280 7 1.301962 
+signalregion_dilepton_inclusive up_cferr1 0 1.000000 3 1.183518 4 1.248380 5 1.239311 7 1.233934 
+signalregion_dilepton_inclusive up_cferr2 0 1.000000 3 1.161223 4 1.223164 5 1.171251 7 1.198657 
+signalregion_dilepton_inclusive up_hf 0 1.000000 3 1.031575 4 1.083931 5 1.002813 7 0.987655 
+signalregion_dilepton_inclusive up_hfstats1 0 1.000000 3 1.127801 4 1.191736 5 1.086343 7 1.152313 
+signalregion_dilepton_inclusive up_hfstats2 0 1.000000 3 1.124197 4 1.189641 5 1.083531 7 1.149814 
+signalregion_dilepton_inclusive up_jes 0 1.000000 3 1.091828 4 1.155402 5 1.077516 7 1.176168 
+signalregion_dilepton_inclusive up_jesAbsolute 0 1.000000 3 1.003246 4 1.023809 5 0.670522 7 0.727357 
+signalregion_dilepton_inclusive up_jesAbsolute_2017 0 1.000000 3 1.009075 4 1.040523 5 0.672858 7 0.701347 
+signalregion_dilepton_inclusive up_jesBBEC1 0 1.000000 3 0.995858 4 1.045204 5 0.674331 7 0.746230 
+signalregion_dilepton_inclusive up_jesBBEC1_2017 0 1.000000 3 1.009742 4 1.040501 5 0.671779 7 0.723823 
+signalregion_dilepton_inclusive up_jesEC2 0 1.000000 3 1.010805 4 1.032152 5 0.674339 7 0.704161 
+signalregion_dilepton_inclusive up_jesEC2_2017 0 1.000000 3 1.011020 4 1.031569 5 0.673699 7 0.705258 
+signalregion_dilepton_inclusive up_jesFlavorQCD 0 1.000000 3 1.110004 4 1.168072 5 1.094757 7 1.174742 
+signalregion_dilepton_inclusive up_jesHF 0 1.000000 3 1.012936 4 1.036310 5 0.674105 7 0.703414 
+signalregion_dilepton_inclusive up_jesHF_2017 0 1.000000 3 1.013359 4 1.035389 5 0.674456 7 0.706742 
+signalregion_dilepton_inclusive up_jesRelativeBal 0 1.000000 3 1.129943 4 1.196004 5 1.088417 7 1.114402 
+signalregion_dilepton_inclusive up_jesRelativeSample_2017 0 1.000000 3 1.013709 4 1.045146 5 0.608855 7 0.715381 
+signalregion_dilepton_inclusive up_lf 0 1.000000 3 1.115629 4 1.176475 5 1.083765 7 1.161422 
+signalregion_dilepton_inclusive up_lfstats1 0 1.000000 3 1.054127 4 1.093524 5 0.978565 7 1.004566 
+signalregion_dilepton_inclusive up_lfstats2 0 1.000000 3 1.060700 4 1.104087 5 0.995076 7 1.021757 
+signalregion_dilepton_me central 0 1.000000 3 1.130035 4 1.274027 7 0.892573 
+signalregion_dilepton_me down_cferr1 0 1.000000 3 1.085690 4 1.257857 7 0.791607 
+signalregion_dilepton_me down_cferr2 0 1.000000 3 1.108572 4 1.279555 7 0.867824 
+signalregion_dilepton_me down_hf 0 1.000000 3 1.200968 4 1.401560 7 0.960703 
+signalregion_dilepton_me down_hfstats1 0 1.000000 3 1.126141 4 1.276930 7 0.894488 
+signalregion_dilepton_me down_hfstats2 0 1.000000 3 1.132402 4 1.276872 7 0.895311 
+signalregion_dilepton_me down_jes 0 1.000000 3 1.155310 4 1.387745 7 0.791923 
+signalregion_dilepton_me down_jesAbsolute 0 1.000000 3 1.034458 4 1.152074 7 0.000000 
+signalregion_dilepton_me down_jesAbsolute_2017 0 1.000000 3 1.031548 4 1.109859 7 0.000000 
+signalregion_dilepton_me down_jesBBEC1 0 1.000000 3 1.031643 4 1.128097 7 0.000000 
+signalregion_dilepton_me down_jesBBEC1_2017 0 1.000000 3 1.028141 4 1.103721 7 0.000000 
+signalregion_dilepton_me down_jesEC2 0 1.000000 3 1.026049 4 1.102751 7 0.000000 
+signalregion_dilepton_me down_jesEC2_2017 0 1.000000 3 1.026573 4 1.100172 7 0.000000 
+signalregion_dilepton_me down_jesFlavorQCD 0 1.000000 3 1.133690 4 1.329577 7 0.796927 
+signalregion_dilepton_me down_jesHF 0 1.000000 3 1.027109 4 1.102861 7 0.000000 
+signalregion_dilepton_me down_jesHF_2017 0 1.000000 3 1.026392 4 1.100854 7 0.000000 
+signalregion_dilepton_me down_jesRelativeBal 0 1.000000 3 1.129246 4 1.273032 7 0.889863 
+signalregion_dilepton_me down_jesRelativeSample_2017 0 1.000000 3 1.028125 4 1.100569 7 0.000000 
+signalregion_dilepton_me down_lf 0 1.000000 3 1.153992 4 1.267070 7 0.879521 
+signalregion_dilepton_me down_lfstats1 0 1.000000 3 1.200167 4 1.386136 7 1.053426 
+signalregion_dilepton_me down_lfstats2 0 1.000000 3 1.193235 4 1.373094 7 1.018837 
+signalregion_dilepton_me up_cferr1 0 1.000000 3 1.206009 4 1.289263 7 1.051483 
+signalregion_dilepton_me up_cferr2 0 1.000000 3 1.173379 4 1.270912 7 0.980928 
+signalregion_dilepton_me up_hf 0 1.000000 3 1.052517 4 1.149874 7 0.821971 
+signalregion_dilepton_me up_hfstats1 0 1.000000 3 1.134391 4 1.270990 7 0.890460 
+signalregion_dilepton_me up_hfstats2 0 1.000000 3 1.128005 4 1.271118 7 0.889742 
+signalregion_dilepton_me up_jes 0 1.000000 3 1.113132 4 1.201775 7 0.854578 
+signalregion_dilepton_me up_jesAbsolute 0 1.000000 3 1.022169 4 1.053210 7 0.000000 
+signalregion_dilepton_me up_jesAbsolute_2017 0 1.000000 3 1.023115 4 1.097163 7 0.000000 
+signalregion_dilepton_me up_jesBBEC1 0 1.000000 3 1.023333 4 1.081429 7 0.000000 
+signalregion_dilepton_me up_jesBBEC1_2017 0 1.000000 3 1.023760 4 1.099924 7 0.000000 
+signalregion_dilepton_me up_jesEC2 0 1.000000 3 1.026075 4 1.100333 7 0.000000 
+signalregion_dilepton_me up_jesEC2_2017 0 1.000000 3 1.027862 4 1.101590 7 0.000000 
+signalregion_dilepton_me up_jesFlavorQCD 0 1.000000 3 1.120630 4 1.228304 7 0.872974 
+signalregion_dilepton_me up_jesHF 0 1.000000 3 1.024982 4 1.102464 7 0.000000 
+signalregion_dilepton_me up_jesHF_2017 0 1.000000 3 1.026125 4 1.100946 7 0.000000 
+signalregion_dilepton_me up_jesRelativeBal 0 1.000000 3 1.136313 4 1.279648 7 0.807151 
+signalregion_dilepton_me up_jesRelativeSample_2017 0 1.000000 3 1.030301 4 1.103940 7 0.000000 
+signalregion_dilepton_me up_lf 0 1.000000 3 1.103565 4 1.269782 7 0.897260 
+signalregion_dilepton_me up_lfstats1 0 1.000000 3 1.064072 4 1.171227 7 0.756676 
+signalregion_dilepton_me up_lfstats2 0 1.000000 3 1.070457 4 1.182114 7 0.782110 
+signalregion_dilepton_minus central 0 1.000000 3 1.100428 4 1.154927 5 1.086657 7 1.416386 
+signalregion_dilepton_minus down_cferr1 0 1.000000 3 1.081040 4 1.134640 5 0.986464 7 1.416386 
+signalregion_dilepton_minus down_cferr2 0 1.000000 3 1.091708 4 1.150827 5 1.054012 7 1.416386 
+signalregion_dilepton_minus down_hf 0 1.000000 3 1.183851 4 1.247563 5 1.164685 7 1.668515 
+signalregion_dilepton_minus down_hfstats1 0 1.000000 3 1.100089 4 1.156492 5 1.085313 7 1.418152 
+signalregion_dilepton_minus down_hfstats2 0 1.000000 3 1.103510 4 1.157740 5 1.090304 7 1.422593 
+signalregion_dilepton_minus down_jes 0 1.000000 1 1.089290 2 1.125523 3 1.111421 4 1.157378 5 1.025304 7 1.324525 
+signalregion_dilepton_minus down_jesAbsolute 0 1.000000 2 1.182615 3 1.052367 4 0.997958 5 0.000000 7 1.415123 
+signalregion_dilepton_minus down_jesAbsolute_2017 0 1.000000 3 1.043685 4 1.024960 5 0.284336 7 1.446285 
+signalregion_dilepton_minus down_jesBBEC1 0 1.000000 2 1.406378 3 1.031417 4 1.037777 5 0.292180 7 1.402638 
+signalregion_dilepton_minus down_jesBBEC1_2017 0 1.000000 3 1.043182 4 1.022312 5 0.283305 7 1.403730 
+signalregion_dilepton_minus down_jesEC2 0 1.000000 3 1.036104 4 1.027991 5 0.482397 7 1.401812 
+signalregion_dilepton_minus down_jesEC2_2017 0 1.000000 3 1.037150 4 1.029369 5 0.484228 7 1.412455 
+signalregion_dilepton_minus down_jesFlavorQCD 0 1.000000 2 1.016089 3 1.118940 4 1.135662 5 1.019839 7 1.411275 
+signalregion_dilepton_minus down_jesHF 0 1.000000 3 1.033726 4 1.020390 5 0.480495 7 1.411301 
+signalregion_dilepton_minus down_jesHF_2017 0 1.000000 3 1.033262 4 1.020510 5 0.481831 7 1.425406 
+signalregion_dilepton_minus down_jesRelativeBal 0 1.000000 3 1.104019 4 1.145863 5 1.116410 7 1.441331 
+signalregion_dilepton_minus down_jesRelativeSample_2017 0 1.000000 3 1.034410 4 1.025681 5 0.481379 7 1.372980 
+signalregion_dilepton_minus down_lf 0 1.000000 3 1.100831 4 1.145021 5 1.086859 7 1.397704 
+signalregion_dilepton_minus down_lfstats1 0 1.000000 3 1.175156 4 1.253180 5 1.203597 7 1.591704 
+signalregion_dilepton_minus down_lfstats2 0 1.000000 3 1.169633 4 1.243804 5 1.186430 7 1.585087 
+signalregion_dilepton_minus up_cferr1 0 1.000000 3 1.136675 4 1.181878 5 1.236504 7 1.416386 
+signalregion_dilepton_minus up_cferr2 0 1.000000 3 1.121297 4 1.167069 5 1.171747 7 1.416386 
+signalregion_dilepton_minus up_hf 0 1.000000 3 1.015853 4 1.059074 5 1.001729 7 1.153338 
+signalregion_dilepton_minus up_hfstats1 0 1.000000 3 1.100700 4 1.153202 5 1.087794 7 1.414167 
+signalregion_dilepton_minus up_hfstats2 0 1.000000 3 1.097381 4 1.152018 5 1.083026 7 1.409886 
+signalregion_dilepton_minus up_jes 0 1.000000 3 1.072677 4 1.124230 5 1.083103 7 1.497759 
+signalregion_dilepton_minus up_jesAbsolute 0 1.000000 3 1.010219 4 1.050613 5 0.459856 7 1.454715 
+signalregion_dilepton_minus up_jesAbsolute_2017 0 1.000000 3 1.030751 4 1.015113 5 0.478066 7 1.402694 
+signalregion_dilepton_minus up_jesBBEC1 0 1.000000 3 1.026732 4 1.010006 5 0.468181 7 1.492460 
+signalregion_dilepton_minus up_jesBBEC1_2017 0 1.000000 3 1.031258 4 1.018640 5 0.479411 7 1.447646 
+signalregion_dilepton_minus up_jesEC2 0 1.000000 3 1.030210 4 1.014106 5 0.480705 7 1.408322 
+signalregion_dilepton_minus up_jesEC2_2017 0 1.000000 3 1.030329 4 1.013639 5 0.478966 7 1.410516 
+signalregion_dilepton_minus up_jesFlavorQCD 0 1.000000 3 1.083369 4 1.154558 5 1.100385 7 1.476510 
+signalregion_dilepton_minus up_jesHF 0 1.000000 3 1.032622 4 1.020640 5 0.478936 7 1.406828 
+signalregion_dilepton_minus up_jesHF_2017 0 1.000000 3 1.033060 4 1.019352 5 0.481023 7 1.413485 
+signalregion_dilepton_minus up_jesRelativeBal 0 1.000000 3 1.101882 4 1.161006 5 1.089973 7 1.421653 
+signalregion_dilepton_minus up_jesRelativeSample_2017 0 1.000000 3 1.039553 4 1.017418 5 0.282206 7 1.430763 
+signalregion_dilepton_minus up_lf 0 1.000000 3 1.094618 4 1.156946 5 1.076099 7 1.425583 
+signalregion_dilepton_minus up_lfstats1 0 1.000000 3 1.029995 4 1.064347 5 0.981982 7 1.252456 
+signalregion_dilepton_minus up_lfstats2 0 1.000000 3 1.035289 4 1.072600 5 0.995846 7 1.261404 
+signalregion_dilepton_mm central 0 1.000000 3 1.172231 4 1.496851 5 1.119806 
+signalregion_dilepton_mm down_cferr1 0 1.000000 3 1.172231 4 0.888594 5 1.119806 
+signalregion_dilepton_mm down_cferr2 0 1.000000 3 1.172231 4 1.217487 5 1.119806 
+signalregion_dilepton_mm down_hf 0 1.000000 3 1.233770 4 1.500872 5 1.199684 
+signalregion_dilepton_mm down_hfstats1 0 1.000000 3 1.174973 4 1.455458 5 1.121266 
+signalregion_dilepton_mm down_hfstats2 0 1.000000 3 1.173979 4 1.499244 5 1.123279 
+signalregion_dilepton_mm down_jes 0 1.000000 2 1.062993 3 1.083011 4 1.289697 
+signalregion_dilepton_mm down_jesAbsolute 0 1.000000 2 1.260104 3 0.972087 4 0.487157 
+signalregion_dilepton_mm down_jesAbsolute_2017 0 1.000000 3 1.178648 4 0.000000 5 1.137345 
+signalregion_dilepton_mm down_jesBBEC1 0 1.000000 3 1.182099 4 0.000000 5 1.168718 
+signalregion_dilepton_mm down_jesBBEC1_2017 0 1.000000 3 1.172317 4 0.000000 5 1.133220 
+signalregion_dilepton_mm down_jesEC2 0 1.000000 3 1.170833 4 0.000000 5 1.125844 
+signalregion_dilepton_mm down_jesEC2_2017 0 1.000000 3 1.169945 4 0.000000 5 1.127011 
+signalregion_dilepton_mm down_jesFlavorQCD 0 1.000000 2 1.058901 3 1.077541 4 1.257166 
+signalregion_dilepton_mm down_jesHF 0 1.000000 3 1.174411 4 0.000000 5 1.118340 
+signalregion_dilepton_mm down_jesHF_2017 0 1.000000 3 1.173039 4 0.000000 5 1.118006 
+signalregion_dilepton_mm down_jesRelativeBal 0 1.000000 3 1.170120 4 1.491238 5 1.116531 
+signalregion_dilepton_mm down_jesRelativeSample_2017 0 1.000000 3 1.165464 4 0.000000 5 1.119935 
+signalregion_dilepton_mm down_lf 0 1.000000 3 1.160196 4 1.989727 5 1.107589 
+signalregion_dilepton_mm down_lfstats1 0 1.000000 3 1.243877 4 1.636350 5 1.297840 
+signalregion_dilepton_mm down_lfstats2 0 1.000000 3 1.238133 4 1.606844 5 1.269607 
+signalregion_dilepton_mm up_cferr1 0 1.000000 3 1.172231 4 2.255844 5 1.119806 
+signalregion_dilepton_mm up_cferr2 0 1.000000 3 1.172231 4 1.944452 5 1.119806 
+signalregion_dilepton_mm up_hf 0 1.000000 3 1.100489 4 1.487466 5 1.027981 
+signalregion_dilepton_mm up_hfstats1 0 1.000000 3 1.169352 4 1.550591 5 1.118143 
+signalregion_dilepton_mm up_hfstats2 0 1.000000 3 1.170316 4 1.507654 5 1.116115 
+signalregion_dilepton_mm up_jes 0 1.000000 3 1.137680 4 1.341807 5 1.024350 
+signalregion_dilepton_mm up_jesAbsolute 0 1.000000 3 1.152898 4 0.000000 5 1.077476 
+signalregion_dilepton_mm up_jesAbsolute_2017 0 1.000000 3 1.171340 4 0.000000 5 1.108246 
+signalregion_dilepton_mm up_jesBBEC1 0 1.000000 3 1.166129 4 0.000000 5 1.083760 
+signalregion_dilepton_mm up_jesBBEC1_2017 0 1.000000 3 1.177791 4 0.000000 5 1.114430 
+signalregion_dilepton_mm up_jesEC2 0 1.000000 3 1.170824 4 0.000000 5 1.117558 
+signalregion_dilepton_mm up_jesEC2_2017 0 1.000000 3 1.174309 4 0.000000 5 1.116908 
+signalregion_dilepton_mm up_jesFlavorQCD 0 1.000000 3 1.152112 4 1.406574 5 1.070032 
+signalregion_dilepton_mm up_jesHF 0 1.000000 3 1.171282 4 0.000000 5 1.122834 
+signalregion_dilepton_mm up_jesHF_2017 0 1.000000 3 1.172941 4 0.000000 5 1.120841 
+signalregion_dilepton_mm up_jesRelativeBal 0 1.000000 3 1.177726 4 1.501188 5 1.123170 
+signalregion_dilepton_mm up_jesRelativeSample_2017 0 1.000000 3 1.180903 4 0.000000 5 1.128824 
+signalregion_dilepton_mm up_lf 0 1.000000 3 1.176813 4 1.064792 5 1.122987 
+signalregion_dilepton_mm up_lfstats1 0 1.000000 3 1.104820 4 1.372921 5 0.965993 
+signalregion_dilepton_mm up_lfstats2 0 1.000000 3 1.110062 4 1.400399 5 0.987708 
+signalregion_dilepton_plus central 0 1.000000 3 1.148621 4 1.236870 5 1.086777 7 0.892573 
+signalregion_dilepton_plus down_cferr1 0 1.000000 3 1.085302 4 1.162931 5 0.997588 7 0.791607 
+signalregion_dilepton_plus down_cferr2 0 1.000000 3 1.114134 4 1.202911 5 1.050273 7 0.867824 
+signalregion_dilepton_plus down_hf 0 1.000000 3 1.250543 4 1.356910 5 1.162363 7 0.960703 
+signalregion_dilepton_plus down_hfstats1 0 1.000000 3 1.147066 4 1.235616 5 1.088509 7 0.894488 
+signalregion_dilepton_plus down_hfstats2 0 1.000000 3 1.150981 4 1.239002 5 1.089448 7 0.895311 
+signalregion_dilepton_plus down_jes 0 1.000000 2 1.067429 3 1.177382 4 1.376960 5 1.109716 7 0.791923 
+signalregion_dilepton_plus down_jesAbsolute 0 1.000000 2 1.228353 3 0.989332 4 1.089255 5 0.869831 7 0.000000 
+signalregion_dilepton_plus down_jesAbsolute_2017 0 1.000000 2 1.256295 3 0.995500 4 1.072797 5 0.866544 7 0.000000 
+signalregion_dilepton_plus down_jesBBEC1 0 1.000000 2 1.210878 3 0.998093 4 1.104065 5 0.876075 7 0.000000 
+signalregion_dilepton_plus down_jesBBEC1_2017 0 1.000000 3 0.996987 4 1.073573 5 0.870010 7 0.000000 
+signalregion_dilepton_plus down_jesEC2 0 1.000000 3 1.000106 4 1.054697 5 0.873022 7 0.000000 
+signalregion_dilepton_plus down_jesEC2_2017 0 1.000000 3 1.000688 4 1.052593 5 0.871914 7 0.000000 
+signalregion_dilepton_plus down_jesFlavorQCD 0 1.000000 2 1.138588 3 1.153283 4 1.312420 5 1.092582 7 0.796927 
+signalregion_dilepton_plus down_jesHF 0 1.000000 3 0.997640 4 1.056296 5 0.868029 7 0.000000 
+signalregion_dilepton_plus down_jesHF_2017 0 1.000000 3 0.996914 4 1.055005 5 0.868241 7 0.000000 
+signalregion_dilepton_plus down_jesRelativeBal 0 1.000000 3 1.145982 4 1.234273 5 1.085471 7 0.889863 
+signalregion_dilepton_plus down_jesRelativeSample_2017 0 1.000000 3 0.998692 4 1.057290 5 0.891532 7 0.000000 
+signalregion_dilepton_plus down_lf 0 1.000000 3 1.160374 4 1.267177 5 1.074228 7 0.879521 
+signalregion_dilepton_plus down_lfstats1 0 1.000000 3 1.228339 4 1.354376 5 1.211826 7 1.053426 
+signalregion_dilepton_plus down_lfstats2 0 1.000000 3 1.219825 4 1.339212 5 1.188130 7 1.018837 
+signalregion_dilepton_plus up_cferr1 0 1.000000 3 1.222554 4 1.329133 5 1.242117 7 1.051483 
+signalregion_dilepton_plus up_cferr2 0 1.000000 3 1.194494 4 1.291280 5 1.170755 7 0.980928 
+signalregion_dilepton_plus up_hf 0 1.000000 3 1.044677 4 1.114113 5 1.003896 7 0.821971 
+signalregion_dilepton_plus up_hfstats1 0 1.000000 3 1.150384 4 1.238526 5 1.084892 7 0.890460 
+signalregion_dilepton_plus up_hfstats2 0 1.000000 3 1.146544 4 1.235326 5 1.084035 7 0.889742 
+signalregion_dilepton_plus up_jes 0 1.000000 3 1.107225 4 1.193910 5 1.071930 7 0.854578 
+signalregion_dilepton_plus up_jesAbsolute 0 1.000000 3 0.997615 4 0.990305 5 0.881187 7 0.000000 
+signalregion_dilepton_plus up_jesAbsolute_2017 0 1.000000 3 0.990671 4 1.069320 5 0.867650 7 0.000000 
+signalregion_dilepton_plus up_jesBBEC1 0 1.000000 3 0.969140 4 1.082601 5 0.880481 7 0.000000 
+signalregion_dilepton_plus up_jesBBEC1_2017 0 1.000000 3 0.991474 4 1.065277 5 0.864148 7 0.000000 
+signalregion_dilepton_plus up_jesEC2 0 1.000000 3 0.994635 4 1.054066 5 0.867972 7 0.000000 
+signalregion_dilepton_plus up_jesEC2_2017 0 1.000000 3 0.994930 4 1.053342 5 0.868432 7 0.000000 
+signalregion_dilepton_plus up_jesFlavorQCD 0 1.000000 3 1.131005 4 1.185808 5 1.089130 7 0.872974 
+signalregion_dilepton_plus up_jesHF 0 1.000000 3 0.996531 4 1.055339 5 0.869274 7 0.000000 
+signalregion_dilepton_plus up_jesHF_2017 0 1.000000 3 0.996942 4 1.054861 5 0.867889 7 0.000000 
+signalregion_dilepton_plus up_jesRelativeBal 0 1.000000 3 1.153328 4 1.238503 5 1.086860 7 0.807151 
+signalregion_dilepton_plus up_jesRelativeSample_2017 0 1.000000 3 0.991694 4 1.078816 5 0.870174 7 0.000000 
+signalregion_dilepton_plus up_lf 0 1.000000 3 1.133139 4 1.200188 5 1.091431 7 0.897260 
+signalregion_dilepton_plus up_lfstats1 0 1.000000 3 1.074237 4 1.128953 5 0.975149 7 0.756676 
+signalregion_dilepton_plus up_lfstats2 0 1.000000 3 1.081877 4 1.142322 5 0.994306 7 0.782110 
+signalregion_trilepton central 0 1.000000 2 1.052152 3 1.072924 4 1.104209 5 1.500928 8 1.607101 
+signalregion_trilepton down_cferr1 0 1.000000 2 1.019954 3 0.997762 4 1.111258 5 1.306106 8 1.607101 
+signalregion_trilepton down_cferr2 0 1.000000 2 1.037477 3 1.034632 4 1.128056 5 1.454087 8 1.607101 
+signalregion_trilepton down_hf 0 1.000000 2 1.093960 3 1.136239 4 1.200540 5 1.732892 8 1.828038 
+signalregion_trilepton down_hfstats1 0 1.000000 2 1.050460 3 1.069752 4 1.100303 5 1.465838 8 1.615875 
+signalregion_trilepton down_hfstats2 0 1.000000 2 1.053960 3 1.075357 4 1.107055 5 1.511987 8 1.614652 
+signalregion_trilepton down_jes 0 1.000000 1 1.063904 2 1.069183 3 1.099440 4 1.131954 5 1.527958 7 1.589369 
+signalregion_trilepton down_jesAbsolute 0 1.000000 1 0.974462 2 0.919993 3 0.870583 4 0.884140 5 0.860385 7 1.494274 
+signalregion_trilepton down_jesAbsolute_2017 0 1.000000 1 1.019970 2 0.917097 3 0.857247 4 0.899024 5 0.883252 8 1.637349 
+signalregion_trilepton down_jesBBEC1 0 1.000000 1 1.122663 2 0.914579 3 0.868371 4 0.874627 5 0.880834 8 1.749832 
+signalregion_trilepton down_jesBBEC1_2017 0 1.000000 2 0.917344 3 0.862638 4 0.868532 5 0.843690 8 1.649383 
+signalregion_trilepton down_jesEC2 0 1.000000 2 0.911860 3 0.872409 4 0.889640 5 0.830487 8 1.665833 
+signalregion_trilepton down_jesEC2_2017 0 1.000000 2 0.912556 3 0.873196 4 0.890373 5 0.839670 8 1.664556 
+signalregion_trilepton down_jesFlavorQCD 0 1.000000 1 0.956500 2 1.065814 3 1.085201 4 1.128377 5 1.535069 7 1.533873 
+signalregion_trilepton down_jesHF 0 1.000000 2 0.911095 3 0.869831 4 0.895085 5 0.825054 8 1.613185 
+signalregion_trilepton down_jesHF_2017 0 1.000000 2 0.910841 3 0.869400 4 0.893711 5 0.838063 8 1.606451 
+signalregion_trilepton down_jesRelativeBal 0 1.000000 2 1.051070 3 1.074693 4 1.100774 5 1.518256 8 1.597042 
+signalregion_trilepton down_jesRelativeSample_2017 0 1.000000 2 0.917366 3 0.845242 4 0.892216 5 0.819222 8 1.652484 
+signalregion_trilepton down_lf 0 1.000000 2 1.062573 3 1.096416 4 1.131214 5 1.686325 8 1.558961 
+signalregion_trilepton down_lfstats1 0 1.000000 2 1.098594 3 1.146731 4 1.187174 5 1.570906 8 1.903144 
+signalregion_trilepton down_lfstats2 0 1.000000 2 1.092418 3 1.135577 4 1.180704 5 1.598407 8 1.861481 
+signalregion_trilepton up_cferr1 0 1.000000 2 1.093546 3 1.167281 4 1.106684 5 1.785056 8 1.607101 
+signalregion_trilepton up_cferr2 0 1.000000 2 1.077203 3 1.129181 4 1.091726 5 1.631035 8 1.607101 
+signalregion_trilepton up_hf 0 1.000000 2 1.007748 3 1.007602 4 1.000761 5 1.266588 8 1.390691 
+signalregion_trilepton up_hfstats1 0 1.000000 2 1.054009 3 1.076610 4 1.108937 5 1.540900 8 1.597765 
+signalregion_trilepton up_hfstats2 0 1.000000 2 1.050538 3 1.071006 4 1.102176 5 1.494128 8 1.598902 
+signalregion_trilepton up_jes 0 1.000000 2 1.043618 3 1.050958 4 1.093369 5 1.464092 8 1.322725 
+signalregion_trilepton up_jesAbsolute 0 1.000000 2 0.915762 3 0.820703 4 0.893960 5 0.828686 8 1.501772 
+signalregion_trilepton up_jesAbsolute_2017 0 1.000000 2 0.919538 3 0.822356 4 0.888904 5 0.825639 8 1.591373 
+signalregion_trilepton up_jesBBEC1 0 1.000000 2 0.915413 3 0.827745 4 0.904356 5 0.848495 8 1.502346 
+signalregion_trilepton up_jesBBEC1_2017 0 1.000000 2 0.914631 3 0.845250 4 0.894020 5 0.845132 8 1.574297 
+signalregion_trilepton up_jesEC2 0 1.000000 2 0.909993 3 0.868187 4 0.894527 5 0.815427 8 1.569317 
+signalregion_trilepton up_jesEC2_2017 0 1.000000 2 0.909837 3 0.868238 4 0.893709 5 0.811649 8 1.575178 
+signalregion_trilepton up_jesFlavorQCD 0 1.000000 2 1.046946 3 1.058087 4 1.099218 5 1.509990 8 1.456703 
+signalregion_trilepton up_jesHF 0 1.000000 2 0.911082 3 0.869411 4 0.890259 5 0.830412 8 1.615563 
+signalregion_trilepton up_jesHF_2017 0 1.000000 2 0.910624 3 0.869223 4 0.892208 5 0.828203 8 1.607176 
+signalregion_trilepton up_jesRelativeBal 0 1.000000 2 1.053028 3 1.073185 4 1.110620 5 1.505643 8 1.631639 
+signalregion_trilepton up_jesRelativeSample_2017 0 1.000000 2 0.914959 3 0.861583 4 0.874962 5 0.834547 8 1.585008 
+signalregion_trilepton up_lf 0 1.000000 2 1.038844 3 1.048738 4 1.075151 5 1.336035 8 1.626528 
+signalregion_trilepton up_lfstats1 0 1.000000 2 1.007944 3 1.004093 4 1.028366 5 1.430717 8 1.357088 
+signalregion_trilepton up_lfstats2 0 1.000000 2 1.013568 3 1.014032 4 1.033837 5 1.413225 8 1.387239 
+trileptoncontrolregion central 0 1.000000 1 1.016710 2 1.072495 3 1.062529 4 1.282157 5 0.961985 6 0.948647 
+trileptoncontrolregion down_cferr1 0 1.000000 1 0.998226 2 1.043803 3 1.008150 4 1.089850 5 0.848884 6 0.948647 
+trileptoncontrolregion down_cferr2 0 1.000000 1 1.009436 2 1.061517 3 1.038051 4 1.190228 5 0.907796 6 0.948647 
+trileptoncontrolregion down_hf 0 1.000000 1 1.030772 2 1.110502 3 1.141061 4 1.528857 5 1.004976 6 1.015598 
+trileptoncontrolregion down_hfstats1 0 1.000000 1 1.015347 2 1.069428 3 1.058929 4 1.279397 5 0.962273 6 0.949398 
+trileptoncontrolregion down_hfstats2 0 1.000000 1 1.017674 2 1.075203 3 1.064769 4 1.286621 5 0.965069 6 0.951759 
+trileptoncontrolregion down_jes 0 1.000000 1 1.021564 2 1.087071 3 1.106916 4 1.296684 5 0.986094 6 0.914150 
+trileptoncontrolregion down_jesAbsolute 0 1.000000 1 0.924614 2 0.948073 3 0.848774 4 0.718255 5 0.601971 6 0.927248 
+trileptoncontrolregion down_jesAbsolute_2017 0 1.000000 1 0.925079 2 0.941606 3 0.836860 4 0.751995 5 0.599370 6 0.946161 
+trileptoncontrolregion down_jesBBEC1 0 1.000000 1 0.924140 2 0.950438 3 0.850161 4 0.717957 5 0.603445 6 0.937284 
+trileptoncontrolregion down_jesBBEC1_2017 0 1.000000 1 0.925111 2 0.943108 3 0.836608 4 0.749454 5 0.600531 6 0.946988 
+trileptoncontrolregion down_jesEC2 0 1.000000 1 0.925338 2 0.941791 3 0.848866 4 0.744460 5 0.601292 6 0.952605 
+trileptoncontrolregion down_jesEC2_2017 0 1.000000 1 0.925580 2 0.942251 3 0.850297 4 0.748542 5 0.601232 6 0.951487 
+trileptoncontrolregion down_jesFlavorQCD 0 1.000000 1 1.018457 2 1.078661 3 1.086177 4 1.291020 5 0.978733 6 0.921055 
+trileptoncontrolregion down_jesHF 0 1.000000 1 0.924686 2 0.940739 3 0.847326 4 0.746159 5 0.598049 6 0.950518 
+trileptoncontrolregion down_jesHF_2017 0 1.000000 1 0.924536 2 0.940490 3 0.846294 4 0.747878 5 0.598020 6 0.949659 
+trileptoncontrolregion down_jesRelativeBal 0 1.000000 1 1.017010 2 1.070221 3 1.060878 4 1.277661 5 0.963688 6 0.952994 
+trileptoncontrolregion down_jesRelativeSample_2017 0 1.000000 1 0.925876 2 0.945698 3 0.834023 4 0.747758 5 0.600572 6 0.950731 
+trileptoncontrolregion down_lf 0 1.000000 1 1.025358 2 1.088606 3 1.088054 4 1.295007 5 0.977318 6 0.942644 
+trileptoncontrolregion down_lfstats1 0 1.000000 1 1.037817 2 1.115133 3 1.137632 4 1.379164 5 1.075947 6 1.117617 
+trileptoncontrolregion down_lfstats2 0 1.000000 1 1.034714 2 1.110021 3 1.128494 4 1.379527 5 1.054905 6 1.083388 
+trileptoncontrolregion up_cferr1 0 1.000000 1 1.041090 2 1.112990 3 1.127299 4 1.583277 5 1.096961 6 0.948647 
+trileptoncontrolregion up_cferr2 0 1.000000 1 1.030692 2 1.095025 3 1.100353 4 1.455603 5 1.041818 6 0.948647 
+trileptoncontrolregion up_hf 0 1.000000 1 1.000724 2 1.031577 3 0.986742 4 1.074167 5 0.909689 6 0.871265 
+trileptoncontrolregion up_hfstats1 0 1.000000 1 1.018248 2 1.076072 3 1.066583 4 1.285085 5 0.961846 6 0.947835 
+trileptoncontrolregion up_hfstats2 0 1.000000 1 1.015963 2 1.070361 3 1.060799 4 1.277937 5 0.959242 6 0.945550 
+trileptoncontrolregion up_jes 0 1.000000 1 1.011178 2 1.065142 3 1.034064 4 1.219199 5 0.885905 6 1.030778 
+trileptoncontrolregion up_jesAbsolute 0 1.000000 1 0.922049 2 0.941821 3 0.834133 4 0.732109 5 0.596935 6 0.962911 
+trileptoncontrolregion up_jesAbsolute_2017 0 1.000000 1 0.924796 2 0.943593 3 0.831828 4 0.743974 5 0.597912 6 0.948879 
+trileptoncontrolregion up_jesBBEC1 0 1.000000 1 0.922777 2 0.945888 3 0.836956 4 0.730254 5 0.895155 6 0.480419 
+trileptoncontrolregion up_jesBBEC1_2017 0 1.000000 1 0.923952 2 0.943477 3 0.834206 4 0.745630 5 0.598022 6 0.952013 
+trileptoncontrolregion up_jesEC2 0 1.000000 1 0.923933 2 0.939165 3 0.844483 4 0.744988 5 0.597991 6 0.944307 
+trileptoncontrolregion up_jesEC2_2017 0 1.000000 1 0.923946 2 0.939064 3 0.845296 4 0.742129 5 0.597943 6 0.948942 
+trileptoncontrolregion up_jesFlavorQCD 0 1.000000 1 1.014941 2 1.069300 3 1.047769 4 1.241940 5 0.973356 6 0.964353 
+trileptoncontrolregion up_jesHF 0 1.000000 1 0.924620 2 0.940097 3 0.847552 4 0.744204 5 0.599800 6 0.950221 
+trileptoncontrolregion up_jesHF_2017 0 1.000000 1 0.924493 2 0.940337 3 0.846938 4 0.746061 5 0.598494 6 0.949070 
+trileptoncontrolregion up_jesRelativeBal 0 1.000000 1 1.017203 2 1.074829 3 1.062300 4 1.288528 5 0.962305 6 0.949573 
+trileptoncontrolregion up_jesRelativeSample_2017 0 1.000000 1 0.923027 2 0.939113 3 0.843222 4 0.748744 5 0.598062 6 0.947279 
+trileptoncontrolregion up_lf 0 1.000000 1 1.006366 2 1.053128 3 1.033684 4 1.262871 5 0.940509 6 0.947443 
+trileptoncontrolregion up_lfstats1 0 1.000000 1 0.996281 2 1.031448 3 0.992912 4 1.192259 5 0.861695 6 0.806607 
+trileptoncontrolregion up_lfstats2 0 1.000000 1 0.999264 2 1.036465 3 1.001027 4 1.192479 5 0.878422 6 0.831302 
+wzcontrolregion central 0 1.000000 1 1.026119 2 1.102520 3 1.086917 4 1.348982 5 0.953499 
+wzcontrolregion down_cferr1 0 1.000000 1 0.982849 2 1.067625 3 0.997139 4 1.181776 5 0.783846 
+wzcontrolregion down_cferr2 0 1.000000 1 1.004711 2 1.090525 3 1.047237 4 1.276641 5 0.872215 
+wzcontrolregion down_hf 0 1.000000 1 1.039915 2 1.145254 3 1.149073 4 1.615332 5 0.987158 
+wzcontrolregion down_hfstats1 0 1.000000 1 1.024703 2 1.094589 3 1.084295 4 1.340102 5 0.953151 
+wzcontrolregion down_hfstats2 0 1.000000 1 1.027317 2 1.105460 3 1.088688 4 1.355550 5 0.956819 
+wzcontrolregion down_jes 0 1.000000 1 1.027006 2 1.122195 3 1.134684 4 1.337505 5 0.977320 
+wzcontrolregion down_jesAbsolute 0 1.000000 1 0.883469 2 0.955419 3 0.727299 4 0.671289 5 0.410569 
+wzcontrolregion down_jesAbsolute_2017 0 1.000000 1 0.884001 2 0.948926 3 0.703550 4 0.798918 5 0.408141 
+wzcontrolregion down_jesBBEC1 0 1.000000 1 0.891907 2 0.956770 3 0.732077 4 0.671338 5 0.409608 
+wzcontrolregion down_jesBBEC1_2017 0 1.000000 1 0.885038 2 0.951530 3 0.702214 4 0.801118 5 0.408986 
+wzcontrolregion down_jesEC2 0 1.000000 1 0.885448 2 0.949699 3 0.717485 4 0.786476 5 0.409749 
+wzcontrolregion down_jesEC2_2017 0 1.000000 1 0.885588 2 0.949689 3 0.719343 4 0.794094 5 0.410053 
+wzcontrolregion down_jesFlavorQCD 0 1.000000 1 1.023725 2 1.109550 3 1.126317 4 1.326905 5 0.968015 
+wzcontrolregion down_jesHF 0 1.000000 1 0.884782 2 0.946606 3 0.718149 4 0.793602 5 0.408070 
+wzcontrolregion down_jesHF_2017 0 1.000000 1 0.884601 2 0.946117 3 0.717696 4 0.798681 5 0.407787 
+wzcontrolregion down_jesRelativeBal 0 1.000000 1 1.026595 2 1.104082 3 1.082430 4 1.340313 5 0.954628 
+wzcontrolregion down_jesRelativeSample_2017 0 1.000000 1 0.885623 2 0.946382 3 0.724439 4 0.788906 5 0.409370 
+wzcontrolregion down_lf 0 1.000000 1 1.030784 2 1.150049 3 1.114030 4 1.377655 5 0.982151 
+wzcontrolregion down_lfstats1 0 1.000000 1 1.045366 2 1.148820 3 1.156137 4 1.424906 5 1.061944 
+wzcontrolregion down_lfstats2 0 1.000000 1 1.042872 2 1.142213 3 1.146556 4 1.438570 5 1.041226 
+wzcontrolregion up_cferr1 0 1.000000 1 1.076484 2 1.142703 3 1.196396 4 1.672632 5 1.155963 
+wzcontrolregion up_cferr2 0 1.000000 1 1.056682 2 1.122268 3 1.151115 4 1.525771 5 1.073248 
+wzcontrolregion up_hf 0 1.000000 1 1.010209 2 1.059534 3 1.023503 4 1.107742 5 0.911504 
+wzcontrolregion up_hfstats1 0 1.000000 1 1.027678 2 1.111809 3 1.090036 4 1.358459 5 0.954107 
+wzcontrolregion up_hfstats2 0 1.000000 1 1.025100 2 1.100906 3 1.085709 4 1.343035 5 0.950701 
+wzcontrolregion up_jes 0 1.000000 1 1.023300 2 1.084506 3 1.042489 4 1.234513 5 0.806639 6 1.090866 
+wzcontrolregion up_jesAbsolute 0 1.000000 1 0.882123 2 0.942401 3 0.718484 4 0.724466 5 0.406513 
+wzcontrolregion up_jesAbsolute_2017 0 1.000000 1 0.884609 2 0.945818 3 0.711119 4 0.790270 5 0.407835 
+wzcontrolregion up_jesBBEC1 0 1.000000 1 0.886392 2 0.941764 3 0.721759 4 0.734440 5 0.812129 6 0.000000 
+wzcontrolregion up_jesBBEC1_2017 0 1.000000 1 0.884656 2 0.943586 3 0.723367 4 0.799692 5 0.408312 
+wzcontrolregion up_jesEC2 0 1.000000 1 0.884625 2 0.943356 3 0.716824 4 0.796300 5 0.407439 
+wzcontrolregion up_jesEC2_2017 0 1.000000 1 0.884630 2 0.943315 3 0.718053 4 0.791348 5 0.407972 
+wzcontrolregion up_jesFlavorQCD 0 1.000000 1 1.026661 2 1.092060 3 1.067869 4 1.268397 5 0.974492 
+wzcontrolregion up_jesHF 0 1.000000 1 0.884930 2 0.946390 3 0.717671 4 0.788918 5 0.408668 
+wzcontrolregion up_jesHF_2017 0 1.000000 1 0.884627 2 0.945844 3 0.717188 4 0.794352 5 0.408308 
+wzcontrolregion up_jesRelativeBal 0 1.000000 1 1.026912 2 1.102038 3 1.090784 4 1.356045 5 0.953340 
+wzcontrolregion up_jesRelativeSample_2017 0 1.000000 1 0.884524 2 0.945285 3 0.720846 4 0.798555 5 0.406875 
+wzcontrolregion up_lf 0 1.000000 1 1.019369 2 1.055051 3 1.056610 4 1.311334 5 0.919222 
+wzcontrolregion up_lfstats1 0 1.000000 1 1.007463 2 1.058769 3 1.022340 4 1.275817 5 0.857754 
+wzcontrolregion up_lfstats2 0 1.000000 1 1.009877 2 1.065127 3 1.030816 4 1.265785 5 0.874420 
+zgcontrolregion central 0 1.000000 1 1.019714 2 1.059992 3 1.103009 4 0.911260 5 1.500928 8 1.607101 
+zgcontrolregion down_cferr1 0 1.000000 1 0.999612 2 1.025583 3 1.103009 4 0.931222 5 1.306106 8 1.607101 
+zgcontrolregion down_cferr2 0 1.000000 1 1.010424 2 1.044095 3 1.103009 4 0.936064 5 1.454087 8 1.607101 
+zgcontrolregion down_hf 0 1.000000 1 1.037125 2 1.106500 3 1.150157 4 0.964803 5 1.732892 8 1.828038 
+zgcontrolregion down_hfstats1 0 1.000000 1 1.019085 2 1.058383 3 1.099722 4 0.910533 5 1.465838 8 1.615875 
+zgcontrolregion down_hfstats2 0 1.000000 1 1.020475 2 1.061605 3 1.106281 4 0.912978 5 1.511987 8 1.614652 
+zgcontrolregion down_jes 0 1.000000 1 1.024283 2 1.081893 3 1.101826 4 0.882789 5 1.527958 7 1.589369 
+zgcontrolregion down_jesAbsolute 0 1.000000 1 0.942692 2 0.924829 3 1.090312 4 0.433174 5 0.860385 7 1.494274 
+zgcontrolregion down_jesAbsolute_2017 0 1.000000 1 0.938398 2 0.919282 3 1.087256 4 0.607580 5 0.883252 8 1.637349 
+zgcontrolregion down_jesBBEC1 0 1.000000 1 0.938053 2 0.918799 3 1.089509 4 0.607301 5 0.880834 8 1.749832 
+zgcontrolregion down_jesBBEC1_2017 0 1.000000 1 0.937665 2 0.920190 3 1.085688 4 0.604644 5 0.843690 8 1.649383 
+zgcontrolregion down_jesEC2 0 1.000000 1 0.938648 2 0.913227 3 1.104702 4 0.602410 5 0.830487 8 1.665833 
+zgcontrolregion down_jesEC2_2017 0 1.000000 1 0.938780 2 0.914024 3 1.106648 4 0.601260 5 0.839670 8 1.664556 
+zgcontrolregion down_jesFlavorQCD 0 1.000000 1 1.021641 2 1.077981 3 1.094962 4 0.907264 5 1.535069 7 1.533873 
+zgcontrolregion down_jesHF 0 1.000000 1 0.937896 2 0.911673 3 1.104048 4 0.605912 5 0.825054 8 1.613185 
+zgcontrolregion down_jesHF_2017 0 1.000000 1 0.937707 2 0.911450 3 1.103287 4 0.605402 5 0.838063 8 1.606451 
+zgcontrolregion down_jesRelativeBal 0 1.000000 1 1.019730 2 1.055591 3 1.104840 4 0.914453 5 1.518256 8 1.597042 
+zgcontrolregion down_jesRelativeSample_2017 0 1.000000 1 0.938291 2 0.921210 3 1.038512 4 0.603425 5 0.819222 8 1.652484 
+zgcontrolregion down_lf 0 1.000000 1 1.024688 2 1.067686 3 1.126036 4 0.912854 5 1.686325 8 1.558961 
+zgcontrolregion down_lfstats1 0 1.000000 1 1.042221 2 1.105921 3 1.177078 4 1.000670 5 1.570906 8 1.903144 
+zgcontrolregion down_lfstats2 0 1.000000 1 1.039167 2 1.100579 3 1.165531 4 0.990193 5 1.598407 8 1.861481 
+zgcontrolregion up_cferr1 0 1.000000 1 1.044326 2 1.103457 3 1.103009 4 0.919745 5 1.785056 8 1.607101 
+zgcontrolregion up_cferr2 0 1.000000 1 1.034553 2 1.086223 3 1.103009 4 0.915109 5 1.631035 8 1.607101 
+zgcontrolregion up_hf 0 1.000000 1 1.000010 2 1.011603 3 1.051462 4 0.844449 5 1.266588 8 1.390691 
+zgcontrolregion up_hfstats1 0 1.000000 1 1.020459 2 1.061701 3 1.106883 4 0.911741 5 1.540900 8 1.597765 
+zgcontrolregion up_hfstats2 0 1.000000 1 1.019105 2 1.058444 3 1.100312 4 0.909425 5 1.494128 8 1.598902 
+zgcontrolregion up_jes 0 1.000000 1 1.016487 2 1.045488 3 1.065550 4 0.902414 5 1.464092 8 1.322725 
+zgcontrolregion up_jesAbsolute 0 1.000000 1 0.935473 2 0.924434 3 0.975260 4 0.599751 5 0.828686 8 1.501772 
+zgcontrolregion up_jesAbsolute_2017 0 1.000000 1 0.936849 2 0.924427 3 0.983254 4 0.604415 5 0.825639 8 1.591373 
+zgcontrolregion up_jesBBEC1 0 1.000000 1 0.938331 2 0.919072 3 0.982355 4 0.605406 5 0.848495 8 1.502346 
+zgcontrolregion up_jesBBEC1_2017 0 1.000000 1 0.936770 2 0.922587 3 1.040811 4 0.612069 5 0.845132 8 1.574297 
+zgcontrolregion up_jesEC2 0 1.000000 1 0.937271 2 0.910393 3 1.102866 4 0.607871 5 0.815427 8 1.569317 
+zgcontrolregion up_jesEC2_2017 0 1.000000 1 0.937226 2 0.910219 3 1.103343 4 0.607564 5 0.811649 8 1.575178 
+zgcontrolregion up_jesFlavorQCD 0 1.000000 1 1.018475 2 1.051534 3 1.079136 4 0.902992 5 1.509990 8 1.456703 
+zgcontrolregion up_jesHF 0 1.000000 1 0.937864 2 0.911554 3 1.102442 4 0.605698 5 0.830412 8 1.615563 
+zgcontrolregion up_jesHF_2017 0 1.000000 1 0.937725 2 0.911140 3 1.103122 4 0.605611 5 0.828203 8 1.607176 
+zgcontrolregion up_jesRelativeBal 0 1.000000 1 1.019893 2 1.060947 3 1.102738 4 0.912675 5 1.505643 8 1.631639 
+zgcontrolregion up_jesRelativeSample_2017 0 1.000000 1 0.937281 2 0.917589 3 1.086002 4 0.608360 5 0.834547 8 1.585008 
+zgcontrolregion up_lf 0 1.000000 1 1.013281 2 1.049832 3 1.080082 4 0.900292 5 1.336035 8 1.626528 
+zgcontrolregion up_lfstats1 0 1.000000 1 0.997880 2 1.016096 3 1.033646 4 0.829991 5 1.430717 8 1.357088 
+zgcontrolregion up_lfstats2 0 1.000000 1 1.000797 2 1.020996 3 1.043968 4 0.838737 5 1.413225 8 1.387239 
+zzcontrolregion central 0 1.000000 
+zzcontrolregion down_cferr1 0 1.000000 
+zzcontrolregion down_cferr2 0 1.000000 
+zzcontrolregion down_hf 0 1.000000 
+zzcontrolregion down_hfstats1 0 1.000000 
+zzcontrolregion down_hfstats2 0 1.000000 
+zzcontrolregion down_jes 0 1.000000 
+zzcontrolregion down_jesAbsolute 0 1.000000 
+zzcontrolregion down_jesAbsolute_2017 0 1.000000 
+zzcontrolregion down_jesBBEC1 0 1.000000 
+zzcontrolregion down_jesBBEC1_2017 0 1.000000 
+zzcontrolregion down_jesEC2 0 1.000000 
+zzcontrolregion down_jesEC2_2017 0 1.000000 
+zzcontrolregion down_jesFlavorQCD 0 1.000000 
+zzcontrolregion down_jesHF 0 1.000000 
+zzcontrolregion down_jesHF_2017 0 1.000000 
+zzcontrolregion down_jesRelativeBal 0 1.000000 
+zzcontrolregion down_jesRelativeSample_2017 0 1.000000 
+zzcontrolregion down_lf 0 1.000000 
+zzcontrolregion down_lfstats1 0 1.000000 
+zzcontrolregion down_lfstats2 0 1.000000 
+zzcontrolregion up_cferr1 0 1.000000 
+zzcontrolregion up_cferr2 0 1.000000 
+zzcontrolregion up_hf 0 1.000000 
+zzcontrolregion up_hfstats1 0 1.000000 
+zzcontrolregion up_hfstats2 0 1.000000 
+zzcontrolregion up_jes 0 1.000000 
+zzcontrolregion up_jesAbsolute 0 1.000000 
+zzcontrolregion up_jesAbsolute_2017 0 1.000000 
+zzcontrolregion up_jesBBEC1 0 1.000000 
+zzcontrolregion up_jesBBEC1_2017 0 1.000000 
+zzcontrolregion up_jesEC2 0 1.000000 
+zzcontrolregion up_jesEC2_2017 0 1.000000 
+zzcontrolregion up_jesFlavorQCD 0 1.000000 
+zzcontrolregion up_jesHF 0 1.000000 
+zzcontrolregion up_jesHF_2017 0 1.000000 
+zzcontrolregion up_jesRelativeBal 0 1.000000 
+zzcontrolregion up_jesRelativeSample_2017 0 1.000000 
+zzcontrolregion up_lf 0 1.000000 
+zzcontrolregion up_lfstats1 0 1.000000 
+zzcontrolregion up_lfstats2 0 1.000000 
