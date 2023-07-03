@@ -76,6 +76,8 @@ bool pass_npcontrolregion_dilepton_me(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_npcontrolregion_dilepton_mm(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+bool pass_nplownjetscontrolregion_dilepton_inclusive(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 // charge flip control region
 bool pass_cfcontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);

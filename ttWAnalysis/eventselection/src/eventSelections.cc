@@ -56,6 +56,7 @@ bool passES(Event& event, const std::string& eventselection,
 		{ "npcontrolregion_dilepton_em", pass_npcontrolregion_dilepton_em },
 		{ "npcontrolregion_dilepton_me", pass_npcontrolregion_dilepton_me },
 		{ "npcontrolregion_dilepton_mm", pass_npcontrolregion_dilepton_mm },
+                { "nplownjetscontrolregion_dilepton_inclusive", pass_nplownjetscontrolregion_dilepton_inclusive },
 		// charge flip control region
 		{ "cfcontrolregion", pass_cfcontrolregion },
                 { "cfjetscontrolregion", pass_cfjetscontrolregion }
@@ -421,9 +422,8 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     else{ if(event.getMet(variation).pt()<30.) return false; }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
     if( selectbjets ){ if( njetsnloosebjets.second < 2 ) return false; }
-    if( njetsnbjets.first < 3 ) return false;
+    if( njetsnloosebjets.first < 3 ) return false;
     return true;
 }
 
@@ -503,9 +503,8 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(10, "Fail MET"); }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
     if( njetsnloosebjets.second < 2 ) return std::make_tuple(11, "Fail b-jets");
-    if( njetsnbjets.first < 3 ) return std::make_tuple(12, "Fail jets");
+    if( njetsnloosebjets.first < 3 ) return std::make_tuple(12, "Fail jets");
     if(selectbjets){} // dummy to avoid unused parameter warning
     return std::make_tuple(13, "Pass");
 }
@@ -830,43 +829,6 @@ bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
     return true;
 }
 
-/*bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
-                            const std::string& variation, const bool selectbjets){
-    // control region focusing on conversions,
-    // ALTERNATIVE VERSION FOR SYNCING WITH NIELS FOR SOME CHECKS
-    // i.e. three leptons making a Z boson.
-    cleanLeptonsAndJets(event);
-    // apply trigger and pt thresholds
-    if(not event.passMetFilters()) return false;
-    if(not passAnyTrigger(event)) return false;
-    if(!passMllMassVeto(event)) return false;
-    if(!hasnFOLeptons(event,3,true)) return false;
-    event.sortLeptonsByPt();
-    if(event.leptonCollection()[0].pt() < 25.
-        || event.leptonCollection()[1].pt() < 20.
-        || event.leptonCollection()[2].pt() < 10.) return false;
-    if(not passPhotonOverlapRemoval(event)) return false;
-    // do lepton selection for different types of selections
-    if( !doLeptonSelection(event, selectiontype, 3) ) return false;
-    // something called 'lean selection'
-    // not needed in principle since nloosebjets is always zero (see below)
-    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    bool passlean = ( njetsnloosebjets.first >= 2 
-			&& njetsnloosebjets.second >= 1 
-			&& event.getJetCollection(variation).scalarPtSum() > 200 );
-    if( passlean ) return false;
-    // mass constraints on OSSF pair and trilepton system
-    if(fabs(event.leptonSystem().mass()-particle::mZ)>15.) return false;
-    if(!event.hasOSSFLightLeptonPair()) return false;
-    if(event.bestZBosonCandidateMass()>75.) return false;
-    // dummy condition on variation to avoid warnings
-    if(variation=="dummy") return true;
-    if(selectbjets){
-	if(njetsnloosebjets.second!=0) return false;
-    }
-    return true;
-}*/
-
 bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
     // same as trilepton signal region but with inverted Z veto and no jet requirements
@@ -946,9 +908,8 @@ bool pass_npcontrolregion_dilepton_inclusive(
     else{ if(event.getMet(variation).pt()>30.) return false; }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if(selectbjets){ if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false; }
-    if( njetsnbjets.first < 2 ) return false;
+    if(selectbjets){ if( njetsnloosebjets.second < 2 ) return false; }
+    if( njetsnloosebjets.first < 3 ) return false;
     return true;
 }
 
@@ -990,6 +951,39 @@ bool pass_npcontrolregion_dilepton_mm(Event& event, const std::string& selection
     if( event.leptonCollection()[0].isMuon()
         && event.leptonCollection()[1].isMuon() ){ return true; }
     return false;
+}
+
+bool pass_nplownjetscontrolregion_dilepton_inclusive(
+        Event& event,
+        const std::string& selectiontype,
+        const std::string& variation,
+        const bool selectbjets){
+    // control region for nonprompts with two same sign leptons,
+    // inclusive in lepton flavours
+    // (same as dilepton signal region, but with inverted number of jets cut)
+    cleanLeptonsAndJets(event);
+    // apply trigger and pt thresholds
+    if(not event.passMetFilters()) return false;
+    if(not passAnyTrigger(event)) return false;
+    if(!hasnFOLeptons(event,2,true)) return false;
+    if(!passDiLeptonPtThresholds(event)) return false;
+    if(!passPhotonOverlapRemoval(event)) return false;
+    // do lepton selection for different types of selections
+    if( !doLeptonSelection(event, selectiontype, 2) ) return false;
+    // leptons must be same sign
+    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
+    else{ if( !event.leptonsAreSameSign() ) return false; }
+    // Z veto for electrons
+    if( event.leptonCollection()[0].isElectron()
+        && event.leptonCollection()[1].isElectron()
+        && event.hasZTollCandidate(halfwindow_wide, true) ) return false;
+    // invariant mass safety
+    if( event.leptonSystem().mass()<30. ) return false;
+    // number of jets and b-jets
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    if(selectbjets){ if( njetsnloosebjets.second < 1 ) return false; }
+    if( njetsnloosebjets.first > 2 || njetsnloosebjets.first < 1 ) return false;
+    return true;
 }
 
 // ---------------------------------
@@ -1049,6 +1043,6 @@ bool pass_cfjetscontrolregion(Event& event,
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     if(selectbjets){ if( njetsnloosebjets.second < 1 ) return false; }
-    if( njetsnloosebjets.first < 2 ) return false;
+    if( njetsnloosebjets.first < 3 ) return false;
     return true;
 }
