@@ -36,7 +36,7 @@
   "nbins": "4",
   "xlow": "-0.5",
   "xhigh": "3.5",
-  "axtitle": "Number of b-tagged jets",
+  "axtitle": "Number of b-jets",
   "unit": ""
 },
 {
@@ -146,7 +146,7 @@
   "nbins": "13",
   "xlow": "-1.5",
   "xhigh": "11.5",
-  "axtitle": "Number of (b-tagged) jets category",
+  "axtitle": "Number of (b-) jets category",
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["Other","0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", ">3j", ">1b2j", "3j", ">3j"]

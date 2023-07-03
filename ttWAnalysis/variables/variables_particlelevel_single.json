@@ -48,6 +48,18 @@
   "bins": [0.5, 1.5, 2.5, 3.5]
 },
 {
+  "name": "_nLooseBJets",
+  "variable": "_nLooseBJets",
+  "nbins": "3",
+  "xlow": "0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "shorttitle": "N(b-jets)",
+  "iscategorical": "true",
+  "xlabels": ["1", "2", "3"],
+  "bins": [0.5, 1.5, 2.5, 3.5]
+},
+{
   "name": "_leptonPtLeading",
   "variable": "_leptonPtLeading",
   "nbins": "4",

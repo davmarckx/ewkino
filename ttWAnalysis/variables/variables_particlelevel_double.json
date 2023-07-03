@@ -99,6 +99,31 @@
     "bins": [0.5, 1.5, 2.5, 3.5]
   }
 },
+{ "name": "_eventBDTnLooseBJets",
+  "primary":
+  {
+    "name": "_eventBDT",
+    "variable": "_eventBDT",
+    "nbins": "5",
+    "xlow": "0.0",
+    "xhigh": "1.0",
+    "axtitle": "BDT output score",
+    "bins": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "secondary":
+  {
+    "name": "_nLooseBJets",
+    "variable": "_nLooseBJets",
+    "nbins": "3",
+    "xlow": "0.5",
+    "xhigh": "3.5",
+    "axtitle": "Number of b-tagged jets",
+    "shorttitle": "N(b-jets)",
+    "iscategorical": "true",
+    "xlabels": ["1", "2", "3"],
+    "bins": [0.5, 1.5, 2.5, 3.5]
+  }
+},
 { "name": "_eventBDTleptonPtLeading",
   "primary":
   {

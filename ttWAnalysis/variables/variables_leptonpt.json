@@ -1,0 +1,38 @@
+[
+{
+  "name": "_leptonPtLeading",
+  "variable": "_leptonPtLeading",
+  "nbins": "16",
+  "xlow": "0.0",
+  "xhigh": "200.0",
+  "axtitle": "Leading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtSubLeading",
+  "variable": "_leptonPtSubLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "120.0",
+  "axtitle": "Subleading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtTrailing",
+  "variable": "_leptonPtTrailing",
+  "nbins": "16",
+  "xlow": "0.0",
+  "xhigh": "80.0",
+  "axtitle": "Trailing lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_eventBDT",
+  "variable": "_eventBDT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "BDT output",
+  "unit": ""
+}
+]
