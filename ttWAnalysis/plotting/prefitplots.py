@@ -143,9 +143,6 @@ if __name__=="__main__":
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
-  for histname in histnames: 
-      if "TTW1" in histname:
-         print('  {}'.format(histname))
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
@@ -160,8 +157,8 @@ if __name__=="__main__":
   if args.dummysystematics:
     _ = remove_systematics_all( PIC )
     _ = add_systematics_dummy( PIC )
-  print('Constructed following ProcessInfoCollection from histogram list:')
-  print(PIC)
+  #print('Constructed following ProcessInfoCollection from histogram list:')
+  #print(PIC)
 
   # get valid processes and compare to arguments
   if doallprocesses:
@@ -281,13 +278,10 @@ if __name__=="__main__":
     lumi = lumimap.get(args.year,None)
     colormap = colors.getcolormap(style=args.colormap)
     if args.splitvariable is not None and args.splitprocess is not None and variablemode=='double':
-        print("change1")
         for key, value in colormap.items():
             if key[-1].isdigit():
                 if int(key[-1])>0:
-                    colormap[key+ args.splitvariable.replace('_','')] = value
-    for key in colormap:
-        print(key) 
+                    colormap[key+ args.splitvariable.replace('_','')] = value 
  
     extrainfos = []
     extrainfos.append( args.year )
@@ -326,14 +320,10 @@ if __name__=="__main__":
         signals = [x + args.splitvariable.replace('_','') for x in args.signals]
         signals.append(args.splitprocess+"0")
         signals.append(args.splitprocess+"1")
-        print("add names")
-        print(signals[3])
-        print(simhists[0].GetTitle())
     
     if args.splitvariable is not None and args.splitprocess is not None:
       outfile += '_split_' + args.splitvariable
     print("plot") 
-    print(signals)
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 
