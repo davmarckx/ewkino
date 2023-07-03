@@ -14,9 +14,6 @@ runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_dilepton_oviedo']: regions.append(r)
-for r in ['npcontrolregion_dilepton_oviedo']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
