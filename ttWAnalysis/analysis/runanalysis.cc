@@ -404,6 +404,7 @@ void fillSystematicsHistograms(
     bool hasBTagShapeReweighter = reweighter.hasReweighter("bTag_shape");
     std::vector<std::string> bTagShapeSystematics;
     std::map< std::string, std::map< std::string, std::map< int, double >>> bTagWeightMap;
+    hasBTagShapeReweighter = false;
     if( hasBTagShapeReweighter && !treeReader.isData() ){
 	// find available b-tagging systematics
 	std::cout << "finding available b-tagging systematics..." << std::endl;

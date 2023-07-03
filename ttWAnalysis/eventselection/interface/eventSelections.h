@@ -24,6 +24,8 @@ bool pass_noselection(Event& event, const std::string& selectiontype,
 // signal regions
 bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
+bool pass_signalregion_dilepton_oviedo(Event& event, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_ee(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_signalregion_dilepton_pee(Event&, const std::string& selectiontype,
@@ -67,6 +69,8 @@ bool pass_fourleptoncontrolregion(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 // nonprompt control regions
 bool pass_npcontrolregion_dilepton_inclusive(Event&, const std::string& selectiontype,
+                        const std::string& variation, const bool selectbjets);
+bool pass_npcontrolregion_dilepton_oviedo(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
 bool pass_npcontrolregion_dilepton_ee(Event&, const std::string& selectiontype,
                         const std::string& variation, const bool selectbjets);
