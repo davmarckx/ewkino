@@ -19,6 +19,7 @@ if __name__=='__main__':
     parser = argparse.ArgumentParser(description='Run goodness-of-fit test')
     parser.add_argument('--workspaces', required=True, type=os.path.abspath, nargs='+')
     parser.add_argument('--ntoys', default=10, type=int)
+    parser.add_argument('--ntoyjobs', default=1, type=int)
     parser.add_argument('--runmode', default='local', choices=['local','condor'])
     args = parser.parse_args()
 
@@ -35,8 +36,11 @@ if __name__=='__main__':
     # loop over workspaces
     for workspace in args.workspaces:
 
+        # get directory and datacard from provided workspace
+        card = os.path.splitext(workspace)[0] + '.txt'
+        (datacarddir, card) = os.path.split(card)
+
         # check if provided workspace is actually a workspace or rather a datacard
-        dotext2ws = False
         if workspace.endswith('.root'): pass
         elif workspace.endswith('.txt'):
             ws = os.path.splitext(workspace)[0] + '.root'
@@ -51,25 +55,31 @@ if __name__=='__main__':
                 msg += ' and the associated workspace {} does not exist,'.format(ws)
                 msg += ' will create the workspace and run on it.'
                 print(msg)
-                dotext2ws = True
+                script_name = 'local_gof_run_temp.sh'
+                ct.initJobScript(script_name, cmssw_version=CMSSW_VERSION)
+                with open( script_name, 'a' ) as script:
+                    for c in cbt.get_workspace_commands( datacarddir, card ): script.write(c+'\n')
+                os.system('bash {}'.format(script_name))
+                os.system('rm {}'.format(script_name))
 
-        # get directory and datacard from provided workspace
-        card = os.path.splitext(workspace)[0] + '.txt'
-        (datacarddir, card) = os.path.split(card)
-
-        # execute goodness-of-fit commands
-        commands = []
-        if dotext2ws:
-            for c in cbt.get_workspace_commands( datacarddir, card ):
+        # loop over number of jobs
+        for randomseed in range(args.ntoyjobs+1):
+            do_data = False
+            do_toys = True
+            # first job is for data
+            if randomseed==0: 
+                do_data = True
+                do_toys = False
+            commands = []
+            for c in cbt.get_gof_commands( datacarddir, card, ntoys=args.ntoys,
+                randomseed=randomseed, do_data=do_data, do_toys=do_toys ):
                 commands.append(c)
-        for c in cbt.get_gof_commands( datacarddir, card, ntoys=args.ntoys ):
-            commands.append(c)
-        if( args.runmode=='condor' ):
-            ct.submitCommandsAsCondorJob( 'cjob_gof_run', commands,
-              cmssw_version=CMSSW_VERSION )
-        elif( args.runmode=='local'):
-            script_name = 'local_gof_run.sh'
-            ct.initJobScript(script_name, cmssw_version=CMSSW_VERSION)
-            with open( script_name, 'a' ) as script:
-                for c in commands: script.write(c+'\n')
-            os.system('bash {}'.format(script_name))
+            if( args.runmode=='condor' ):
+                ct.submitCommandsAsCondorJob( 'cjob_gof_run', commands,
+                  cmssw_version=CMSSW_VERSION )
+            elif( args.runmode=='local'):
+                script_name = 'local_gof_run.sh'
+                ct.initJobScript(script_name, cmssw_version=CMSSW_VERSION)
+                with open( script_name, 'a' ) as script:
+                    for c in commands: script.write(c+'\n')
+                os.system('bash {}'.format(script_name))

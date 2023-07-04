@@ -96,7 +96,7 @@ if __name__=='__main__':
             raise Exception('ERROR: expected file {} does not exist.'.format(datafile))
         # find toy file
         toyfile = os.path.join(datacarddir,
-            'higgsCombine{}.GoodnessOfFit.mH120.123456.root'.format(name))
+            'higgsCombine{}.GoodnessOfFit.mH120.mergedtoys.root'.format(name))
         if not os.path.exists(toyfile):
             raise Exception('ERROR: expected file {} does not exist.'.format(toyfile))
         goffiles[name] = (datafile,toyfile)
@@ -106,7 +106,7 @@ if __name__=='__main__':
         datafiles = sorted([f for f in os.listdir(args.workspace)
                       if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.root'))])
         toyfiles = sorted([f for f in os.listdir(args.workspace)
-                      if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.123456.root'))])
+                      if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.mergedtoys.root'))])
         if len(datafiles)!=len(toyfiles):
             raise Exception('ERROR: numbers of data files and toy files do not agree.')
         print('Found {} files (before selection).'.format(len(datafiles)))

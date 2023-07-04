@@ -443,7 +443,8 @@ def get_default_commands( datacarddir, card,
   return commands
 
 def get_gof_commands( datacarddir, card, 
-    workspace=None, algo='saturated', ntoys=10 ):
+    workspace=None, algo='saturated', ntoys=10,
+    randomseed=123456, do_data=True, do_toys=True ):
   ### get commands to do a goodness-of-fit test
   # input arguments:
   # - datacarddir: directory of the datacards
@@ -452,7 +453,9 @@ def get_gof_commands( datacarddir, card,
   # - algo: see http://cms-analysis.github.io/HiggsAnalysis-CombinedLimit/part3/
   #             commonstatsmethods/#goodness-of-fit-tests
   # - ntoys: number of toys to use
-  # furthere processing and interpretation of output: see same link!
+  # - randomseed: random seed used by combine
+  #   (useful to modify when you run multiple toy jobs in parallel)
+  # further processing and interpretation of output: see same link!
 
   # initializations
   name = card.replace('.txt','')
@@ -467,13 +470,15 @@ def get_gof_commands( datacarddir, card,
 
   commands = []
   commands.append('cd {}'.format(datacarddir))
-  # run GoodnessOfFit using data
   gof_command = 'combine -M GoodnessOfFit '+workspace+' -n '+name+' --algo='+algo
-  commands.append(gof_command)
+  # run GoodnessOfFit using data
+  if do_data:
+    commands.append(gof_command)
   # run GoodnessOfFit using toys
-  toy_options = '-t {}'.format(ntoys)
-  if algo=='saturated': toy_options += ' --toysFreq'
-  commands.append( gof_command+' '+toy_options )
+  if do_toys:
+    toy_options = '-t {} -s {}'.format(ntoys, randomseed)
+    if algo=='saturated': toy_options += ' --toysFreq'
+    commands.append( gof_command+' '+toy_options )
   commands.append('cd {}'.format(cwd))
   return commands
 
