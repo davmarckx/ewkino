@@ -22,7 +22,7 @@ TTVV  TTZZ_TuneCP5_13TeV-madgraph-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcR
 
 TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.2269
 TTW  TTWJetsToQQ_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.4693
-TTW  ttW_16_local_Summer20UL16MiniAOD_MC_ttW_EWK.root  0.016
+TTWEWK  ttW_16_local_Summer20UL16MiniAOD_MC_ttW_EWK.root  0.016
 
 TTZ  TTZToLLNuNu_M-10_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.28872
 TTZ  TTZToQQ_TuneCP5_13TeV-amcatnlo-pythia8_crab_RunIISummer20UL16MiniAOD-106X_mcRun2_asymptotic_v13-v2_singlelepton_MC_2016_ULpostVFPv6.root  0.662
