@@ -1,5 +1,0 @@
-Obs  Merged_crab_Run2017B-09Aug2019_UL2017-v1_singlelepton_data_UL2017V2.root
-Obs  Merged_crab_Run2017C-09Aug2019_UL2017-v1_singlelepton_data_UL2017V2.root
-Obs  Merged_crab_Run2017D-09Aug2019_UL2017-v1_singlelepton_data_UL2017V2.root
-Obs  Merged_crab_Run2017E-09Aug2019_UL2017-v1_singlelepton_data_UL2017V2.root
-Obs  Merged_crab_Run2017F-09Aug2019_UL2017-v1_singlelepton_data_UL2017V2_FIX.root
