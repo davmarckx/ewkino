@@ -20,7 +20,7 @@ if __name__=='__main__':
   parser.add_argument('--workspace', required=True, type=os.path.abspath)
   parser.add_argument('--usedata', default=False, action='store_true')
   parser.add_argument('--expectsignal', default=False, action='store_true')
-  parser.add_argument('--pois', default=['r'], nargs='+')
+  parser.add_argument('--pois', default=['auto'], nargs='+')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()
 
@@ -28,6 +28,26 @@ if __name__=='__main__':
   print('Running with following configuration:')
   for arg in vars(args):
     print('  - {}: {}'.format(arg,getattr(args,arg)))
+
+  # if workspace is a directory, find workspaces in it
+  if not args.workspace.endswith('.root'):
+    print('Looking for workspaces in directory {}'.format(args.workspace))
+    workspaces = [f for f in os.listdir(args.workspace)
+                  if (f.startswith('datacard_') and f.endswith('.root'))]
+    print('Will submit impact plot generation for the following workspaces ({}):'.format(len(workspaces)))
+    for w in workspaces: print('  - {}'.format(w))
+    print('Continue? (y/n)')
+    go = raw_input()
+    if go!='y': sys.exit()
+    for w in workspaces:
+      cmd = 'python impacts.py'
+      cmd += ' --workspace {}'.format(os.path.join(args.workspace,w))
+      if args.usedata: cmd += ' --usedata'
+      if args.expectsignal: cmd += ' --expectsignal'
+      cmd += ' --pois {}'.format(' '.join(args.pois))
+      cmd += ' --runmode {}'.format(args.runmode)
+      os.system(cmd)
+    sys.exit()
 
   # split workspace in directory and file name
   datacarddir, workspace = os.path.split(args.workspace)

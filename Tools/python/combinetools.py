@@ -484,7 +484,9 @@ def get_impacts_commands( datacarddir, card,
   name = card.replace('.txt','')
   if workspace is None: workspace = card.replace('.txt','.root')
   defaultpoi = False
-  if( len(pois)==0 and pois[0]=='r' ): defaultpoi = True
+  if( len(pois)==1 and pois[0]=='r' ): defaultpoi = True
+  autopoi = False
+  if( len(pois)==1 and pois[0]=='auto' ): autopoi = True
   appendix = '_impacts'
   if usedata: appendix += '_obs'
   else: appendix += '_exp'
@@ -505,7 +507,7 @@ def get_impacts_commands( datacarddir, card,
   command += ' --rMin 0 --rMax 5'
   #command += ' --cminDefaultMinimizerStrategy 0'
   command += ' --robustFit=1'
-  if not defaultpoi: command += ' --redefineSignalPOIs {}'.format(','.join(pois))
+  if not (defaultpoi or autopoi): command += ' --redefineSignalPOIs {}'.format(','.join(pois))
   if( not usedata and expectsignal ): command += ' -t -1 --expectSignal 1'
   elif( not usedata and not expectsignal ): command += ' -t -1 --expectSignal 0'
   # make the total set of commands

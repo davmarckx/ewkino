@@ -87,11 +87,20 @@ plot.ModTDRStyle(l=args.left_margin, b=0.10, width=(900 if args.checkboxes else 
 
 # Find POIs to plot
 allPOIs = [ele['name'] for ele in data['POIs']]
-POIs = [allPOIs[0]]
+POIs = []
 if args.POIs is None:
-    msg = 'The --POI argument was not specified;'
+    poi = allPOIs[0]
+    POIs = [poi]
+    msg = 'The --POIs argument was not specified;'
     msg += ' making impact plot for first POI found in input file,'
-    msg += ' named {}'.format(POIs[0])
+    msg += ' named {}'.format(poi)
+    print(msg)
+elif 'auto' in args.POIs:
+    POIs = allPOIs[:]
+    msg = 'The --POIs argument was set to "auto";'
+    msg += ' making impact plot for all POIs found in input file,'
+    msg += ' named {}'.format(POIs)
+    print(msg)
 else:
     POIs = []
     for POI in args.POIs:
@@ -167,12 +176,12 @@ for page in xrange(n):
         box.Draw()
         boxes.append(box)
 
-    # Crate and style the pads
+    # Create and style the pads
     if args.checkboxes:
         pads = plot.MultiRatioSplitColumns([0.54, 0.24], [0., 0.], [0., 0.])
         pads[2].SetGrid(1, 0)
     else:
-	margin = 0.015
+	margin = 0.0075
         splitpoints = [0.7]
 	if len(POIs)>1:
 	    splitpoints = [0.4]
@@ -180,6 +189,7 @@ for page in xrange(n):
 		width = 0.6 / len(POIs) 
 		width -= margin
 		splitpoints.append(width)
+        print(splitpoints)
         pads = plot.MultiRatioSplitColumns(splitpoints, [margin]*len(splitpoints), [margin]*len(splitpoints))
     pads[0].SetGrid(1, 0)
     pads[0].SetTickx(1)
@@ -270,10 +280,11 @@ for page in xrange(n):
 	    i + 1, ('#color[%i]{%s}'% (col, Translate(pdata[p]['name'], translate))))
 
     # Style and draw the pulls histo
-    if externalPullDef:
-        plot.Set(h_pulls.GetXaxis(), TitleSize=0.04, LabelSize=0.03, Title=CP.returnTitle(args.pullDef))
-    else:
-        plot.Set(h_pulls.GetXaxis(), TitleSize=0.03, LabelSize=0.02, Title='(#hat{#theta}-#theta_{0})/#Delta#theta')
+    title = '(#hat{#theta}-#theta_{0})/#Delta#theta'
+    if externalPullDef: title=CP.returnTitle(args.pullDef)
+    # set x-axis
+    plot.Set(h_pulls.GetXaxis(), Title=title, TitleSize=0.025, TitleOffset=1.2, LabelSize=0.025)
+    # set y-axis
     plot.Set(h_pulls.GetYaxis(), LabelSize=args.label_size, TickLength=0.0)
     h_pulls.GetYaxis().LabelsOption('v')
     h_pulls.Draw()
@@ -296,19 +307,27 @@ for page in xrange(n):
     for entry in text_entries:
         latex.DrawLatex(*entry)
 
-    # Go to the other pad and draw the impacts histos
+    # Go to the impact pad and draw the impacts histograms
+    # (this is for setting up the axes and axis titles etc.;
+    #  the actual coloured impact bars are drawn later on!)
     h_impacts = {}
     for pad, POI in zip(pads[1:], POIs):
 	pad.cd()
 	if max_impact == 0.: max_impact = 1E-6  # otherwise the plotting gets screwed up
+        # define an empty histogram for setting up the axes
 	impacthist = ROOT.TH2F(
 	    "impacts", "impacts", 6, -max_impact * 1.1, max_impact * 1.1, n_params, 0, n_params)
-	plot.Set(impacthist.GetXaxis(), LabelSize=0.02, TitleSize=0.03, Ndivisions=505, Title=
-	    '#Delta#hat{%s}' % (Translate(POI, translate)))
+        # set x-axis labels and title
+	plot.Set(impacthist.GetXaxis(), LabelSize=0.025, Ndivisions=3, 
+            Title='#Delta#hat{%s}' % (Translate(POI, translate)),
+            TitleSize=0.025, TitleOffset=1.2)
+        # set y-axis labels and title
 	plot.Set(impacthist.GetYaxis(), LabelSize=0, TickLength=0.0)
+        # draw the (still empty) histogram
 	impacthist.Draw()
 	h_impacts[POI] = impacthist
 
+        # Do something with checkboxes (?)
 	if args.checkboxes:
 	    pads[2].cd()
 	    h_checkboxes = ROOT.TH2F(
@@ -374,15 +393,19 @@ for page in xrange(n):
             legend2.AddEntry(h, name, 'F')
         legend2.Draw()
 
-    # draw CMS header and pad titles
+    # draw CMS header
     plot.DrawCMSLogo(pads[0], 'CMS', args.cms_label, 0, 0., 0., 0., cmsTextSize=0.5)
+    
+    # draw pad titles
     for pad, POI in zip(pads[1:], POIs):
 	fit = POIs_fit[POI]
 	s_nom, s_hi, s_lo = GetRounded(fit[1], fit[2] - fit[1], fit[1] - fit[0])
 	if not args.blind:
 	    plot.DrawTitle(pad, '#hat{%s} = %s^{#plus%s}_{#minus%s}%s' % (
 		Translate(POI, translate), s_nom, s_hi, s_lo,
-		    '' if args.units is None else ' '+args.units), 3, 0.27, textSize=0.4)
+		    '' if args.units is None else ' '+args.units), 3, 0.27, textSize=0.3)
+
+    # save the pdf page
     extra = ''
     if page == 0:
         extra = '('
