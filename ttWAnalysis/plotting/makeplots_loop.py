@@ -13,11 +13,13 @@ runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_dilepton_plus']: regions.append(r)
-for r in ['signalregion_dilepton_minus']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['pee','pem','pme','pmm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['nee','nem','nme','nmm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_dilepton_plus']: regions.append(r)
+#for r in ['signalregion_dilepton_minus']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['pee','pem','pme','pmm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['nee','nem','nme','nmm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+
 
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
@@ -26,7 +28,7 @@ for r in ['nee','nem','nme','nmm']: regions.append('signalregion_dilepton_{}'.fo
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 years.append('run2')
 

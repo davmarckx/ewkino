@@ -76,6 +76,7 @@ if __name__=="__main__":
                     +' but it does not seem to exist...')
 
   # parse the string with process tags
+  signals = args.signals
   processes = args.processes.split(',')
   doallprocesses = (len(processes)==1 and processes[0]=='all')
 
@@ -130,19 +131,18 @@ if __name__=="__main__":
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
   if args.splitvariable is not None and args.splitprocess is not None:
-    mustcontainone = ['{}_{}'.format(args.splitprocess,args.splitvariable),'{}0_'.format(args.splitprocess)]
+    mustcontainone = ['{}1{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}2{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}3{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}4{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}5{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}0_'.format(args.splitprocess)]
     maynotcontainone=[args.splitprocess]
     histnames_sig = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
     histnames_back = lt.subselect_strings(histnames, maynotcontainone=maynotcontainone)[1]
     histnames = histnames_sig + histnames_back
-  # select regions
+  # select regions  
   mustcontainone = ['_{}_'.format(args.region)]
   histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
   # select variables
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
-  #for histname in histnames: print('  {}'.format(histname))
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
@@ -277,6 +277,12 @@ if __name__=="__main__":
             +' will not write lumi header.')
     lumi = lumimap.get(args.year,None)
     colormap = colors.getcolormap(style=args.colormap)
+    if args.splitvariable is not None and args.splitprocess is not None and variablemode=='double':
+        for key, value in colormap.items():
+            if key[-1].isdigit():
+                if int(key[-1])>0:
+                    colormap[key+ args.splitvariable.replace('_','')] = value 
+ 
     extrainfos = []
     extrainfos.append( args.year )
     extrainfos.append( regionname )
@@ -286,26 +292,38 @@ if __name__=="__main__":
     # for double histogram variables,
     # make a labelmap for better legends
     labelmap = None
-    if variablemode=='double':
+    if variablemode=='double' and args.splitvariable is not None and args.splitprocess is not None:
       labelmap = {}
       sbl_short = var.secondary.getbinlabels()
       for hist in simhists:
 	oldtitle = hist.GetTitle()
-	lastchar = oldtitle[-1]
+        length = len(args.splitprocess)
+        lastchar = 'n'
+        if len(oldtitle) >= length+1:
+	    lastchar = oldtitle[length]
 	if( lastchar.isdigit() ):
 	    plbin = int(lastchar)
             appendix = ''
 	    if( plbin==0 ): appendix = '(o.a.)'
             elif( plbin-1 < len(sbl_short) ): appendix = '({})'.format(sbl_short[plbin-1])
             else: appendix = ''
-            if len(appendix)>0: newtitle = oldtitle[:-1]+' '+appendix
+            if len(appendix)>0: newtitle = oldtitle[:length]+' '+appendix
             else: newtitle = oldtitle
 	    labelmap[oldtitle] = newtitle
 	else:
 	    labelmap[oldtitle] = oldtitle
+      if args.splitvariable is not None and args.splitprocess is not None:  
+        if args.splitvariable != var.secondary.name:
+          print("skip when variable doesnt match the differential split:")
+          print(args.splitvariable + var.secondary.name)
+          continue
+        signals = [x + args.splitvariable.replace('_','') for x in args.signals]
+        signals.append(args.splitprocess+"0")
+        signals.append(args.splitprocess+"1")
     
     if args.splitvariable is not None and args.splitprocess is not None:
       outfile += '_split_' + args.splitvariable
+    print("plot") 
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 
@@ -313,7 +331,7 @@ if __name__=="__main__":
 	    yaxtitle=yaxtitle,
 	    colormap=colormap,
             labelmap=labelmap,
-            signals=args.signals,
+            signals=signals,
             extrainfos=extrainfos,
 	    lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,
@@ -331,7 +349,7 @@ if __name__=="__main__":
             yaxtitle=yaxtitle,
             colormap=colormap,
             labelmap=labelmap,
-            signals=args.signals,
+            signals=signals,
             extrainfos=extrainfos,
             lumi=lumi, extracmstext=args.extracmstext,
             binlabels=binlabels, labelsize=labelsize,

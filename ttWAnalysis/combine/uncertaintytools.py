@@ -54,14 +54,15 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
   # remove norm uncertainties for specified processes
   if pnonorm is not None:
-    for p in pnonorm: 
-      rmspecific[p].append('rScaleNorm*')
-      rmspecific[p].append('fScaleNorm*')
-      rmspecific[p].append('rfScalesNorm*')
-      rmspecific[p].append('qcdScalesNorm*')
-      rmspecific[p].append('pdfNorm*')
-      rmspecific[p].append('isrNorm*')
-      rmspecific[p].append('fsrNorm*')
+    for p in pnonorm:
+      if p in processes: 
+        rmspecific[p].append('rScaleNorm*')
+        rmspecific[p].append('fScaleNorm*')
+        rmspecific[p].append('rfScalesNorm*')
+        rmspecific[p].append('qcdScalesNorm*')
+        rmspecific[p].append('pdfNorm*')
+        rmspecific[p].append('isrNorm*')
+        rmspecific[p].append('fsrNorm*')
 
   # remove nJets/nBJets uncertainties for all but WZ and ZZ
   for p in processes:
@@ -75,7 +76,7 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
     if( p=='Chargeflips' ): continue
     rmspecific[p].append('njetscf')
   if year is not None:
-    if( year!='2017' and year!='2018' ):
+    if( year!='2017' and year!='2018' and 'Chargeflips' in processes):
       rmspecific['Chargeflips'].append('njetscf')
 
   # remove individual qcd and pdf variations

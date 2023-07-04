@@ -24,7 +24,7 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017']#,'2018']
 years.append('run2')
 
 npmodes = ['npfromdatasplit']
@@ -40,7 +40,7 @@ dolog = True
 
 #variables = '../variables/variables_main.json' # single variables
 variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
-#variables = '../variables/variables_njets.json'
+#variables = '../variables/variables_inputfeatures.json'
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
 colormap = 'ttw'
@@ -49,14 +49,17 @@ filemode = 'split'
 
 datatag = 'Data'
 
+excludetags = ""
+
 #signals = None
 #signals = ['TTW'] # for single variables
 signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
 
 # split variables can either be a list or a json file
-splitvariables = ['nBJets']
+splitvariables = ['']
 #splitvariables = '../variables/variables_particlelevel_single.json'
-splitprocess = 'TTQ'
+#splitvariables = ['differential']
+splitprocess = 'TTW'
 
 if isinstance(splitvariables,str):
     with open(splitvariables) as json_file:
@@ -89,6 +92,8 @@ for year in years:
           cmd += ' --outputdir '+thisoutputdir
           cmd += ' --datatag '+datatag
           cmd += ' --colormap '+colormap
+          if excludetags != '':
+            cmd += ' --excludetags ' +excludetags
           if splitvar != '':
             cmd += ' --splitvariable '+splitvar
             cmd += ' --splitprocess '+splitprocess

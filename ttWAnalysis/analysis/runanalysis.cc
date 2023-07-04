@@ -430,7 +430,8 @@ void fillSystematicsHistograms(
 	}
 	bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
     }
-    
+    else if(treeReader.isData()){bTagShapeSystematics = {"cferr1", "cferr2", "hf", "hfstats1", "hfstats2", "lf", "lfstats1", "lfstats2"};}
+ 
     // determine global sample properties related to pdf and scale variations
     unsigned numberOfScaleVariations = 0;
     unsigned numberOfPdfVariations = 0;

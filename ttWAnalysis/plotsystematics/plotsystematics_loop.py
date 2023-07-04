@@ -9,12 +9,12 @@ CMSSW_VERSION = '~/CMSSW_10_6_28'
 
 if __name__=='__main__':
 
-  topfolder = '../analysis/output_runanalysis_robustness_bdt'
-  outputdir = 'output_systs_robustness_bdt'
-  years = ['run2']
-  regions = ['signalregion_dilepton_inclusive',#'signalregion_dilepton_mm','signalregion_dilepton_me','signalregion_dilepton_em','signalregion_dilepton_ee','signalregion_dilepton_plus','signalregion_dilepton_minus',
-             'cfcontrolregion','fourleptoncontrolregion','trileptoncontrolregion','npcontrolregion_dilepton_inclusive','npcontrolregion_dilepton_mm',
-             'npcontrolregion_dilepton_me','npcontrolregion_dilepton_em','npcontrolregion_dilepton_ee','wzcontrolregion','zzcontrolregion','zgcontrolregion']
+  topfolder = '../analysis/output_runanalysis_type0v5'
+  outputdir = 'output_systs_type0v5'
+  years = ['2016PreVFP']
+  regions = ['signalregion_dilepton_inclusive']#,#'signalregion_dilepton_mm','signalregion_dilepton_me','signalregion_dilepton_em','signalregion_dilepton_ee','signalregion_dilepton_plus','signalregion_dilepton_minus',
+             #'cfcontrolregion','fourleptoncontrolregion','trileptoncontrolregion','npcontrolregion_dilepton_inclusive','npcontrolregion_dilepton_mm',
+             #'npcontrolregion_dilepton_me','npcontrolregion_dilepton_em','npcontrolregion_dilepton_ee','wzcontrolregion','zzcontrolregion','zgcontrolregion']
   # normal processes
   processes = ({ 
                  'allprocesses': 'all',
@@ -41,18 +41,19 @@ if __name__=='__main__':
   
   #variables = '../variables/variables_main.json'
   variables = '../variables/variables_eventbdt.json'
+  
   datatag = 'Data'
   includetags = ({ 
                    #'allsys': None,                           #never run all en combo at the same time as jobs
                    'jets': 'JEC,JER,Uncl',
-                   'leptons': 'electron,muon',
-                   'scales': 'Scale',
-                   'pdf': 'pdf',
-                   'other': 'pileup,prefire'
+                   #'leptons': 'electron,muon',
+                   #'scales': 'Scale',
+                   #'pdf': 'pdf',
+                   #'other': 'pileup,prefire'
+                   'bTag': 'bTag_shape'
                 })
   includeraw = True
   runLocal = False
-  includeraw = False
 
   cmds = []
   rawcmds = []

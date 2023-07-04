@@ -181,6 +181,7 @@ if __name__=="__main__":
   print('Extracted following relevant systematics from histogram file:')
   for systematic in shapesyslist: print('  - '+systematic)
 	
+
   # loop over variables
   for var in varlist:
 
