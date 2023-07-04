@@ -103,6 +103,7 @@ Float_t _deltaRLeadingLeptonPair = 0;
 Float_t _mLeadingLeptonPair = 0;
 // categorization variables
 Int_t _nJetsNBJetsCat = -1;
+Int_t _nJetsNLooseBJetsCat = -1;
 Int_t _nJetsNZCat = -1;
 
 
@@ -201,6 +202,7 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _mLeadingLeptonPair = varmap["_mLeadingLeptonPair"];
 
     _nJetsNBJetsCat = varmap["_nJetsNBJetsCat"];
+    _nJetsNLooseBJetsCat = varmap["_nJetsNLooseBJetsCat"];
     _nJetsNZCat = varmap["_nJetsNZCat"];
 }
 
@@ -295,7 +297,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_lW_charge",0}, {"_lW_pt",0.}, {"_Z_pt",0.},
         {"_l1dxy",0.},{"_l1dz",0.},{"_l1sip3d",0.},
         {"_l2dxy",0.},{"_l2dz",0.},{"_l2sip3d",0.},
-        {"_nJetsNBJetsCat",-1}, {"_nJetsNZCat",-1}
+        {"_nJetsNBJetsCat",-1}, {"_nJetsNLooseBJetsCat", -1},
+	{"_nJetsNZCat",-1}
     };
     return varmap;    
 }
@@ -401,8 +404,9 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("mLeadingLeptonPair", &_mLeadingLeptonPair, "_mLeadingLeptonPair/F");
  
 
-   // categorization variables
+    // categorization variables
     outputTree->Branch("_nJetsNBJetsCat", &_nJetsNBJetsCat, "_nJetsNBJetsCat/I");
+    outputTree->Branch("_nJetsNLooseBJetsCat", &_nJetsNLooseBJetsCat, "_nJetsNLooseBJetsCat/I");
     outputTree->Branch("_nJetsNZCat", &_nJetsNZCat, "_nJetsNZCat/I");
     }
 
@@ -477,6 +481,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // get correct jet collection and met (defined in eventSelections.cc!)
     JetCollection jetcollection = event.getJetCollection(variation);
     JetCollection bjetcollection = jetcollection.mediumBTagCollection();
+    JetCollection loosebjetcollection = jetcollection.looseBTagCollection();
     Met met = event.getMet(variation);
     // get lepton collection as well
     // (warning: a lot of event methods work on this collection implicitly,
@@ -569,7 +574,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_HT"] = jetcollection.scalarPtSum();
     varmap["_nJets"] = jetcollection.size();
     varmap["_nBJets"] = bjetcollection.size();
-    varmap["_nLooseBJets"] = jetcollection.looseBTagCollection().size();
+    varmap["_nLooseBJets"] = loosebjetcollection.size();
     varmap["_nTightBJets"] = jetcollection.tightBTagCollection().size();
     for(LeptonCollection::const_iterator lIt = lepcollection.cbegin();
 	    lIt != lepcollection.cend(); lIt++){
@@ -748,15 +753,19 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // definition of categorization variables
     int njets = jetcollection.size();
     int nbjets = bjetcollection.size();
+    int nloosebjets = loosebjetcollection.size();
     int nZ = 0;
     if( event.hasOSSFLightLeptonPair() ){
         nZ = event.nZTollCandidates(10.);
     }
-    
-    // (note: default is -1)
+    // define nJetsNBJetsCat (note: default is -1)
     if( nbjets==0 ) varmap["_nJetsNBJetsCat"] = std::min(njets,4);
     else if( nbjets==1 ) varmap["_nJetsNBJetsCat"] = 5 + std::min(njets,5) - 1;
     else if( nbjets>1 ) varmap["_nJetsNBJetsCat"] = 10 + std::min(njets,5) - 2;
+    // same but for loose b-jets
+    if( nloosebjets==0 ) varmap["_nJetsNLooseBJetsCat"] = std::min(njets,4);
+    else if( nloosebjets==1 ) varmap["_nJetsNLooseBJetsCat"] = 5 + std::min(njets,5) - 1;
+    else if( nloosebjets>1 ) varmap["_nJetsNLooseBJetsCat"] = 10 + std::min(njets,5) - 2;
     // (note: default is -1)
     if( nZ==2 ) varmap["_nJetsNZCat"] = 0;
     else if( nZ==1 ){

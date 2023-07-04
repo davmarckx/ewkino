@@ -75,10 +75,10 @@ bool eventSelectionsParticleLevel::passTriLeptonPtThresholds(const Event& event)
 
 bool eventSelectionsParticleLevel::passDiLeptonPtThresholds(const Event& event){
     event.leptonParticleLevelCollection().sortByPt();
-    //if(event.leptonParticleLevelCollection()[0].pt() < 25.
-    //    || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
     if(event.leptonParticleLevelCollection()[0].pt() < 25.
-        || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
+        || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
+    //if(event.leptonParticleLevelCollection()[0].pt() < 25.
+    //    || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
     // (temp for syncing with ATLAS+CMS note)
     return true;
 }

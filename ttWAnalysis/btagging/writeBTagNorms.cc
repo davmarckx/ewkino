@@ -159,7 +159,7 @@ void writeBTagNorms(
 
     // make output file
     std::string outputFilePath = stringTools::formatDirectoryName( outputDirectory );
-    outputFilePath += inputFileName;
+    outputFilePath += stringTools::replace(inputFileName, ".root", ".txt");
     std::vector<std::string> lines = bTaggingTools::mapToText(averageOfWeights);
     std::ofstream outFile(outputFilePath, std::ofstream::out);
     if( outFile.is_open() ){

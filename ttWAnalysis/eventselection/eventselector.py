@@ -38,7 +38,9 @@ event_selections = (['noselection',
 		     'npcontrolregion_dilepton_em',
 		     'npcontrolregion_dilepton_me',
 		     'npcontrolregion_dilepton_mm',
-		     'cfcontrolregion'])
+                     'nplownjetscontrolregion_dilepton_inclusive',
+                     'cfcontrolregion',
+                     'cfjetscontrolregion'])
 selection_types = (['tight', 'prompt', 'chargegood', 'irreducible',
                     'fakerate', 'efakerate', 'mfakerate', 'chargeflips'])
 variations = ['nominal','all','JECDown','JECUp','JERDown','JERUp','UnclDown','UnclUp']

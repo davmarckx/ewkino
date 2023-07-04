@@ -372,7 +372,7 @@ int main( int argc, char* argv[] ){
     std::vector<HistogramVariable> variables;
     variables.push_back(HistogramVariable("leptonptleading", "Leading lepton p_{T}", 12, 0., 300.));
     variables.push_back(HistogramVariable("leptonptsubleading", "Subleading lepton p_{T}", 12, 0., 180.));
-    variables.push_back(HistogramVariable("leptonpttrailing", "Trailing lepton p_{T}", 12, 0., 120));
+    variables.push_back(HistogramVariable("leptonpttrailing", "Trailing lepton p_{T}", 12, 0., 120.));
     variables.push_back(HistogramVariable("yield", "Total yield", 1, 0., 1.));
     // fill the histograms
     fillTriggerEfficiencyHistograms(input_file_path, output_file_path, 

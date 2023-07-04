@@ -78,6 +78,10 @@ if __name__=='__main__':
     for f in files:
       if( f==mergedfilename ):
         mergedfiles.append(os.path.join(root,f))
+  print('Found {} files.'.format(len(mergedfiles)))
+  if len(mergedfiles)==0:
+    print('No files found, exiting.')
+    sys.exit()
 
   # loop over all files
   summary_info = {}

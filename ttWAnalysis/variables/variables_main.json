@@ -99,6 +99,15 @@
   "unit": ""
 },
 {
+  "name": "_nLooseBJets",
+  "variable": "_nLooseBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "unit": ""
+},
+{
   "name": "_abs_eta_max",
   "variable": "_abs_eta_max",
   "nbins": "20",
@@ -143,9 +152,9 @@
 {
   "name": "_leptonPtLeading",
   "variable": "_leptonPtLeading",
-  "nbins": "12",
+  "nbins": "16",
   "xlow": "0.0",
-  "xhigh": "300.0",
+  "xhigh": "200.0",
   "axtitle": "Leading lepton p_{T}",
   "unit": "GeV"
 },
@@ -154,16 +163,16 @@
   "variable": "_leptonPtSubLeading",
   "nbins": "12",
   "xlow": "0.0",
-  "xhigh": "180.0",
+  "xhigh": "120.0",
   "axtitle": "Subleading lepton p_{T}",
   "unit": "GeV"
 },
 {
   "name": "_leptonPtTrailing",
   "variable": "_leptonPtTrailing",
-  "nbins": "12",
+  "nbins": "16",
   "xlow": "0.0",
-  "xhigh": "120.0",
+  "xhigh": "80.0",
   "axtitle": "Trailing lepton p_{T}",
   "unit": "GeV"
 },
@@ -305,6 +314,17 @@
 {
   "name": "_nJetsNBJetsCat",
   "variable": "_nJetsNBJetsCat",
+  "nbins": "15",
+  "xlow": "-1.5",
+  "xhigh": "13.5",
+  "axtitle": "Number of (b-tagged) jets category",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["Other","0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
+},
+{
+  "name": "_nJetsNLooseBJetsCat",
+  "variable": "_nJetsNLooseBJetsCat",
   "nbins": "15",
   "xlow": "-1.5",
   "xhigh": "13.5",
