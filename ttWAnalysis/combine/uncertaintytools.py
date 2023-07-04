@@ -89,10 +89,6 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   rmforall.append('JECGrouped*')
   rmforall.append('JECGrouped_Total*')
 
-  # remove b-tagging shape uncertainties for nonprompt
-  # (the data is not yet correctly filled with nominal for these systematics)
-  if 'Nonprompt' in rmspecific.keys(): rmspecific['Nonprompt'].append('bTag_shape*')
-
   # remove uncertainties for other years
   # (cleaner, but not strictly needed since they are set to nominal anyway)
   if( year is not None and allyears is not None and year in allyears ):

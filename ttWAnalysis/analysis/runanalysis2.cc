@@ -390,7 +390,7 @@ void fillSystematicsHistograms(
         std::string txtInputFile = "../btagging/output_20230630/";
         // (hard-coded for now, maybe replace by argument later)
         txtInputFile += year + "/" + inputFileName;
-        txtInputFile = strinTools::replace(txtInputFile, ".root", ".txt");
+        txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");
         if( !systemTools::fileExists(txtInputFile) ){
             std::string msg = "ERROR in loading b-tagging normalization factors:";
             msg += " file " + txtInputFile + " does not exist.";

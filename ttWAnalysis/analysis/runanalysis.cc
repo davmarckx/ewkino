@@ -779,7 +779,7 @@ void fillSystematicsHistograms(
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
 			    fillHistograms( histMap, thisProcessName,
-                            event_selection, selection_type, upvar,
+                            event_selection, selection_type, systematic + "_" + thisupvar,
                             histVar, accvarmap.at(variable), weight,
                             doSplitParticleLevel, splitParticleLevelVars,
                             passParticleLevel, varmapParticleLevel );
@@ -813,7 +813,7 @@ void fillSystematicsHistograms(
 			    std::string variableName = histVar.name();
 			    std::string variable = histVar.variable();
 			    fillHistograms( histMap, thisProcessName,
-                            event_selection, selection_type, downvar,
+                            event_selection, selection_type, systematic + "_" + thisdownvar,
                             histVar, accvarmap.at(variable), weight,
                             doSplitParticleLevel, splitParticleLevelVars,
                             passParticleLevel, varmapParticleLevel );

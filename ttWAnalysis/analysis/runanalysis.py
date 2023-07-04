@@ -28,7 +28,7 @@ systematics = ([
   "JER",
   "Uncl",
   #"JECAll" # not in current samples
-  #"JECGrouped",
+  "JECGrouped",
   # via standard reweighting
   "muonReco",
   "electronReco",
@@ -40,7 +40,7 @@ systematics = ([
   "trigger",
   "prefire",
   # b-tagging
-  #"bTag_shape",
+  "bTag_shape",
   # scale uncertainties
   "fScale",
   "fScaleNorm",
@@ -61,7 +61,7 @@ systematics = ([
   # extra uncertainties for high jet multiplicities
   "njets",
   "nbjets",
-  #"njetscf"
+  "njetscf"
 ])
 # systematics = []
 
@@ -77,8 +77,8 @@ if __name__=='__main__':
   # list of variables to make histograms for (in json format).
   # - for runanalysis, should be a list of single variables.
   # - for runanalysis2, should be a list of double variables.
-  parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
-  parser.add_argument('--selection_type', default='tight', choices=selection_types, nargs='+')
+  parser.add_argument('--event_selection', required=True, choices=event_selections + ['all'], nargs='+')
+  parser.add_argument('--selection_type', default='tight', choices=selection_types + ['all'], nargs='+')
   parser.add_argument('--frdir', default=None, type=apt.path_or_none)
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--bdt', default=None, type=apt.path_or_none)
@@ -121,7 +121,9 @@ if __name__=='__main__':
   variables_ext = os.path.splitext(args.variables)[1]
   if not variables_ext=='.json':
     raise Exception('ERROR: variable file {} should be .json.'.format(args.variables))
+  if 'all' in args.event_selection: args.event_selection = event_selections
   event_selections = ','.join(args.event_selection)
+  if 'all' in args.selection_type: args.selection_type = selection_types
   selection_types = ','.join(args.selection_type)
 
   # check if executable is present

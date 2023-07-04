@@ -337,7 +337,7 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
                                         "lfstats1","lfstats2","cferr1","cferr2" };
     // step 3: make the reweighter
     std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
-	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
+    	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
     //reweighterBTagShape->initialize(samples, 0);
     // (above line is commented out -> do not initialize, do it manually in calling)
     combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );

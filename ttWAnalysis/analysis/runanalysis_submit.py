@@ -9,20 +9,20 @@
 import os
 import sys
 
-exe = 'runanalysis'
+exe = 'runanalysis2'
 
 regions = []
-for r in ['signalregion_dilepton_oviedo']: regions.append(r)
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-#for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_oviedo']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
@@ -32,43 +32,39 @@ dtypes = ['sim','data']
 #dtypes = ['data']
 
 selection_types = []
-selection_types.append('tight')
-selection_types.append('prompt')
+#selection_types.append('tight')
+#selection_types.append('prompt')
 selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
+#selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops' # main sample lists
-samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
+#samplelistdir = '../samplelists/fourtops' # main sample lists
+#samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-#samplelistdir = 'samplelists' # sample lists for TTW signal samples
-#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+samplelistdir = 'samplelists' # sample lists for TTW signal samples
+samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json' # single variables
-#variables = "../variables/variables_inputfeatures.json"
-variables = '../variables/variables_eventbdt.json' # single variables
+#variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
-#variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
-#bdtfile = '../bdtweights/XGBfinal_all.root'
-#bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withbettergridsearchshort.root' #current one 
-bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
+bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
 bdtcut = None
 
-splitprocess = None # do not split any process at particle level
-#splitprocess = 'TTW' # split TTW process at particle level
+#splitprocess = None # do not split any process at particle level
+splitprocess = 'TTW' # split TTW process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'NPtest/output_runanalysis_normal_bdtv3'
+outputdir = 'output_20230704_double_sig'
 
 nevents = 1e6
 runlocal = False
@@ -80,10 +76,10 @@ submit_event_selections_combined = True
 for year in years:
   for dtype in dtypes:
     # set correct input directory
-    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
-    inputdiryear = year
-    #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
-    #inputdiryear = ''
+    #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    #inputdiryear = year
+    inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
+    inputdiryear = ''
     if dtype=='data':
       inputdir = inputdir.replace('_v4','_v5')
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
