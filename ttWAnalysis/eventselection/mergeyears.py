@@ -25,7 +25,7 @@ if __name__=='__main__':
   
   # fixed arguments (for now)
   years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
-  npmodes = ['npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
+  npmodes = ['npfromdata', 'npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
   cfmodes = ['cffromdata'] #['cffromsim', 'cffromdata']
 
   # find regions (if applicable)

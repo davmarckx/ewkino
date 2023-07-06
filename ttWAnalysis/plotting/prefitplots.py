@@ -292,38 +292,51 @@ if __name__=="__main__":
     # for double histogram variables,
     # make a labelmap for better legends
     labelmap = None
-    if variablemode=='double' and args.splitvariable is not None and args.splitprocess is not None:
+    if( variablemode=='double' ):
       labelmap = {}
-      sbl_short = var.secondary.getbinlabels()
-      for hist in simhists:
-	oldtitle = hist.GetTitle()
-        length = len(args.splitprocess)
-        lastchar = 'n'
-        if len(oldtitle) >= length+1:
-	    lastchar = oldtitle[length]
-	if( lastchar.isdigit() ):
-	    plbin = int(lastchar)
-            appendix = ''
-	    if( plbin==0 ): appendix = '(o.a.)'
-            elif( plbin-1 < len(sbl_short) ): appendix = '({})'.format(sbl_short[plbin-1])
-            else: appendix = ''
-            if len(appendix)>0: newtitle = oldtitle[:length]+' '+appendix
-            else: newtitle = oldtitle
-	    labelmap[oldtitle] = newtitle
-	else:
-	    labelmap[oldtitle] = oldtitle
-      if args.splitvariable is not None and args.splitprocess is not None:  
-        if args.splitvariable != var.secondary.name:
-          print("skip when variable doesnt match the differential split:")
-          print(args.splitvariable + var.secondary.name)
-          continue
-        signals = [x + args.splitvariable.replace('_','') for x in args.signals]
-        signals.append(args.splitprocess+"0")
-        signals.append(args.splitprocess+"1")
+      # first 'regular' case where secondary variable is the split variable
+      if args.splitvariable is None:
+          splitvariable = var.secondary.name.strip('_')
+          sbl_short = var.secondary.getbinlabels()
+          for hist in simhists:
+	      oldtitle = hist.GetTitle()
+              newtitle = oldtitle[:]
+              splitchar = ''
+              # first case: names of the form TTW1
+              if oldtitle[-1].isdigit():
+                  splitchar = oldtitle[-1]
+                  newtitle = newtitle[:-1]
+              # second case: names of the form TTW1nMuons
+              if oldtitle.endswith(splitvariable):
+                  newtitle = newtitle.replace(splitvariable,'')
+                  splitchar = newtitle[-1]
+                  newtitle = newtitle[:-1]
+                  # reset histogram title to correspond to first case (needed for correct colors)
+                  oldtitle = newtitle+splitchar
+                  hist.SetTitle(oldtitle)
+	      if( splitchar.isdigit() ):
+	          plbin = int(splitchar)
+                  appendix = ''
+	          if( plbin==0 ): appendix = '(o.a.)'
+                  elif( plbin-1 < len(sbl_short) ): appendix = '({})'.format(sbl_short[plbin-1])
+                  else: appendix = ''
+                  if len(appendix)>0: newtitle = newtitle+' '+appendix
+                  # also automatically add this process to the list of signals
+                  signals.append(oldtitle)
+              labelmap[oldtitle] = newtitle
+      # now 'special' case where split variable can be different
+      if( args.splitvariable is not None and args.splitprocess is not None ):  
+          if args.splitvariable != var.secondary.name:
+              print('WARNING: labels for case split variable != secondary variable not yet implemented.')
+              continue
+          signals = [x + args.splitvariable.replace('_','') for x in args.signals]
+          signals.append(args.splitprocess+"0")
+          signals.append(args.splitprocess+"1")
     
-    if args.splitvariable is not None and args.splitprocess is not None:
+    # modify output file name as needed
+    if( args.splitvariable is not None and args.splitprocess is not None ):
       outfile += '_split_' + args.splitvariable
-    print("plot") 
+
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
 	    mcsysthist=mcsysthist, 

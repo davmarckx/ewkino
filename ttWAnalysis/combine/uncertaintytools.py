@@ -70,6 +70,11 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
     rmspecific[p].append('njets')
     rmspecific[p].append('nbjets')
 
+  # remove specific nJets uncertainty except for chargeflips
+  # (also remove for chargeflips since it was not yet correctly initialized)
+  for p in processes:
+    for y in allyears: rmspecific[p].append('njetscf{}'.format(y))
+
   # remove second nJets uncertainty for all but chargeflips,
   # and keep it only in 2017 and 2018
   for p in processes:
@@ -102,6 +107,8 @@ def remove_systematics_default( processinfo, year=None ):
   ### default sequence removing some shape systematics
   pnonorm = ['WZ','ZZ','TTZ','ZG']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
+  if 'Nonprompt(e)' in processinfo.plist: pnonorm.append('Nonprompt(e)')
+  if 'Nonprompt(m)' in processinfo.plist: pnonorm.append('Nonprompt(m)')
   if 'Chargeflips' in processinfo.plist: pnonorm.append('Chargeflips')
   for p in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
     if p in processinfo.plist: pnonorm.append(p)
@@ -172,6 +179,10 @@ def add_systematics_default( processinfo, year=None ):
   })
   if 'Nonprompt' in processinfo.plist:
     norms['Nonprompt'] = 1.2
+  if 'Nonprompt(e)' in processinfo.plist:
+    norms['Nonprompt(e)'] = 1.2
+  if 'Nonprompt(m)' in processinfo.plist:
+    norms['Nonprompt(m)'] = 1.2
   if 'Chargeflips' in processinfo.plist:
     norms['Chargeflips'] = 1.2
   for process,mag in norms.items():
