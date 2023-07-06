@@ -20,6 +20,8 @@ bool eventSelectionsParticleLevel::passES(Event& event, const std::string& event
 		{ "signalregion_dilepton_em", pass_signalregion_dilepton_em},
 		{ "signalregion_dilepton_me", pass_signalregion_dilepton_me},
 		{ "signalregion_dilepton_mm", pass_signalregion_dilepton_mm},
+		{ "signalregion_dilepton_plus", pass_signalregion_dilepton_plus },
+                { "signalregion_dilepton_minus", pass_signalregion_dilepton_minus },
 		{ "signalregion_trilepton", pass_signalregion_trilepton },
 		// prompt control regions
 		/*{ "wzcontrolregion", pass_wzcontrolregion },
@@ -210,6 +212,22 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_mm(Event& event){
     if( !pass_signalregion_dilepton_inclusive(event) ){ return false; }
     if( event.leptonParticleLevelCollection()[0].isMuon()
         && event.leptonParticleLevelCollection()[1].isMuon() ){ return true; }
+    return false;
+}
+
+bool eventSelectionsParticleLevel::pass_signalregion_dilepton_plus(Event& event){
+    // signal region with positive sign leptons
+    if( !pass_signalregion_dilepton_inclusive(event) ){ return false; }
+    if( event.leptonParticleLevelCollection()[0].charge()==1
+        && event.leptonParticleLevelCollection()[1].charge()==1 ){ return true; }
+    return false;
+}
+
+bool eventSelectionsParticleLevel::pass_signalregion_dilepton_minus(Event& event){
+    // signal region with negative sign leptons
+    if( !pass_signalregion_dilepton_inclusive(event) ){ return false; }
+    if( event.leptonParticleLevelCollection()[0].charge()==-1
+        && event.leptonParticleLevelCollection()[1].charge()==-1 ){ return true; }
     return false;
 }
 

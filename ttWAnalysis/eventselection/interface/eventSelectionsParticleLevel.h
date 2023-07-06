@@ -21,6 +21,8 @@ namespace eventSelectionsParticleLevel{
     bool pass_signalregion_dilepton_em(Event&);
     bool pass_signalregion_dilepton_me(Event&);
     bool pass_signalregion_dilepton_mm(Event&);
+    bool pass_signalregion_dilepton_plus(Event&);
+    bool pass_signalregion_dilepton_minus(Event&);
     bool pass_signalregion_trilepton(Event& event);
     // cutflow functions
     std::tuple<int,std::string> pass_signalregion_dilepton_inclusive_cutflow(Event& event);

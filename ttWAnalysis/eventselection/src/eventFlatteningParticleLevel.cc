@@ -16,6 +16,7 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
     std::map< std::string, double> varmap = {
 	{"_yield",0.5},
 	{"_nJets",0}, {"_nBJets",0},
+	{"_nLooseBJets", 0},
 	{"_nMuons",0},{"_nElectrons",0},
 	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
 	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
@@ -88,6 +89,8 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
     // number of jets and b-jets
     varmap["_nJets"] = jetcollection.numberOfJets();
     varmap["_nBJets"] = jetcollection.numberOfBJets();
+    varmap["_nLooseBJets"] = varmap["_nBJets"];
+    // (just for syntax, there needs to be an entry nLooseBJets to correspond to the same detector level variable)
 
     // HT
     varmap["_HT"] = jetcollection.scalarPtSum();

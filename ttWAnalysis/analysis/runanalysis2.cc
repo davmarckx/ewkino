@@ -621,7 +621,7 @@ void fillSystematicsHistograms(
                 // do additional selection on final BDT score
                 // note: to be 100% correct, this should be re-evaluated for every jec systematic,
                 // but for now just do a cut-and-continue on nominal.
-                if( varmap["_eventBDT"]<bdtCutValue ) continue;
+                if( varmap.at("_eventBDT")<bdtCutValue ) continue;
             }
             passNominalCounter.at(event_selection).at(selection_type)++;
 	    for(DoubleHistogramVariable histVar: histVars){
@@ -1507,12 +1507,12 @@ int main( int argc, char* argv[] ){
             throw std::runtime_error(msg);
         }
         // check secondary variable (e.g. number of muons) at particle level
-	if( doSplitParticleLevel ){
-	    if( emptymapPL.find(secondaryVariable)==emptymapPL.end() ){
-		std::string msg = "ERROR: variable '"+secondaryVariable+"'";
-		msg.append(" not recognized in particle-level variable map.");
-		throw std::invalid_argument(msg);
-	    }
+	// (note: need to do this check also if doSplitParticleLevel is false,
+	//  because it will still give map::at() errors if the variable is not found.)
+	if( emptymapPL.find(secondaryVariable)==emptymapPL.end() ){
+	    std::string msg = "ERROR: variable '"+secondaryVariable+"'";
+	    msg.append(" not recognized in particle-level variable map.");
+	    throw std::invalid_argument(msg);
         }
     }
 

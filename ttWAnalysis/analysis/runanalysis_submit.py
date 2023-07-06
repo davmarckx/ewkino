@@ -27,8 +27,8 @@ for r in ['signalregion_trilepton']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 
-dtypes = ['sim','data']
-#dtypes = ['sim']
+#dtypes = ['sim','data']
+dtypes = ['sim']
 #dtypes = ['data']
 
 selection_types = []
@@ -48,7 +48,7 @@ cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 #samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-samplelistdir = 'samplelists' # sample lists for TTW signal samples
+samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
 samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
