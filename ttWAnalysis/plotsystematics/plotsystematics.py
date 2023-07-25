@@ -153,6 +153,9 @@ if __name__=="__main__":
   print('Further selection (processes and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
 
+  # do printouts (ony for testing)
+  #for histname in histnames: print('  {}'.format(histname))
+
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
   #  is the same for all variables)

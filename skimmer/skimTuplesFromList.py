@@ -24,6 +24,7 @@ from jobSubmission import initializeJobScript, submitQsubJob
 sys.path.append(os.path.abspath('../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = '~/CMSSW_12_4_6'
 sys.path.append(os.path.abspath('../Tools/python'))
 from samplelisttools import readsamplelist
 
@@ -36,7 +37,7 @@ if len(sys.argv) < 5:
     print('  - output directory')
     print('  - skim condition')
     print('  - version = ntuple version [optional]')
-    print('  - files per job = number of files per job [optional]')
+    print('  - filesperjob = number of files per job [optional]')
     print('  - walltime = maximum wall time [optional]')
     print('  - runmode = run mode (condor, qsub or local) [optional]')
     sys.exit()
