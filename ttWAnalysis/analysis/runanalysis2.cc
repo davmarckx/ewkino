@@ -402,7 +402,8 @@ void fillSystematicsHistograms(
             variationsToRead.push_back("down_"+var);
         }
         bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
-    }   
+    }  
+    //important so that nominal data histograms are made for expected btag systematics: hard coded!!! 
     else if(treeReader.isData()){bTagShapeSystematics = {"cferr1", "cferr2", "hf", "hfstats1", "hfstats2", "lf", "lfstats1", "lfstats2"};}
  
     // determine global sample properties related to pdf and scale variations
@@ -506,9 +507,16 @@ void fillSystematicsHistograms(
 	Event event = treeReader.buildEvent(0,false,false,considerjecall,considerjecgrouped);
 	allJECVariations = event.jetInfo().allJECVariations();
 	groupedJECVariations = event.jetInfo().groupedJECVariations();
-	std::cout << "found following JEC uncertainty sources:" << std::endl;
+	std::cout << "found following all JEC uncertainty sources:" << std::endl;
 	event.jetInfo().printAllJECVariations();
+        std::cout << "found following grouped JEC uncertainty sources:" << std::endl;
 	event.jetInfo().printGroupedJECVariations();
+    }
+    // important so that nominal data histograms are made for groupedJEC with expected list: hard coded!!!
+    else if( treeReader.numberOfEntries()>0
+        && (considerjecgrouped)
+        && treeReader.isData() ){
+        groupedJECVariations = {"Absolute_2018","Absolute","BBEC1_2018","BBEC1","EC2_2018","EC2","FlavorQCD","HF_2018","HF","RelativeBal","RelativeSample_2018","Total"};
     }
 
     // make output collection of histograms

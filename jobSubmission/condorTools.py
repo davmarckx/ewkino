@@ -50,7 +50,7 @@ def initJobScript(name,
 	# write bash shebang
         script.write('#!/bin/bash\n')
 	# write echo script name
-	script.write("echo '###exename###: {}'\n".format(fname))
+        script.write("echo '###exename###: {}'\n".format(fname))
 	# write export home
         if home is not None:
             script.write('export HOME={}\n'.format(home))
