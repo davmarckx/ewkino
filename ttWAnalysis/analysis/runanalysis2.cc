@@ -516,7 +516,7 @@ void fillSystematicsHistograms(
     else if( treeReader.numberOfEntries()>0
         && (considerjecgrouped)
         && treeReader.isData() ){
-        groupedJECVariations = {"Absolute_2018","Absolute","BBEC1_2018","BBEC1","EC2_2018","EC2","FlavorQCD","HF_2018","HF","RelativeBal","RelativeSample_2018","Total"};
+        groupedJECVariations = {"Absolute_" + year.substr(0, 4),"Absolute","BBEC1_"+year.substr(0, 4),"BBEC1","EC2_"+year.substr(0, 4),"EC2","FlavorQCD","HF_"+year.substr(0, 4),"HF","RelativeBal","RelativeSample_"+year.substr(0, 4),"Total"};
     }
 
     // make output collection of histograms
