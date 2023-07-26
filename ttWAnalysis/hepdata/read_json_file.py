@@ -7,7 +7,7 @@
 import json
 
 def read_impact_json( filename_obs, filename_exp ):
-    # copied partly from customImapcts.py!
+    # copied partly from customImpacts.py!
 
     data = {}
     with open(filename_obs) as jsonfile:

@@ -8,7 +8,7 @@
 # note: requires the third-party python module "hepdata_lib"!
 #       can be installed simply via "pip install hepdata_lib"
 #       (preferably in a virtual environment)
-# tested in CMSSW_12_4_6 and python3
+#       tested in CMSSW_12_4_6 and python3 venv
 
 import hepdata_lib
 from hepdata_lib import Submission, Table, RootFileReader, Variable, Uncertainty
@@ -36,14 +36,14 @@ def get_region_description( region ):
     elif region=='signalregion_trilepton': return 'the signal region with exactly 3 leptons'
     elif region=='signalregion_dilepton_plus': return 'the signal region with two positive sign leptons'
     elif region=='signalregion_dilepton_minus': return 'the signal region with two negative sign leptons'
-    elif region=='signalregion_dilepton_ee': return 'the signal region with two electrons'
-    elif region=='signalregion_dilepton_em': return 'the signal region with a leading electron and subleading muon'
-    elif region=='signalregion_dilepton_me': return 'the signal region with a leading muon and subleading electron'
-    elif region=='signalregion_dilepton_mm': return 'the signal region with two muons'
+    elif region=='signalregion_dilepton_ee': return 'the signal region with two SS electrons'
+    elif region=='signalregion_dilepton_em': return 'the signal region with a leading electron and subleading SS muon'
+    elif region=='signalregion_dilepton_me': return 'the signal region with a leading muon and subleading SS electron'
+    elif region=='signalregion_dilepton_mm': return 'the signal region with two SS muons'
 
     
     else:
-        raise Exception('ERROR in get_region_description: category {} not recognized'.format(cat))
+        raise Exception('ERROR in get_region_description: region {} not recognized'.format(region))
 
 def get_all_regions(splits=False):
     
@@ -97,26 +97,28 @@ if __name__=='__main__':
     for fit in ['prefit','postfit']:
         for sr in get_all_signalregions(splits=True):
             infile = directory_input_hists
-            infile += '/{}/run2/signalregion_{}/'.format(fit,cat)
-            infile += 'dc_combined_signalregion_{}_yearscombined'.format(cat)
+            infile += '/{}/run2/{}/'.format(fit,sr)
+            infile += 'dc_combined_{}_yearscombined'.format(sr)
             infile += '_var__eventBDT_temp.root'
-            outfile = os.path.join(directory_input,'signalregion_{}_{}.root'.format(cat,fit))
+            outfile = os.path.join(directory_input,'{}_{}.root'.format(sr,fit))
             os.system('cp {} {}'.format(infile,outfile))
             infile = directory_input_hists
-            infile += '/{}/signalregion_{}_yearscombined/'.format(fit,cat)
-            infile += 'dc_combined_signalregion_{}_yearscombined'.format(cat)
+            infile += '/{}/{}_yearscombined/'.format(fit,sr)
+            infile += 'dc_combined_{}_yearscombined'.format(sr)
             infile += '_var__eventBDT_statonly_temp.root'
-            outfile = os.path.join(directory_input,'signalregion_{}_{}_stat.root'.format(cat,fit))
+            outfile = os.path.join(directory_input,'{}_{}_stat.root'.format(sr,fit))
             os.system('cp {} {}'.format(infile,outfile))
 
-    # copy figures                                                                                                                  #to be updated!!!
+    # copy figure                                                                                                                   #to be updated!!!
+    variables = ["_eventBDT"]
     for fit in ['prefit','postfit']:                                                                                       
         for sr in get_all_signalregions(splits=True):
-            infile = directory_input_hists
-            infile += '/output_{}/run2/{}/'.format(fit,sr)
-            infile += 'merged_npfrom{}_cffrom{}/plots/_eventBDT.pdf'.format(np_origin,cf_origin)
-            outfile = os.path.join(directory_input,'signalregion_{}_{}.pdf'.format(cat,fit))
-            os.system('cp {} {}'.format(infile,outfile))
+            for var in variables:
+                infile = directory_input_hists
+                infile += '/{}/run2/{}/'.format(fit,sr)
+                infile += 'merged_npfrom{}_cffrom{}/plots/{}.pdf'.format(np_origin,cf_origin,var)
+                outfile = os.path.join(directory_input,'{}_{}_{}.pdf'.format(sr,fit,var))
+                os.system('cp {} {}'.format(infile,outfile))
 
     ### create submission
 
@@ -232,7 +234,7 @@ if __name__=='__main__':
             descr += ' is the (statistical) Poisson uncertainty.'
             descr += ' Note that this is the {} version.'.format(fit)
             table.description = descr
-            cat_to_loc = {'signalregion_dilepton_inclusive':'upper','signalregion_trilepton':'lower'}
+            sr_to_loc = {'signalregion_dilepton_inclusive':'upper','signalregion_trilepton':'lower'}
             fit_to_loc = {'prefit':'left','postfit':'right'}
             table.location = 'Figure 7 ({}, {})'.format(sr_to_loc[sr],fit_to_loc[fit])
             # line below does not seem to work since ImageMagick is probably not installed on T2
@@ -240,27 +242,27 @@ if __name__=='__main__':
         
             # read the histograms
             reader = RootFileReader(os.path.join(directory_input,
-                                'signalregion_{}_{}.root'.format(cat,fit)))
-            tzqhist = reader.read_hist_1d('{}/{}'.format(fit,'TotalSig'))
+                                '{}_{}.root'.format(sr,fit)))
+            ttWhist = reader.read_hist_1d('{}/{}'.format(fit,'TotalSig'))
             bckhist = reader.read_hist_1d('{}/{}'.format(fit,'TotalBkg'))
             datahist = reader.read_hist_1d('{}/{}'.format(fit,'data_obs'))
             reader_stat = RootFileReader(os.path.join(directory_input,
-                                'signalregion_{}_{}_stat.root'.format(cat,fit)))
-            tzqhist_stat = reader_stat.read_hist_1d('{}/{}'.format('prefit','TotalSig'))
+                                'signalregion_{}_{}_stat.root'.format(sr,fit)))
+            ttWhist_stat = reader_stat.read_hist_1d('{}/{}'.format('prefit','TotalSig'))
             bckhist_stat = reader_stat.read_hist_1d('{}/{}'.format('prefit','TotalBkg'))
             # (note: statistical uncertainties are taken from prefit!)
         
             # create variables
             bdt = Variable('BDT score', is_independent=True, is_binned=False)
             bdt.values = datahist['x']
-            tzq = Variable('Number of tZq signal events', is_independent=False, is_binned=False)
-            tzq.values = tzqhist['y']
-            tzq_unc = Uncertainty('Total uncertainty on tZq signal' )
-            tzq_unc.values = tzqhist['dy']
-            tzq.add_uncertainty( tzq_unc )
-            tzq_unc_stat = Uncertainty('Statistical uncertainty on tZq signal')
-            tzq_unc_stat.values = tzqhist_stat['dy']
-            tzq.add_uncertainty( tzq_unc_stat )
+            ttW = Variable('Number of tZq signal events', is_independent=False, is_binned=False)
+            ttW.values = ttWhist['y']
+            ttW_unc = Uncertainty('Total uncertainty on tZq signal' )
+            ttW_unc.values = ttWhist['dy']
+            ttW.add_uncertainty( ttW_unc )
+            ttW_unc_stat = Uncertainty('Statistical uncertainty on tZq signal')
+            ttW_unc_stat.values = ttWhist_stat['dy']
+            ttW.add_uncertainty( ttW_unc_stat )
             bck = Variable('Number of background events', is_independent=False, is_binned=False)
             bck.values = bckhist['y']
             bck_unc = Uncertainty('Total uncertainty on background' )
@@ -277,7 +279,7 @@ if __name__=='__main__':
 
             # add variables to table
             table.add_variable(bdt)
-            table.add_variable(tzq)
+            table.add_variable(ttW)
             table.add_variable(bck)
             table.add_variable(data)
         
