@@ -92,7 +92,18 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   # remove overlap between JEC sources
   #rmforall.append('JEC')
   rmforall.append('JECGrouped*')
-  rmforall.append('JECGrouped_Total*')
+  #rmforall.append('JECGrouped_Total*')
+
+  # remove grouped JEC sources for nonprompt
+  # (they are not yet correctly initialized)
+  for p in ['Nonprompt', 'Nonprompt(m)', 'Nonprompt(e)']:
+    if p in processes: rmspecific[p].append('JECGrouped*')
+
+  # also remove grouped JEC sources for TTW
+  # (they are not yet in the current ntuples)
+  for p in processes:
+    for tag in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
+      if p.startswith(tag): rmspecific[p].append('JECGrouped*')
 
   # remove uncertainties for other years
   # (cleaner, but not strictly needed since they are set to nominal anyway)
@@ -105,14 +116,19 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
 def remove_systematics_default( processinfo, year=None ):
   ### default sequence removing some shape systematics
+
+  # define processes for which normalization systematics should be removed
+  # (because they will get dedicated normalization uncertainties later on)
   pnonorm = ['WZ','ZZ','TTZ','ZG']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
   if 'Nonprompt(e)' in processinfo.plist: pnonorm.append('Nonprompt(e)')
   if 'Nonprompt(m)' in processinfo.plist: pnonorm.append('Nonprompt(m)')
   if 'Chargeflips' in processinfo.plist: pnonorm.append('Chargeflips')
-  for p in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
-    if p in processinfo.plist: pnonorm.append(p)
+  for p in processinfo.plist:
+    for tag in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
+      if p.startswith(tag): pnonorm.append(p)
   allyears = ['2016PreVFP', '2016PostVFP', '2017', '2018']
+  # get standard systematics to disable
   (rmforall, rmspecific) = get_systematics_to_disable( processinfo.plist, 
     pnonorm=pnonorm, year=year, allyears=allyears )
   removedforall = []
@@ -190,6 +206,16 @@ def add_systematics_default( processinfo, year=None ):
     impacts = {}
     for p in processinfo.plist: impacts[p] = '-'
     impacts[process] = mag
+    processinfo.addnormsys( source, impacts )
+    normsyslist.append(source)
+
+  # also add a correlated uncertainty for split nonprompt
+  if( 'Nonprompt(e)' in processinfo.plist and 'Nonprompt(m)' in processinfo.plist ):
+    source = 'Norm_Nonprompt'
+    impacts = {}
+    for p in processinfo.plist: impacts[p] = '-'
+    impacts['Nonprompt(e)'] = 1.2
+    impacts['Nonprompt(m)'] = 1.2
     processinfo.addnormsys( source, impacts )
     normsyslist.append(source)
  
