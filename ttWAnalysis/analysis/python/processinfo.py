@@ -135,7 +135,7 @@ class ProcessInfo(object):
 class Process(object):
   ### extension of ProcessInfo containing the actual histograms
   
-  def __init__( self, info, rootfile ):
+  def __init__( self, info, rootfile, doclip=False ):
     ### initializer
     # input arguments:
     # - info: an instance of type ProcessInfo
@@ -154,6 +154,8 @@ class Process(object):
       raise Exception(msg)
     self.hist = f.Get(self.info.histname)
     self.hist.SetDirectory(0)
+    # clip histogram if requested
+    if doclip: ht.cliphistogram(self.hist)
     # set name and title of nominal histogram
     # (can diverge from the key name if only the key was changed for speed!)
     self.hist.SetName( self.info.histname )
@@ -193,6 +195,7 @@ class Process(object):
           raise Exception(msg)
         uphist = f.Get(val[0])
         uphist.SetDirectory(0)
+        if doclip: ht.cliphistogram(uphist)
         uphist.SetName(val[0])
         uphist.SetTitle(self.info.name)
         # read down-histogram
@@ -203,6 +206,7 @@ class Process(object):
           raise Exception(msg)
         downhist = f.Get(val[1])
         downhist.SetDirectory(0)
+        if doclip: ht.cliphistogram(downhist)
         downhist.SetName(val[0])
         downhist.SetTitle(self.info.name)
         self.systhists[systematic] = (uphist,downhist)
@@ -527,8 +531,8 @@ class ProcessInfoCollection(object):
     # select only histograms of the requested variable
     # and do not consider data
     selhistnames = ([el for el in histnames
-                  if (variable in el
-                      and datatag not in el.split(variable)[0].rstrip('_'))])
+                     if ('_'+variable+'_' in el
+                         and datatag not in el.split(variable)[0].rstrip('_'))])
     # make list of processes
     plist = [el.split(variable)[0].rstrip('_') for el in selhistnames]
     plist = list(set(plist))
@@ -707,7 +711,7 @@ class ProcessInfoCollection(object):
 class ProcessCollection(object):
   ### collection of Process instances with common info and functions
 
-  def __init__( self, info, rootfile ):
+  def __init__( self, info, rootfile, doclip=False ):
     ### initializer from a ProcessInfoCollection and a root file containing the histograms
     if not isinstance(info, ProcessInfoCollection):
       raise Exception('ERROR in ProcessCollection.init:'
@@ -718,7 +722,7 @@ class ProcessCollection(object):
     self.slist = self.info.slist # (shortcut)
     self.processes = {}
     for pname,pinfo in self.info.pinfos.items():
-      self.processes[pname] = Process( pinfo, rootfile )
+      self.processes[pname] = Process( pinfo, rootfile, doclip=doclip )
     self.datahist = None
     if self.info.datahistname is not None:
       f = ROOT.TFile.Open(rootfile, 'read')

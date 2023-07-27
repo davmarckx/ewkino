@@ -143,7 +143,7 @@ if __name__=='__main__':
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
-  for histname in histnames: print('  {}'.format(histname))
+  #for histname in histnames: print('  {}'.format(histname))
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
@@ -151,12 +151,12 @@ if __name__=='__main__':
   splittag = args.region+'_particlelevel_'+variablenames[0]
   print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag )
-  print('Constructed following ProcessInfoCollection from histogram list:')
-  print(PIC)
+  #print('Constructed following ProcessInfoCollection from histogram list:')
+  #print(PIC)
 
   # get valid processes and compare to arguments
   if doallprocesses:
-    processes = PIC.plist
+    processes = sorted(PIC.plist)
   else:
     for p in processes:
       if p not in PIC.plist:
@@ -294,7 +294,9 @@ if __name__=='__main__':
     statdatahist = nominalrefs[0].Clone()
     normdatahist = nominalrefs[0].Clone()
     normstatdatahist = nominalrefs[0].Clone()
+    dochi2 = True
     if signalstrengths is None:
+      dochi2 = False
       datahist.Reset()
       statdatahist.Reset()
       normdatahist.Reset()
@@ -323,11 +325,11 @@ if __name__=='__main__':
         # (note: not divided by bin width, so values in fb)
         pred = {}
         for i in range(1, nominalrefs[0].GetNbinsX()+1):
-          pred['r_TTW{}'.format(i)] = datahist.GetBinContent(i)
+          pred['r_TTW{}{}'.format(i,variablename.strip('_'))] = datahist.GetBinContent(i)
         thisxsec = sstoxsec(thisss, pred)
         # fill the histograms for absolute cross sections
         for i in range(1, datahist.GetNbinsX()+1):
-          poi = 'r_TTW{}'.format(i)
+          poi = 'r_TTW{}{}'.format(i,variablename.strip('_'))
           if len(thisxsec['pois'][poi])==3:
             error = max(thisxsec['pois'][poi][1], thisxsec['pois'][poi][2])
             staterror = 0
@@ -342,7 +344,7 @@ if __name__=='__main__':
         thisnormxsec = normalizexsec(thisxsec)
         # fill normalized histograms
         for i in range(1, normdatahist.GetNbinsX()+1):
-          poi = 'r_TTW{}'.format(i)
+          poi = 'r_TTW{}{}'.format(i,variablename.strip('_'))
           if len(thisnormxsec[poi])==3:
             error = max(thisnormxsec[poi][1], thisnormxsec[poi][2])
             staterror = 0
@@ -366,11 +368,13 @@ if __name__=='__main__':
     # make extra infos to display on plot
     extrainfos = []
     for tag in extratags: extrainfos.append(tag)
-    for nominalhist in nominalhists:
-      (chi2,ndof) = calcchi2(datahist,nominalhist)
-      chi2info = '{} #chi2 / ndof = {:.2f} / {}'.format(
-                 nominalhist.GetTitle(), chi2, ndof)
-      extrainfos.append(chi2info)
+    if dochi2:
+      for nominalhist in nominalhists:
+        (chi2,ndof) = calcchi2(datahist,nominalhist)
+        chi2info = '#chi2 / ndof = {:.2f} / {}'.format(chi2, ndof)
+        if len(nominalhists)>1:
+          chi2info = nominalhist.GetTitle() + ' ' + chi2info
+        extrainfos.append(chi2info)
 
     # set plot properties
     figname = variablename
@@ -399,6 +403,13 @@ if __name__=='__main__':
               +' will not write lumi header.')
       lumi = lumimap.get(args.year,None)
       if lumi is not None: lumitext = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
+
+    # temporary for plots: change label for legend
+    # (to do more cleanly later)
+    if len(nominalhists)==1:
+        nominalhists[0].SetTitle('Prediction')
+    if len(nominalhists_norm)==1:
+        nominalhists_norm[0].SetTitle('Prediction')
 
     # make the plot
     plotdifferential(

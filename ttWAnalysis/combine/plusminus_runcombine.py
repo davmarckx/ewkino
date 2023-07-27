@@ -26,7 +26,7 @@ def getcardcombinations(datacarddir, verbose=False):
   # combination of signal regions
   combineddict['dc_combined_sr.txt'] = cards_sr
   # total combination  
-  #combineddict['dc_combined_all.txt'] = cards_all
+  combineddict['dc_combined_all.txt'] = cards_all
   # convert list of cards to dictionary of cards to channel names
   for combcard,elcards in combineddict.items():
     elcarddict = {}

@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 import listtools as lt
 sys.path.append(os.path.abspath('../analysis/python'))
-from processinfo import ProcessInfoCollection, ProcessCollection
+from processinfo import ProcessInfoCollection
 from datacardtools import writedatacard
 from uncertaintytools import remove_systematics_default
 from uncertaintytools import add_systematics_default
@@ -99,7 +99,8 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   # manage systematics
   if( not rawsystematics and not dummysystematics ):
     (removedforall, removedspecific) = remove_systematics_default( PIC, year=year )
-    for el in removedforall: shapesyslist.remove(el)
+    for el in removedforall:
+      if el in shapesyslist: shapesyslist.remove(el)
     for p in PIC.plist:
       if p not in removedspecific.keys(): continue
       for el in removedspecific[p]:

@@ -46,7 +46,8 @@ if __name__=="__main__":
   # read all histograms
   histnames = ht.loadallhistnames(args.inputfile)
   histlist = ht.loadallhistograms(args.inputfile)
-  
+  ht.cliphistograms(histlist)
+
   # re-set histogram name and title
   # (could diverge from key name if only key name was modified for speed)
   for hist, histname in zip(histlist, histnames):

@@ -64,13 +64,24 @@ if __name__=='__main__':
     info[chname] = {}
     chnames.append(chname)
     # read stat-only result
-    (r,down,up) = opt.read_signalstrength(args.datacarddir, card,
-                   statonly=True, usedata=args.usedata, method=method)
+    try:
+      (r,down,up) = opt.read_signalstrength(args.datacarddir, card,
+                     statonly=True, usedata=args.usedata, method=method)
+    except:
+      print('WARNING: could not read {}'.format(os.path.join(args.datacarddir, card)))
+      up = 0
+      down = 0
     info[chname]['uperror_stat'] = up
     info[chname]['downerror_stat'] = down
     # read total result
-    (r,down,up) = opt.read_signalstrength(args.datacarddir, card,
-                   statonly=False, usedata=args.usedata, method=method)
+    try:
+      (r,down,up) = opt.read_signalstrength(args.datacarddir, card,
+                     statonly=False, usedata=args.usedata, method=method)
+    except:
+      print('WARNING: could not read {}'.format(os.path.join(args.datacarddir, card)))
+      r = 1
+      up = 0
+      down = 0
     info[chname]['uperror_tot'] = up
     info[chname]['downerror_tot'] = down
     info[chname]['r'] = r

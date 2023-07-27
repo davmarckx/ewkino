@@ -91,6 +91,8 @@ def sstoxsec(ss, pred):
     # rather than signal strengths
     pois = ss['pois'].keys()
     if pois!=pred.keys():
+        print(pois)
+        print(pred.keys())
         raise Exception('ERROR in uncertaintyprop.py / sstoxsec:'
           + ' keys of provided signal strengths and predictions do not agree.')
     res = {}

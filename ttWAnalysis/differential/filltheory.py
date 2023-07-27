@@ -83,8 +83,8 @@ if __name__=='__main__':
   variables_ext = os.path.splitext(args.variables)[1]
   if not variables_ext=='.json':
     raise Exception('ERROR: variable file {} should be .json.'.format(args.variables))
-  event_selections = '+'.join(args.event_selection)
-  selection_types = '+'.join(args.selection_type)
+  event_selections = ','.join(args.event_selection)
+  selection_types = ','.join(args.selection_type)
 
   # check if executable is present
   exe = './filltheory'

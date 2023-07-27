@@ -10,34 +10,35 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20230418_single'
+topdir = '../analysis/output_20230704_single'
   
 #years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 years = ['run2']
+#years = ['2018']
 
 regions = ({
     #'signalregion_dilepton_inclusive': '_eventBDT',
-    'signalregion_dilepton_ee': '_eventBDT',
-    'signalregion_dilepton_em': '_eventBDT',
-    'signalregion_dilepton_me': '_eventBDT',
-    'signalregion_dilepton_mm': '_eventBDT',
-    #'signalregion_dilepton_plus': '_eventBDT',
-    #'signalregion_dilepton_minus': '_eventBDT',
+    #'signalregion_dilepton_ee': '_eventBDT',
+    #'signalregion_dilepton_em': '_eventBDT',
+    #'signalregion_dilepton_me': '_eventBDT',
+    #'signalregion_dilepton_mm': '_eventBDT',
+    'signalregion_dilepton_plus': '_eventBDT',
+    'signalregion_dilepton_minus': '_eventBDT',
     'signalregion_trilepton': '_eventBDT',
     #'wzcontrolregion': '_yield',
     #'zzcontrolregion': '_yield',
     #'zgcontrolregion': '_yield',
-    'trileptoncontrolregion': '_nJetsNBJetsCat',
+    'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
-    'cfcontrolregion': '_nJets'
+    'cfjetscontrolregion': '_nJets'
 })
   
-inputfiletag = 'merged_npfromdata_cffromdata/merged.root'
+inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-outputdir = 'datacards_20230425_single_perchannel'
+outputdir = 'datacards_20230718_single_persign'
 
-runmode = 'condor'
+runmode = 'local'
 
 # make output directory
 if not os.path.exists(outputdir):

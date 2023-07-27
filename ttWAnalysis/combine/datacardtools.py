@@ -102,8 +102,11 @@ def writedatacard( datacarddir, channelname, processinfo,
     #    without remaking the processinfo)
     # - writeselectedhists: whether to copy the required histograms to a new root file
     #   and make the datacard refer to that new file.
+    #   (update: selected histograms are also clipped,
+    #    for in case this was not done in the input file.)
     # - writeallhists: whether to copy the entire histfile 
-    #   (which might contain more histograms than needed for the datacard / processinfo)
+    #   (which might contain more histograms than needed for the datacard / processinfo).
+    #   (warning: file is copied as is, histograms are not clipped.)
     # - autof: boolean whether to overwrite existing card without explicitly asking
 
     # make path to datacard
@@ -144,6 +147,7 @@ def writedatacard( datacarddir, channelname, processinfo,
       else:
         histnames = processinfo.allhistnames()
         hists = ht.loadhistogramlist(histfile, histnames)
+        ht.cliphistograms(hists)
         f = ROOT.TFile.Open(newhistpath,'recreate')
         for hist in hists: hist.Write()
         f.Close()

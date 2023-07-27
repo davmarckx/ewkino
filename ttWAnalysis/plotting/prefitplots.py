@@ -108,6 +108,9 @@ if __name__=="__main__":
           +' will write raw region name on plot.')
     regionname = args.region
 
+  # get a dictionary to match histogram titles to legend entries
+  processdict = infodicts.get_process_dict()
+
   # get all relevant histograms
   print('Loading histogram names from input file...')
   # requirement: the histogram name must contain at least one includetag (or nominal)
@@ -228,7 +231,7 @@ if __name__=="__main__":
       _ = add_systematics_dummy( PIC )
 
     # make a ProcessCollection
-    PC = ProcessCollection( PIC, args.inputfile )
+    PC = ProcessCollection( PIC, args.inputfile, doclip=True )
 
     # get the nominal simulated histograms
     simhists = []
@@ -243,6 +246,12 @@ if __name__=="__main__":
         if( lastchar.isdigit() ):
           hist.SetName(args.splitprocess + lastchar)
           hist.SetTitle(args.splitprocess + lastchar)
+
+    # modify histogram titles
+    for hist in simhists:
+      title = hist.GetTitle()
+      if title in processdict.keys():
+        hist.SetTitle(processdict[title])
 
     # get the uncertainty histogram
     mcsysthist = PC.get_systematics_rss()

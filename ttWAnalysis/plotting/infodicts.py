@@ -5,21 +5,32 @@
 def get_region_dict():
   ### get a printable name for each selection region
   res = {}
-  res['signalregion_dilepton_inclusive'] = 'Signal region 2L'
-  res['signalregion_dilepton_ee'] = 'Signal region 2L (ee)'
-  res['signalregion_dilepton_em'] = 'Signal region 2L (em)'
-  res['signalregion_dilepton_me'] = 'Signal region 2L (me)'
-  res['signalregion_dilepton_mm'] = 'Signal region 2L (mm)'
-  res['signalregion_trilepton'] = 'Signal region 3L'
-  res['wzcontrolregion'] = 'WZ control region'
-  res['zzcontrolregion'] = 'ZZ control region'
-  res['zgcontrolregion'] = 'ZG control region'
-  res['trileptoncontrolregion'] = '3L control region'
-  res['fourleptoncontrolregion'] = '4L control region'
-  res['npcontrolregion_dilepton_inclusive'] = 'NP control region 2L'
-  res['npcontrolregion_dilepton_ee'] = 'NP control region 2L (ee)'
-  res['npcontrolregion_dilepton_em'] = 'NP control region 2L (em)'
-  res['npcontrolregion_dilepton_me'] = 'NP control region 2L (me)'
-  res['npcontrolregion_dilepton_mm'] = 'NP control region 2L (mm)'
-  res['cfcontrolregion'] = 'CF control region'
+  res['signalregion_dilepton_inclusive'] = 'SR 2L'
+  res['signalregion_dilepton_ee'] = 'SR 2L (ee)'
+  res['signalregion_dilepton_em'] = 'SR 2L (em)'
+  res['signalregion_dilepton_me'] = 'SR 2L (me)'
+  res['signalregion_dilepton_mm'] = 'SR 2L (mm)'
+  res['signalregion_dilepton_plus'] = 'SR 2L (++)'
+  res['signalregion_dilepton_minus'] = 'SR 2L (--)'
+  res['signalregion_trilepton'] = 'SR 3L'
+  res['wzcontrolregion'] = 'WZ CR'
+  res['zzcontrolregion'] = 'ZZ CR'
+  res['zgcontrolregion'] = 'ZG CR'
+  res['trileptoncontrolregion'] = '3L CR'
+  res['fourleptoncontrolregion'] = '4L CR'
+  res['npcontrolregion_dilepton_inclusive'] = 'NP CR 2L'
+  res['npcontrolregion_dilepton_ee'] = 'NP CR 2L (ee)'
+  res['npcontrolregion_dilepton_em'] = 'NP CR 2L (em)'
+  res['npcontrolregion_dilepton_me'] = 'NP CR 2L (me)'
+  res['npcontrolregion_dilepton_mm'] = 'NP CR 2L (mm)'
+  res['nplownjetscontrolregion_dilepton_inclusive'] = 'NP-jets CR 2L'
+  res['cfcontrolregion'] = 'CF CR'
+  res['cfjetscontrolregion'] = 'CF+jets CR'
+  return res
+
+def get_process_dict():
+  ### get a printable name for each process
+  res = {}
+  res['NonpromptE'] = 'Nonprompt (e)'
+  res['NonpromptMu'] = 'Nonprompt (mu)'
   return res

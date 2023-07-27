@@ -86,7 +86,7 @@ with open(args.input) as jsonfile:
 plot.ModTDRStyle(l=args.left_margin, b=0.10, width=(900 if args.checkboxes else 700), height=args.height)
 
 # Find POIs to plot
-allPOIs = [ele['name'] for ele in data['POIs']]
+allPOIs = sorted([ele['name'] for ele in data['POIs']])
 POIs = []
 if args.POIs is None:
     poi = allPOIs[0]
@@ -189,7 +189,6 @@ for page in xrange(n):
 		width = 0.6 / len(POIs) 
 		width -= margin
 		splitpoints.append(width)
-        print(splitpoints)
         pads = plot.MultiRatioSplitColumns(splitpoints, [margin]*len(splitpoints), [margin]*len(splitpoints))
     pads[0].SetGrid(1, 0)
     pads[0].SetTickx(1)
@@ -311,15 +310,17 @@ for page in xrange(n):
     # (this is for setting up the axes and axis titles etc.;
     #  the actual coloured impact bars are drawn later on!)
     h_impacts = {}
-    for pad, POI in zip(pads[1:], POIs):
+    for nPOI, (pad, POI) in enumerate(zip(pads[1:], POIs)):
 	pad.cd()
 	if max_impact == 0.: max_impact = 1E-6  # otherwise the plotting gets screwed up
         # define an empty histogram for setting up the axes
 	impacthist = ROOT.TH2F(
 	    "impacts", "impacts", 6, -max_impact * 1.1, max_impact * 1.1, n_params, 0, n_params)
         # set x-axis labels and title
+        #title = '#Delta#hat{%s}' % (Translate(POI, translate)) # original
+        title = '#Delta#hat{%s}' % ('r_{%s}' % (nPOI+1) ) # modified
 	plot.Set(impacthist.GetXaxis(), LabelSize=0.025, Ndivisions=3, 
-            Title='#Delta#hat{%s}' % (Translate(POI, translate)),
+            Title=title,
             TitleSize=0.025, TitleOffset=1.2)
         # set y-axis labels and title
 	plot.Set(impacthist.GetYaxis(), LabelSize=0, TickLength=0.0)
@@ -397,13 +398,15 @@ for page in xrange(n):
     plot.DrawCMSLogo(pads[0], 'CMS', args.cms_label, 0, 0., 0., 0., cmsTextSize=0.5)
     
     # draw pad titles
-    for pad, POI in zip(pads[1:], POIs):
+    for nPOI, (pad, POI) in enumerate(zip(pads[1:], POIs)):
 	fit = POIs_fit[POI]
 	s_nom, s_hi, s_lo = GetRounded(fit[1], fit[2] - fit[1], fit[1] - fit[0])
 	if not args.blind:
+            #displayPOI = Translate(POI, translate) # original
+            displayPOI = 'r_{%s}' % (nPOI+1) # modified
 	    plot.DrawTitle(pad, '#hat{%s} = %s^{#plus%s}_{#minus%s}%s' % (
-		Translate(POI, translate), s_nom, s_hi, s_lo,
-		    '' if args.units is None else ' '+args.units), 3, 0.27, textSize=0.3)
+		displayPOI, s_nom, s_hi, s_lo,
+		'' if args.units is None else ' '+args.units), 3, 0.27, textSize=0.3)
 
     # save the pdf page
     extra = ''

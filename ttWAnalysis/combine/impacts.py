@@ -33,12 +33,13 @@ if __name__=='__main__':
   if not args.workspace.endswith('.root'):
     print('Looking for workspaces in directory {}'.format(args.workspace))
     workspaces = [f for f in os.listdir(args.workspace)
-                  if (f.startswith('datacard_') and f.endswith('.root'))]
+                  if( (f.startswith('datacard_') or f.startswith('dc_combined_')) and f.endswith('.root') )]
     print('Will submit impact plot generation for the following workspaces ({}):'.format(len(workspaces)))
     for w in workspaces: print('  - {}'.format(w))
     print('Continue? (y/n)')
     go = raw_input()
     if go!='y': sys.exit()
+
     for w in workspaces:
       cmd = 'python impacts.py'
       cmd += ' --workspace {}'.format(os.path.join(args.workspace,w))

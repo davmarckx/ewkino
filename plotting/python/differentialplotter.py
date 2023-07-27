@@ -52,7 +52,7 @@ def plotdifferential(
     ### parse arguments
     if colorlist is None:
         colorlist = ([ROOT.kAzure-4, ROOT.kAzure+6, ROOT.kViolet, ROOT.kMagenta-9,
-                      ROOT.kRed, ROOT.kGreen+1, ROOT.kGreen-1])
+                      ROOT.kRed, ROOT.kOrange, ROOT.kGreen+1, ROOT.kGreen-1])
     if( len(theoryhists)>len(colorlist) ):
         raise Exception('ERROR in plotdifferential:'
 	    +' theory histogram list is longer than color list')

@@ -45,9 +45,9 @@ def makepvalplot( binvalues, binedges, tdata, pval=None,
     if dolegend: ax.legend(loc='upper right')
     if title is not None: ax.set_title(title)
     if pval is not None: 
-	ax.text(0.98,0.7,'p-value: {:.2f}'.format(pval),transform=ax.transAxes,ha='right')
+	ax.text(0.98,0.6,'p-value: {:.2f}'.format(pval),transform=ax.transAxes,ha='right')
     for i,info in enumerate(extrainfos):
-	ax.text(0.98,0.7-(i+1)*0.05,info,transform=ax.transAxes,ha='right')
+	ax.text(0.98,0.6-(i+1)*0.05,info,transform=ax.transAxes,ha='right')
     return (fig,ax)
 
 
@@ -108,6 +108,8 @@ if __name__=='__main__':
         toyfiles = sorted([f for f in os.listdir(args.workspace)
                       if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.mergedtoys.root'))])
         if len(datafiles)!=len(toyfiles):
+            print(datafiles)
+            print(toyfiles)
             raise Exception('ERROR: numbers of data files and toy files do not agree.')
         print('Found {} files (before selection).'.format(len(datafiles)))
         names = [el.split('.')[0].replace('higgsCombine','') for el in datafiles]
@@ -204,7 +206,8 @@ if __name__=='__main__':
                 displayname = displayname.replace('dilepton','2L')
                 displayname = displayname.replace('trilepton','3L')
                 displayname = displayname.replace('fourlepton','4L')
-                ax.text(0.98, 0.3, 'Fit: {}'.format(displayname), transform=ax.transAxes, ha='right')
+                displayname = displayname.replace('inclusive', '')
+                ax.text(0.98, 0.1, 'Fit: {}'.format(displayname), transform=ax.transAxes, ha='right')
             fig.text(0.5, 0.03, 'Test statistic', ha='center', fontsize=15)
             fig.text(0.03, 0.5, 'Probability', va='center', rotation='vertical', fontsize=15)
             axs[0].legend(loc='lower center', bbox_to_anchor=(0., 1., 1.,1.), ncol=2)

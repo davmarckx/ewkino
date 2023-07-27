@@ -31,7 +31,7 @@ if __name__=='__main__':
   parser.add_argument('--decorrelateyear', default=None)
   parser.add_argument('--decorrelateyears',
     default=['2016PreVFP','2016PostVFP','2017', '2018'], nargs='+')
-  parser.add_argument('--selectmode', default='fast', choices=['custom','fast'])
+  parser.add_argument('--selectmode', default='fast', choices=['custom','fast','noselect'])
   parser.add_argument('--doclip', action='store_true')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()

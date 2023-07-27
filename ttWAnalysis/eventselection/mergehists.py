@@ -31,10 +31,12 @@ import argparsetools as apt
 
 def rename_processes_in_file(renamedict, rfile, mode='custom'):
   ### rename processes for all histograms in a file
+  # currently recommended mode: "fast"
+  # (works and is sufficiently fast even for files with many histograms)
 
   if mode=='custom':
-    # first implementation
-    # works, but can be slow
+    # standard implementation.
+    # works, but can be slow for files with many histograms.
     histlist = ht.loadallhistograms(rfile)
     for hist in histlist:
       histname = hist.GetName()
@@ -48,8 +50,9 @@ def rename_processes_in_file(renamedict, rfile, mode='custom'):
       rf.Close()
 
   elif mode=='rootmv':
-    # second implementation
-    # experimental, note that histogram titles are not updated!
+    # experimental implementation using "rootmv".
+    # note that neither histogram names nor titles are updated,
+    # only the key names.
     # seems to be even much slower than above.
     histnamelist = ht.loadallhistnames(rfile)
     for histname in histnamelist:
@@ -61,8 +64,9 @@ def rename_processes_in_file(renamedict, rfile, mode='custom'):
       os.system(cmd)
 
   elif mode=='fast':
-    # third implementation
-    # experimental, note that neither histogram names nor titles are updated,
+    # implementation using SetName on the key rather than the histogram.
+    # very fast compared to other methods.
+    # note that neither histogram names nor titles are updated,
     # only the key names.
     f = ROOT.TFile.Open(rfile,'update')
     keylist = f.GetListOfKeys()
@@ -78,9 +82,12 @@ def rename_processes_in_file(renamedict, rfile, mode='custom'):
     raise Exception('ERROR in rename_processes_in_file:'
       +' mode {} not recognized.'.format(mode))
 
+
 def decorrelate_systematics_in_file(renamedict, rfile, 
   year=None, allyears=None, mode='fast'):
   ### decorrelate systematics
+  # currently recommended mode: "fast"
+  # (works and is sufficiently fast even for files with many histograms)
 
   if mode=='fast':
     f = ROOT.TFile.Open(rfile,'update')
@@ -143,9 +150,15 @@ def decorrelate_systematics_in_file(renamedict, rfile,
     raise Exception('ERROR in decorrelate_systematics_in_file:'
       +' mode {} not recognized.'.format(mode))
  
+
 def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
   ### remove unneeded histograms from a file
-  # and remove selection type tag from histogram name
+  # and remove selection type tag from histogram name.
+  # currently recommended mode: "custom"
+  # (works but is very slow; to investigate if speedups are possible).
+  # better to use mode "noselect" if no selection is needed
+  # (e.g. if previous steps were split in selection types
+  #  so hadd can work on needed files/histograms only).
 
   tags = []
   if( npmode=='npfromsim' and cfmode=='cffromsim' ): tags = ['_tight_']
@@ -165,6 +178,8 @@ def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
             +' and cfmode {}'.format(cfmode))
 
   if mode=='custom':
+    # standard implementation reading all histograms
+    # and writing out the needed ones.
     histlist = ht.loadhistograms(rfile, mustcontainone=tags)
     if len(histlist)==0:
       print('WARNING in select_histograms_in_file: list of selected histograms is empty!')
@@ -176,6 +191,9 @@ def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
     rf.Close()
 
   elif mode=='fast':
+    # implementation operating on keys rather than histograms.
+    # works, but does not seem to be faster than custom method.
+    # moreover, file size is not reduced despite the histogram removal.
     f = ROOT.TFile.Open(rfile,'update')
     keylist = f.GetListOfKeys()
     for key in keylist:
@@ -183,8 +201,8 @@ def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
       hastag = False
       for tag in tags:
         if tag in keyname: hastag = True
-      if not hastag: 
-        f.Delete(keyname)
+      if not hastag:
+        f.Delete('{};*'.format(keyname))
       else:
         newkeyname = keyname
         for tag in tags:
@@ -192,9 +210,50 @@ def select_histograms_in_file(rfile, npmode, cfmode, mode='custom'):
         key.SetName(newkeyname)
     f.Close()
 
+  elif mode=='noselect':
+    # implementation without performing selection, only renaming.
+    # works very fast (see also rename_processes_in_file)
+    # but only works well if there are no unneeded histograms in the file.
+    f = ROOT.TFile.Open(rfile,'update')
+    keylist = f.GetListOfKeys()
+    for key in keylist:
+      keyname = key.GetName()
+      hastag = False
+      for tag in tags:
+        if tag in keyname: hastag = True
+      if not hastag:
+        msg = 'ERROR in select_histograms_in_file:'
+        msg += ' found histogram {}'.format(keyname)
+        msg += ' which should be removed according to'
+        msg += ' npmode {} and cfmode {},'.format(npmode, cfmode)
+        msg += ' but this is not possible in mode "noselect".'
+        raise Exception(msg)
+      newkeyname = keyname
+      for tag in tags: newkeyname = newkeyname.replace(tag,'_')
+      key.SetName(newkeyname)
+    f.Close()
+
   else:
     raise Exception('ERROR in select_histograms_in_file:'
       +' mode {} not recognized.'.format(mode))
+
+
+def clip_histograms_in_file( rfile, mode='custom' ):
+  ### clip all histograms in a file
+  # currently recommended mode: "custom"
+  # (works but is very slow; to investigate if speedups are possible).
+  # better to not do clipping and instead do that downstream when needed
+  # (e.g. in prefitplots.py or datacardtools.py)
+  # (but not possible for e.g. mergeyears).
+  
+  if mode=='custom':
+    histlist = ht.loadallhistograms(rfile)
+    ht.cliphistograms(histlist)
+    # re-write output file
+    f = ROOT.TFile.Open(rfile,'recreate')
+    for hist in histlist: hist.Write()
+    f.Close()
+
 
 def mergehists( selfiles, args ):
   ### main function
@@ -258,21 +317,16 @@ def mergehists( selfiles, args ):
 
   # select histograms to keep in the output
   # and remove selection type tag, as it is not needed anymore.
-  print('Selecting histograms to keep and removing selection type tag...')
-  sys.stdout.flush()
-  select_histograms_in_file(args.outputfile, args.npmode, args.cfmode, mode=args.selectmode)
+  if args.selectmode is not None:
+    print('Selecting histograms to keep and removing selection type tag...')
+    sys.stdout.flush()
+    select_histograms_in_file(args.outputfile, args.npmode, args.cfmode, mode=args.selectmode)
 
   # clip all resulting histograms to minimum zero
   if args.doclip:
     print('Clipping all histograms to minimum zero...')
     sys.stdout.flush()
-    histlist = ht.loadallhistograms(args.outputfile)
-    ht.cliphistograms(histlist)
-    # re-write output file
-    f = ROOT.TFile.Open(args.outputfile,'recreate')
-    for hist in histlist: hist.Write()
-    f.Close()
-
+    clip_histograms_in_file(args.outputfile, mode='custom')
 
 if __name__=='__main__':
 
@@ -289,8 +343,8 @@ if __name__=='__main__':
   parser.add_argument('--decorrelateyear', default=None)
   parser.add_argument('--decorrelateyears', 
     default=['2016PreVFP','2016PostVFP','2017', '2018'], nargs='+')
-  parser.add_argument('--selectmode', default='fast', choices=['custom','fast'])
-  parser.add_argument('--doclip', action='store_true')
+  parser.add_argument('--selectmode', default='fast', choices=['custom','fast','noselect'])
+  parser.add_argument('--doclip', default=False, action='store_true')
   parser.add_argument('--runmode', default='local', choices=['local','condor'])
   args = parser.parse_args()
 

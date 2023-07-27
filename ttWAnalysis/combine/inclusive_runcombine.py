@@ -62,6 +62,11 @@ def getcardcombinations(datacarddir, verbose=False):
       for card,ch in combineddict[combcard].items():
         print('    {} (channel {})'.format(card,ch))
 
+  # ask for confirmation
+  print('Continue? (y/n)')
+  go = raw_input()
+  if not go=='y': sys.exit()
+
   # return the result
   return combineddict
 

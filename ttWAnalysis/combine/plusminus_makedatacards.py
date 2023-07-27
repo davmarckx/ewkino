@@ -17,7 +17,7 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20230418_single'
+topdir = '../analysis/output_20230704_single'
   
 #years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 years = ['run2']
@@ -31,11 +31,11 @@ regions = ({
     'cfcontrolregion': '_nJets'
 })
   
-inputfiletag = 'merged_npfromdata_cffromdata/merged.root'
+inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-outputdir = 'datacards_20230426_plusminus'
+outputdir = 'datacards_20230718_plusminus'
 
-runmode = 'local'
+runmode = 'condor'
 
 # make output directory
 if not os.path.exists(outputdir):

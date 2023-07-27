@@ -13,26 +13,26 @@ from variabletools import read_variables
 # settings
 
 controlregions = ({
-    'topdir': '../analysis/output_20230314_single',
+    'topdir': '../analysis/output_20230704_single',
     'years': ['run2'],
-    'inputfiletag': 'merged_npfromdata_cffromdata/merged.root',
+    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
     'regions': {
-        'trileptoncontrolregion': '_nJets',
-        'fourleptoncontrolregion': '_nJets',
+        'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
+        'fourleptoncontrolregion': '_nJetsNZCat',
         'npcontrolregion_dilepton_inclusive': '_eventBDT',
-        'cfcontrolregion': '_nJets'
+        'cfjetscontrolregion': '_nJets'
     }
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_20230314_double',
+    'topdir': '../analysis/output_20230704_double',
     'years': ['run2'],
-    'inputfiletag': 'merged_npfromdata_cffromdata/merged.root',
-    'region': 'signalregion_dilepton_inclusive',
+    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
+    'region': 'signalregion_trilepton',
     'variables': '../variables/variables_particlelevel_double.json'
 })
   
-outputdir = 'datacards_20230316_double'
+outputdir = 'datacards_20230718_double_trilepton'
 
 runmode = 'condor'
 
@@ -46,6 +46,7 @@ cmds = []
 # read variables
 variables = read_variables( signalregion['variables'] )
 varnames = [str(var.name) for var in variables]
+secondaryvarnames = [str(var.secondary.name) for var in variables]
 print('Will use the following variables:')
 print(varnames)
 
@@ -56,10 +57,14 @@ for year in signalregion['years']:
   inputfile = os.path.join(signalregion['topdir'],year,region,signalregion['inputfiletag'])
   if not os.path.exists(inputfile):
     raise Exception('ERROR: file {} does not exist.'.format(inputfile))
-  for varname in varnames:
+  for varname, secondaryvarname in zip(varnames, secondaryvarnames):
     # define output file
     outputfiletag = '{}_{}_{}'.format(region,year,varname)
     outputfiletag = os.path.join(outputdir, outputfiletag)
+    # define signals
+    signals = []
+    for i in [1,2,3,4,5,6]: signals.append('TTW{}{}'.format(i,secondaryvarname.strip('_')))
+    signals = ','.join(signals)
     # make command
     cmd = 'python makedatacard.py'
     cmd += ' --inputfile {}'.format(inputfile)
@@ -68,7 +73,7 @@ for year in signalregion['years']:
     cmd += ' --variable {}'.format(varname)
     cmd += ' --outputfile {}'.format(outputfiletag)
     cmd += ' --processes all'
-    cmd += ' --signals TTW1,TTW2,TTW3,TTW4'
+    cmd += ' --signals {}'.format(signals)
     cmd += ' --datatag Data'
     cmds.append(cmd)
 
