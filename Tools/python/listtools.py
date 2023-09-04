@@ -3,7 +3,7 @@
 ###########################################################
 
 def subselect_strings(stringlist,mustcontainone=[],mustcontainall=[],
-	    maynotcontainone=[],maynotcontainall=[]):
+            maynotcontainone=[],maynotcontainall=[]):
     ### generic function to subselect strings from a list of strings
     ### return type is (list of selected indices, list of selected strings)
     sellist = []

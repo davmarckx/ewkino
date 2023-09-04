@@ -40,7 +40,7 @@ def loadallhistograms(histfile, allow_tgraphs=False, suppress_warnings=False):
 
 def loadhistograms(histfile, 
                    mustcontainall=[], mustcontainone=[],
-	           maynotcontainall=[],maynotcontainone=[],
+                   maynotcontainall=[],maynotcontainone=[],
                    allow_tgraphs=False, suppress_warnings=False ):
     ### read a root file containing histograms and load histograms to a list.
     # note: selection already included at this stage
@@ -54,7 +54,7 @@ def loadhistograms(histfile,
             mustcontainone=mustcontainone,mustcontainall=mustcontainall,
             maynotcontainone=maynotcontainone,maynotcontainall=maynotcontainall): continue
         hist = f.Get(key.GetName())
-	# check the object type
+        # check the object type
         ishist = ( isinstance(hist,ROOT.TH1)
                    or isinstance(hist,ROOT.TH2) )
         isgraph = ( isinstance(hist,ROOT.TGraph) )
@@ -74,7 +74,7 @@ def loadhistograms(histfile,
     return histlist
 
 def loadhistogramlist(histfile, histnames, 
-		      allow_tgraphs=False, suppress_warnings=False):
+                      allow_tgraphs=False, suppress_warnings=False):
     ### load histograms specified by name from a file
     f = ROOT.TFile.Open(histfile)
     histlist = []
@@ -129,7 +129,7 @@ def loadhistnames(histfile,
 ### histogram subselection ###
 
 def selecthistograms(histlist,mustcontainone=[],mustcontainall=[],
-		    maynotcontainone=[],maynotcontainall=[]):
+                    maynotcontainone=[],maynotcontainall=[]):
     idlist = [hist.GetName() for hist in histlist]
     (indlist,selhistlist) = lt.subselect_objects(histlist,idlist,
         mustcontainone=mustcontainone,mustcontainall=mustcontainall,
@@ -363,13 +363,13 @@ def printhistogram(hist,naninfo=False,returnstr=False):
     else: print(infostr)
     
 def printhistograms( histfile, mustcontainall=[], mustcontainone=[],
-		maynotcontainall=[], maynotcontainone=[],
-		naninfo=False ):
+                maynotcontainall=[], maynotcontainone=[],
+                naninfo=False ):
     allhists = loadallhistograms(histfile)
     selhists = selecthistograms(allhists,mustcontainone=mustcontainone,
                     mustcontainall=mustcontainall,
-		    maynotcontainone=maynotcontainone,
-		    maynotcontainall=maynotcontainall)[1]
+                    maynotcontainone=maynotcontainone,
+                    maynotcontainall=maynotcontainall)[1]
     for hist in selhists: printhistogram(hist,naninfo=naninfo)
 
 def print2dhistogram(hist):
@@ -378,12 +378,12 @@ def print2dhistogram(hist):
         for j in range(0,hist.GetNbinsY()+2):
             bininfo = '  -----------\n'
             bininfo += '  bin x: {} -> {}\n'.format(
-		hist.GetXaxis().GetBinLowEdge(i),
+                hist.GetXaxis().GetBinLowEdge(i),
                 hist.GetXaxis().GetBinLowEdge(i)+hist.GetXaxis().GetBinWidth(i))
-	    bininfo += '      y: {} -> {}\n'.format(
-		hist.GetYaxis().GetBinLowEdge(j),
+            bininfo += '      y: {} -> {}\n'.format(
+                hist.GetYaxis().GetBinLowEdge(j),
                 hist.GetYaxis().GetBinLowEdge(j)+hist.GetYaxis().GetBinWidth(j))
-	    bininfo += '  content: {}\n'.format(hist.GetBinContent(i,j))
-	    bininfo += '  error: {}\n'.format(hist.GetBinError(i,j))
-	    infostr += bininfo
+            bininfo += '  content: {}\n'.format(hist.GetBinContent(i,j))
+            bininfo += '  error: {}\n'.format(hist.GetBinError(i,j))
+            infostr += bininfo
     print(infostr)

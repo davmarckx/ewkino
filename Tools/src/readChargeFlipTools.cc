@@ -11,20 +11,33 @@ double readChargeFlipTools::chargeFlipWeight(
 	const std::shared_ptr< TH2 >& chargeFlipMap,
 	bool doCorrectionFactor ){
     // P( A + B ) = P( A ) + P( B ) - P( A & B )
+    bool verbose = false; // set to true for testing
     double summedProbabilities = 0.;
     double multipliedProbabilities = 1.;
+    if( verbose ){
+	std::cout << "start chargeFlipWeight for event " << event.eventNumber() << std::endl; }
     for( const auto& leptonPtr : event.lightLeptonCollection() ){
 	double flipRate = 0;
 	if( leptonPtr->isElectron() ){
 	    flipRate = histogram::contentAtValues( 
 		chargeFlipMap.get(), leptonPtr->pt(), leptonPtr->absEta() );
+	    if( verbose ){
+		std::cout << "  - electron with following properties:";
+		std::cout << " pt: " << leptonPtr->pt() << " / absEta: " << leptonPtr->absEta();
+		std::cout << " / flipRate: " << flipRate << std::endl;
+	    }
 	} else if( leptonPtr->isMuon() ){
 	    flipRate = 0; // maybe extend later with muon CF rate
+	    if( verbose ) std::cout << " - muon (flipRate = 0)" << std::endl;
 	}
         summedProbabilities += flipRate / ( 1. - flipRate );
         multipliedProbabilities *= flipRate / ( 1. - flipRate );
     }
     double totalProbability = summedProbabilities - multipliedProbabilities;
+    if( verbose ){
+	std::cout << "total weight for this event (before correction factor):";
+	std::cout << " " << totalProbability << std::endl;
+    }
     if( !doCorrectionFactor ) return totalProbability;
     std::string year = event.sample().year();
     // need extra step for year since it is not split in Pre and Post for 2016 data.

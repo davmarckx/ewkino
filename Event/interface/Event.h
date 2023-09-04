@@ -237,9 +237,9 @@ class Event{
         const Sample& sample() const{ return *_samplePtr; }
 
         //event tags
-        long unsigned eventNumber(){ return eventTags().eventNumber(); }
-        long unsigned luminosityBlock(){ return eventTags().luminosityBlock(); }
-        long unsigned runNumber(){ return eventTags().runNumber(); }
+        long unsigned eventNumber() const{ return eventTags().eventNumber(); }
+        long unsigned luminosityBlock() const{ return eventTags().luminosityBlock(); }
+        long unsigned runNumber() const{ return eventTags().runNumber(); }
 
 	// copy event with modified energy/momentum scales
 	// experimental stage! need to check what attributes are copied or modified in-place!
