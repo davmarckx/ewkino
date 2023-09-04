@@ -22,14 +22,14 @@ class ReweighterTrigger : public Reweighter {
 
     private:
 	double systUnc = 0;
-	bool isUL = false; // set to true if UL constructor is used
-	// for UL:
 	std::shared_ptr< TH2 > triggerWeights_ee;
         std::shared_ptr< TH2 > triggerWeights_mm;
         std::shared_ptr< TH2 > triggerWeights_me;
         std::shared_ptr< TH2 > triggerWeights_em;
 
         double weight( const Event&, const std::shared_ptr< TH2 >& ) const;
+	double uncertainty( const Event&, const std::shared_ptr< TH2 >& ) const;
+	std::pair<double, double> weightAndUncertainty( const Event& event ) const;
 };
 
 

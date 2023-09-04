@@ -16,19 +16,27 @@
 // helper functions 
 // -----------------
 
-std::shared_ptr<TH2> getMCTriggerHistogram( const std::string& triggerWeightPath, const std::string& year , const std::string& eventClass ){
+std::shared_ptr<TH2> getScaleFactorHistogram(
+    const std::string& triggerWeightPath,
+    const std::string& year,
+    const std::string& eventClass ){
     // helper function to retrieve the trigger efficiency SF histogram from a root file
-    //std::shared_ptr< TFile > filePtr = triggerWeightPath.filePtr();
+    // arguments:
+    // - triggerWeightPath: path to root file containing histograms with scalefactors
+    // - year: data-taking year
+    // - eventClass: choose from ee, em, me or mm
+    // note: the histograms are assumed to be named "scalefactors_<year>_<eventClass>"
     TFile* triggerWeightFile = TFile::Open( (triggerWeightPath).c_str() );
-
     std::string histPath = std::string("scalefactors_" + year  + "_" + eventClass);
     std::shared_ptr< TH2 > SFs(dynamic_cast< TH2* >(triggerWeightFile->Get(histPath.c_str()) ) );
     if( SFs == nullptr ){
-        throw std::runtime_error( std::string("ERROR in ReweighterTrigger.getMCTriggerHistogram:") + std::string("does not contain expected histogram ") + std::string(histPath));
+	std::string msg = "ERROR in ReweighterTrigger.getScaleFactorHistogram:";
+	msg += " file " + triggerWeightPath + " does not contain expected histogram";
+        msg += " " + histPath;
+        throw std::runtime_error(msg);
     }
     return SFs;
 }
-
 
 bool hasnTightLeptons(const Event& event, int n){
     int nTight = 0;
@@ -47,10 +55,10 @@ std::vector<double> leptonPts(const Event& event){
     return Pts;
 }
 
+
 // ------------
 // constructor
 // ------------
-// note: new version, suitable for UL analyses.
 
 ReweighterTrigger::ReweighterTrigger(
     const std::string& triggerWeightPath, 
@@ -61,51 +69,37 @@ ReweighterTrigger::ReweighterTrigger(
     //   (currently ../weightFilesUL/triggerSF/scalefactors_allYears.root)
     // - year: data taking year
     // - uncerainty: double with systematic uncertainty (e.g. 0.02 for 2%)
+    // notes:
+    // - the histograms with scale factors have leading lepton pt on x-axis
+    //   and subleading lepton pt on y-axis; events with more (or less) than 2 leptons
+    //   are not reweighted.
+    // - the fixed uncertainty is only used for events with more (or less) than 2 leptons;
+    //   for events with 2 leptons the bin error from the histogram is used.
 
-    triggerWeights_ee = getMCTriggerHistogram(triggerWeightPath, year, "ee");
+    triggerWeights_ee = getScaleFactorHistogram(triggerWeightPath, year, "ee");
     triggerWeights_ee->SetDirectory( gROOT );
 
-    triggerWeights_mm = getMCTriggerHistogram(triggerWeightPath, year, "mm");
+    triggerWeights_mm = getScaleFactorHistogram(triggerWeightPath, year, "mm");
     triggerWeights_mm->SetDirectory( gROOT );
 
-    triggerWeights_em = getMCTriggerHistogram(triggerWeightPath, year, "em");
+    triggerWeights_em = getScaleFactorHistogram(triggerWeightPath, year, "em");
     triggerWeights_em->SetDirectory( gROOT );
 
-    triggerWeights_me = getMCTriggerHistogram(triggerWeightPath, year, "me");
+    triggerWeights_me = getScaleFactorHistogram(triggerWeightPath, year, "me");
     triggerWeights_me->SetDirectory( gROOT );
 
     systUnc = uncertainty;
-
-    isUL = true;
 }
 
 
 // ---------------------------
 // weight retrieval functions 
 // ---------------------------
-/*
-double ReweighterTrigger::weight( 
-	const Event& event, 
-	const std::map< std::string, std::shared_ptr< TH2 > >& weightMap ) const{
-    // retrieve weight for an event
-    // input arguments:
-    // - event: event for which to retrieve the weight
-    // - weightMap: map of sample names to weight histograms
-    auto it = weightMap.find( event.sample().uniqueName() );
-    if( it == weightMap.cend() ){
-        throw std::invalid_argument( std::string("ERROR in ReweighterPileup.weight:")
-	    +" no pileup weights for sample " + event.sample().uniqueName() 
-	    +" found, this sample was probably not present"
-	    +" in the vector used to construct the Reweighter." );
-    }
-    return weight( event, it->second );
-}
-*/
 
 double ReweighterTrigger::weight( 
 	const Event& event, 
 	const std::shared_ptr< TH2 >& weightHist) const {
-    // retrieve weight for an event
+    // retrieve weight for a 2L event
     // input arguments:
     // - event: event for which to retrieve the weight
     // - weightHist: histogram containing the weights
@@ -114,28 +108,60 @@ double ReweighterTrigger::weight(
 	event.leptonCollection()[1].pt() );
 }
 
+double ReweighterTrigger::uncertainty(
+	const Event& event,
+	const std::shared_ptr< TH2 >& weightHist) const{
+    // same as above but return bin error rahter than content
+    return histogram::uncertaintyAtValues( weightHist.get(),
+        event.leptonCollection()[0].pt(),
+        event.leptonCollection()[1].pt() );
+}
+
+std::pair<double, double> ReweighterTrigger::weightAndUncertainty( const Event& event ) const{
+    // retrieve weight and uncertainty for a 2L event
+    double weightval = 1.;
+    double uncertaintyval = 0.;
+    bool flavor1 = event.leptonCollection()[0].isMuon(); // 0 if electron, 1 if muon
+    bool flavor2 = event.leptonCollection()[1].isMuon(); // 0 if electron, 1 if muon
+    if(!flavor1 && !flavor2){
+	weightval = weight( event,  triggerWeights_ee );
+	uncertaintyval = uncertainty( event, triggerWeights_ee );
+    }
+    else if(flavor1 && flavor2){
+	weightval = weight( event,  triggerWeights_mm );
+	uncertaintyval = uncertainty( event, triggerWeights_mm );
+    }
+    else if(flavor1 && !flavor2){
+	weightval = weight( event,  triggerWeights_me );
+	uncertaintyval = uncertainty( event, triggerWeights_me );
+    }
+    else{
+	weightval = weight( event,  triggerWeights_em );
+	uncertaintyval = uncertainty( event, triggerWeights_em );
+    }
+    return std::make_pair(weightval, uncertaintyval);
+}
+
 double ReweighterTrigger::weight( const Event& event ) const{
-    // retrieve weight for an event, for safety apply tight criteria again
+    // retrieve weight for an event
     // note: only events with exactly 2 tight leptons get a reweighting factor!
     // this is ok as the trigger efficiency for 3- and 4-lepton selections
     // is measured to be compatible with 100%.
-    if(!hasnTightLeptons(event, 2)){ return 1; }
     event.sortLeptonsByPt();
-    bool flavor1 = event.leptonCollection()[0].isMuon();     // 0 if electron, 1 if muon
-    bool flavor2 = event.leptonCollection()[1].isMuon();     // 0 if electron, 1 if muon
-    if(!flavor1 && !flavor2){return weight( event,  triggerWeights_ee);}
-    if(flavor1 && flavor2){return weight( event,  triggerWeights_mm);}
-    if(flavor1 && !flavor2){return weight( event,  triggerWeights_me);}
-    return weight( event,  triggerWeights_em);
-    
+    if(!hasnTightLeptons(event, 2)){ return 1; }
+    return weightAndUncertainty(event).first;
 }
 
 double ReweighterTrigger::weightDown( const Event& event ) const{
     // retrieve down-varied weight for and event
-    return weight(event)*(1-systUnc);
+    if(!hasnTightLeptons(event, 2)){ return 1-systUnc; }
+    std::pair<double, double> weights = weightAndUncertainty(event);
+    return weights.first-weights.second;
 }
 
 double ReweighterTrigger::weightUp( const Event& event ) const{
     // retrieve up-varied weight for an event
-    return weight(event)*(1+systUnc);
+    if(!hasnTightLeptons(event, 2)){ return 1+systUnc; }
+    std::pair<double, double> weights = weightAndUncertainty(event);
+    return weights.first+weights.second;
 }
