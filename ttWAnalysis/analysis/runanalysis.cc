@@ -145,11 +145,11 @@ std::map< std::string,     // process
                     // (except for selection type "fakerate", in which case systematic histograms
                     // should be added and filled with nominal values,
                     // in order to correctly merge with MC with the same selection type).
-		    if( isData && !(selectionType=="fakerate" || selectionType=="efakerate" || selectionType=="mfakerate") ) continue;
-                    // for MC, specifically for selection type "chargeflips",
-                    // skip initialization of systematic histograms as well,
-                    // in order to correctly merge with data with the same selection type.
-                    if( selectionType=="chargeflips" ) continue;
+                    // now also make systematic histograms for "chargeflips" selection
+                    // (to add njets/nbjets uncertainty to the charge flip contribution)
+		    if( isData && !(selectionType=="fakerate"
+			|| selectionType=="efakerate" || selectionType=="mfakerate"
+                        || selectionType=="chargeflips") ) continue;
 		    // loop over systematics
 		    for(std::string systematic : systematics){
 			// special case for PDF variations: store individual variations 
@@ -667,22 +667,73 @@ void fillSystematicsHistograms(
 		    histVar, varmap.at(variable), nominalWeight,
 		    doSplitParticleLevel, splitParticleLevelVars,
 		    passParticleLevel, varmapParticleLevel );
-		// for fake rates from data, need to create systematic histograms
-		// (in order for the merging to work properly);
-		// loop over all systematics and fill with nominal values
-		if(event.isData() && (selection_type=="fakerate" || selection_type=="efakerate" || selection_type=="mfakerate")){
-		    for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
-			if(stringTools::stringContains(mapelement.first,"nominal")) continue;
-			histogram::fillValue( mapelement.second.get(),
-					       varmap.at(variable), nominalWeight );
+	    }
+	}
+
+	// fill data systematics histograms (for fakerate or chargeflip selections).
+	// for most systematics, they are simply filled with nominal values
+	// (but they are needed for correct merging with MC contributions).
+	// however, some systematics can be applied on data as well
+	// (e.g. njets uncertainty for chargeflips).
+	if(event.isData() && passnominal 
+	    && (selection_type=="fakerate"
+		|| selection_type=="efakerate" || selection_type=="mfakerate"
+		|| selection_type=="chargeflips")){
+	    // loop over systematics
+	    std::vector<std::string> alreadyFilled;
+	    alreadyFilled.push_back("nominal");
+	    for(std::string systematic : systematics){
+		// apply njets uncertainty on chargeflips
+		if(systematic == "njetscf" && selection_type=="chargeflips"){
+		    std::string upvar = systematic+"Up";
+		    std::string downvar = systematic+"Down";
+		    double upWeight = nominalWeight * reweighter.singleWeightUp(event, systematic);
+		    double downWeight = nominalWeight * reweighter.singleWeightDown(event, systematic);
+		    for(HistogramVariable histVar: histVars){
+			std::string variableName = histVar.name();
+			std::string variable = histVar.variable();
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            false, splitParticleLevelVars,
+                            false, varmapParticleLevel );
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            false, splitParticleLevelVars,
+                            false, varmapParticleLevel );
 		    }
+		    alreadyFilled.push_back(upvar);
+		    alreadyFilled.push_back(downvar);
+                }
+		// default case: just use nominal values
+		else{
+		    for(HistogramVariable histVar: histVars){
+                        std::string variableName = histVar.name();
+                        std::string variable = histVar.variable();
+			for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
+			    // exclude previously filled histograms
+                            bool needToFill = true;
+			    for(std::string veto: alreadyFilled){
+				if(stringTools::stringContains(mapelement.first,veto)){
+				    needToFill = false;
+				    break;
+				}
+			    }
+			    if( !needToFill ) continue;
+			    // fill this remaining histograms
+			    histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight );
+			}
+                    }    
 		}
 	    }
 	}
 
 	// stop further event processing in case of data
 	if(event.isData()) continue;
+
         // also stop further event processing for MC in case of charge flip selection
+	// (histograms are created but will remain empty)
         if(selection_type=="chargeflips") continue;
 
 	// loop over systematics
