@@ -15,7 +15,7 @@ import singlehistplotter as shp
 ### help functions for creating alternative views of the cutflow histogram
 # note: the input histogram for each of these functions is the output of fillCutflow.cc.
 #       (in each bin, absolute number of events that fail a given cut,
-#	last bin: number of passing events)
+#        last bin: number of passing events)
 
 def make_cumulative_absolute( hist ):
     ### output histograms: in each bin, total amount of remaining events after each cut
@@ -33,11 +33,11 @@ def make_cumulative_absolute( hist ):
     chist.GetXaxis().SetBinLabel(1, "Before selections")
     # fill further bins
     for i in range(2,chist.GetNbinsX()+1):
-	nevents = nevents - hist.GetBinContent(i-1)
-	chist.SetBinContent(i, nevents)
-	chist.SetBinError(i,0)
-	chist.GetXaxis().SetBinLabel(i, 
-	    hist.GetXaxis().GetBinLabel(i-1).replace('Fail', 'Pass'))
+        nevents = nevents - hist.GetBinContent(i-1)
+        chist.SetBinContent(i, nevents)
+        chist.SetBinError(i,0)
+        chist.GetXaxis().SetBinLabel(i, 
+            hist.GetXaxis().GetBinLabel(i-1).replace('Fail', 'Pass'))
     return chist
 
 def make_cumulative_relative( hist ):
@@ -50,7 +50,7 @@ def make_cumulative_relative( hist ):
 
 def make_relative_fail( hist ):
     ### output histogram: in each bin, relative fraction of events that fail given cut
-    #			  (relative w.r.t. number of events that pass all previous cuts!)
+    #                          (relative w.r.t. number of events that pass all previous cuts!)
     helphist = make_cumulative_absolute( hist )
     nevents = hist.Integral()
     # copy original histogram skeleton but with last bin removed
@@ -59,11 +59,11 @@ def make_relative_fail( hist ):
     title = hist.GetTitle()
     rhist = ROOT.TH1D( "", title, nbins-1, -0.5, nbins-0.5 )
     for i in range(1, rhist.GetNbinsX()+1):
-	nfail = float(hist.GetBinContent(i))
-	ntot = helphist.GetBinContent(i)
-	rhist.SetBinContent(i, nfail/ntot)
-	rhist.SetBinError(i,0)
-	rhist.GetXaxis().SetBinLabel(i,
+        nfail = float(hist.GetBinContent(i))
+        ntot = helphist.GetBinContent(i)
+        rhist.SetBinContent(i, nfail/ntot)
+        rhist.SetBinError(i,0)
+        rhist.GetXaxis().SetBinLabel(i,
             hist.GetXaxis().GetBinLabel(i))
     rhist.SetMaximum(1.2)
     return rhist
@@ -72,9 +72,9 @@ def make_relative_pass( hist ):
     ### output histogram: same as make_relative_fail but with passing fraction instead of failing
     rhist = make_relative_fail( hist )
     for i in range(1, rhist.GetNbinsX()+1 ):
-	rhist.SetBinContent(i, 1-rhist.GetBinContent(i))
-	rhist.GetXaxis().SetBinLabel(i, 
-	    rhist.GetXaxis().GetBinLabel(i).replace('Fail','Pass'))
+        rhist.SetBinContent(i, 1-rhist.GetBinContent(i))
+        rhist.GetXaxis().SetBinLabel(i, 
+            rhist.GetXaxis().GetBinLabel(i).replace('Fail','Pass'))
     rhist.SetMaximum(1.2)
     return rhist
   
@@ -83,8 +83,8 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Plot cutflow')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--outputdir', required=True)
+  parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True)
   parser.add_argument('--extrainfos', default=None)
   args = parser.parse_args()
 
@@ -98,7 +98,7 @@ if __name__=='__main__':
     raise Exception('ERROR: input file {} does not exist.'.format(args.inputfile))
   if not os.path.exists(args.outputdir):
     os.makedirs(args.outputdir)
-  extrainfos = None
+  extrainfos = []
   if args.extrainfos is not None:
     extrainfos = args.extrainfos.split(',')
 
@@ -124,11 +124,11 @@ if __name__=='__main__':
   drawoptions = 'hist e'
   outputfile = os.path.join(args.outputdir,'raw.png')
   shp.plotsinglehistogram(hist, outputfile, title=None, 
-			    xaxtitle=xaxtitle, yaxtitle=yaxtitle,
+                            xaxtitle=xaxtitle, yaxtitle=yaxtitle,
                             label=None, color=None, logy=False, 
                             drawoptions=drawoptions,
                             lumitext='', extralumitext='',
-			    bottommargin=0.45,
+                            bottommargin=0.45,
                             writebincontent=False, bincontentfont=None,
                             bincontentsize=None, bincontentfmt=None,
                             extrainfos=extrainfos, infosize=None, 
@@ -165,6 +165,22 @@ if __name__=='__main__':
                             bottommargin=0.45,
                             writebincontent=True, bincontentfont=None,
                             bincontentsize=None, bincontentfmt=None,
+                            extrainfos=extrainfos, infosize=None,
+                            infoleft=infoleft, infotop=infotop)
+
+  # make cumulative relative plot in log scale
+  yaxmin = cumrelhist.GetBinContent(cumrelhist.GetNbinsX())/10.
+  if(yaxmin <= 0): yaxmin = 1e-5
+  outputfile = os.path.join(args.outputdir,'cumulative_relative_log.png')
+  shp.plotsinglehistogram(cumrelhist, outputfile, title=None,
+                            xaxtitle=xaxtitle, yaxtitle=yaxtitle,
+                            label=None, color=None, logy=True,
+                            yaxmax=10., yaxmin=yaxmin,
+                            drawoptions=drawoptions,
+                            lumitext='', extralumitext='',
+                            bottommargin=0.45,
+                            writebincontent=True, bincontentfont=None,
+                            bincontentsize=None, bincontentfmt='auto',
                             extrainfos=extrainfos, infosize=None,
                             infoleft=infoleft, infotop=infotop)
 

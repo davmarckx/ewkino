@@ -7,6 +7,7 @@ Perform cutflow study
 #include <vector>
 #include <exception>
 #include <iostream>
+#include <fstream>
 
 // include ROOT classes 
 #include "TH1D.h"
@@ -45,6 +46,16 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 	cutFlowHist->GetXaxis()->SetBinLabel(i, "");
     }
 
+    // temp for testing
+    /*std::vector<long unsigned> eventNbs;
+    std::ifstream f;
+    f.open("temp_test_missing.txt", std::ios::in);
+    long unsigned value;
+    while( f >> value ){ eventNbs.push_back(value); }
+    std::cout << eventNbs.size() << std::endl;*/
+
+    long unsigned npass = 0;
+
     // do event loop
     long numberOfEntries = treeReader.numberOfEntries();
     if( nEvents<0 || nEvents>numberOfEntries ) nEvents = numberOfEntries;
@@ -55,11 +66,11 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 
 	// choose here which function to pass
 	std::tuple<int,std::string> cutFlowTuple;
-	if(level=="detector"){
-	    cutFlowTuple = eventSelections::pass_signalregion_dilepton_inclusive_cutflow( event, "tight", "nominal", true );
-	} else if(level=="particle"){
+	if(level=="particle"){
 	    cutFlowTuple = eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive_cutflow(event);
-	}
+	} else{
+            cutFlowTuple = eventSelections::pass_signalregion_dilepton_inclusive_cutflow( event, level, "nominal", true );
+        }
 
 	// check the returned values
 	int cutFlowValue = std::get<0>(cutFlowTuple);
@@ -70,6 +81,7 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 	    msg += "; please run again with larger maxCutFlowValue.";
 	    throw std::runtime_error(msg);
 	}
+
 	// determine corresponding bin number
 	int binnb = cutFlowValue+1;
 	// set the bin label if not done so before
@@ -78,7 +90,39 @@ std::shared_ptr<TH1D> makeCutFlowHistogram( const std::string& pathToFile,
 	}
 	// fill the histogram
 	cutFlowHist->Fill(cutFlowValue);
+        if( cutFlowDescription=="Pass" ){ npass++; }
+
+	// printouts for testing
+	if( cutFlowValue>7 ){
+	    if( cutFlowValue>8 ){
+		std::ofstream f;
+                f.open("temp_test_samesign_pass.txt", std::ios::app);
+		f << event.runNumber() << " " << event.luminosityBlock() << " " << event.eventNumber() << "\n";
+		f.close();
+	    } else{
+		std::ofstream f;
+                f.open("temp_test_samesign_fail.txt", std::ios::app);
+                f << event.runNumber() << " " << event.luminosityBlock() << " " << event.eventNumber() << "\n";
+                f.close();
+	    }
+	}
+
+	// some more testing
+	/*if( std::find(eventNbs.begin(), eventNbs.end(), event.eventNumber()) != eventNbs.end() ){
+	    std::cout << "--- event found ---" << std::endl;
+	    std::cout << event.eventNumber() << std::endl;
+	    for( const std::shared_ptr<Lepton> lep: event.leptonCollection() ){
+		std::cout << lep->charge() << " ";
+            }
+	    std::cout << std::endl;
+	    for( const std::shared_ptr<Lepton> lep: event.leptonCollection() ){
+                std::cout << lep->isMuon() << " ";
+            }
+            std::cout << std::endl;
+	}*/
     }
+
+    std::cout << "Number of passing events: " << npass << std::endl;
     return cutFlowHist;
 }
 
@@ -106,10 +150,6 @@ int main( int argc, char* argv[] ){
     bool validInput = rootFileTools::nTupleIsReadable( input_file_path );
     if(!validInput){ return -1; }
 
-    if( level!="detector" && level!="particle" ){
-	throw std::runtime_error("ERROR: level not recognized.");
-    }
- 
     // make the cutflow histogram
     std::shared_ptr<TH1D> cutFlowHist = makeCutFlowHistogram( 
 			input_file_path, level, nevents, max_cutflow_value );
