@@ -32,13 +32,13 @@ dtypes = ['sim','data']
 #dtypes = ['data']
 
 selection_types = []
-selection_types.append('tight')
+#selection_types.append('tight')
 selection_types.append('prompt')
-selection_types.append('fakerate')
+#selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
+#selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
@@ -67,7 +67,7 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_20230915'
+outputdir = 'output_20230919_single_bkg'
 
 nevents = 1e6
 runlocal = False
@@ -110,13 +110,18 @@ for year in years:
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types
-      thiscmd = cmd
-      thiscmd += ' --event_selection'
-      for region in regions: thiscmd += ' '+region
-      thiscmd += ' --selection_type'
-      for selection_type in selection_types: thiscmd += ' '+selection_type
-      print('executing '+thiscmd)
-      os.system(thiscmd)
+      # update: split event selections into partitions
+      part_size = 4
+      regions_parts = [regions[i:i+part_size] for i in range(0, len(regions), part_size)]
+      for regions_part in regions_parts:
+        thiscmd = cmd
+        thiscmd += ' --event_selection'
+        for region in regions_part: thiscmd += ' '+region
+        thiscmd += ' --selection_type'
+        for selection_type in selection_types: thiscmd += ' '+selection_type
+        thiscmd += ' --output_append'
+        print('executing '+thiscmd)
+        os.system(thiscmd)
     elif( not submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs separately for event selections
       # but combined in selection types
@@ -125,6 +130,7 @@ for year in years:
         thiscmd += ' --event_selection ' + region
         thiscmd += ' --selection_type'
         for selection_type in selection_types: thiscmd += ' '+selection_type
+        thiscmd += ' --output_append'
         print('executing '+thiscmd)
         os.system(thiscmd)
     elif( submit_event_selections_combined and not submit_selection_types_combined ):
@@ -135,6 +141,7 @@ for year in years:
         thiscmd += ' --event_selection'
         for region in regions: thiscmd += ' '+region
         thiscmd += ' --selection_type ' + selection_type
+        thiscmd += ' --output_append'
         print('executing '+thiscmd)
         os.system(thiscmd)
     elif( not submit_event_selections_combined and not submit_selection_types_combined ):
@@ -144,5 +151,6 @@ for year in years:
           thiscmd = cmd
           thiscmd += ' --event_selection ' + region
           thiscmd += ' --selection_type ' + selection_type
+          thiscmd += ' --output_append'
           print('executing '+thiscmd)
           os.system(thiscmd)
