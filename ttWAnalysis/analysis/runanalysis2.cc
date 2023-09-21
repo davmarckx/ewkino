@@ -45,7 +45,7 @@ std::map< std::string, double > loadWeights(const std::string& processName,
    //these factors are stored in the ML directory and are made by make_analysisdatasets.py.
    std::cout << "=== start looking for reweighting factors of missing training sample ===" << std::endl;;
    std::fstream newfile;
-   std::string location = "/user/dmarckx/ewkino/ML/trainindices/";
+   std::string location = "../../ML/trainindices/";
    location += "weights_" + processName + "_" + std::to_string(sampleIndex) + "_" + year + ".txt";
 
    newfile.open(location);
