@@ -9,20 +9,20 @@
 import os
 import sys
 
-exe = 'runanalysis'
+exe = 'runanalysisv2'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
 for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
-for r in ['cfjetscontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
@@ -32,61 +32,69 @@ dtypes = ['sim','data']
 #dtypes = ['data']
 
 selection_types = []
-#selection_types.append('tight')
-#selection_types.append('prompt')
+selection_types.append('tight')
+selection_types.append('prompt')
 #selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
-#selection_types.append('chargegood')
+selection_types.append('chargegood')
 selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/backgrounds' # background sample lists
-samplelistbase = 'samples_tttt_{}_{}.txt' # background sample lists
+samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
+samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
+#samplelistdir = '../samplelists/backgrounds' # main sample lists
+#samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
 #samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json' # single variables
-variables = '../variables/variables_main_reduced.json' # single variables (slightly reduced set)
-#variables = '../variables/variables_eventbdt.json' # bdt variable
+#variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_inputfeatures.json' # bdt input variables
+variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
 
 #bdtfile = None
-bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
-#bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
+#bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
+bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
 bdtcut = None
+
 
 splitprocess = None # do not split any process at particle level
 #splitprocess = 'TTW' # split TTW process at particle level
 splitvariables = None
-#splitvariables = '../variables/variables_particlelevel_single.json'
+#splitvariables = '../variables/variables_particlelevel_double.json'
 
-outputdir = 'output_20230920_single_bkg'
+outputdir = 'output_quickcheck'
 
 nevents = 1e6
 runlocal = False
 
 submit_selection_types_combined = True
 submit_event_selections_combined = True
+trainingreweight = False #turns to true if /pnfs/iihe/cms/store/user/dmarckx/ttWsamples is selected and reweights training samples by roughly 1.25 (measured exactly for each dilepton SR separately) if we are in dilepton signal region
 
 # loop over years and data types
 for year in years:
   for dtype in dtypes:
     # set correct input directory
-    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
+    inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
     inputdiryear = year
     #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
     #inputdiryear = ''
     if dtype=='data':
-      inputdir = inputdir.replace('_v4','_v5')
+      inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v5'
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
         inputdiryear = '2016'
+    if inputdir == '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples' or inputdir == '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel':
+        trainingreweight = True
     inputdir = os.path.join(inputdir, inputdiryear)
     # set correct sample list
     samplelist = os.path.join(samplelistdir,samplelistbase.format(year,dtype))
@@ -107,21 +115,18 @@ for year in years:
     if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
     if bdtfile is not None: cmd += ' --bdt ' + bdtfile
     if bdtcut is not None: cmd += ' --bdtcut {}'.format(bdtcut)
+    if trainingreweight: cmd += ' --trainingreweight'
+
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types
-      # update: split event selections into partitions
-      part_size = 3
-      regions_parts = [regions[i:i+part_size] for i in range(0, len(regions), part_size)]
-      for regions_part in regions_parts:
-        thiscmd = cmd
-        thiscmd += ' --event_selection'
-        for region in regions_part: thiscmd += ' '+region
-        thiscmd += ' --selection_type'
-        for selection_type in selection_types: thiscmd += ' '+selection_type
-        thiscmd += ' --output_append'
-        print('executing '+thiscmd)
-        os.system(thiscmd)
+      thiscmd = cmd
+      thiscmd += ' --event_selection'
+      for region in regions: thiscmd += ' '+region
+      thiscmd += ' --selection_type'
+      for selection_type in selection_types: thiscmd += ' '+selection_type
+      print('executing '+thiscmd)
+      os.system(thiscmd)
     elif( not submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs separately for event selections
       # but combined in selection types
@@ -130,7 +135,6 @@ for year in years:
         thiscmd += ' --event_selection ' + region
         thiscmd += ' --selection_type'
         for selection_type in selection_types: thiscmd += ' '+selection_type
-        thiscmd += ' --output_append'
         print('executing '+thiscmd)
         os.system(thiscmd)
     elif( submit_event_selections_combined and not submit_selection_types_combined ):
@@ -141,7 +145,6 @@ for year in years:
         thiscmd += ' --event_selection'
         for region in regions: thiscmd += ' '+region
         thiscmd += ' --selection_type ' + selection_type
-        thiscmd += ' --output_append'
         print('executing '+thiscmd)
         os.system(thiscmd)
     elif( not submit_event_selections_combined and not submit_selection_types_combined ):
@@ -151,6 +154,5 @@ for year in years:
           thiscmd = cmd
           thiscmd += ' --event_selection ' + region
           thiscmd += ' --selection_type ' + selection_type
-          thiscmd += ' --output_append'
           print('executing '+thiscmd)
           os.system(thiscmd)

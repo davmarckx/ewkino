@@ -73,7 +73,6 @@ if __name__=='__main__':
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--output_append', default=False, action='store_true')
   parser.add_argument('--variables', required=True, type=os.path.abspath)
   # list of variables to make histograms for (in json format).
   # - for runanalysis, should be a list of single variables.
@@ -84,10 +83,11 @@ if __name__=='__main__':
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--bdt', default=None, type=apt.path_or_none)
   parser.add_argument('--bdtcut', default=None, type=float)
+  parser.add_argument('--trainingreweight', default=False, action='store_true')
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--exe', default='runanalysis', 
-                      choices=['runanalysis','runanalysis2'])
+                      choices=['runanalysis','runanalysis2','runanalysisv2'])
   parser.add_argument('--splitprocess', default=None)
   # process name to split at particle level (i.e. usually TTW in this analysis)
   # - if None, no process will be split at particle level, this is the usual workflow
@@ -113,13 +113,10 @@ if __name__=='__main__':
   if not os.path.exists(args.samplelist):
     raise Exception('ERROR: sample list {} does not exist.'.format(args.samplelist))
   if os.path.exists(args.outputdir):
-    if not args.output_append:
-      print('WARNING: output directory {} already exists. Clean it? (y/n)'.format(args.outputdir))
-      go=raw_input()
-      if not go=='y': sys.exit()
-      os.system('rm -r '+args.outputdir)
-    else:
-      print('WARNING: output directory {} already exists. Appending...'.format(args.outputdir))
+    print('WARNING: output directory {} already exists. Clean it? (y/n)'.format(args.outputdir))
+    go=raw_input()
+    if not go=='y': sys.exit()
+    os.system('rm -r '+args.outputdir)
   if not os.path.exists(args.variables):
     raise Exception('ERROR: variable file {} does not exist.'.format(args.variables))
   variables_ext = os.path.splitext(args.variables)[1]
@@ -136,7 +133,7 @@ if __name__=='__main__':
     raise Exception('ERROR: {} executable was not found.'.format(exe))
 
   # make output directory
-  if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
+  os.makedirs(args.outputdir)
 
   # check samples
   samples = readsamplelist( args.samplelist, sampledir=args.inputdir )
@@ -210,14 +207,19 @@ if __name__=='__main__':
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, electroncfmap, 
-                    args.nevents, args.forcenevents, bdt, bdtcut )
+                    args.nevents, args.forcenevents, bdt, bdtcut)
+    # apply reweighting of training
+    if args.trainingreweight:
+        command += ' true'
+    else:
+        command += ' false'
     # manage particle level splitting
     if( args.splitprocess is not None 
         and samples.get_samples()[i].process == args.splitprocess ):
       command += ' true'
     else: command += ' false'
     # manage particle level splitting using external variable
-    if( args.exe=='runanalysis' ):
+    if( args.exe=='runanalysisv2' ):
       command += ' {}'.format(splitvartxt)
     # add systematics
     command += ' {}'.format(systematics)
