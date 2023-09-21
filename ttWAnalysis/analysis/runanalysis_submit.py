@@ -9,7 +9,7 @@
 import os
 import sys
 
-exe = 'runanalysisv2'
+exe = 'runanalysis'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)

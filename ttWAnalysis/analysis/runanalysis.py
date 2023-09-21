@@ -87,7 +87,7 @@ if __name__=='__main__':
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--exe', default='runanalysis', 
-                      choices=['runanalysis','runanalysis2','runanalysisv2'])
+                      choices=['runanalysis','runanalysis2'])
   parser.add_argument('--splitprocess', default=None)
   # process name to split at particle level (i.e. usually TTW in this analysis)
   # - if None, no process will be split at particle level, this is the usual workflow
@@ -219,7 +219,7 @@ if __name__=='__main__':
       command += ' true'
     else: command += ' false'
     # manage particle level splitting using external variable
-    if( args.exe=='runanalysisv2' ):
+    if( args.exe=='runanalysis' ):
       command += ' {}'.format(splitvartxt)
     # add systematics
     command += ' {}'.format(systematics)
