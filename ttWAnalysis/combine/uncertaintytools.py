@@ -67,22 +67,13 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   # remove nJets/nBJets uncertainties for all but WZ and ZZ
   for p in processes:
     if( p=='WZ' or p=='ZZ' ): continue
-    rmspecific[p].append('njets')
-    rmspecific[p].append('nbjets')
+    rmspecific[p].append('njets*')
+    rmspecific[p].append('nbjets*')
 
   # remove specific nJets uncertainty except for chargeflips
   # (also remove for chargeflips since it was not yet correctly initialized)
   for p in processes:
     for y in allyears: rmspecific[p].append('njetscf{}'.format(y))
-
-  # remove second nJets uncertainty for all but chargeflips,
-  # and keep it only in 2017 and 2018
-  for p in processes:
-    if( p=='Chargeflips' ): continue
-    rmspecific[p].append('njetscf')
-  if year is not None:
-    if( year!='2017' and year!='2018' and 'Chargeflips' in processes):
-      rmspecific['Chargeflips'].append('njetscf')
 
   # remove individual qcd and pdf variations
   # (if not done so before)
@@ -92,13 +83,13 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   # remove overlap between JEC sources
   #rmforall.append('JEC')
   rmforall.append('JECGrouped*')
-  #rmforall.append('JECGrouped_Total*')
+  rmforall.append('JECGrouped_Total*')
 
   # remove grouped JEC sources for nonprompt
   # (they are not yet correctly initialized)
   # (now commented out since will use single JEC for now)
-  #for p in ['Nonprompt', 'NonpromptMu', 'NonpromptE']:
-  #  if p in processes: rmspecific[p].append('JECGrouped*')
+  for p in ['Nonprompt', 'NonpromptMu', 'NonpromptE']:
+    if p in processes: rmspecific[p].append('JECGrouped*')
 
   # remove fsrShape for WZ
   # (gives unresolved strange behaviour in latest iteration)
@@ -119,7 +110,7 @@ def remove_systematics_default( processinfo, year=None ):
 
   # define processes for which normalization systematics should be removed
   # (because they will get dedicated normalization uncertainties later on)
-  pnonorm = ['WZ','ZZ','TTZ','ZG']
+  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','TTH','Multiboson']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
   if 'NonpromptE' in processinfo.plist: pnonorm.append('NonpromptE')
   if 'NonpromptMu' in processinfo.plist: pnonorm.append('NonpromptMu')
@@ -165,12 +156,18 @@ def add_systematics_default( processinfo, year=None ):
   if year is not None:
     for source,impact in get_lumi_unc_sources(year).items():
       impacts = {}
+      # set impact for all processes
       for p in processinfo.plist: impacts[p] = impact
       processinfo.addnormsys( source, impacts )
-      if 'Nonprompt' in processinfo.plist:
-        processinfo.disablesys( source, ['Nonprompt'] )
-      if 'Chargeflips' in processinfo.plist:
-        processinfo.disablesys( source, ['Chargeflips'] )
+      # disable for data-driven backgrounds
+      to_disable = ([
+        'Nonprompt', 
+        'NonpromptE', 'NonpromptMu',
+        'Chargeflips'
+      ])
+      for p in to_disable:
+          if p in processinfo.plist:
+              processinfo.disablesys( source, [p] )
       normsyslist.append(source)
 
   # add trigger uncertainty
@@ -188,20 +185,23 @@ def add_systematics_default( processinfo, year=None ):
 
   # add individual norm uncertainties
   norms = ({
-    'WZ': 1.1,
-    'ZZ': 1.1,
-    'TTZ': 1.15,
-    'ZG': 1.1
+    #'WZ': 1.1, now freely floating, rate parameter
+    #'ZZ': 1.1, now freely floating, rate parameter
+    #'TTZ': 1.15, now freely floating, rate parameter
+    'ZG': 1.3, # synced with Oviedo (?)
+    'TTG': 1.3, # synced with Oviedo (?)
+    'TTH': 1.1, # synced with Oviedo (?)
+    'Multiboson': 1.5 # synced with Oviedo (?)
   })
   if 'Nonprompt' in processinfo.plist:
     norms['Nonprompt'] = 1.3
     # (use 30% as equivalent to 20% correlated + 20% uncorrelated in split case)
   if 'NonpromptE' in processinfo.plist:
-    norms['NonpromptE'] = 1.2
+    norms['NonpromptE'] = 1.2 # contribution for electron nonprompts only
   if 'NonpromptMu' in processinfo.plist:
-    norms['NonpromptMu'] = 1.2
+    norms['NonpromptMu'] = 1.2 # contribution for muon nonprompts only
   if 'Chargeflips' in processinfo.plist:
-    norms['Chargeflips'] = 1.2
+    norms['Chargeflips'] = 1.3
   for process,mag in norms.items():
     source = 'Norm_{}'.format(process)
     impacts = {}

@@ -16,6 +16,7 @@ def getcolormap( style='default' ):
   if(style=='tttt'): return getcolormap_tttt()
   if(style=='systematics'): return getcolormap_systematics()
   if(style=='ttw'): return getcolormap_ttw()
+  if(style=='oviedo'): return getcolormap_oviedo()
   else: print('WARNING in getcolormap: style not recognized, returning None')
   return None
 
@@ -195,7 +196,9 @@ def getcolormap_ttw():
     cmap['ZG'] = define_color_hex('#900ead')[0]
     cmap['TT'] = define_color_hex('#ffbd80')[0]
     cmap['TTG'] = define_color_hex('#b443fa')[0]
+    cmap['Conversions'] = define_color_hex('#b443fa')[0]
     cmap['TTX'] = define_color_hex('#2f8ceb')[0]
+    cmap['TTH'] = define_color_hex('#531bfa')[0]
     cmap['TTZ'] = define_color_hex('#336fce')[0]
     cmap['TTW'] = define_color_hex('#ff0000')[0]
     cmap['TTW0'] = define_color_hex('#990000')[0]
@@ -214,6 +217,36 @@ def getcolormap_ttw():
     cmap['Multiboson'] = cmap['multiboson']
     cmap['other'] = define_color_hex('#ccccaa')[0]
     cmap['Other'] = cmap['other']
+    return cmap
+
+def getcolormap_oviedo():
+    # colormap for ttw analysis (sync background categories with Oviedo)
+    cmap = {}
+    cmap['Nonprompt'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt (e)'] = define_color_hex('#ffe380')[0]
+    cmap['Nonprompt (mu)'] = define_color_hex('#fcda60')[0]
+    cmap['Chargeflips'] = define_color_hex('#fcee1e')[0]
+    cmap['Conversions'] = define_color_hex('#b443fa')[0]
+    cmap['TTVV'] = define_color_hex('#2f8ceb')[0]
+    cmap['TTH'] = define_color_hex('#531bfa')[0]
+    cmap['TTZ'] = define_color_hex('#336fce')[0]
+    cmap['TTW'] = define_color_hex('#ff0000')[0]
+    cmap['TTW0'] = define_color_hex('#990000')[0]
+    cmap['TTW1'] = define_color_hex('#cc0000')[0]
+    cmap['TTW2'] = define_color_hex('#ff0000')[0]
+    cmap['TTW3'] = define_color_hex('#ff4400')[0]
+    cmap['TTW4'] = define_color_hex('#ff6f00')[0]
+    cmap['TTWplus'] = define_color_hex('#ff0000')[0]
+    cmap['TTW+'] = cmap['TTWplus']
+    cmap['TTWminus'] = define_color_hex('#ff4400')[0]
+    cmap['TTW-'] = cmap['TTWminus']
+    cmap['THQ'] = define_color_hex('#ffd22e')[0]
+    cmap['THW'] = define_color_hex('#900ead')[0]
+    cmap['TZQ'] = define_color_hex('#ffbd80')[0]
+    cmap['WZ'] = define_color_hex('#81efd7')[0]
+    cmap['ZZ'] = define_color_hex('#2fbc6c')[0]
+    cmap['VVV'] = define_color_hex('#54f035')[0]
+    cmap['Rares'] = define_color_hex('#ccccaa')[0]
     return cmap
 
 

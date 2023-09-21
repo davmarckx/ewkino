@@ -23,6 +23,9 @@
     "_rfScalesNorm",
     "_isrScale",
     "_isrShape",
-    "_isrNorm"
+    "_isrNorm",
+    "_njets",
+    "_nbjets",
+    "_njetscf"
   ]
 }
