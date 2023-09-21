@@ -1,0 +1,312 @@
+[
+{
+  "name": "_abs_eta_recoil",
+  "variable": "_abs_eta_recoil",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.0",
+  "axtitle": "\\left|\\eta\\right|_{recoil}",
+  "unit": ""
+},
+{
+  "name": "_Mjj_max",
+  "variable": "_Mjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1200.0",
+  "axtitle": "m_{jet+jet}^{max}",
+  "unit": "GeV"
+},
+{
+  "name": "_deepFlavor_max",
+  "variable": "_deepFlavor_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Highest b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_deepFlavor_leading",
+  "variable": "_deepFlavor_leading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Leading jet b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_deepFlavor_subLeading",
+  "variable": "_deepFlavor_subLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "1.0",
+  "axtitle": "Subleading jet b tagging discriminant",
+  "unit": ""
+},
+{
+  "name": "_lT",
+  "variable": "_lT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "L_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_pTjj_max",
+  "variable": "_pTjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "p_{T}^{max}(jet+jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dRlb_min",
+  "variable": "_dRlb_min",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "4.0",
+  "axtitle": "\\Delta R^{min} (l,b-jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dRl1l2",
+  "variable": "_dRl1l2",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.",
+  "axtitle": "\\Delta R (l_{1},l_{2})",
+  "unit": ""
+},
+{
+  "name": "_HT",
+  "variable": "_HT",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "800.0",
+  "axtitle": "H_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_nJets",
+  "variable": "_nJets",
+  "nbins": "7",
+  "xlow": "-0.5",
+  "xhigh": "6.5",
+  "axtitle": "Number of jets",
+  "unit": ""
+},
+{
+  "name": "_nBJets",
+  "variable": "_nBJets",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of b-tagged jets",
+  "unit": ""
+},
+{
+  "name": "_dRl1recoil",
+  "variable": "_dRlWrecoil",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\\Delta R (l1,recoil jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dRl1btagged",
+  "variable": "_dRlWbtagged",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\\Delta R^{min} (l1,b-jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_dRl1jet",
+  "variable": "_dRl1jet",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "5.0",
+  "axtitle": "\\Delta R^{min} (l1,jet)",
+  "unit": "GeV"
+},
+{
+  "name": "_mLeadingLeptonPair",
+  "variable": "_M3l",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "m (l_{1},l_{2})",
+  "unit": "GeV"
+},
+{
+  "name": "_abs_eta_max",
+  "variable": "_abs_eta_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "3.0",
+  "axtitle": "\\left|\\eta\\right|_{max}",
+  "unit": ""
+},
+{
+  "name": "_MET_pt",
+  "variable": "_MET_pt",
+  "nbins": "20",
+  "xlow": "0",
+  "xhigh": "250",
+  "axtitle": "Missing transverse energy p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_nMuons",
+  "variable": "_nMuons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of muons in event",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_leptonCharge",
+  "variable": "_leptonChargeLeading",
+  "nbins": "2",
+  "xlow": "-1.5",
+  "xhigh": "1.5",
+  "axtitle": "charge of leptons",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["-", "+"]
+},
+{
+  "name": "_leptonPtLeading",
+  "variable": "_leptonPtLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "Leading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonPtSubLeading",
+  "variable": "_leptonPtSubLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "180.0",
+  "axtitle": "Subleading lepton p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonEtaLeading",
+  "variable": "_leptonEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading lepton pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_leptonEtaSubLeading",
+  "variable": "_leptonEtaSubLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading lepton pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_leptonELeading",
+  "variable": "_leptonELeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "300.0",
+  "axtitle": "Leading lepton energy",
+  "unit": "GeV"
+},
+{
+  "name": "_leptonESubLeading",
+  "variable": "_leptonESubLeading",
+  "nbins": "12",
+  "xlow": "0.0",
+  "xhigh": "180.0",
+  "axtitle": "Subleading lepton energy",
+  "unit": "GeV"
+},
+{
+  "name": "_jetPtLeading",
+  "variable": "_jetPtLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "250.0",
+  "axtitle": "Leading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_jetPtSubLeading",
+  "variable": "_jetPtSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "150.0",
+  "axtitle": "Subleading jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_jetMassLeading",
+  "variable": "_jetMassLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "60.0",
+  "axtitle": "Leading jet mass",
+  "unit": "GeV"
+},
+{
+  "name": "_jetMassSubLeading",
+  "variable": "_jetMassSubLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "40.0",
+  "axtitle": "Subleading jet mass",
+  "unit": "GeV"
+},
+{
+  "name": "_jetEtaLeading",
+  "variable": "_jetEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading jet pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_jetEtaSubLeading",
+  "variable": "_jetEtaSubLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Subleading jet pseudorapidity",
+  "unit": ""
+},
+{
+  "name": "_bjetPtLeading",
+  "variable": "_bjetPtLeading",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "250.0",
+  "axtitle": "Leading b-jet p_{T}",
+  "unit": "GeV"
+},
+{
+  "name": "_bjetEtaLeading",
+  "variable": "_bjetEtaLeading",
+  "nbins": "20",
+  "xlow": "-2.5",
+  "xhigh": "2.5",
+  "axtitle": "Leading b-jet pseudorapidity",
+  "unit": ""
+}
+]
