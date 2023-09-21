@@ -73,6 +73,7 @@ if __name__=='__main__':
   parser.add_argument('--inputdir', required=True, type=os.path.abspath)
   parser.add_argument('--samplelist', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('--output_append', default=False, action='store_true')
   parser.add_argument('--variables', required=True, type=os.path.abspath)
   # list of variables to make histograms for (in json format).
   # - for runanalysis, should be a list of single variables.
@@ -113,10 +114,13 @@ if __name__=='__main__':
   if not os.path.exists(args.samplelist):
     raise Exception('ERROR: sample list {} does not exist.'.format(args.samplelist))
   if os.path.exists(args.outputdir):
-    print('WARNING: output directory {} already exists. Clean it? (y/n)'.format(args.outputdir))
-    go=raw_input()
-    if not go=='y': sys.exit()
-    os.system('rm -r '+args.outputdir)
+    if not args.output_append:
+      print('WARNING: output directory {} already exists. Clean it? (y/n)'.format(args.outputdir))
+      go=raw_input()
+      if not go=='y': sys.exit()
+      os.system('rm -r '+args.outputdir)
+    else:
+      print('WARNING: output directory {} already exists. Appending...'.format(args.outputdir))
   if not os.path.exists(args.variables):
     raise Exception('ERROR: variable file {} does not exist.'.format(args.variables))
   variables_ext = os.path.splitext(args.variables)[1]
@@ -133,7 +137,7 @@ if __name__=='__main__':
     raise Exception('ERROR: {} executable was not found.'.format(exe))
 
   # make output directory
-  os.makedirs(args.outputdir)
+  if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
 
   # check samples
   samples = readsamplelist( args.samplelist, sampledir=args.inputdir )

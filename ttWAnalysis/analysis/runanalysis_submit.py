@@ -120,13 +120,18 @@ for year in years:
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types
-      thiscmd = cmd
-      thiscmd += ' --event_selection'
-      for region in regions: thiscmd += ' '+region
-      thiscmd += ' --selection_type'
-      for selection_type in selection_types: thiscmd += ' '+selection_type
-      print('executing '+thiscmd)
-      os.system(thiscmd)
+      # update: split event selections into partitions
+      part_size = 3
+      regions_parts = [regions[i:i+part_size] for i in range(0, len(regions), part_size)]
+      for regions_part in regions_parts:
+        thiscmd = cmd
+        thiscmd += ' --event_selection'
+        for region in regions_part: thiscmd += ' '+region
+        thiscmd += ' --selection_type'
+        for selection_type in selection_types: thiscmd += ' '+selection_type
+        thiscmd += ' --output_append'
+        print('executing '+thiscmd)
+        os.system(thiscmd)
     elif( not submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs separately for event selections
       # but combined in selection types
@@ -135,6 +140,7 @@ for year in years:
         thiscmd += ' --event_selection ' + region
         thiscmd += ' --selection_type'
         for selection_type in selection_types: thiscmd += ' '+selection_type
+        thiscmd += ' --output_append'
         print('executing '+thiscmd)
         os.system(thiscmd)
     elif( submit_event_selections_combined and not submit_selection_types_combined ):
@@ -154,5 +160,6 @@ for year in years:
           thiscmd = cmd
           thiscmd += ' --event_selection ' + region
           thiscmd += ' --selection_type ' + selection_type
+          thiscmd += ' --output_append'
           print('executing '+thiscmd)
           os.system(thiscmd)
