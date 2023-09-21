@@ -221,15 +221,27 @@ def makeJobDescription(name, exe, argstring=None,
     print('makeJobDescription created {}'.format(fname))
 
 #settings for each year, found with gridsearch
-models = ['models/XGB_lepflavupgrade_all_muonboosted38_3000_3_0.02.pkl']#['models/XGB_all_dummyanalysis136_4000_3_0.05.pkl', 'models/XGB_newbackgrd_all_final_withbettergridsearchshort30_4000_3_0.05.pkl']
-#isTorch = 0
-commands = []
-for model in models:
-    #print("python3.9 makeScoreDistro_BDT.py " + model + " " + str(isTorch))
-    commands.append("python3 robustnessCheck.py")# + model + " " + str(isTorch))
+years = ['2016PreVFP','2016PostVFP','2017','2018']
+inputfiles = ["TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PreVFP.root", "TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PostVFP.root","TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Fall17.root","TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Autumn18.root"]
+outputdir = "~/public_html/responsematrices/"
 
-submitCommandsAsCondorCluster('cjob_robustnesscheck', commands, stdout=None, stderr=None, log=None,
-                        cpus=4, mem=2048, disk=10240,
+for i in range(len(years)):
+    cmd = "python3 plotResponseMatrices.py --inputfile output/{} --outputdir {} --variables ../variables/variables_responsematrices.json --writebincontentauto --docustom".format(inputfiles[i], outputdir + years[i])
+    commands_resol = []
+    commands_resp = []
+    commands_resp.append(cmd + " --response" )
+    commands_resol.append(cmd)
+
+
+    submitCommandsAsCondorCluster('cjob_plottingresol', commands_resol, stdout=None, stderr=None, log=None,
+                        cpus=1, mem=1024, disk=5120,
+                        home=None,
+                        proxy=None,
+                        cmssw_version="CMSSW_12_4_6",
+                        jobflavour=None)
+
+    submitCommandsAsCondorCluster('cjob_plottingresp', commands_resp, stdout=None, stderr=None, log=None,
+                        cpus=1, mem=1024, disk=5120,
                         home=None,
                         proxy=None,
                         cmssw_version="CMSSW_12_4_6",
