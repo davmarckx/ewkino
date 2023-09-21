@@ -619,27 +619,28 @@ void fillSystematicsHistograms(
 	std::map<std::string,double> varmapParticleLevel = eventFlatteningParticleLevel::initVarMap();
 	// (store variables at particle level)
 
+	// loop over event selections
+	for( std::string event_selection: event_selections ){
+
 	// calculate particle-level event variables
-	// note: event selection at particle level is always the signal region!
         bool passParticleLevel = false;
         if(doSplitParticleLevel){
-            if( eventSelectionsParticleLevel::passES(event, "signalregion_dilepton_inclusive") ){
+            if( eventSelectionsParticleLevel::passES(event, event_selection) ){
                 passParticleLevel = true;
                 varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
             }
         }
 
-	// loop over event selections and selection types
-	for( std::string event_selection: event_selections ){
+        // set  the correct normalization factors for b-tag reweighting
+        if( hasBTagShapeReweighter && !treeReader.isData() ){
+            dynamic_cast<ReweighterBTagShape*>(
+                reweighter.getReweighter("bTag_shape") )->setNormFactors( treeReader.currentSample(),
+                bTagWeightMap[event_selection] );
+        }
+
+	// loop over selection types
 	for( std::string selection_type: selection_types ){
 
-	// set  the correct normalization factors for b-tag reweighting
-	if( hasBTagShapeReweighter && !treeReader.isData() ){
-	    dynamic_cast<ReweighterBTagShape*>(
-		reweighter.getReweighter("bTag_shape") )->setNormFactors( treeReader.currentSample(), 
-		bTagWeightMap[event_selection] );
-	}
-	
 	// modify the process name for some selection types
 	std::string thisProcessName = modProcessName(processName,selection_type);
 
@@ -676,14 +677,12 @@ void fillSystematicsHistograms(
 	if(event.isData() && passnominal 
 	    && (selection_type=="fakerate"
 		|| selection_type=="efakerate" || selection_type=="mfakerate")){
-	    // loop over systematics and variables
-	    for(std::string systematic : systematics){
-		for(HistogramVariable histVar: histVars){
-                    std::string variableName = histVar.name();
-                    std::string variable = histVar.variable();
-		    for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
-			histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight );
-                    } 
+	    for(HistogramVariable histVar: histVars){
+                std::string variableName = histVar.name();
+                std::string variable = histVar.variable();
+		for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
+		    if(stringTools::stringContains(mapelement.first,"nominal")) continue;
+		    histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight );
 		}
 	    }
 	}

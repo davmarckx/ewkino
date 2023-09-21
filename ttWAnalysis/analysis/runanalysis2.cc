@@ -648,16 +648,14 @@ void fillSystematicsHistograms(
         if(event.isData() && passnominal
             && (selection_type=="fakerate"
                 || selection_type=="efakerate" || selection_type=="mfakerate")){
-            // loop over systematics and variables
-            for(std::string systematic : systematics){
-		for(DoubleHistogramVariable histVar: histVars){
-		    std::string variableName = histVar.name();
-		    std::string primaryVariable = histVar.primaryVariable();
-		    std::string secondaryVariable = histVar.secondaryVariable();
-                    for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
-                        fillHistogram( mapelement.second, histVar,
-			    varmap.at(primaryVariable), varmap.at(secondaryVariable), nominalWeight );
-                    }
+	    for(DoubleHistogramVariable histVar: histVars){
+		std::string variableName = histVar.name();
+		std::string primaryVariable = histVar.primaryVariable();
+		std::string secondaryVariable = histVar.secondaryVariable();
+                for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
+                    if(stringTools::stringContains(mapelement.first,"nominal")) continue;
+		    fillHistogram( mapelement.second, histVar,
+			varmap.at(primaryVariable), varmap.at(secondaryVariable), nominalWeight );
                 }
 	    }
 	}

@@ -33,7 +33,7 @@ dtypes = ['sim','data']
 
 selection_types = []
 #selection_types.append('tight')
-selection_types.append('prompt')
+#selection_types.append('prompt')
 #selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
@@ -51,7 +51,7 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # background sample lists
 #samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-#variables = '../variables/variables_main.json' # single variables
+variables = '../variables/variables_main.json' # single variables
 variables = '../variables/variables_main_reduced.json' # single variables (slightly reduced set)
 #variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
@@ -67,7 +67,7 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_20230919_single_bkg'
+outputdir = 'output_20230920_single_bkg'
 
 nevents = 1e6
 runlocal = False
@@ -111,7 +111,7 @@ for year in years:
     if( submit_event_selections_combined and submit_selection_types_combined ):
       # submit jobs combined in event selections and selection types
       # update: split event selections into partitions
-      part_size = 4
+      part_size = 3
       regions_parts = [regions[i:i+part_size] for i in range(0, len(regions), part_size)]
       for regions_part in regions_parts:
         thiscmd = cmd
