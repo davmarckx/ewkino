@@ -10,8 +10,8 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20230704_single'
-  
+topdir = '../analysis/output_20230920_single'
+ 
 #years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 years = ['run2']
 #years = ['2018']
@@ -36,9 +36,12 @@ regions = ({
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-outputdir = 'datacards_20230718_single_persign'
+#rateparams = None
+rateparams = ['WZ', 'ZZ', 'TTZ']
 
-runmode = 'local'
+outputdir = 'datacards_20230922_single_persign'
+
+runmode = 'condor'
 
 # make output directory
 if not os.path.exists(outputdir):
@@ -65,6 +68,7 @@ for year in years:
     cmd += ' --processes all'
     cmd += ' --signals TTW'
     cmd += ' --datatag Data'
+    if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
     cmds.append(cmd)
 
 # run commands

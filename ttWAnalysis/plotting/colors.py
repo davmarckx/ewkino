@@ -76,47 +76,52 @@ def getcolormap_systematics():
     cmap = {}
     # nominal in black
     cmap['nominal'] = ROOT.kBlack
+
     # acceptance uncertainties in shades of red
     cmap['JEC'] = ROOT.kRed
-    cmap['JER'] = ROOT.kRed+3
-    cmap['JER_2016'] = ROOT.kRed+3
-    cmap['JER_2017'] = ROOT.kRed+3
-    cmap['JER_2018'] = ROOT.kRed+3
-    cmap['Uncl'] = ROOT.kRed-9
-    cmap['Uncl_2016'] = ROOT.kRed-9
-    cmap['Uncl_2017'] = ROOT.kRed-9
-    cmap['Uncl_2018'] = ROOT.kRed-9
-    cmap['JECSqSumAll'] = ROOT.kYellow+1
-    cmap['JECSqSumGrouped'] = ROOT.kYellow-7
-    cmap['JECAll'] = ROOT.kGray
-    cmap['JECGrouped'] = ROOT.kGray
+    cmap['JER'] = ROOT.kRed+2
+    cmap['JER_2016'] = ROOT.kRed+2
+    cmap['JER_2017'] = ROOT.kRed+2
+    cmap['JER_2018'] = ROOT.kRed+2
+    cmap['Uncl'] = ROOT.kRed-7
+    cmap['Uncl_2016'] = ROOT.kRed-7
+    cmap['Uncl_2017'] = ROOT.kRed-7
+    cmap['Uncl_2018'] = ROOT.kRed-7
+    cmap['JECSqSumAll'] = ROOT.kRed
+    # (should correspond to JEC)
+    cmap['JECSqSumGrouped'] = ROOT.kRed
+    # (should correspond to JEC)
+    cmap['JECAll'] = ROOT.kRed-10
+    cmap['JECGrouped'] = ROOT.kRed-10
 
-    # lepton uncertainties in shades of blue
+    # muon uncertainties in shades of blue
     cmap['muonID'] = ROOT.kBlue
     cmap['muonIDSyst'] = ROOT.kBlue
     cmap['muonIDStat'] = ROOT.kBlue+2
     cmap['muonIDStat_2016'] = ROOT.kBlue+2
     cmap['muonIDStat_2017'] = ROOT.kBlue+2
     cmap['muonIDStat_2018'] = ROOT.kBlue+2
-    cmap['electronID'] = ROOT.kBlue-9
-    cmap['electronIDSyst'] = ROOT.kBlue-9
-    cmap['electronIDStat'] = ROOT.kBlue-10
-    cmap['electronIDStat_2016'] = ROOT.kBlue-10
-    cmap['electronIDStat_2017'] = ROOT.kBlue-10
-    cmap['electronIDStat_2018'] = ROOT.kBlue-10
-    cmap['electronReco'] = ROOT.kBlue-6
-    cmap['electronScale'] = ROOT.kBlue
-    cmap['electronRes'] = ROOT.kBlue-10
-    cmap['muonReco'] = ROOT.kBlue
+    cmap['muonReco'] = ROOT.kBlue-7
 
-    # other weights in shades of green
-    cmap['pileup'] = ROOT.kGreen-6
-    cmap['bTag_heavy'] = ROOT.kGreen+1
-    cmap['bTag_light'] = ROOT.kGreen+3
-    cmap['prefire'] = ROOT.kGreen+3
-    cmap['trigger'] = ROOT.kGreen+3
+    # electron uncertainties in shades of cyan
+    cmap['electronID'] = ROOT.kCyan
+    cmap['electronIDSyst'] = ROOT.kCyan
+    cmap['electronIDStat'] = ROOT.kCyan+2
+    cmap['electronIDStat_2016'] = ROOT.kCyan+2
+    cmap['electronIDStat_2017'] = ROOT.kCyan+2
+    cmap['electronIDStat_2018'] = ROOT.kCyan+2
+    cmap['electronReco'] = ROOT.kCyan-9
+    cmap['electronScale'] = ROOT.kCyan-5
+    cmap['electronRes'] = ROOT.kCyan-5
 
-    # btag weights also in green
+    # other weights in shades of orange
+    cmap['pileup'] = ROOT.kOrange
+    cmap['bTag_heavy'] = ROOT.kOrange # not used anymore
+    cmap['bTag_light'] = ROOT.kOrange # not used anymore
+    cmap['prefire'] = ROOT.kOrange+9
+    cmap['trigger'] = ROOT.kOrange+7
+
+    # btag weights in green
     cmap['bTag_shape_lf'] = ROOT.kGreen+1
     cmap['bTag_shape_lfstats1'] = ROOT.kGreen+1
     cmap['bTag_shape_lfstats2'] = ROOT.kGreen+1
@@ -129,18 +134,16 @@ def getcolormap_systematics():
     cmap['bTag_shape_hf'] = ROOT.kGreen+3
     cmap['bTag_shape_hfstats1'] = ROOT.kGreen+3
     cmap['bTag_shape_hfstats2'] = ROOT.kGreen+3
-    cmap['bTag_shape_hfstats1_2016'] = ROOT.kGreen+1
-    cmap['bTag_shape_hfstats2_2016'] = ROOT.kGreen+1
-    cmap['bTag_shape_hfstats1_2017'] = ROOT.kGreen+1
-    cmap['bTag_shape_hfstats2_2017'] = ROOT.kGreen+1
-    cmap['bTag_shape_hfstats1_2018'] = ROOT.kGreen+1
-    cmap['bTag_shape_hfstats2_2018'] = ROOT.kGreen+1
+    cmap['bTag_shape_hfstats1_2016'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats2_2016'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats1_2017'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats2_2017'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats1_2018'] = ROOT.kGreen+3
+    cmap['bTag_shape_hfstats2_2018'] = ROOT.kGreen+3
     cmap['bTag_shape_cferr1'] = ROOT.kSpring+6
-    cmap['bTag_shape_cferr2'] = ROOT.kGreen+6
+    cmap['bTag_shape_cferr2'] = ROOT.kSpring+6
 
     # scales in shaded of purple
-    # first three are obsolete and replaced by qcdScalesShapeEnv and qcdScalesNorm
-    # last two are obsolete and replaced by isrShape and isrNorm
     cmap['fScale'] = ROOT.kMagenta
     cmap['fScaleTotal'] = ROOT.kMagenta
     cmap['fScaleShape'] = ROOT.kMagenta-1
@@ -169,15 +172,21 @@ def getcolormap_systematics():
     cmap['qcdScalesNorm'] = ROOT.kViolet-7
 
     # pdf variations in yellow
-    cmap['pdfShapeVar'] = ROOT.kGray
-    cmap['pdfTotalRMS'] = ROOT.kOrange+8
-    cmap['pdfShapeRMS'] = ROOT.kOrange+7
+    cmap['pdfShapeVar'] = ROOT.kOrange-4
+    cmap['pdfTotalRMS'] = ROOT.kOrange-5
+    cmap['pdfShapeRMS'] = ROOT.kOrange-5
+    cmap['pdfTotalEnv'] = ROOT.kYellow-7
+    cmap['pdfShapeEnv'] = ROOT.kYellow-7
     cmap['pdfNorm'] = ROOT.kOrange-2
 
-    # underlyiing event and color reconnection in blue
+    # underlying event and color reconnection in blue
     cmap['CR_QCD'] = ROOT.kCyan+1
     cmap['CR_GluonMove'] = ROOT.kCyan+3
     cmap['UE'] = ROOT.kAzure+7
+
+    # ad hoc added uncertainties in brown
+    cmap['njets'] = ROOT.kRed+3
+    cmap['nbjets'] = ROOT.kRed-1
 
     return cmap
 

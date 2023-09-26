@@ -72,8 +72,7 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
   # remove specific nJets uncertainty except for chargeflips
   # (also remove for chargeflips since it was not yet correctly initialized)
-  for p in processes:
-    for y in allyears: rmspecific[p].append('njetscf{}'.format(y))
+  rmforall.append('njetscf*')
 
   # remove individual qcd and pdf variations
   # (if not done so before)
@@ -81,8 +80,8 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   rmforall.append('pdfShapeVar*')
 
   # remove overlap between JEC sources
-  #rmforall.append('JEC')
-  rmforall.append('JECGrouped*')
+  rmforall.append('JEC')
+  #rmforall.append('JECGrouped*')
   rmforall.append('JECGrouped_Total*')
 
   # remove grouped JEC sources for nonprompt
@@ -110,7 +109,7 @@ def remove_systematics_default( processinfo, year=None ):
 
   # define processes for which normalization systematics should be removed
   # (because they will get dedicated normalization uncertainties later on)
-  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','TTH','Multiboson']
+  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','TTH','TTX','TX','Multiboson']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
   if 'NonpromptE' in processinfo.plist: pnonorm.append('NonpromptE')
   if 'NonpromptMu' in processinfo.plist: pnonorm.append('NonpromptMu')
@@ -191,6 +190,8 @@ def add_systematics_default( processinfo, year=None ):
     'ZG': 1.3, # synced with Oviedo (?)
     'TTG': 1.3, # synced with Oviedo (?)
     'TTH': 1.1, # synced with Oviedo (?)
+    'TTX': 1.5, # for future iterations
+    'TX': 1.5, # for future iterations
     'Multiboson': 1.5 # synced with Oviedo (?)
   })
   if 'Nonprompt' in processinfo.plist:

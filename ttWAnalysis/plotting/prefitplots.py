@@ -273,8 +273,6 @@ if __name__=="__main__":
 
     # get the uncertainty histogram
     mcsysthist = PC.get_systematics_rss()
-    print(mcsysthist.GetBinContent(1))
-    print(mcsysthist.GetBinError(1))
 
     # get data histogram
     datahistname = '{}_{}_{}_nominal'.format(args.datatag,args.region,variablename)

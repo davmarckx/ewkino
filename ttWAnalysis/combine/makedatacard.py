@@ -129,6 +129,8 @@ if __name__=="__main__":
                           +' use "all" to use all processes in the input file.')
   parser.add_argument('--signals', default=None,
                       help='Comma-separated list of process tags to consider as signal.')
+  parser.add_argument('--rateparams', default=None,
+                      help='Comma-separated list of process tags to consider as free floating.')
   parser.add_argument('--renamesignals', default=None,
                       help='Comma-separated list (same length and order as --signals)'
                           +'with new names for signals in data card.')
@@ -163,6 +165,10 @@ if __name__=="__main__":
   # parse the string with signal tags
   signals = []
   if args.signals is not None: signals = args.signals.split(',')
+
+  # parse the string with rate parameter tags
+  rateparams = []
+  if args.rateparams is not None: rateparams = args.rateparams.split(',')
 
   # parse the string with rename signal tags
   renamesignals = []
@@ -200,7 +206,7 @@ if __name__=="__main__":
                  args.inputfile, args.variable, 
                  dummydata=args.dummydata,
                  shapesyslist=shapesyslist, lnnsyslist=normsyslist,
-                 rateparamlist=[], ratio=[],
+                 rateparamlist=rateparams, ratio=[],
                  automcstats=10,
                  writeobs=False,
                  autof=False )

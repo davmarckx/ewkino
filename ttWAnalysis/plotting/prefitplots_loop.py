@@ -33,7 +33,7 @@ npmodes = ['npfromdatasplit']
 #npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
-unblind = False
+unblind = True
 
 dummysystematics = False
 
@@ -41,10 +41,11 @@ rawsystematics = False
 
 dolog = True
 
-variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_main_reduced.json' # single variables, slightly reduced set
 #variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
-#variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
 colormap = 'ttw'
 
@@ -55,8 +56,8 @@ datatag = 'Data'
 excludetags = ""
 
 #signals = None
-signals = ['TTW'] # for single variables
-#signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
+#signals = ['TTW'] # for single variables
+signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
 
 # split variables can either be a list or a json file
 splitvariables = [''] # no splitting

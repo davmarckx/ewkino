@@ -13,9 +13,10 @@ if __name__=='__main__':
 
   commands = []
   for datacarddir in datacarddirs:
+    dirtag = datacarddir.split('_')[-1]
     for obstag in ['exp','obs']:
       # make plot of combined datacards
-      outtxtfile = os.path.join(datacarddir,'summary_{}.txt'.format(obstag))
+      outtxtfile = os.path.join(datacarddir,'summary_{}_{}.txt'.format(dirtag,obstag))
       outpngfile = outtxtfile.replace('.txt','.png')
       cmd1 = 'python inclusive_readoutput.py'
       cmd1 += ' --datacarddir ' + datacarddir
@@ -29,7 +30,7 @@ if __name__=='__main__':
       commands.append(cmd1)
       commands.append(cmd2)
       # make plot of elementary datacards (for testing and debugging)
-      outtxtfile = os.path.join(datacarddir,'summary_{}_elementary.txt'.format(obstag))
+      outtxtfile = os.path.join(datacarddir,'summary_{}_{}_elementary.txt'.format(dirtag,obstag))
       outpngfile = outtxtfile.replace('.txt','.png')
       cmd1 = 'python inclusive_readoutput.py'
       cmd1 += ' --datacarddir ' + datacarddir

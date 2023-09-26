@@ -18,6 +18,8 @@ sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../combine/'))
 from uncertaintytools import remove_systematics_default
+sys.path.append(os.path.abspath('../plotting'))
+from infodicts import get_region_dict
 from systplotter import plotsystematics
 
 def get_jec_rms_list( hislist ):
@@ -114,8 +116,10 @@ if __name__=="__main__":
   # parse include and exclude tags
   includetags = []
   if args.includetags is not None: includetags = args.includetags.split(',')
+  if includetags==['none']: includetags = []
   excludetags = []
   if args.excludetags is not None: excludetags = args.excludetags.split(',')
+  if excludetags==['none']: excludetags = []
 
   # parse tags
   extratags = []
@@ -259,6 +263,7 @@ if __name__=="__main__":
 
     # make extra infos to display on plot
     extrainfos = []
+    # processes
     pinfohead = 'Processes:'
     if doallprocesses:
       pinfohead += ' all'
@@ -267,6 +272,13 @@ if __name__=="__main__":
       pinfostr = ','.join([str(p) for p in processes])
       extrainfos.append(pinfohead)
       extrainfos.append(pinfostr)
+    # year
+    yeartag = args.year.replace('run2', 'Run 2')
+    extrainfos.append(yeartag)
+    # region
+    regiontag = get_region_dict().get(args.region, args.region)
+    extrainfos.append(regiontag)
+    # others
     for tag in extratags: extrainfos.append(tag)
 
     # set plot properties
