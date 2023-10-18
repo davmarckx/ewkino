@@ -15,6 +15,7 @@ def getcolormap( style='default' ):
   if(style=='default'): return getcolormap_default()
   if(style=='tttt'): return getcolormap_tttt()
   if(style=='systematics'): return getcolormap_systematics()
+  if(style=='systematics_grouped'): return getcolormap_systematics_grouped()
   if(style=='ttw'): return getcolormap_ttw()
   if(style=='oviedo'): return getcolormap_oviedo()
   else: print('WARNING in getcolormap: style not recognized, returning None')
@@ -121,6 +122,14 @@ def getcolormap_systematics():
     cmap['prefire'] = ROOT.kOrange+9
     cmap['trigger'] = ROOT.kOrange+7
 
+    # fakerate uncertainties in shades of cyan and purple
+    cmap['efakeratenorm'] = ROOT.kCyan
+    cmap['efakeratept'] = ROOT.kCyan+2
+    cmap['efakerateeta'] = ROOT.kCyan+4
+    cmap['mfakeratenorm'] = ROOT.kViolet
+    cmap['mfakeratept'] = ROOT.kViolet+1
+    cmap['mfakerateeta'] = ROOT.kViolet-1
+
     # btag weights in green
     cmap['bTag_shape_lf'] = ROOT.kGreen+1
     cmap['bTag_shape_lfstats1'] = ROOT.kGreen+1
@@ -188,6 +197,22 @@ def getcolormap_systematics():
     cmap['njets'] = ROOT.kRed+3
     cmap['nbjets'] = ROOT.kRed-1
 
+    return cmap
+
+def getcolormap_systematics_grouped():
+    ### systematics but grouped per category
+    cmap = {}
+    cmap['nominal'] = ROOT.kBlack
+    cmap['jetmet'] = ROOT.kRed
+    cmap['muon'] = ROOT.kBlue
+    cmap['electron'] = ROOT.kCyan
+    cmap['pileup'] = ROOT.kOrange
+    cmap['prefire'] = ROOT.kOrange+9
+    cmap['trigger'] = ROOT.kOrange+7
+    cmap['b-tagging'] = ROOT.kGreen+1
+    cmap['scales'] = ROOT.kMagenta
+    cmap['parton shower'] = ROOT.kViolet
+    cmap['pdf'] = ROOT.kOrange-4
     return cmap
 
 def getcolormap_ttw():
