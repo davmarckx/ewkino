@@ -13,7 +13,7 @@ if __name__=='__main__':
 
   commands = []
   for datacarddir in datacarddirs:
-    dirtag = datacarddir.split('_')[-1]
+    dirtag = datacarddir.split('_')[-1].strip('/')
     for obstag in ['exp','obs']:
       # make plot of combined datacards
       outtxtfile = os.path.join(datacarddir,'summary_{}_{}.txt'.format(dirtag,obstag))
@@ -45,4 +45,5 @@ if __name__=='__main__':
       commands.append(cmd2)
 
   for cmd in commands:
+    print(cmd)
     os.system(cmd)

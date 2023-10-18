@@ -80,8 +80,8 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   rmforall.append('pdfShapeVar*')
 
   # remove overlap between JEC sources
-  rmforall.append('JEC')
-  #rmforall.append('JECGrouped*')
+  #rmforall.append('JEC')
+  rmforall.append('JECGrouped*')
   rmforall.append('JECGrouped_Total*')
 
   # remove grouped JEC sources for nonprompt
@@ -109,7 +109,9 @@ def remove_systematics_default( processinfo, year=None ):
 
   # define processes for which normalization systematics should be removed
   # (because they will get dedicated normalization uncertainties later on)
-  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','TTH','TTX','TX','Multiboson']
+  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','Multiboson']
+  pnonorm += ['TTH']
+  pnonorm += ['TX', 'TTX']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
   if 'NonpromptE' in processinfo.plist: pnonorm.append('NonpromptE')
   if 'NonpromptMu' in processinfo.plist: pnonorm.append('NonpromptMu')
@@ -184,15 +186,15 @@ def add_systematics_default( processinfo, year=None ):
 
   # add individual norm uncertainties
   norms = ({
-    #'WZ': 1.1, now freely floating, rate parameter
-    #'ZZ': 1.1, now freely floating, rate parameter
-    #'TTZ': 1.15, now freely floating, rate parameter
+    #'WZ': 1.1, # now freely floating, rate parameter
+    #'ZZ': 1.1, # now freely floating, rate parameter
+    #'TTZ': 1.15, # now freely floating, rate parameter
     'ZG': 1.3, # synced with Oviedo (?)
     'TTG': 1.3, # synced with Oviedo (?)
     'TTH': 1.1, # synced with Oviedo (?)
+    'Multiboson': 1.5, # synced with Oviedo (?)
     'TTX': 1.5, # for future iterations
     'TX': 1.5, # for future iterations
-    'Multiboson': 1.5 # synced with Oviedo (?)
   })
   if 'Nonprompt' in processinfo.plist:
     norms['Nonprompt'] = 1.3
@@ -239,3 +241,14 @@ def add_systematics_dummy( processinfo ):
     processinfo.addnormsys( source, impacts )
     normsyslist.append(source)
   return normsyslist
+
+def get_systematics_to_smooth( shapesyslist ):
+  tags = []
+  tags.append('JEC') # smooth JEC variations
+  res = []
+  for systematic in shapesyslist:
+    keep = False
+    for tag in tags:
+      if tag in systematic: keep = True
+    if keep: res.append(systematic)
+  return res
