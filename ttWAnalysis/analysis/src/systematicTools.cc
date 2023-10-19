@@ -37,6 +37,12 @@ std::string systematicTools::systematicType( const std::string systematic ){
 	    // (old method, replaced by bTag_shape)
             or systematic=="bTag_light" 
 	    // (old method, replaced by bTag_shape)
+	    or systematic=="efakeratenorm"
+            or systematic=="efakeratept"
+            or systematic=="efakerateeta"
+            or systematic=="mfakeratenorm"
+            or systematic=="mfakeratept"
+            or systematic=="mfakerateeta"
     ) return std::string("weight");
     // b-tag shape uncertainty
     if(systematic=="bTag_shape") return std::string("bTag_shape");

@@ -12,6 +12,7 @@
 #include "../interface/ConcreteSelection.h"
 #include "../interface/ReweighterPileup.h"
 #include "../interface/ReweighterTrigger.h"
+#include "../interface/ReweighterFakeRate.h"
 #include "../interface/ConcreteReweighterBTag.h"
 #include "../interface/ReweighterPrefire.h"
 
@@ -336,11 +337,11 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     std::vector<std::string> variations = {"jes","hf","lf","hfstats1","hfstats2",
                                         "lfstats1","lfstats2","cferr1","cferr2" };
     // step 3: make the reweighter
-    std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
+    /*std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
     	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
     //reweighterBTagShape->initialize(samples, 0);
     // (above line is commented out -> do not initialize, do it manually in calling)
-    combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );
+    combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );*/
 
     // make pileup reweighter
     std::string pileupWeightPath = stringTools::formatDirectoryName( weightDirectory )
@@ -370,9 +371,30 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     combinedReweighter.addReweighter( "nbjets", std::make_shared< ReweighterNJets >( nBJetUncMap, true ) );
 
     // and another additional nJets reweighter specifically for charge flips
-    std::map<unsigned int, double> nJetCFUncMap;
+    // does not work yet since not applied in data
+    /*std::map<unsigned int, double> nJetCFUncMap;
     nJetCFUncMap[5] = 0.5;
-    combinedReweighter.addReweighter( "njetscf", std::make_shared< ReweighterNJets >( nJetCFUncMap, false ) );
+    combinedReweighter.addReweighter( "njetscf", std::make_shared< ReweighterNJets >( nJetCFUncMap, false ) );*/
+
+    // experimental: fake rate systematic variations (to be applied also in data)
+    // define paths to fake rate map files
+    std::string efile = stringTools::formatDirectoryName( weightDirectory );
+    efile += "weightFilesUL/fakeRates/fakeRateMap_data_electron_"+year+"_mT.root";
+    std::string mfile = stringTools::formatDirectoryName( weightDirectory );
+    mfile += "weightFilesUL/fakeRates/fakeRateMap_data_muon_"+year+"_mT.root";
+    // make the reweighters
+    combinedReweighter.addReweighter( "efakeratenorm", std::make_shared<ReweighterFakeRate>(
+	efile, mfile, "electron", year, "norm") );
+    combinedReweighter.addReweighter( "efakeratept", std::make_shared<ReweighterFakeRate>(
+        efile, mfile, "electron", year, "pt") );
+    combinedReweighter.addReweighter( "efakerateeta", std::make_shared<ReweighterFakeRate>(
+        efile, mfile, "electron", year, "eta") );
+    combinedReweighter.addReweighter( "mfakeratenorm", std::make_shared<ReweighterFakeRate>(
+	efile, mfile, "muon", year, "norm") );
+    combinedReweighter.addReweighter( "mfakeratept", std::make_shared<ReweighterFakeRate>(
+        efile, mfile, "muon", year, "pt") );
+    combinedReweighter.addReweighter( "mfakerateeta", std::make_shared<ReweighterFakeRate>(
+        efile, mfile, "muon", year, "eta") );
 
     return combinedReweighter;
 }

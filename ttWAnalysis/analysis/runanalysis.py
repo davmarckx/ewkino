@@ -61,7 +61,13 @@ systematics = ([
   # extra uncertainties for high jet multiplicities
   "njets",
   "nbjets",
-  "njetscf"
+  # shape uncertainties on fake rate
+  "efakeratenorm",
+  "efakeratept",
+  "efakerateeta",
+  "mfakeratenorm",
+  "mfakeratept",
+  "mfakerateeta"
 ])
 # systematics = []
 
