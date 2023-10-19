@@ -363,7 +363,11 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     // make additional nJets / nBJets reweighters
     // (no nominal reweighting, only used to add uncertainties)
     std::map<unsigned int, double> nJetUncMap;
+    nJetUncMap[1] = 0.1;
+    nJetUncMap[2] = 0.2;
     nJetUncMap[3] = 0.3;
+    nJetUncMap[4] = 0.4;
+    nJetUncMap[5] = 0.5;
     combinedReweighter.addReweighter( "njets", std::make_shared< ReweighterNJets >( nJetUncMap, false ) );
     std::map<unsigned int, double> nBJetUncMap;
     nBJetUncMap[0] = 0.1;
