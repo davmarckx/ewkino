@@ -35,8 +35,9 @@ Float_t _lT = 0;
 Float_t _MT = 0;
 Float_t _pTjj_max = 0;
 Float_t _dRlb_min = 99.;
-Float_t _dRl1l2 =99.;
-Float_t _dRl1jet =99.;
+Float_t _dRl1l2 = 99.;
+Float_t _dRl1jet = 99.;
+Float_t _dRl1bjet = 99.;
 Float_t _dPhill_max = 0;
 Float_t _HT = 0;
 Float_t _nJets = 0;
@@ -49,7 +50,6 @@ Float_t _M3l = 0;
 Float_t _abs_eta_max = 0;
 Float_t _MET_pt = 0;
 Float_t _MET_phi = 0;
-
 // BDT output score
 Float_t _eventBDT = 0.;
 // other variables
@@ -58,6 +58,7 @@ Float_t _nElectrons = 0;
 Float_t _leptonMVATOP_min = 1.;
 Float_t _leptonMVAttH_min = 1.;
 Float_t _yield = 0.5; // fixed value
+Float_t _leptonPtSum = 0.;
 Float_t _leptonPtLeading = 0.;
 Float_t _leptonPtSubLeading = 0.;
 Float_t _leptonPtTrailing = 0.;
@@ -137,7 +138,8 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _pTjj_max = varmap["_pTjj_max"];
     _dRlb_min = varmap["_dRlb_min"];
     _dRl1l2 = varmap["_dRl1l2"];
-    _dRl1jet = varmap["_dRl1jet"];    
+    _dRl1jet = varmap["_dRl1jet"];
+    _dRl1bjet = varmap["_dRl1bjet"];
     _dPhill_max = varmap["_dPhill_max"];
     _HT = varmap["_HT"];
     _nJets = varmap["_nJets"];
@@ -160,6 +162,7 @@ void eventFlattening::setVariables(std::map<std::string,double> varmap){
     _yield = varmap["_yield"];
     _leptonChargeLeading = varmap["_leptonChargeLeading"];
     _leptonChargeSubLeading = varmap["_leptonChargeSubLeading"];
+    _leptonPtSum = varmap["_leptonPtSum"];
     _leptonPtLeading = varmap["_leptonPtLeading"];
     _leptonPtSubLeading = varmap["_leptonPtSubLeading"];
     _leptonPtTrailing = varmap["_leptonPtTrailing"];
@@ -258,7 +261,8 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	{"_deepCSV_max",0},{"_deepCSV_leading",0},{"_deepCSV_subLeading",0},
         {"_deepFlavor_max",0},{"_deepFlavor_leading",0},{"_deepFlavor_subLeading",0},
         {"_lT",0},
-	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},{"_dRl1jet",99.},
+	{"_MT",0},{"_pTjj_max",0},{"_dRlb_min",99.},{"_dRl1l2",99.},
+        {"_dRl1jet",99.},{"_dRl1bjet",99.},
 	{"_dPhill_max",0},{"_HT",0},{"_nJets",0},
 	{"_nBJets",0},{"_nLooseBJets",0},{"nTightBJets",0},
         {"_dRlWrecoil",0},{"_dRlWbtagged",0},
@@ -272,7 +276,7 @@ std::map< std::string, double > eventFlattening::initVarMap(){
 	
 	{"_yield",0.5},
 
-        {"_leptonChargeLeading",0}, {"_leptonChargeSubLeading",0},	
+        {"_leptonChargeLeading",0}, {"_leptonChargeSubLeading",0}, {"_leptonPtSum",0.},
 	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
 	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
         {"_leptonAbsEtaLeading",0.}, {"_leptonAbsEtaSubLeading",0.}, {"_leptonAbsEtaTrailing",0.},
@@ -335,6 +339,7 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_dRlb_min", &_dRlb_min, "_dRlb_min/F");
     outputTree->Branch("_dRl1l2", &_dRl1l2, "_dRl1l2/F");
     outputTree->Branch("_dRl1jet", &_dRl1jet, "_dRl1jet/F");
+    outputTree->Branch("_dRl1bjet", &_dRl1bjet, "_dRl1bjet/F");
     outputTree->Branch("_dPhill_max", &_dPhill_max, "_dPhill_max/F");
     outputTree->Branch("_HT", &_HT, "_HT/F");
     outputTree->Branch("_nJets", &_nJets, "_nJets/F");
@@ -359,6 +364,7 @@ void eventFlattening::initOutputTree(TTree* outputTree){
     outputTree->Branch("_yield", &_yield, "_yield/F");
     outputTree->Branch("_leptonChargeLeading", &_leptonChargeLeading, "_leptonChargeLeading/F");
     outputTree->Branch("_leptonChargeSubLeading", &_leptonChargeSubLeading, "_leptonChargeSubLeading/F");
+    outputTree->Branch("_leptonPtSum", &_leptonPtSum, "_leptonPtSum/F");
     outputTree->Branch("_leptonPtLeading", &_leptonPtLeading, "_leptonPtLeading/F");
     outputTree->Branch("_leptonPtSubLeading", &_leptonPtSubLeading, "_leptonPtSubLeading/F");
     outputTree->Branch("_leptonPtTrailing", &_leptonPtTrailing, "_leptonPtTrailing/F");
@@ -504,11 +510,15 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
         varmap["_l1dxy"] = lepcollection[0].dxy();
         varmap["_l1dz"] = lepcollection[0].dz();
         varmap["_l1sip3d"] = lepcollection[0].sip3d();
-
         for(JetCollection::const_iterator jIt = jetcollection.cbegin();
             jIt != jetcollection.cend(); jIt++){
             Jet& jet = **jIt;
             if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
+        }
+	for(JetCollection::const_iterator jIt = loosebjetcollection.cbegin();
+            jIt != loosebjetcollection.cend(); jIt++){
+            Jet& jet = **jIt;
+            if(deltaR(lepcollection[0],jet)<varmap["_dRl1bjet"]) varmap["_dRl1bjet"] = deltaR(lepcollection[0],jet);
         }
     }
     if(lepcollection.numberOfLightLeptons()>=2){
@@ -571,6 +581,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     }
     // other more or less precomputed event variables
     varmap["_lT"] = lepcollection.scalarPtSum() + met.pt();
+    varmap["_leptonPtSum"] = lepcollection.scalarPtSum();
     varmap["_HT"] = jetcollection.scalarPtSum();
     varmap["_nJets"] = jetcollection.size();
     varmap["_nBJets"] = bjetcollection.size();

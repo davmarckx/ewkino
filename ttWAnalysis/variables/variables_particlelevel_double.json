@@ -566,5 +566,97 @@
     "unit": "GeV",
     "bins": [0.0, 200.0, 400.0, 600.0, 1000.0]
   }
+},
+{ "name": "_eventBDTdeltaEtaLeadingLeptonPair",
+  "primary":
+  {
+    "name": "_eventBDT",
+    "variable": "_eventBDT",
+    "nbins": "5",
+    "xlow": "0.0",
+    "xhigh": "1.0",
+    "axtitle": "BDT output score",
+    "bins": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "secondary":
+  {
+    "name": "_deltaEtaLeadingLeptonPair",
+    "variable": "_deltaEtaLeadingLeptonPair",
+    "nbins": "4",
+    "xlow": "0.0",
+    "xhigh": "3.0",
+    "axtitle": "#Delta #eta (l_{1} , l_{2})",
+    "shorttitle": "#Delta #eta (l_{1} , l_{2})",
+    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+  }
+},
+{ "name": "_eventBDTdRl1bjet",
+  "primary":
+  {
+    "name": "_eventBDT",
+    "variable": "_eventBDT",
+    "nbins": "5",
+    "xlow": "0.0",
+    "xhigh": "1.0",
+    "axtitle": "BDT output score",
+    "bins": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "secondary":
+  {
+    "name": "_dRl1bjet",
+    "variable": "_dRl1bjet",
+    "nbins": "4",
+    "xlow": "0.0",
+    "xhigh": "3.0",
+    "axtitle": "#Delta R (l_{1} , b-jet)",
+    "shorttitle": "#Delta R (l_{1} , b-jet)",
+    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+  }
+},
+{ "name": "_eventBDTM3l",
+  "primary":
+  {
+    "name": "_eventBDT",
+    "variable": "_eventBDT",
+    "nbins": "5",
+    "xlow": "0.0",
+    "xhigh": "1.0",
+    "axtitle": "BDT output score",
+    "bins": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "secondary":
+  {
+    "name": "_M3l",
+    "variable": "_M3l",
+    "nbins": "4",
+    "xlow": "0.0",
+    "xhigh": "400.0",
+    "axtitle": "m(leptons)",
+    "shorttitle": "m(leptons)",
+    "bins": [0.0, 100.0, 200.0, 300.0, 400.0]
+  }
+},
+{ "name": "_eventBDTleptonPtSum",
+  "primary":
+  {
+    "name": "_eventBDT",
+    "variable": "_eventBDT",
+    "nbins": "5",
+    "xlow": "0.0",
+    "xhigh": "1.0",
+    "axtitle": "BDT output score",
+    "bins": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0]
+  },
+  "secondary":
+  {
+    "name": "_leptonPtSum",
+    "variable": "_leptonPtSum",
+    "nbins": "4",
+    "xlow": "0.0",
+    "xhigh": "400.0",
+    "axtitle": "#Sum lepton p_{T}",
+    "shorttitle": "#Sum lepton p_{T}",
+    "bins": [0.0, 100.0, 200.0, 300.0, 400.0]
+  }
 }
 ]
