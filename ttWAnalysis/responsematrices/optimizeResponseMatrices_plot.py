@@ -35,6 +35,19 @@ if __name__=='__main__':
 	histnames.append(histname)
 	info[histname] = thisinfo
 
+    # summary printouts
+    for histname in histnames:
+        thisinfo = info[histname]
+        infostr = histname + ':\n'
+        fbinstr = '[' + ', '.join('{:.2f}'.format(el) for el in thisinfo['finalbins']) + ']'
+        infostr += '  bins: {} -> {}'.format(
+          thisinfo['initialbins'], fbinstr)
+        #infostr += '\n  metric: {} -> {}'.format(
+        #  thisinfo['initial']['metric'], thisinfo['final']['metric'])
+        print(infostr)
+
+    sys.exit()
+
     # initialize the figure
     (fig,axs) = plt.subplots(nrows=1, ncols=3, sharey=True)
 
