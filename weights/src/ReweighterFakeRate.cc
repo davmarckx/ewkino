@@ -144,6 +144,8 @@ ReweighterFakeRate::ReweighterFakeRate(
 double ReweighterFakeRate::weight( const Event& event ) const{
     // retrieve weight for an event
     // return 1 since this reweighter is only for relative variations wrt nominal
+    // dummy condition on event to avoid compilation warnings
+    if( event.isData() ) return 1;
     return 1;
 }
 

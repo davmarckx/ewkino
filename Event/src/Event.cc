@@ -9,7 +9,7 @@
 Event::Event( const TreeReader& treeReader, 
 		const bool readIndividualTriggers , const bool readIndividualMetFilters,
 		const bool readAllJECVariations, const bool readGroupedJECVariations,
-                const bool readParticleLevel ) :
+                const bool readParticleLevel, const bool readEFTCoefficients ) :
     // make collections of physics objects
     _leptonCollectionPtr( new LeptonCollection( treeReader ) ),
     _jetCollectionPtr( new JetCollection( treeReader,
@@ -24,6 +24,8 @@ Event::Event( const TreeReader& treeReader,
     _eventTagsPtr( new EventTags( treeReader ) ),
     _generatorInfoPtr( treeReader.isMC() ? new GeneratorInfo( treeReader ) : nullptr ),
     _susyMassInfoPtr( treeReader.isSusy() ? new SusyMassInfo( treeReader ) : nullptr ),
+    _eftInfoPtr( (readEFTCoefficients && treeReader.containsEFTCoefficients()) ?
+                 new EFTInfo( treeReader ) : nullptr ),
     // make collections of particle level physics objects
     _leptonParticleLevelCollectionPtr( (readParticleLevel && treeReader.containsParticleLevel()) ?
                                     new LeptonParticleLevelCollection( treeReader ) :
@@ -56,6 +58,9 @@ Event::~Event(){
     if( hasSusyMassInfo() ){
         delete _susyMassInfoPtr;
     }
+    if( hasEFTInfo() ){
+	delete _eftInfoPtr;
+    }
     if( hasParticleLevel() ){
 	delete _leptonParticleLevelCollectionPtr;
 	delete _jetParticleLevelCollectionPtr;
@@ -73,6 +78,7 @@ Event::Event( const Event& rhs ) :
     _eventTagsPtr( new EventTags( *rhs._eventTagsPtr ) ),
     _generatorInfoPtr( rhs.hasGeneratorInfo() ? new GeneratorInfo( *rhs._generatorInfoPtr ) : nullptr ),
     _susyMassInfoPtr( rhs.hasSusyMassInfo() ? new SusyMassInfo( *rhs._susyMassInfoPtr ) : nullptr ),
+    _eftInfoPtr( rhs.hasEFTInfo() ? new EFTInfo( *rhs._eftInfoPtr ) : nullptr ),
     _leptonParticleLevelCollectionPtr( rhs.hasParticleLevel() ?
         new LeptonParticleLevelCollection( *rhs._leptonParticleLevelCollectionPtr ) : nullptr ),
     _jetParticleLevelCollectionPtr( rhs.hasParticleLevel() ?
@@ -95,6 +101,7 @@ Event::Event( Event&& rhs ) noexcept :
     _eventTagsPtr( rhs._eventTagsPtr ),
     _generatorInfoPtr( rhs._generatorInfoPtr ),
     _susyMassInfoPtr( rhs._susyMassInfoPtr ),
+    _eftInfoPtr( rhs._eftInfoPtr ),
     _leptonParticleLevelCollectionPtr( rhs._leptonParticleLevelCollectionPtr ),
     _jetParticleLevelCollectionPtr( rhs._jetParticleLevelCollectionPtr ),
     _metParticleLevelPtr( rhs._metParticleLevelPtr ),
@@ -111,6 +118,7 @@ Event::Event( Event&& rhs ) noexcept :
     rhs._eventTagsPtr = nullptr;
     rhs._generatorInfoPtr = nullptr;
     rhs._susyMassInfoPtr = nullptr;
+    rhs._eftInfoPtr = nullptr;
     rhs._leptonParticleLevelCollectionPtr = nullptr;
     rhs._jetParticleLevelCollectionPtr = nullptr;
     rhs._metParticleLevelPtr = nullptr;
@@ -132,6 +140,9 @@ Event& Event::operator=( const Event& rhs ){
         if( hasSusyMassInfo() ){
             delete _susyMassInfoPtr;
         }
+	if( hasEFTInfo() ){
+	    delete _eftInfoPtr;
+	}
 	if( hasParticleLevel() ){
 	    delete _leptonParticleLevelCollectionPtr;
 	    delete _jetParticleLevelCollectionPtr;
@@ -146,6 +157,7 @@ Event& Event::operator=( const Event& rhs ){
         _eventTagsPtr = new EventTags( *rhs._eventTagsPtr );
         _generatorInfoPtr = rhs.hasGeneratorInfo() ? new GeneratorInfo( *rhs._generatorInfoPtr ) : nullptr;
         _susyMassInfoPtr = rhs.hasSusyMassInfo() ? new SusyMassInfo( *rhs._susyMassInfoPtr ) : nullptr;
+	_eftInfoPtr = rhs.hasEFTInfo() ? new EFTInfo( *rhs._eftInfoPtr ) : nullptr;
 	_leptonParticleLevelCollectionPtr = rhs.hasParticleLevel() ? 
 	    new LeptonParticleLevelCollection( *rhs._leptonParticleLevelCollectionPtr ) : nullptr;
 	_jetParticleLevelCollectionPtr = rhs.hasParticleLevel() ?
@@ -175,6 +187,9 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         if( hasSusyMassInfo() ){
             delete _susyMassInfoPtr;
         }
+	if( hasEFTInfo() ){
+	    delete _eftInfoPtr;
+	}
 	if( hasParticleLevel() ){
             delete _leptonParticleLevelCollectionPtr;
             delete _jetParticleLevelCollectionPtr;
@@ -197,6 +212,8 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         rhs._generatorInfoPtr = nullptr;
         _susyMassInfoPtr = rhs._susyMassInfoPtr;
         rhs._susyMassInfoPtr = nullptr;
+	_eftInfoPtr = rhs._eftInfoPtr;
+	rhs._eftInfoPtr = nullptr;
 	_leptonParticleLevelCollectionPtr = rhs._leptonParticleLevelCollectionPtr;
 	rhs._leptonParticleLevelCollectionPtr = nullptr;
 	_jetParticleLevelCollectionPtr = rhs._jetParticleLevelCollectionPtr;
@@ -236,6 +253,20 @@ SusyMassInfo& Event::susyMassInfo() const{
     checkSusyMassInfo();
     return *_susyMassInfoPtr;
 }
+
+
+void Event::checkEFTInfo() const{
+    if( !hasEFTInfo() ){
+        throw std::domain_error( "Trying to access EFT info which is not there." );
+    }
+}
+
+
+EFTInfo& Event::eftInfo() const{
+    checkEFTInfo();
+    return *_eftInfoPtr;
+}
+
 
 void Event::checkParticleLevel() const{
     if( !hasParticleLevel() ){

@@ -13,23 +13,23 @@ exe = 'runanalysis'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
-for r in ['cfjetscontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2016PreVFP']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2018']
 
-dtypes = ['sim','data']
+#dtypes = ['sim','data']
 #dtypes = ['sim']
-#dtypes = ['data']
+dtypes = ['data']
 
 selection_types = []
 #selection_types.append('tight')
@@ -37,9 +37,9 @@ selection_types = []
 #selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
-selection_types.append('chargeflips')
+#selection_types.append('chargeflips')
 #selection_types.append('chargegood')
-selection_types.append('irreducible')
+#selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
@@ -51,7 +51,7 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # background sample lists
 #samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
 #samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
-variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_main.json' # single variables
 variables = '../variables/variables_main_reduced.json' # single variables (slightly reduced set)
 #variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
@@ -67,7 +67,7 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_20230920_single_bkg'
+outputdir = 'output_20231019_test'
 
 nevents = 1e6
 runlocal = False

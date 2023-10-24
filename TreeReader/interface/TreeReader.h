@@ -35,7 +35,8 @@ class TreeReader {
 	// note: it should be checked that the values match the ones in the ntuples!
 	//       if not, segmentation errors (or nonsensical values?) could arise.
 	//       check the relevant part of the ntuplizer and its history,
-	//       e.g. for leptons: https://github.com/GhentAnalysis/heavyNeutrino/blob/75854fc4b91855821b019fcae63a258c382384be/multilep/interface/LeptonAnalyzer.h#L45
+	//       e.g. for leptons: https://github.com/GhentAnalysis/heavyNeutrino/blob/
+	//       75854fc4b91855821b019fcae63a258c382384be/multilep/interface/LeptonAnalyzer.h#L45
         static const unsigned nL_max = 20;
         static const unsigned nJets_max = 100;
         static const unsigned gen_nL_max = 20;
@@ -43,6 +44,7 @@ class TreeReader {
 	static const unsigned pl_nJet_max = 10;
 	static const unsigned nLheWeights_max = 148;
 	static const unsigned nPsWeights_max = 46;
+	static const unsigned nEFTCoefficients_max = 276; // private analyzer, not on github
 	// global event variables and weights
         ULong_t         _runNb;
         ULong_t         _lumiBlock;
@@ -279,6 +281,9 @@ class TreeReader {
 	// analysis specific variables: ewkino
         Double_t        _mChi1;
         Double_t        _mChi2;
+	// eft coefficients
+	UInt_t          _nEFTCoefficients;
+        Double_t        _EFTCoefficients[nEFTCoefficients_max];
 
 	// maps for passing triggers and metfilters
         std::map< std::string, bool > _triggerMap;
@@ -298,7 +303,8 @@ class TreeReader {
 			    bool includeGenParticles = true,
 			    bool includePrefire = true,
 			    bool includePrefireComponents = true,
-                            bool includeParticleLevel = true );
+                            bool includeParticleLevel = true,
+                            bool includeEFTCoefficients = true );
 
         //initialize the next sample
         void initSample( const bool doInitTree = true,
@@ -339,13 +345,15 @@ class TreeReader {
 			    const bool readIndividualMetFilters = false,
 			    const bool readAllJECVariations = false,
 			    const bool readGroupedJECVariations = false,
-			    const bool readParticleLevel = false );
+			    const bool readParticleLevel = false,
+                            const bool readEFTCoefficients = false );
         Event buildEvent( long unsigned, 
 			    const bool readIndividualTriggers = false, 
 			    const bool readIndividualMetFilters = false,
 			    const bool readAllJECVariations = false, 
                             const bool readGroupedJECVariations = false,
-			    const bool readParticleLevel = false );
+			    const bool readParticleLevel = false,
+                            const bool readEFTCoefficients = false );
 
         //check whether specific info is present in current tree
         bool containsTauInfo() const;
@@ -354,6 +362,7 @@ class TreeReader {
 	bool containsParticleLevel() const;
 	bool containsPrefire() const;
 	bool containsPrefireComponents() const;
+        bool containsEFTCoefficients() const;
 
         //check whether SUSY mass info is present in the current sample
 	// ( this is the case for SUSY signal scans )
@@ -673,6 +682,8 @@ class TreeReader {
         std::map< std::string, TBranch* > b__corrMETy_JECSourcesUp;
         TBranch        *b__mChi1;
         TBranch        *b__mChi2;
+	TBranch        *b__nEFTCoefficients;
+	TBranch        *b__EFTCoefficients;
 
         std::map< std::string, TBranch* > b__triggerMap;
         std::map< std::string, TBranch* > b__MetFilterMap; 
