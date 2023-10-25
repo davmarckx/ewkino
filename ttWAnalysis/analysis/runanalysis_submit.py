@@ -9,7 +9,7 @@
 import os
 import sys
 
-exe = 'runanalysis'
+exe = 'runanalysis2'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
@@ -18,7 +18,7 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
 #for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
@@ -27,9 +27,9 @@ for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 
-dtypes = ['sim','data']
+#dtypes = ['sim','data']
 #dtypes = ['sim']
-#dtypes = ['data']
+dtypes = ['data']
 
 selection_types = []
 selection_types.append('tight')
@@ -55,9 +55,11 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist pl
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_inputfeatures.json' # bdt input variables
-variables = '../variables/variables_eventbdt.json' # bdt variable
+#variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double variables for bin study
+
 
 #bdtfile = None
 #bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
@@ -65,14 +67,14 @@ bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
 bdtcut = None
 
 
-splitprocess = None # do not split any process at particle level
-#splitprocess = 'TTW' # split TTW process at particle level
-splitvariables = None
-#splitvariables = '../variables/variables_particlelevel_double.json'
+#splitprocess = None # do not split any process at particle level
+splitprocess = 'TTW' # split TTW process at particle level
+#splitvariables = None
+splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 
-outputdir = 'output_quickcheck'
+outputdir = 'output_dbv1'
 
-nevents = 1e6
+nevents = 1e10
 runlocal = False
 
 submit_selection_types_combined = True

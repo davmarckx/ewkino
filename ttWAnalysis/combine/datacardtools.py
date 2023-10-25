@@ -33,7 +33,7 @@ def makecolumn( channel, process, pid, pyield, systematicsdict, systematicslist 
     column.append(str(pid))
     column.append(str(pyield))
     for systematic in systematicslist:
-	column.append(str(systematicsdict[systematic]))
+        column.append(str(systematicsdict[systematic]))
     return column
 
 def makerateparamrow( process ):
@@ -56,21 +56,21 @@ def makealigned(stringlist):
     # get maximum length of strings in list
     maxlen = 0
     for s in stringlist: 
-	if len(s)>maxlen: maxlen=len(s)
+        if len(s)>maxlen: maxlen=len(s)
     maxlen += 2
     # replace each string by string of fixed length
     for i,s in enumerate(stringlist):
-	stringlist[i] = str('{:<'+str(maxlen)+'}').format(s)
+        stringlist[i] = str('{:<'+str(maxlen)+'}').format(s)
 
 def writedatacard( datacarddir, channelname, processinfo,
-		   histfile, variable, dummydata=False,
-		   shapesyslist=[], lnnsyslist=[],
-		   rateparamlist=[], ratio=[],
-		   automcstats=10,
-		   writeobs=False,
+                   histfile, variable, dummydata=False,
+                   shapesyslist=[], lnnsyslist=[],
+                   rateparamlist=[], ratio=[],
+                   automcstats=10,
+                   writeobs=False,
                    writeselectedhists=True,
                    writeallhists=False,
-		   autof=False ):
+                   autof=False ):
     ### write a datacard corresponding to a single channel ('bin' in combine terminology)
     # input arguments:
     # - datacarddir: directory where the card and histograms will go
@@ -82,7 +82,7 @@ def writedatacard( datacarddir, channelname, processinfo,
     # - dummydata: use some random histogram for data rather than the one from datatag
     #   (useful when no data is available, but still need correct datacard syntax)
     # - shapesyslist: list of shape systematics to consider (default: none)
-    #	(must be a subset of the ones included in processinfo)
+    #   (must be a subset of the ones included in processinfo)
     # - lnnsyslist: list of normalization systematics (type lnN) to consider (default: none)
     #   (must be a subset of the ones included in processinfo)
     # - rateparamlist: a list of process names for which to add a rate param
@@ -98,7 +98,7 @@ def writedatacard( datacarddir, channelname, processinfo,
     # - writeobs: whether to write for each process the observed yield
     #   (if False, simply write -1 to extract the yield at runtime,
     #    can be useful but not very clean when recycling datacards for different variables
-    #	 with slightly different yields (depending on the binning) 
+    #    with slightly different yields (depending on the binning) 
     #    without remaking the processinfo)
     # - writeselectedhists: whether to copy the required histograms to a new root file
     #   and make the datacard refer to that new file.
@@ -114,9 +114,9 @@ def writedatacard( datacarddir, channelname, processinfo,
     datacardpath = os.path.join(datacarddir,datacardname) 
     # check if datacard file already exists
     if( os.path.exists(datacardpath) and not autof ):
-	print('WARNING in writedatacard: requested file already exists. Overwrite? (y/n)')
-	go = raw_input()
-	if not go=='y': return
+        print('WARNING in writedatacard: requested file already exists. Overwrite? (y/n)')
+        go = raw_input()
+        if not go=='y': return
     # check the datacard directory and make if needed
     if not os.path.exists(datacarddir):
       os.makedirs(datacarddir)
@@ -141,8 +141,8 @@ def writedatacard( datacarddir, channelname, processinfo,
       newhistname = 'histograms_'+channelname+'.root'
       newhistpath = os.path.join(datacarddir,newhistname)
       if not os.path.exists(histfile):
-	raise Exception('ERROR in writedatacard: input histogram file {} '
-			+'does not seem to exist'.format(histfile))
+        raise Exception('ERROR in writedatacard: input histogram file {} '
+                        +'does not seem to exist'.format(histfile))
       if writeallhists: os.system('cp '+histfile+' '+newhistpath)
       else:
         histnames = processinfo.allhistnames()
@@ -160,13 +160,13 @@ def writedatacard( datacarddir, channelname, processinfo,
     datacard.write(getseparator())
     # write file info
     for p in processinfo.plist:
-	nominal_histname = processinfo.pinfos[p].histname
+        nominal_histname = processinfo.pinfos[p].histname
         sys_histname = nominal_histname.replace('_nominal','_$SYSTEMATIC')
-	datacard.write('shapes '+p+' '+channelname+' '+newhistname
-			+' '+nominal_histname
-			+' '+sys_histname+'\n')
+        datacard.write('shapes '+p+' '+channelname+' '+newhistname
+                        +' '+nominal_histname
+                        +' '+sys_histname+'\n')
     if hasdata: datacard.write('shapes data_obs '+channelname+' '+newhistname
-		    +' '+datahistname+'\n')
+                    +' '+datahistname+'\n')
     datacard.write(getseparator())
     # write bin info
     datacard.write('bin\t\t'+channelname+'\n')
@@ -179,23 +179,23 @@ def writedatacard( datacarddir, channelname, processinfo,
         c1.append(systematic)
         c2.append('shape')
     for systematic in lnnsyslist:
-	c1.append(systematic)
-	c2.append('lnN')
+        c1.append(systematic)
+        c2.append('lnN')
     # make rest of the columns
     columns = [c1,c2]
     for p in processinfo.plist:
-	pyield = processinfo.pinfos[p].pyield
-	if not writeobs: pyield = -1
+        pyield = processinfo.pinfos[p].pyield
+        if not writeobs: pyield = -1
         sysdict = {}
         for key in processinfo.pinfos[p].systematics.keys():
-	    sysdict[key] = processinfo.pinfos[p].get_datacard_impact(key)
+            sysdict[key] = processinfo.pinfos[p].get_datacard_impact(key)
         pcolumn = makecolumn(channelname,p,processinfo.pinfos[p].pid,
-		    pyield,sysdict,
-		    shapesyslist+lnnsyslist)
+                    pyield,sysdict,
+                    shapesyslist+lnnsyslist)
         columns.append(pcolumn)
     # format the columns
     for c in columns: 
-	makealigned(c)
+        makealigned(c)
     # write all info row by row
     nrows = len(columns[0])
     for row in range(nrows):
@@ -203,45 +203,45 @@ def writedatacard( datacarddir, channelname, processinfo,
             datacard.write(columns[col][row]+' ')
         datacard.write('\n')
         if(row==3): datacard.write(getseparator())
-	if(row==3+len(shapesyslist)): datacard.write(getseparator())
+        if(row==3+len(shapesyslist)): datacard.write(getseparator())
     datacard.write(getseparator())
     # add rate parameters
     if len(rateparamlist)>0:
-	for p in rateparamlist:
-	    if p not in processinfo.plist:
-		raise Exception('ERROR in writedatacard: rateParam requested for '
-				+'{}, but not in list of processes'.format(p))
-	    datacard.write( makerateparamrow(p)+'\n' )
-	datacard.write(getseparator())
+        for p in rateparamlist:
+            if p not in processinfo.plist:
+                raise Exception('ERROR in writedatacard: rateParam requested for '
+                                +'{}, but not in list of processes'.format(p))
+            datacard.write( makerateparamrow(p)+'\n' )
+        datacard.write(getseparator())
     # add rate parameters for ratio measurement
     if len(ratio)>0:
-	if len(ratio)==1:
-	    if '*' not in ratio[0]:
-		raise Exception('ERROR in writedatacard: list of ratio measurement has length 1,'
-				' which is only supported if the process name contains a wildcard.')
-	    hasmatch = False
-	    for p in processinfo.plist:
-		if re.match(ratio[0].replace('*','.*'),p): hasmatch = True
-	    if hasmatch:
-		datacard.write( 'ratio_scale rateParam * '+ratio[0]+' 1.0\n' )
-		datacard.write(getseparator())
-	elif len(ratio)==2:
-	    if not ratio[0] in processinfo.plist:
-		raise Exception('ERROR in writedatacard: process '+ratio[0]+' in list for ratio'
-			    +' but not in list of recognized processes')
-	    if not ratio[1] in processinfo.plist:
-		raise Exception('ERROR in writedatacard: process '+ratio[1]+' in list for ratio'
+        if len(ratio)==1:
+            if '*' not in ratio[0]:
+                raise Exception('ERROR in writedatacard: list of ratio measurement has length 1,'
+                                ' which is only supported if the process name contains a wildcard.')
+            hasmatch = False
+            for p in processinfo.plist:
+                if re.match(ratio[0].replace('*','.*'),p): hasmatch = True
+            if hasmatch:
+                datacard.write( 'ratio_scale rateParam * '+ratio[0]+' 1.0\n' )
+                datacard.write(getseparator())
+        elif len(ratio)==2:
+            if not ratio[0] in processinfo.plist:
+                raise Exception('ERROR in writedatacard: process '+ratio[0]+' in list for ratio'
                             +' but not in list of recognized processes')
-	    if not processinfo.pinfos[ratio[0]].pid <= 0:
-		raise Exception('ERROR in writedatacard: process '+ratio[0]+' is numerator for ratio'
-			    +' but not defined as signal')
-	    datacard.write( 'ratio_scale rateParam * '+ratio[0]+' 1.0\n' )
-	    datacard.write( 'ratio_scale rateParam * '+ratio[1]+' 1.0\n' )
-	    datacard.write(getseparator())
-	else:
-	    raise Exception('ERROR in writedatacard: list for ratio measurement has unexpected '
+            if not ratio[1] in processinfo.plist:
+                raise Exception('ERROR in writedatacard: process '+ratio[1]+' in list for ratio'
+                            +' but not in list of recognized processes')
+            if not processinfo.pinfos[ratio[0]].pid <= 0:
+                raise Exception('ERROR in writedatacard: process '+ratio[0]+' is numerator for ratio'
+                            +' but not defined as signal')
+            datacard.write( 'ratio_scale rateParam * '+ratio[0]+' 1.0\n' )
+            datacard.write( 'ratio_scale rateParam * '+ratio[1]+' 1.0\n' )
+            datacard.write(getseparator())
+        else:
+            raise Exception('ERROR in writedatacard: list for ratio measurement has unexpected '
                             +' length: {}'.format(len(ratio)))
-	    
+            
     # manage statistical uncertainties
     datacard.write(channelname+' autoMCStats '+str(automcstats))
     # close datacard

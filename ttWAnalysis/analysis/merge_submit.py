@@ -27,7 +27,7 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 
 npmodes = []
 #npmodes.append( 'npfromsim' )
-npmodes.append( 'npfromdata' )
+#npmodes.append( 'npfromdata' )
 npmodes.append( 'npfromdatasplit' )
 
 cfmodes = []

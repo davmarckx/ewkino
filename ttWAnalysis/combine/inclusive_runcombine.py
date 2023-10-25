@@ -1,7 +1,7 @@
 ###############################################
 # Perform inclusive cross-section measurement #
 ###############################################
-#python inclusive_runcombine.py --datacarddir datacards_20230113_single/ --method multidimfit --includesignificance --runcombinations --includedata --runmode local
+#python inclusive_runcombine.py --datacarddir datacards_single_inclusive/ --method fitdiagnostics --includesignificance --runcombinations --runelementary --includedata --includestatonly --runmode condor
 
 import sys
 import os
@@ -9,8 +9,8 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-#CMSSW_VERSION = '~/CMSSW_11_3_4' # temporary
-CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
+CMSSW_VERSION = '~/CMSSW_10_2_16_UL3' # temporary
+#CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -39,8 +39,8 @@ def getcardcombinations(datacarddir, verbose=False):
   #combineddict['dc_combined_mm.txt'] = [c for c in cards_sr if '_mm' in c] + cards_cr
   #combineddict['dc_combined_trilepton.txt'] = [c for c in cards_sr if '_trilepton' in c] + cards_cr
   # per sign
-  combineddict['dc_combined_plus.txt'] = [c for c in cards_sr if '_plus' in c] + cards_cr
-  combineddict['dc_combined_minus.txt'] = [c for c in cards_sr if '_minus' in c] + cards_cr
+  #combineddict['dc_combined_plus.txt'] = [c for c in cards_sr if '_plus' in c] + cards_cr
+  #combineddict['dc_combined_minus.txt'] = [c for c in cards_sr if '_minus' in c] + cards_cr
   # all signal regions
   combineddict['dc_combined_signalregions.txt'] = cards_sr[:]
   # all control regions
@@ -65,6 +65,7 @@ def getcardcombinations(datacarddir, verbose=False):
   # ask for confirmation
   print('Continue? (y/n)')
   go = raw_input()
+  #go = input()
   if not go=='y': sys.exit()
 
   # return the result

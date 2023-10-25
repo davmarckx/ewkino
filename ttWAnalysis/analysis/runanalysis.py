@@ -28,7 +28,7 @@ systematics = ([
   "JER",
   "Uncl",
   #"JECAll" # not in current samples
-  "JECGrouped",
+  #"JECGrouped",
   # via standard reweighting
   "muonReco",
   "electronReco",

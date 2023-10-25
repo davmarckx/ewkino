@@ -22,12 +22,15 @@ if __name__=='__main__':
       cmd1 += ' --outputfile ' + outtxtfile
       if obstag=='obs': cmd1 += ' --usedata'
       cmd1 += ' --usecombined'
+      cmd1 += ' --method fitdiagnostics'
+
       cmd2 = 'python inclusive_plotoutput.py'
       cmd2 += ' --channelfile ' + outtxtfile
       cmd2 += ' --outputfile ' + outpngfile
       cmd2 += ' --showvalues'
       commands.append(cmd1)
       commands.append(cmd2)
+
       # make plot of elementary datacards (for testing and debugging)
       outtxtfile = os.path.join(datacarddir,'summary_{}_elementary.txt'.format(obstag))
       outpngfile = outtxtfile.replace('.txt','.png')
@@ -36,6 +39,8 @@ if __name__=='__main__':
       cmd1 += ' --outputfile ' + outtxtfile
       if obstag=='obs': cmd1 += ' --usedata'
       cmd1 += ' --useelementary'
+      cmd1 += ' --method fitdiagnostics'
+
       cmd2 = 'python inclusive_plotoutput.py'
       cmd2 += ' --channelfile ' + outtxtfile
       cmd2 += ' --outputfile ' + outpngfile

@@ -13,7 +13,7 @@ from variabletools import read_variables
 # settings
 
 controlregions = ({
-    'topdir': '../analysis/output_20230704_single',
+    'topdir': '../analysis/output_inclusive_mainv2',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
     'regions': {
@@ -25,14 +25,14 @@ controlregions = ({
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_20230704_double',
+    'topdir': '../analysis/output_double_backgrd',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
-    'region': 'signalregion_trilepton',
+    'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double.json'
 })
   
-outputdir = 'datacards_20230718_double_trilepton'
+outputdir = 'datacards_double_dilepton'
 
 runmode = 'condor'
 

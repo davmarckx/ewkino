@@ -9,9 +9,9 @@ CMSSW_VERSION = '~/CMSSW_10_6_28'
 
 if __name__=='__main__':
 
-  topfolder = '../analysis/output_NPbugfix_afterv2/'
-  outputdir = 'output_systs_NPbugfix_after'
-  years = ['2016PreVFP']
+  topfolder = '../analysis/output_inclusive_main/'
+  outputdir = 'output_systs_trainingremoved'
+  years = ['run2']
   regions = ['signalregion_dilepton_inclusive']#,#'signalregion_dilepton_mm','signalregion_dilepton_me','signalregion_dilepton_em','signalregion_dilepton_ee','signalregion_dilepton_plus','signalregion_dilepton_minus',
              #'cfcontrolregion','fourleptoncontrolregion','trileptoncontrolregion','npcontrolregion_dilepton_inclusive','npcontrolregion_dilepton_mm',
              #'npcontrolregion_dilepton_me','npcontrolregion_dilepton_em','npcontrolregion_dilepton_ee','wzcontrolregion','zzcontrolregion','zgcontrolregion']
@@ -21,9 +21,9 @@ if __name__=='__main__':
 		 'ttwprocess': 'TTW',
                  'ttbar': 'TT',
                  'ttz': 'TTZ',
-                 #'ttx': 'TTX',
-                 #'ttg': 'TTG',
-                 #'np_m':"Nonprompt(m)",
+                 'ttx': 'TTX',
+                 'ttg': 'TTG',
+                 'np_m':"Nonprompt(m)",
                  'np_e':"Nonprompt(e)"
               })
 
@@ -46,12 +46,12 @@ if __name__=='__main__':
   includetags = ({ 
                    #'allsys': None,                           #never run all en combo at the same time as jobs
                    'jets': 'JEC,JER,Uncl',
-                   'grouped':'JECGrouped' 
-                   #'leptons': 'electron,muon',
-                   #'scales': 'Scale',
-                   #'pdf': 'pdf',
-                   #'other': 'pileup,prefire'
-                   #'bTag': 'bTag_shape'
+                   'grouped':'JECGrouped', 
+                   'leptons': 'electron,muon',
+                   'scales': 'Scale',
+                   'pdf': 'pdf',
+                   'other': 'pileup,prefire',
+                   'bTag': 'bTag_shape'
                 })
   includeraw = True
   runLocal = False

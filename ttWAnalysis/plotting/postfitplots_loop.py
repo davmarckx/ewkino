@@ -8,29 +8,29 @@ import json
 sys.path.append('../../jobSubmission')
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_16_patch1' # temporary
+CMSSW_VERSION = '~/CMSSW_10_2_16_UL3' # temporary
 
 inputdir = os.path.abspath(sys.argv[1])
 runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
-npmode = 'npfromdata'
+npmode = 'npfromdatasplit'
 cfmode = 'cffromdata'
 
 dolog = True
 
-variables = '../variables/variables_main.json'
+variables = '../variables/variables_eventbdt.json'
 
 colormap = 'ttw'
 

@@ -14,26 +14,26 @@ runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-for r in ['signalregion_trilepton']: regions.append(r)
-for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
-for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['cfcontrolregion']: regions.append(r)
-for r in ['cfjetscontrolregion']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017']#,'2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
 npmodes = ['npfromdatasplit']
 #npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
-unblind = False
+unblind = True
 
 dummysystematics = False
 
@@ -41,10 +41,10 @@ rawsystematics = False
 
 dolog = True
 
-variables = '../variables/variables_main.json' # single variables
+#variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
-#variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_double.json' # double variables
 
 colormap = 'ttw'
 
@@ -55,14 +55,14 @@ datatag = 'Data'
 excludetags = ""
 
 #signals = None
-signals = ['TTW'] # for single variables
-#signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
+#signals = ['TTW'] # for single variables
+signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
 
 # split variables can either be a list or a json file
-splitvariables = [''] # no splitting
-#splitvariables = '../variables/variables_particlelevel_single.json'
+#splitvariables = [''] # no splitting
+splitvariables = '../variables/variables_particlelevel_single.json'
 #splitvariables = ['differential']
-#splitprocess = 'TTW'
+splitprocess = 'TTW'
 
 if isinstance(splitvariables,str):
     with open(splitvariables) as json_file:

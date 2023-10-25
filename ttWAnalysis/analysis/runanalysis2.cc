@@ -38,12 +38,17 @@
 
 
 std::map< std::string, double > loadWeights(const std::string& processName,
-                    int sampleIndex ,
+                    int sampleInd ,
                     const std::string& year
                     ){
    //function to find the reweighting factors needed for taking into account the missing training sample in the dilepton signalregions.
    //these factors are stored in the ML directory and are made by make_analysisdatasets.py.
    std::cout << "=== start looking for reweighting factors of missing training sample ===" << std::endl;;
+
+   int sampleIndex = sampleInd;
+   if (processName == "TTW" && sampleIndex == 0){ sampleIndex = 16;}
+   if (processName == "TTW" && sampleIndex == 1){ sampleIndex = 18;}
+
    std::fstream newfile;
    std::string location = "../../ML/trainindices/";
    location += "weights_" + processName + "_" + std::to_string(sampleIndex) + "_" + year + ".txt";
@@ -63,8 +68,8 @@ std::map< std::string, double > loadWeights(const std::string& processName,
 
         std::string region = vstrings[0];
         double val = std::stod(vstrings[1]);
-        std::cout << "region="+region+"=" << std::endl;
-        std::cout << "weight="+std::to_string(val)+"=" << std::endl;
+        //std::cout << "region="+region+"=" << std::endl;
+        //std::cout << "weight="+std::to_string(val)+"=" << std::endl;
 
         weightMap.insert(make_pair(region, val));
    }
@@ -387,7 +392,8 @@ void fillSystematicsHistograms(
     std::vector<std::string> trainingSampleVector = {"TT", "TTZ", "TTH", "TTW", "TTG"};
     std::map< std::string, double > weightMap;
     if( trainingreweight && std::count(trainingSampleVector.begin(), trainingSampleVector.end(), processName)){
-       weightMap = loadWeights(processName, sampleIndex, year);
+        if(processName.find("TTW") != std::string::npos){ weightMap = loadWeights("TTW", sampleIndex, year); }
+        else{weightMap = loadWeights(processName, sampleIndex, year);}
     }
 
     // load fake rate maps if needed

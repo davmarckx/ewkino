@@ -10,20 +10,20 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20230704_single'
+topdir = '../analysis/output_inclusive_mainv4'
   
 #years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 years = ['run2']
 #years = ['2018']
 
 regions = ({
-    #'signalregion_dilepton_inclusive': '_eventBDT',
+    'signalregion_dilepton_inclusive': '_eventBDT',
     #'signalregion_dilepton_ee': '_eventBDT',
     #'signalregion_dilepton_em': '_eventBDT',
     #'signalregion_dilepton_me': '_eventBDT',
     #'signalregion_dilepton_mm': '_eventBDT',
-    'signalregion_dilepton_plus': '_eventBDT',
-    'signalregion_dilepton_minus': '_eventBDT',
+    #'signalregion_dilepton_plus': '_eventBDT',
+    #'signalregion_dilepton_minus': '_eventBDT',
     'signalregion_trilepton': '_eventBDT',
     #'wzcontrolregion': '_yield',
     #'zzcontrolregion': '_yield',
@@ -36,9 +36,9 @@ regions = ({
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-outputdir = 'datacards_20230718_single_persign'
+outputdir = 'datacards_single_txt2ws'
 
-runmode = 'local'
+runmode = 'condor'
 
 # make output directory
 if not os.path.exists(outputdir):
