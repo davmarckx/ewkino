@@ -18,7 +18,7 @@ import listtools as lt
 def cardtochannel( card ):
     return card.replace('datacard_','').replace('dc_combined','').replace('.txt','')
 
-def getcardcombinations(datacarddir, verbose=False):
+def getcardcombinations(datacarddir, combinations=None, verbose=False):
   ### get a dictionary linking combined names to lists of corresponding datacards
   # note: assumed to be run on a clean data card directory, 
   #       containing only elementary datacards and corresponding histograms
@@ -27,20 +27,27 @@ def getcardcombinations(datacarddir, verbose=False):
   cards_all = lt.subselect_strings(cards_all,maynotcontainone=['_out_'])[1]
   cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
   cards_cr = lt.subselect_strings(cards_all,mustcontainone=['controlregion'])[1]
+  # no specific combinations
+  if combinations is None: pass
   # per year
-  #combineddict['dc_combined_2016PreVFP.txt'] = [c for c in cards_all if '2016PreVFP' in c]
-  #combineddict['dc_combined_2016PostVFP.txt'] = [c for c in cards_all if '2016PostVFP' in c]
-  #combineddict['dc_combined_2017.txt'] = [c for c in cards_all if '2017' in c]
-  #combineddict['dc_combined_2018.txt'] = [c for c in cards_all if '2018' in c]
+  if combinations=='peryear':
+    combineddict['dc_combined_2016PreVFP.txt'] = [c for c in cards_all if '2016PreVFP' in c]
+    combineddict['dc_combined_2016PostVFP.txt'] = [c for c in cards_all if '2016PostVFP' in c]
+    combineddict['dc_combined_2017.txt'] = [c for c in cards_all if '2017' in c]
+    combineddict['dc_combined_2018.txt'] = [c for c in cards_all if '2018' in c]
   # per channel
-  #combineddict['dc_combined_ee.txt'] = [c for c in cards_sr if '_ee' in c] + cards_cr
-  #combineddict['dc_combined_em.txt'] = [c for c in cards_sr if '_em' in c] + cards_cr
-  #combineddict['dc_combined_me.txt'] = [c for c in cards_sr if '_me' in c] + cards_cr
-  #combineddict['dc_combined_mm.txt'] = [c for c in cards_sr if '_mm' in c] + cards_cr
-  #combineddict['dc_combined_trilepton.txt'] = [c for c in cards_sr if '_trilepton' in c] + cards_cr
+  elif combinations=='perchannel':
+    combineddict['dc_combined_ee.txt'] = [c for c in cards_sr if '_ee' in c] + cards_cr
+    combineddict['dc_combined_em.txt'] = [c for c in cards_sr if '_em' in c] + cards_cr
+    combineddict['dc_combined_me.txt'] = [c for c in cards_sr if '_me' in c] + cards_cr
+    combineddict['dc_combined_mm.txt'] = [c for c in cards_sr if '_mm' in c] + cards_cr
+    combineddict['dc_combined_trilepton.txt'] = [c for c in cards_sr if '_trilepton' in c] + cards_cr
   # per sign
-  #combineddict['dc_combined_plus.txt'] = [c for c in cards_sr if '_plus' in c] + cards_cr
-  #combineddict['dc_combined_minus.txt'] = [c for c in cards_sr if '_minus' in c] + cards_cr
+  elif combinations=='persign':
+    combineddict['dc_combined_plus.txt'] = [c for c in cards_sr if '_plus' in c] + cards_cr
+    combineddict['dc_combined_minus.txt'] = [c for c in cards_sr if '_minus' in c] + cards_cr
+  else:
+    raise Exception('ERROR: combinations specifier {} not recognized.'.format(combinations))
   # all signal regions
   combineddict['dc_combined_signalregions.txt'] = cards_sr[:]
   # all control regions
@@ -81,6 +88,8 @@ if __name__=='__main__':
     choices=['multidimfit','fitdiagnostics','initimpacts'])
   parser.add_argument('--runelementary', default=False, action='store_true')
   parser.add_argument('--runcombinations', default=False, action='store_true')
+  parser.add_argument('--combinations', default=None,
+    choices=[None, 'peryear', 'perchannel', 'persign'])
   parser.add_argument('--includesignificance', default=False, action='store_true')
   parser.add_argument('--includestatonly', default=False, action='store_true')
   parser.add_argument('--includedata', default=False, action='store_true')
@@ -112,7 +121,7 @@ if __name__=='__main__':
 
   # add combined cards if requested
   if args.runcombinations:
-    combinationdict = getcardcombinations(args.datacarddir, verbose=True)
+    combinationdict = getcardcombinations(args.datacarddir, combinations=args.combinations, verbose=True)
     combinedcards = cbt.makecombinedcards(args.datacarddir, combinationdict,
                       cmssw_version=CMSSW_VERSION)
     for card in sorted(combinedcards): cardstorun.append(card)

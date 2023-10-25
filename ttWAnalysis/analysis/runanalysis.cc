@@ -482,8 +482,12 @@ void fillSystematicsHistograms(
 	}
 	bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
     }
-    //important so that nominal data histograms are made for expected btag systematics: hard coded!!!
-    else if(treeReader.isData()){bTagShapeSystematics = {"cferr1", "cferr2", "hf", "hfstats1", "hfstats2", "lf", "lfstats1", "lfstats2"};}
+    // important so that nominal data histograms are made for expected btag systematics
+    // (hard coded for now!!!)
+    else if(treeReader.isData()){
+	bTagShapeSystematics = {"cferr1", "cferr2", "hf", 
+	  "hfstats1", "hfstats2", "lf", "lfstats1", "lfstats2"};
+    }
  
     // determine global sample properties related to pdf and scale variations
     unsigned numberOfScaleVariations = 0;
@@ -591,11 +595,15 @@ void fillSystematicsHistograms(
         std::cout << "found following grouped JEC uncertainty sources:" << std::endl;
 	event.jetInfo().printGroupedJECVariations();
     }
-    // important so that nominal data histograms are made for groupedJEC with expected list: hard coded!!!
+    // important so that nominal data histograms are made for groupedJEC with expected list
+    // (hard coded for now!!!)
     else if( treeReader.numberOfEntries()>0
         && (considerjecgrouped)
         && treeReader.isData() ){
-        groupedJECVariations = {"Absolute_" + year.substr(0, 4),"Absolute","BBEC1_"+year.substr(0, 4),"BBEC1","EC2_"+year.substr(0, 4),"EC2","FlavorQCD","HF_"+year.substr(0, 4),"HF","RelativeBal","RelativeSample_"+year.substr(0, 4),"Total"};
+        groupedJECVariations = {"Absolute_" + year.substr(0, 4),
+	    "Absolute", "BBEC1_"+year.substr(0, 4), "BBEC1", "EC2_"+year.substr(0, 4),
+	    "EC2", "FlavorQCD", "HF_"+year.substr(0, 4), "HF", "RelativeBal",
+	    "RelativeSample_"+year.substr(0, 4), "Total"};
     }
 
     // make output collection of histograms
@@ -736,19 +744,58 @@ void fillSystematicsHistograms(
 	}
 
 	// fill data systematics histograms (for fakerate selection).
-	// (they are simply filled with nominal values)
+	// (they are simply filled with nominal values
+	//  except for dedicated fakerate systematics)
 	if(event.isData() && passnominal 
 	    && (selection_type=="fakerate"
 		|| selection_type=="efakerate" || selection_type=="mfakerate")){
-	    for(HistogramVariable histVar: histVars){
-                std::string variableName = histVar.name();
-                std::string variable = histVar.variable();
-		for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
-		    if(stringTools::stringContains(mapelement.first,"nominal")) continue;
-		    histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight );
+	    // loop over systematics
+	    std::vector<std::string> alreadyFilled;
+	    alreadyFilled.push_back("nominal");
+	    for(std::string systematic : systematics){
+		if( stringTools::stringStartsWith(systematic, "efakerate") 
+                    || stringTools::stringStartsWith(systematic, "mfakerate") ){
+		    std::string upvar = systematic+"Up";
+		    std::string downvar = systematic+"Down";
+		    double upWeight = nominalWeight * reweighter.singleWeightUp(event, systematic);
+		    double downWeight = nominalWeight * reweighter.singleWeightDown(event, systematic);
+		    for(HistogramVariable histVar: histVars){
+			std::string variableName = histVar.name();
+			std::string variable = histVar.variable();
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, upvar,
+                            histVar, varmap.at(variable), upWeight,
+                            false, splitParticleLevelVars,
+                            false, varmapParticleLevel );
+			fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, downvar,
+                            histVar, varmap.at(variable), downWeight,
+                            false, splitParticleLevelVars,
+                            false, varmapParticleLevel );
+		    }
+		    alreadyFilled.push_back(upvar);
+		    alreadyFilled.push_back(downvar);
 		}
 	    }
-	}
+	    // default case for all other histograms: just use nominal values
+	    for(HistogramVariable histVar: histVars){
+		std::string variableName = histVar.name();
+		std::string variable = histVar.variable();
+		for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
+		    // exclude previously filled histograms
+		    bool needToFill = true;
+		    for(std::string veto: alreadyFilled){
+			if(stringTools::stringContains(mapelement.first,veto)){
+			    needToFill = false;
+			    break;
+			}
+		    }
+		    if( !needToFill ) continue;
+		    // fill this remaining histograms
+		    histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight ); 
+		}
+	    }
+	} // end if block over data systematics
 
 	// stop further event processing in case of data
 	if(event.isData()) continue;

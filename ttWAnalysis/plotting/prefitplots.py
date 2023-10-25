@@ -20,6 +20,7 @@ sys.path.append(os.path.abspath('../../plotting/python'))
 import histplotter as hp
 import colors
 import infodicts
+import processdicts
 sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../combine/'))
@@ -53,6 +54,7 @@ if __name__=="__main__":
                           +' Use underscores for spaces.')
   parser.add_argument('--colormap', default='default')
   parser.add_argument('--signals', default=None, nargs='+')
+  parser.add_argument('--regroup_processes', default=False, action='store_true')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--splitvariable',default=None)
   parser.add_argument('--splitprocess',default=None)
@@ -246,6 +248,22 @@ if __name__=="__main__":
         if( lastchar.isdigit() ):
           hist.SetName(args.splitprocess + lastchar)
           hist.SetTitle(args.splitprocess + lastchar)
+
+    # optionally re-group some nominal histograms
+    if args.regroup_processes:
+      regroup_processes_dict = processdicts.get_regroup_process_dict(args.region)
+      new_simhists = {}
+      for hist in simhists:
+        title = hist.GetTitle()
+        newtitle = title
+        if title in regroup_processes_dict.keys():
+          newtitle = regroup_processes_dict[title]
+          hist.SetTitle(newtitle)
+        if newtitle in new_simhists.keys(): new_simhists[newtitle].Add(hist.Clone())
+        else: new_simhists[newtitle] = hist.Clone()
+        # (warning: cloning the histograms is needed above,
+        #  else the ProcessCollection gets modified)
+      simhists = new_simhists.values()
 
     # modify histogram titles
     for hist in simhists:

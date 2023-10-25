@@ -13,26 +13,33 @@ import listtools as lt
 sys.path.append(os.path.abspath('../plotting'))
 from colors import getcolormap
 
-def findbytitle(histlist,title):
-    # find a histogram by its title, return the index or -1 if not found
-    index = -1
-    for i,hist in enumerate(histlist):
-        if hist.GetTitle()==title: index = i
-    return index
-
-def findbyname(histlist,tag):
+def findbytitle(histlist, title):
+    # find a histogram by its title, error if not found
     indices = []
     for i,hist in enumerate(histlist):
-	if tag in hist.GetName():
-	    indices.append(i)
-    if len(indices)>1:
-	print('ERROR in systplotter.py / findbyname:'
-              +' multiple histograms corresponding to "'+tag+'" in name:')
-        for i in indices: print('  - {}'.format(histlist[i].GetName()))
-	return None
+        if hist.GetTitle()==title: indices.append(i)
+    if len(indices)!=1:
+        msg = 'ERROR in findbytitle:'
+        msg += ' found {} matching histograms'.format(len(indices))
+        msg += ' while 1 was expected.'
+        raise Exception(msg)
     return indices[0]
 
-def sethiststyle(hist, systematic):
+def findbyname(histlist, tag):
+    # find a histogram by its name, error if not found
+    indices = []
+    for i,hist in enumerate(histlist):
+	if tag in hist.GetName(): indices.append(i)
+    if len(indices)!=1:
+        msg = 'ERROR in findbyname:'
+        msg += ' found {} matching histograms'.format(len(indices))
+        msg += ' for tag {}'.format(tag)
+        msg += ' while 1 was expected'
+        msg += ' ({})'.format([histlist[i].GetName() for i in indices])
+        raise Exception(msg)
+    return indices[0]
+
+def sethiststyle(hist, systematic, colormap):
     # set color and line properties of a histogram
     hist.SetLineWidth(3)
     sysname = systematic
@@ -46,9 +53,9 @@ def sethiststyle(hist, systematic):
 	sysname = systematic[:systematic.find('ShapeVar')+8]
     if('JECAll' in sysname): sysname = 'JECAll'
     if('JECGrouped' in sysname): sysname = 'JECGrouped'
-    hist.SetLineColor( getcolormap('systematics').get(sysname,ROOT.kBlack) )
+    hist.SetLineColor( colormap.get(sysname,ROOT.kBlack) )
     
-def getminmax(histlist,witherrors=False):
+def getminmax(histlist, witherrors=False):
     # get suitable minimum and maximum values for plotting a hist collection (not stacked)
     totmax = 0.
     totmin = 1.
@@ -76,19 +83,22 @@ def histlisttotxt(histlist,txtfile):
 	    toprint += '\n'
 	    txtf.write(toprint)
 
-def plotsystematics( mchistlist, systematiclist, figname,
+def plotsystematics( nominalhist, syshistlist, figname,
+                     colormap=None,
                      xaxtitle=None, xaxtitlesize=None, xaxtitleoffset=None,
                      yaxtitle=None, yaxtitlesize=None, yaxtitleoffset=None,
-		     relative=True, staterrors=False,
-                     yaxrange=None,
+		     staterrors=False, style='absolute',
+                     yaxrange=None, doclip=True,
                      remove_duplicate_labels=False, remove_down_labels=False,
                      extrainfos=[], infosize=None, infoleft=None, infotop=None,
 		     outtxtfile='' ):
     # input arguments:
-    # - mchistlist: list of histograms with systematic variations
-    # - systematiclist: list of names of systematics,
-    #                   the length and order must correspond to mchistlist,
-    #                   used for labels and styling
+    # - nominalhist: nominal histogram
+    # - syshistlist: list of histograms with systematic variations
+    #   note: the title of each histogram is used for color and styling;
+    #         they are expected to be formatted as '[name of systematic][Up or Down]'
+    # - staterrors: whether to plot statistical errors
+    # - style: choose from 'absolute', 'normalized' or 'relative'
     
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -117,37 +127,30 @@ def plotsystematics( mchistlist, systematiclist, figname,
     # extra info box parameters
     if infoleft is None: infoleft = leftmargin+0.05
     if infotop is None: infotop = 1-topmargin-0.1
+    # colormap
+    if colormap is None: colormap = getcolormap('systematics')
 
-    ### get nominal histogram and remove from the list
-    nominalindex = findbyname(mchistlist,"nominal")
-    if(nominalindex<0): 
-	print('### ERROR ###: nominal histogram not found.')
-	return
-    nominalhist = mchistlist[nominalindex]
-    nominallabel = systematiclist[nominalindex]
-    indices = list(range(len(mchistlist)))
-    indices.remove(nominalindex)
-    mchistlist = [mchistlist[i] for i in indices]
-    systematiclist = [systematiclist[i] for i in indices]
-
-    ### copy nominal histogram to plot statistical uncertainties
+    # copy nominal histogram to plot statistical uncertainties
+    # using the bin errors (if requested)
     stathist = nominalhist.Clone()
 
-    ### operations on mc histograms
+    # clipping and style setting
     # nominal histogram
-    sethiststyle(nominalhist, 'nominal')
-    ht.cliphistogram(nominalhist)
+    sethiststyle(nominalhist, 'nominal', colormap)
+    if doclip: ht.cliphistogram(nominalhist)
     # statistical histogram
     stathist.SetFillColorAlpha(ROOT.kBlue-7, 0.2)
-    ht.cliphistogram(stathist)
+    if doclip: ht.cliphistogram(stathist)
     # systematic histograms
-    for i,hist in enumerate(mchistlist):
-        sethiststyle(hist,systematiclist[i])
-	ht.cliphistogram(hist)
+    for hist in syshistlist:
+        sethiststyle(hist, hist.GetTitle(), colormap)
+	if doclip: ht.cliphistogram(hist)
 
-    ### rescale histograms in case of relative
-    if relative:
-	for hist in mchistlist+[stathist]+[nominalhist]:
+    # modify histograms for plot style 'normalized'
+    # (divide everything by bin content of nominalhist,
+    #  so nominal is at the unit line and systematics are relative to 1.)
+    if style=='normalized':
+	for hist in syshistlist+[stathist]+[nominalhist]:
 	    for i in range(0,hist.GetNbinsX()+2):
 		if nominalhist.GetBinContent(i)==0:
 		    hist.SetBinContent(i,1.)
@@ -155,16 +158,51 @@ def plotsystematics( mchistlist, systematiclist, figname,
 		else:
 		    hist.SetBinError(i,hist.GetBinError(i)/nominalhist.GetBinContent(i))
 		    hist.SetBinContent(i,hist.GetBinContent(i)/nominalhist.GetBinContent(i))
+
+    # modify histograms for plot style 'relative'
+    # (systematics are in absolute value and relative to 0.)
+    elif style=='relative':
+        for hist in syshistlist+[stathist]+[nominalhist]:
+            for i in range(0,hist.GetNbinsX()+2):
+                if nominalhist.GetBinContent(i)==0:
+                    hist.SetBinContent(i,0.)
+                    hist.SetBinError(i,0.)
+                else:
+                    hist.SetBinError(i,hist.GetBinError(i)/nominalhist.GetBinContent(i))
+                    hist.SetBinContent(i,abs(hist.GetBinContent(i)/nominalhist.GetBinContent(i)-1))
+        # also replace each pair of up/down by a single bin-per-bin maximum
+        newsyshistlist = []
+        for uphist in syshistlist:
+            # skip down histograms
+            if uphist.GetName().endswith('Down'): continue
+            # add variations that are neither up or down
+            if not uphist.GetName().endswith('Up'):
+                newsyshistlist.append(uphist)
+                continue
+            # for up histograms, find corresponding down histogram and do bin per bin max
+            downhist = syshistlist[findbyname(syshistlist, uphist.GetName().replace('Up', 'Down'))]
+            maxhist = ht.binperbinmaxvar([uphist,downhist], nominalhist)
+            # reset name, title and style
+            maxhist.SetTitle(uphist.GetTitle())
+            maxhist.SetName(uphist.GetName())
+            sethiststyle(maxhist, maxhist.GetTitle(), colormap)
+            newsyshistlist.append(maxhist)
+        syshistlist = newsyshistlist
+
+    elif style=='absolute': pass
+    else:
+        msg = 'ERROR: style {} not recognized.'.format(style)
+        raise Exception(msg)
     
-    ### make legend for upper plot and add all histograms
+    ### make legend and add all histograms
     legend = ROOT.TLegend(plegendbox[0],plegendbox[1],plegendbox[2],plegendbox[3])
     legend.SetFillStyle(0)
     nentries = 0
     allJECHasLabel = False
     groupedJECHasLabel = False
     unique_labels = []
-    for i,hist in enumerate(mchistlist):
-	label = systematiclist[i]
+    for hist in syshistlist:
+	label = hist.GetTitle()
 	# avoid drawing a legend entry for all shape variations
 	if('ShapeVar0' in label): label = label[:label.find('Var0')]
 	elif('ShapeVar' in label): continue
@@ -181,8 +219,7 @@ def plotsystematics( mchistlist, systematiclist, figname,
 	    else: continue
         # avoid drawing duplicate labels if requested
         if( remove_duplicate_labels and label in unique_labels ): continue
-        else: 
-          unique_labels.append(label)
+        else: unique_labels.append(label)
         # modify down label for better readability
 	if label.endswith('Down'): label = '~Down'
         # remove down labels if requested
@@ -191,7 +228,7 @@ def plotsystematics( mchistlist, systematiclist, figname,
           if label.endswith('Up'): label = label[:-2]
         legend.AddEntry(hist,label,"l")
 	nentries += 1
-    legend.AddEntry(nominalhist,nominallabel,"l")
+    legend.AddEntry(nominalhist, 'nominal', "l")
     legend.SetNColumns(1)
 
     ### make canvas and pads
@@ -210,11 +247,11 @@ def plotsystematics( mchistlist, systematiclist, figname,
     ### make upper part of the plot
     pad1.cd()
     # determine plot range based on minimum and maximum variation
-    (rangemin,rangemax) = getminmax(mchistlist)
+    (rangemin,rangemax) = getminmax(syshistlist)
     # if drawing error bars, also take statistical variation into account
-    if staterrors:
-	(srangemin,srangemax) = getminmax([stathist],witherrors=True)
-    if not relative: rangemin = 0.
+    if staterrors: (srangemin,srangemax) = getminmax([stathist], witherrors=True)
+    if style=='absolute': rangemin = 0.
+    if style=='relative': rangemin = 0.
     if yaxrange is not None:
 	rangemin = yaxrange[0]
 	rangemax = yaxrange[1]
@@ -222,6 +259,9 @@ def plotsystematics( mchistlist, systematiclist, figname,
     nominalhist.SetMaximum(rangemax)
     stathist.SetMinimum(rangemin)
     stathist.SetMaximum(rangemax)
+    for hist in syshistlist:
+        hist.SetMinimum(rangemin)
+        hist.SetMaximum(rangemax)
 
     # X-axis layout
     xax = nominalhist.GetXaxis()
@@ -248,11 +288,11 @@ def plotsystematics( mchistlist, systematiclist, figname,
     # histograms
     nominalhist.Draw("hist")
     if staterrors: stathist.Draw("e2 same")
-    for hist in mchistlist:
-	# draw ShapeVar histograms first to put them in background
-	if not 'ShapeVar' in hist.GetName(): continue
-	hist.Draw("hist same")
-    for hist in mchistlist:
+    for hist in syshistlist:
+    	# draw ShapeVar histograms first to put them in background
+    	if not 'ShapeVar' in hist.GetName(): continue
+    	hist.Draw("hist same")
+    for hist in syshistlist:
 	# now draw all other histograms
 	if 'ShapeVar' in hist.GetName(): continue
 	hist.Draw("hist same")
@@ -278,5 +318,5 @@ def plotsystematics( mchistlist, systematiclist, figname,
     c1.SaveAs(figname+'.png')
     c1.SaveAs(figname+'.pdf')
     ### save txt files with values if requested
-    if len(outtxtfile)>0: histlisttotxt([nominalhist]+mchistlist,outtxtfile)
+    if len(outtxtfile)>0: histlisttotxt([nominalhist]+syshistlist,outtxtfile)
     return

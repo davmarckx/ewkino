@@ -3,7 +3,7 @@
 #######################################
 # This script is supposed to be used on an output file of runanalysis.py,
 # i.e. a root file containing histograms with the following naming convention:
-# <process tag>_<variable name>_<systematic>
+# <process tag>_<selection region>_<variable name>_<systematic>
 # where the systematic is either "nominal" or a systematic name followed by "Up" or "Down".
 
 import sys
@@ -18,65 +18,28 @@ sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../combine/'))
 from uncertaintytools import remove_systematics_default
+sys.path.append(os.path.abspath('../plotting'))
+from infodicts import get_region_dict
+from colors import getcolormap
+from systtools import category
 from systplotter import plotsystematics
-
-def get_jec_rms_list( hislist ):
-  ### helper function
-  # add root-sum-square of the individual JEC variations
-  # make sure to exclude the superfluous JEC variations in the selection above
-  # or the rss will be too large!
-  res = []
-  nominalhist = histlist[findbyname( histlist, 'nominal' )]
-  jecall = ht.selecthistograms(histlist,mustcontainall=['JECAll','Down'])[1]
-  jecgrouped = ht.selecthistograms(histlist,mustcontainall=['JECGrouped','Down'])[1]
-  for i,hist in enumerate(jecall):
-    downhist = histlist[findbyname(histlist,hist.GetName().replace('Down','Up'))]
-    jecall[i] = ht.binperbinmaxvar( [hist,downhist], nominalhist )
-    jecall[i].SetName( hist.GetName().replace('Down','Max') )
-  for i,hist in enumerate(jecgrouped):
-    downhist = histlist[findbyname(histlist,hist.GetName().replace('Down','Up'))]
-    jecgrouped[i] = ht.binperbinmaxvar( [hist,downhist], nominalhist )
-    jecgrouped[i].SetName( hist.GetName().replace('Down','Max') )
-  if( len(jecall)>0 ):
-    jecallup = nominalhist.Clone()
-    jecallup.Add( ht.rootsumsquare(jecall) )
-    jecallup.SetName( jecall[0].GetName()[0:jecall[0].GetName().find('JECAll')]
-                      + 'JECSqSumAllUp' )
-    jecalldown = nominalhist.Clone()
-    jecalldown.Add( ht.rootsumsquare(jecall), -1 )
-    jecalldown.SetName( jecall[0].GetName()[0:jecall[0].GetName().find('JECAll')]
-                      + 'JECSqSumAllDown' )
-    res.append(jecallup)
-    res.append(jecalldown)
-  if( len(jecgrouped)>0 ):
-    jecgroupedup = nominalhist.Clone()
-    jecgroupedup.Add( ht.rootsumsquare(jecgrouped) )
-    jecgroupedup.SetName( jecgrouped[0].GetName()[0:jecgrouped[0].GetName().find(
-                          'JECGrouped')] + 'JECSqSumGroupedUp' )
-    jecgroupeddown = nominalhist.Clone()
-    jecgroupeddown.Add( ht.rootsumsquare(jecgrouped), -1 )
-    jecgroupeddown.SetName( jecgrouped[0].GetName()[0:jecgrouped[0].GetName().find(
-                            'JECGrouped')] + 'JECSqSumGroupedDown' )
-    res.append(jecgroupedup)
-    res.append(jecgroupeddown)
-  return res
 
 
 if __name__=="__main__":
     
   # parse arguments
   parser = argparse.ArgumentParser('Plot systematics')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath,
+  parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath,
                       help='Input file to start from, supposed to be an output file'
-                          +' from runsystematics.cc')
-  parser.add_argument('--year', required=True)
-  parser.add_argument('--region', required=True)
-  parser.add_argument('--processes', required=True,
+                          +' from runsystematics.cc or equivalent')
+  parser.add_argument('-y', '--year', required=True)
+  parser.add_argument('-r', '--region', required=True)
+  parser.add_argument('-p', '--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
-  parser.add_argument('--variables', required=True, type=os.path.abspath,
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath,
                       help='Path to json file holding variable definitions.')
-  parser.add_argument('--outputdir', required=True, 
+  parser.add_argument('-o', '--outputdir', required=True, 
                       help='Directory where to store the output.')
   parser.add_argument('--includetags', default=None,
                       help='Comma-separated list of systematic tags to include')
@@ -91,6 +54,12 @@ if __name__=="__main__":
                       help='Comma-separated list of additional info to display on plot'
                           +' (e.g. simulation year or selection region).'
                           +' Use underscores for spaces.')
+  parser.add_argument('--noclip', default=False, action='store_true',
+                      help='Disable automatic clipping of all histograms before plotting.')
+  parser.add_argument('--group', default=False, action='store_true',
+                      help='Group systematics in categories before plotting.')
+  parser.add_argument('--includetotal', default=False, action='store_true',
+                      help='Include total systematic uncertainty.')
   args = parser.parse_args()
 
   # print arguments
@@ -114,8 +83,10 @@ if __name__=="__main__":
   # parse include and exclude tags
   includetags = []
   if args.includetags is not None: includetags = args.includetags.split(',')
+  if includetags==['none']: includetags = []
   excludetags = []
   if args.excludetags is not None: excludetags = args.excludetags.split(',')
+  if excludetags==['none']: excludetags = []
 
   # parse tags
   extratags = []
@@ -183,7 +154,17 @@ if __name__=="__main__":
   shapesyslist = PIC.slist
   print('Extracted following relevant systematics from histogram file:')
   for systematic in shapesyslist: print('  - '+systematic)
-	
+
+  # group systematics
+  if args.group:
+    categories = [category(systematic) for systematic in shapesyslist]
+    catdict = {}
+    for cat in set(categories):
+        catdict[cat] = [shapesyslist[i] for i in range(len(shapesyslist)) if categories[i]==cat]
+    print('Will group systematics as follows:')
+    for cat in catdict.keys():
+        print('  {}'.format(cat))
+        for sys in catdict[cat]: print('    {}'.format(sys))
 
   # loop over variables
   for var in varlist:
@@ -206,45 +187,81 @@ if __name__=="__main__":
       _ = remove_systematics_default( PIC, year=args.year )
     PC = ProcessCollection( PIC, args.inputfile )
 
-    # get the histograms
-    histlist = []
-    # loop over all systematics
+    # get the nominal histogram
+    nominalhist = PC.get_nominal()
+    nominalhist.SetTitle('nominal')
+
+    # get the systematics histograms
+    syshistlist = []
+    # make a list of all systematics
     for systematic in sorted(shapesyslist):
       uphist = PC.get_systematic_up(systematic)
       uphist.SetTitle(systematic+'Up')
+      if uphist.GetName().endswith('Down'):
+          uphist.SetName(uphist.GetName()[:-4]+'Up')
       downhist = PC.get_systematic_down(systematic)
       downhist.SetTitle(systematic+'Down')
-      histlist.append(uphist)
-      histlist.append(downhist)
-    # also add the nominal
-    nominalhist = PC.get_nominal()
-    nominalhist.SetTitle('nominal')
-    histlist.append(nominalhist)
+      if downhist.GetName().endswith('Up'):
+          downhist.SetName(downhist.GetName()[:-2]+'Down')
+      syshistlist.append(uphist)
+      syshistlist.append(downhist)
+    # re-group systematics if requested
+    if args.group:
+      newsyshistlist = []
+      for cat in catdict.keys():
+        rss = PC.get_systematics_rss(systematics=catdict[cat], correlate_processes=True)
+        uphist = nominalhist.Clone()
+        uphist.Add(rss)
+        uphist.SetTitle(cat+'Up')
+        if uphist.GetName().endswith('Down'):
+          uphist.SetName(uphist.GetName()[:-4]+'Up')
+        downhist = nominalhist.Clone()
+        downhist.Add(rss, -1)
+        downhist.SetTitle(cat+'Down')
+        if downhist.GetName().endswith('Up'):
+          downhist.SetName(downhist.GetName()[:-2]+'Down')
+        newsyshistlist.append(uphist)
+        newsyshistlist.append(downhist)
+      syshistlist = newsyshistlist
+    # add total if requested
+    if args.includetotal:
+        rss = PC.get_systematics_rss(correlate_processes=True)
+        uphist = nominalhist.Clone()
+        uphist.Add(rss)
+        uphist.SetTitle('totalUp')
+        if uphist.GetName().endswith('Down'):
+          uphist.SetName(uphist.GetName()[:-4]+'Up')
+        downhist = nominalhist.Clone()
+        downhist.Add(rss, -1)
+        downhist.SetTitle('totalDown')
+        if downhist.GetName().endswith('Up'):
+          downhist.SetName(downhist.GetName()[:-2]+'Down')
+        syshistlist.append(uphist)
+        syshistlist.append(downhist)
 
     # printouts for testing
-    #for hist in histlist:
+    #for hist in syshistlist:
     #  print(hist)
 
     # re-order histograms to put individual pdf, qcd and jec variations in front
     # (so they will be plotted in the background)
     firsthistlist = []
     secondhistlist = []
-    for hist in histlist:
+    for hist in syshistlist:
       if( 'ShapeVar' in hist.GetName() 
 	  or 'JECAll' in hist.GetName() 
           or 'JECGrouped' in hist.GetName() ):
         firsthistlist.append(hist)
       else: secondhistlist.append(hist)
-    histlist = firsthistlist + secondhistlist
+    syshistlist = firsthistlist + secondhistlist
 
     # add squared sum of jecs (disable when not needed
-    #jecrms = get_jec_rms_list(histlist)
-    #for hist in jecrms: histlist.append(hist)
+    #jecrms = get_jec_rms_list(syshistlist)
+    #for hist in jecrms: syshistlist.append(hist)
 
-    # make a list of labels
+    # format the labels
     # (remove year and process tags for more readable legends)
-    labellist = []
-    for hist in histlist:
+    for hist in syshistlist:
       label = str(hist.GetTitle())
       baselabel = label
       if label.endswith('Up'): baselabel = label[:-2]
@@ -255,10 +272,11 @@ if __name__=="__main__":
           label = label.replace(p,'')
       for y in ['2016PreVFP','2016PostVFP','2017','2018']:
         if baselabel.endswith(y): label = label.replace(y,'')
-      labellist.append(label)
+      hist.SetTitle(label)
 
     # make extra infos to display on plot
     extrainfos = []
+    # processes
     pinfohead = 'Processes:'
     if doallprocesses:
       pinfohead += ' all'
@@ -267,22 +285,48 @@ if __name__=="__main__":
       pinfostr = ','.join([str(p) for p in processes])
       extrainfos.append(pinfohead)
       extrainfos.append(pinfostr)
+    # year
+    yeartag = args.year.replace('run2', 'Run 2')
+    extrainfos.append(yeartag)
+    # region
+    regiontag = get_region_dict().get(args.region, args.region)
+    extrainfos.append(regiontag)
+    # others
     for tag in extratags: extrainfos.append(tag)
+
+    # choose color map
+    colormap = None
+    if args.group: colormap = getcolormap('systematics_grouped')
 
     # set plot properties
     figname = args.inputfile.split('/')[-1].replace('.root','')+'_var_'+variablename 
     figname = os.path.join(args.outputdir,figname)
     yaxtitle = 'Events'
     relyaxtitle = 'Normalized'
-    plotsystematics(histlist, labellist, figname+'_abs', 
+    # make absolute plot
+    plotsystematics(nominalhist, syshistlist, figname+'_abs', 
+                    colormap=colormap,
                     yaxtitle=yaxtitle, xaxtitle=xaxtitle,
-                    relative=False, staterrors=True,
+                    style='absolute', staterrors=True,
+                    doclip=(not args.noclip),
                     extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15,
                     remove_duplicate_labels=True,
                     remove_down_labels=True)
-    plotsystematics(histlist, labellist, figname+'_rel',
+    # make normalized plot
+    plotsystematics(nominalhist, syshistlist, figname+'_nrm',
+                    colormap=colormap,
                     yaxtitle=relyaxtitle, xaxtitle=xaxtitle,
-                    relative=True, staterrors=True,
+                    style='normalized', staterrors=True,
+                    doclip=(not args.noclip),
+                    extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15,
+                    remove_duplicate_labels=True,
+                    remove_down_labels=True)
+    # make relative plot
+    plotsystematics(nominalhist, syshistlist, figname+'_rel',
+                    colormap=colormap,
+                    yaxtitle=relyaxtitle, xaxtitle=xaxtitle,
+                    style='relative', staterrors=True,
+                    doclip=(not args.noclip),
                     extrainfos=extrainfos, infoleft=0.19, infotop=0.85, infosize=15,
                     remove_duplicate_labels=True,
                     remove_down_labels=True)

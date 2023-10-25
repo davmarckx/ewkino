@@ -177,6 +177,55 @@ def clipallhistograms(histfile,mustcontainall=[],clipboundary=0):
     os.system('mv '+tempfilename+' '+histfile)
 
 
+### histogram smoothing ###
+
+def smooth(hist, window='auto'):
+    bincontents = []
+    binerrors = []
+    for i in range(1,hist.GetNbinsX()+1):
+        bincontents.append(hist.GetBinContent(i))
+        binerrors.append(hist.GetBinError(i))
+    bincontents = np.array(bincontents)
+    binerrors = np.array(binerrors)
+    if isinstance(window, str) and window=='auto':
+        # make an adaptive window with weights based on bin errors
+        smoothcontents = np.zeros(len(bincontents))
+        window = np.array([1,2,3,2,1])
+        window_half_size = int((len(window)-1)/2)
+        binerrors = np.where(binerrors==0, np.amax(binerrors), binerrors)
+        binerrors = np.where(binerrors==0, 1, binerrors)
+        for i in range(len(smoothcontents)):
+            vals = bincontents[max(0,i-window_half_size):min(len(bincontents),i+1+window_half_size)]
+            errors = binerrors[max(0,i-window_half_size):min(len(bincontents),i+1+window_half_size)]
+            windowpart = window[max(0,window_half_size-i):min(len(window),len(bincontents)-i+window_half_size)]
+            adaptive_window = np.multiply(windowpart, np.reciprocal(errors))
+            adaptive_window = adaptive_window/np.sum(adaptive_window)
+            smoothcontents[i] = np.sum(np.multiply(vals, adaptive_window))
+    else:
+        # standard case of convolution with fixed window
+        padlength = int((len(window)-1)/2)
+        bincontents = np.concatenate((np.ones(padlength)*bincontents[0],
+          bincontents, np.ones(padlength)*bincontents[-1]))
+        window = np.array(window)
+        window = window/float(np.sum(window))
+        smoothcontents = np.convolve(bincontents, window, mode='valid')
+    for i in range(1,hist.GetNbinsX()+1):
+        hist.SetBinContent(i, smoothcontents[i-1])
+
+def smoothvariation(hist, nominal, **kwargs):
+    for i in range(1, hist.GetNbinsX()+1):
+        if nominal.GetBinContent(i)==0:
+            hist.SetBinContent(i, 0)
+            hist.SetBinError(i, 0)
+        else:
+            hist.SetBinContent(i, (hist.GetBinContent(i) - nominal.GetBinContent(i))/nominal.GetBinContent(i))
+            hist.SetBinError(i, hist.GetBinError(i)/nominal.GetBinContent(i))
+    smooth(hist, **kwargs)
+    for i in range(1, hist.GetNbinsX()+1):
+        hist.SetBinContent(i, nominal.GetBinContent(i) + hist.GetBinContent(i)*nominal.GetBinContent(i))
+        hist.SetBinError(i, hist.GetBinError(i)*nominal.GetBinContent(i))
+
+
 ### take absolute value ###
 
 def absolute(hist):
@@ -264,18 +313,27 @@ def tgraphtohist( graph ):
 
 ### histogram calculations ###
 
-def binperbinmaxvar( histlist, nominalhist ):
+def binperbinmaxvar( histlist, nominalhist, error=False ):
     ### get the bin-per-bin maximum variation (in absolute value) of histograms in histlist 
     ### wrt nominalhist.
+    # input arguments:
+    # - error: whether to include some measure of error (default: set error to zero)
+    #          note: the included error is not necessarily statistically correct.
+    #          note: error calculation is not typically needed for this function
+    #                (as only shape templates wrt nominal are involved)
     maxhist = nominalhist.Clone()
     maxhist.Reset()
     nbins = maxhist.GetNbinsX()
     for i in range(0,nbins+2):
         nomval = nominalhist.GetBinContent(i)
         varvals = np.zeros(len(histlist))
+        varerrors = np.zeros(len(histlist))
         for j in range(len(histlist)):
             varvals[j] = abs(histlist[j].GetBinContent(i)-nomval)
-        maxhist.SetBinContent(i,np.amax(varvals))
+            varerrors[j] = histlist[j].GetBinError(i)
+        maxidx = np.argmax(varvals)
+        maxhist.SetBinContent(i, varvals[maxidx])
+        if error: maxhist.SetBinError(i, varerrors[maxidx])
     return maxhist
 
 def envelope( histlist, returntype='tuple' ):

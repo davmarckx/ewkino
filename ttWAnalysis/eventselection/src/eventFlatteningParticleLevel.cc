@@ -16,7 +16,7 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
     std::map< std::string, double> varmap = {
 	{"_yield",0.5},
 	{"_nJets",0}, {"_nBJets",0},
-	{"_nLooseBJets", 0},
+	{"_nLooseBJets",0},
 	{"_nMuons",0},{"_nElectrons",0},
 	{"_leptonPtLeading",0.}, {"_leptonPtSubLeading",0.}, {"_leptonPtTrailing",0.},
 	{"_leptonEtaLeading",0.}, {"_leptonEtaSubLeading",0.}, {"_leptonEtaTrailing",0.},
@@ -24,8 +24,11 @@ std::map< std::string, double > eventFlatteningParticleLevel::initVarMap(){
 	{"_jetPtLeading",0.}, {"_jetPtSubLeading",0.},
 	{"_jetEtaLeading",0.}, {"_jetEtaSubLeading",0.},
         {"_jetAbsEtaLeading",0.}, {"_jetAbsEtaSubLeading",0.},
-        {"_bjetPtLeading",0.},{"_bjetEtaLeading",0.},{"_bjetAbsEtaLeading",0.},
-	{"_nJetsNBJetsCat",-1},{"_HT",0.},{"_dRl1jet",99.},{"_dRl1l2",99.},{"_leptonMaxEta",0.}
+        {"_bjetPtLeading",0.}, {"_bjetEtaLeading",0.}, {"_bjetAbsEtaLeading",0.},
+	{"_nJetsNBJetsCat",-1}, {"_HT",0.},
+	{"_dRl1jet",99.}, {"_dRl1bjet",99.}, {"_dRl1l2",99.},
+	{"_deltaEtaLeadingLeptonPair",0.}, {"_leptonMaxEta",0.},
+	{"_M3l",0.}, {"_leptonPtSum",0.}
     };
     return varmap;    
 }
@@ -66,19 +69,29 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
         varmap["_leptonAbsEtaLeading"] = fabs(lepcollection[0].eta());
         varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaLeading"];
 
-        for(JetParticleLevelCollection::const_iterator jIt = jetcollection.cbegin();
-            jIt != jetcollection.cend(); jIt++){
-            JetParticleLevel& jet = **jIt;
-            if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
-        } 
+	if(jetcollection.size()>=1){
+	    for(JetParticleLevelCollection::const_iterator jIt = jetcollection.cbegin();
+		jIt != jetcollection.cend(); jIt++){
+		JetParticleLevel& jet = **jIt;
+		if(deltaR(lepcollection[0],jet)<varmap["_dRl1jet"]) varmap["_dRl1jet"] = deltaR(lepcollection[0],jet);
+	    }
+	}
+	if(bjetcollection.size()>=1){
+	    for(JetParticleLevelCollection::const_iterator jIt = bjetcollection.cbegin();
+		jIt != bjetcollection.cend(); jIt++){
+		JetParticleLevel& jet = **jIt;
+		if(deltaR(lepcollection[0],jet)<varmap["_dRl1bjet"]) varmap["_dRl1bjet"] = deltaR(lepcollection[0],jet);
+	    }
+	}
     }
+
     if(lepcollection.numberOfLightLeptons()>=2){
 	varmap["_leptonPtSubLeading"] = lepcollection[1].pt();
 	varmap["_leptonEtaSubLeading"] = lepcollection[1].eta();
         varmap["_leptonAbsEtaSubLeading"] = fabs(lepcollection[1].eta());
         if( varmap["_leptonAbsEtaSubLeading"] > varmap["_leptonMaxEta"]){ varmap["_leptonMaxEta"] = varmap["_leptonAbsEtaSubLeading"]; }
-
         varmap["_dRl1l2"] = deltaR(lepcollection[0],lepcollection[1]);
+	varmap["_deltaEtaLeadingLeptonPair"] = deltaEta(lepcollection[0],lepcollection[1]);
     }
     if(lepcollection.numberOfLightLeptons()>=3){
 	varmap["_leptonPtTrailing"] = lepcollection[2].pt();
@@ -92,8 +105,12 @@ std::map< std::string, double > eventFlatteningParticleLevel::eventToEntry( Even
     varmap["_nLooseBJets"] = varmap["_nBJets"];
     // (just for syntax, there needs to be an entry nLooseBJets to correspond to the same detector level variable)
 
-    // HT
+    // HT and similar pt sums
     varmap["_HT"] = jetcollection.scalarPtSum();
+    varmap["_leptonPtSum"] = lepcollection.scalarPtSum();
+
+    // invariant masses
+    varmap["_M3l"] = lepcollection.mass();
 
     // jet pt and eta
     jetcollection.sortByPt();

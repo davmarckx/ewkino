@@ -155,6 +155,7 @@ if __name__=='__main__':
     ihist = get_rebinned_hist(hist,initbins)
     imetric = get_eval_metric(ihist)
     info['initial'] = get_eval_all(ihist)
+    info['initialbins'] = initbins
 
     # start iteration
     bins = initbins[:]
@@ -173,6 +174,7 @@ if __name__=='__main__':
     fhist = get_rebinned_hist(hist,bins)
     fmetric = get_eval_metric(fhist)
     info['final'] = get_eval_all(fhist)
+    info['finalbins'] = bins
 
     # print result
     print('Results of optimization loop:')

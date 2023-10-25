@@ -42,6 +42,8 @@ rawsystematics = False
 dolog = True
 
 #variables = '../variables/variables_main.json' # single variables
+
+#variables = '../variables/variables_main_reduced.json' # single variables, slightly reduced set
 #variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
 variables = '../variables/variables_particlelevel_double.json' # double variables

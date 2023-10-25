@@ -12,6 +12,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Parse combine output')
   parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
+  parser.add_argument('--plotcorrelations', default=False, action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -42,3 +43,10 @@ if __name__=='__main__':
       if rtype=='withcr': cmd += ' --usecr'
       # run the command
       os.system(cmd)
+      # optionally plot correlations
+      if args.plotcorrelations:
+        outputdir = outputfile.replace('.json','_correlations')
+        cmd = 'python differential_plotcorrelations.py'
+        cmd += ' --inputfile {}'.format(outputfile)
+        cmd += ' --outputdir {}'.format(outputdir)
+        os.system(cmd)

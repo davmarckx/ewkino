@@ -17,7 +17,9 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
+
 topdir = '../analysis/output_inclusive_mainv2'
+
   
 #years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 years = ['run2']
@@ -25,15 +27,16 @@ years = ['run2']
 regions = ({
     'signalregion_dilepton_plus': '_eventBDT',
     'signalregion_dilepton_minus': '_eventBDT',
-    'trileptoncontrolregion': '_nJetsNBJetsCat',
+    'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
-    'cfcontrolregion': '_nJets'
+    'cfjetscontrolregion': '_nJets'
 })
-  
+
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
 outputdir = 'datacards_plusminus'
+
 
 runmode = 'local'
 

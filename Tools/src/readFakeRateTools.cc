@@ -15,8 +15,8 @@ std::shared_ptr< TH2D > readFakeRateTools::readFRMap(
 	msg.append( " file " + pathToFile + " does not exist." );
 	throw std::runtime_error(msg); 
     }
-    TFile* frFile = TFile::Open( pathToFile.c_str() );
     try{
+	TFile* frFile = TFile::Open( pathToFile.c_str() );
 	std::shared_ptr< TH2D > frMap( dynamic_cast< TH2D* >( 
 	    frFile->Get( histName.c_str() ) ) );
 	frMap->SetDirectory( gROOT );

@@ -63,14 +63,15 @@ def makealigned(stringlist):
         stringlist[i] = str('{:<'+str(maxlen)+'}').format(s)
 
 def writedatacard( datacarddir, channelname, processinfo,
-                   histfile, variable, dummydata=False,
-                   shapesyslist=[], lnnsyslist=[],
-                   rateparamlist=[], ratio=[],
-                   automcstats=10,
-                   writeobs=False,
-                   writeselectedhists=True,
-                   writeallhists=False,
-                   autof=False ):
+
+		   histfile, variable, dummydata=False,
+		   shapesyslist=[], smoothsyslist=[], lnnsyslist=[],
+		   rateparamlist=[], ratio=[],
+		   automcstats=10,
+		   writeobs=False,
+       writeselectedhists=True,
+       writeallhists=False,
+       autof=False ):
     ### write a datacard corresponding to a single channel ('bin' in combine terminology)
     # input arguments:
     # - datacarddir: directory where the card and histograms will go
@@ -82,7 +83,9 @@ def writedatacard( datacarddir, channelname, processinfo,
     # - dummydata: use some random histogram for data rather than the one from datatag
     #   (useful when no data is available, but still need correct datacard syntax)
     # - shapesyslist: list of shape systematics to consider (default: none)
-    #   (must be a subset of the ones included in processinfo)
+    #	(must be a subset of the ones included in processinfo)
+    # - smoothsyslist: list of shape systematics to smooth
+    #   (must be a subset of shapesyslist)
     # - lnnsyslist: list of normalization systematics (type lnN) to consider (default: none)
     #   (must be a subset of the ones included in processinfo)
     # - rateparamlist: a list of process names for which to add a rate param
@@ -147,7 +150,21 @@ def writedatacard( datacarddir, channelname, processinfo,
       else:
         histnames = processinfo.allhistnames()
         hists = ht.loadhistogramlist(histfile, histnames)
+        # histogram processing: clipping
         ht.cliphistograms(hists)
+        # histogram processing: smoothing
+        for hist in hists:
+            smooth = False
+            systematic_tag = None
+            for systematic in smoothsyslist:
+                if systematic in hist.GetName():
+                    smooth = True
+                    systematic_tag = systematic
+            if smooth:
+                print('Smoothing histogram {}'.format(hist.GetName()))
+                requestnominal = hist.GetName().split(systematic_tag)[0]+'nominal'
+                nominal = ht.findhistogram(hists, requestnominal)
+                ht.smoothvariation(hist, nominal)
         f = ROOT.TFile.Open(newhistpath,'recreate')
         for hist in hists: hist.Write()
         f.Close()
