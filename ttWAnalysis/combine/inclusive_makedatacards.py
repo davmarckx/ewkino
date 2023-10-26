@@ -36,7 +36,12 @@ regions = ({
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
+
 outputdir = 'datacards_single_txt2ws'
+
+#rateparams = None
+rateparams = ['WZ', 'ZZ', 'TTZ']
+
 
 runmode = 'condor'
 
@@ -65,6 +70,7 @@ for year in years:
     cmd += ' --processes all'
     cmd += ' --signals TTW'
     cmd += ' --datatag Data'
+    if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
     cmds.append(cmd)
 
 # run commands

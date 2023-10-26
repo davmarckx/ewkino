@@ -18,6 +18,7 @@ from processinfo import ProcessInfoCollection
 from datacardtools import writedatacard
 from uncertaintytools import remove_systematics_default
 from uncertaintytools import add_systematics_default
+from uncertaintytools import get_systematics_to_smooth
 from uncertaintytools import remove_systematics_all
 from uncertaintytools import add_systematics_dummy
 
@@ -106,13 +107,17 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
         if( p in el and el in shapesyslist ):
           shapesyslist.remove(el)
     normsyslist = add_systematics_default( PIC, year=year )
+    smoothsyslist = get_systematics_to_smooth( shapesyslist )
   elif( dummysystematics ):
     (removedforall, _) = remove_systematics_all( PIC )
     for el in removedforall: shapesyslist.remove(el)
     normsyslist = add_systematics_dummy( PIC )
-  else: normsyslist = []
+    smoothsyslist = []
+  else:
+    normsyslist = []
+    smoothsyslist = []
 
-  return (PIC, shapesyslist, normsyslist)
+  return (PIC, shapesyslist, normsyslist, smoothsyslist)
 
   
 if __name__=="__main__":
@@ -128,6 +133,8 @@ if __name__=="__main__":
                           +' use "all" to use all processes in the input file.')
   parser.add_argument('--signals', default=None,
                       help='Comma-separated list of process tags to consider as signal.')
+  parser.add_argument('--rateparams', default=None,
+                      help='Comma-separated list of process tags to consider as free floating.')
   parser.add_argument('--renamesignals', default=None,
                       help='Comma-separated list (same length and order as --signals)'
                           +'with new names for signals in data card.')
@@ -163,6 +170,10 @@ if __name__=="__main__":
   signals = []
   if args.signals is not None: signals = args.signals.split(',')
 
+  # parse the string with rate parameter tags
+  rateparams = []
+  if args.rateparams is not None: rateparams = args.rateparams.split(',')
+
   # parse the string with rename signal tags
   renamesignals = []
   if args.renamesignals is not None: renamesignals = args.renamesignals.split(',')
@@ -181,7 +192,7 @@ if __name__=="__main__":
 
   # make the ProcessInfoCollection
   adddata = not args.dummydata
-  (PIC, shapesyslist, normsyslist) = makeProcessInfoCollection( 
+  (PIC, shapesyslist, normsyslist, smoothsyslist) = makeProcessInfoCollection( 
     args.inputfile, args.year, args.region, args.variable, processes,
     signals=signals, strict_signals=False,
     includetags=includetags, excludetags=excludetags, 
@@ -198,8 +209,9 @@ if __name__=="__main__":
   writedatacard( outputdir, outputfilename, PIC,
                  args.inputfile, args.variable, 
                  dummydata=args.dummydata,
-                 shapesyslist=shapesyslist, lnnsyslist=normsyslist,
-                 rateparamlist=[], ratio=[],
+                 shapesyslist=shapesyslist, smoothsyslist=smoothsyslist,
+                 lnnsyslist=normsyslist,
+                 rateparamlist=rateparams, ratio=[],
                  automcstats=10,
                  writeobs=False,
                  autof=False )

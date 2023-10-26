@@ -31,8 +31,8 @@ signalregion = ({
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double.json'
 })
-  
-outputdir = 'datacards_double_bintestv3'
+
+outputdir = 'datacards_double_dilepton'
 
 runmode = 'local'
 
