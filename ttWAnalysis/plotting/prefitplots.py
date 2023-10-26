@@ -337,6 +337,7 @@ if __name__=="__main__":
       if( args.splitvariable is not None and args.splitprocess is not None ):  
           if args.splitvariable != var.secondary.name:
               print('WARNING: labels for case split variable != secondary variable not yet implemented.')
+              print(args.splitvariable + " and " + var.secondary.name)
               continue
           signals = [x + args.splitvariable.replace('_','') for x in args.signals]
           signals.append(args.splitprocess+"0")

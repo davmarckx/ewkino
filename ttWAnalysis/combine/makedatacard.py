@@ -91,8 +91,7 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   for p in signals: 
     if not strict_signals:
       if p not in PIC.plist:
-        print('WARNING: requested signal {} not found in ProcessInfoCollection.'
-              +' Will continue anyway without this signal.')
+        print('WARNING: requested signal {} not found in ProcessInfoCollection. Will continue anyway without this signal.'.format(p))
         continue
     PIC.makesig( p )
 

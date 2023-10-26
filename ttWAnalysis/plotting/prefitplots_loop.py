@@ -44,7 +44,9 @@ dolog = True
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
-variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double variables for bin study
+
 
 colormap = 'ttw'
 

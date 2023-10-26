@@ -125,8 +125,8 @@ if __name__=='__main__':
       (pois, pomap) = getpomap(signals)
     print('Using following POIs:')
     print(pois)
-    #print('Using following PO map:')
-    #print(pomap)
+    print('Using following PO map:')
+    print(pomap)
 
     # add elementary signal region cards if requested
     if args.runelementary:
