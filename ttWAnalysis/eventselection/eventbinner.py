@@ -60,7 +60,7 @@ if __name__=='__main__':
   variations = '+'.join(args.variation)
 
   # check if executable is present
-  exe = './eventbinner2'
+  exe = './eventbinner'
   if not os.path.exists(exe):
     raise Exception('ERROR: {} executable was not found.'.format(exe))
 

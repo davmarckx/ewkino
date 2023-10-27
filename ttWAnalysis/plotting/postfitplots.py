@@ -212,11 +212,11 @@ def make_workspace( channels, variables, outputdir, workspacename,
     print('Writing full datacard...')
     writedatacard( outputdir, name, PIC,
                  path, variable,
-                 #datatag=datatag,
+                 datatag=datatag,
                  shapesyslist=shapesyslist, lnnsyslist=normsyslist,
                  rateparamlist=[], ratio=[],
                  automcstats=10,
-                 writeobs=True,
+                 writeobs=False,
                  writeallhists=True,
                  autof=False )
     
@@ -230,11 +230,11 @@ def make_workspace( channels, variables, outputdir, workspacename,
       print('Writing statistics-only datacard...')
       writedatacard( outputdir, name, PIC,
                  path, variable,
-                 #datatag=datatag,
+                 datatag=datatag,
                  shapesyslist=[], lnnsyslist=[],
                  rateparamlist=[], ratio=[],
                  automcstats=10,
-                 writeobs=True,
+                 writeobs=False,
                  writeallhists=True,
                  autof=False )
       # rename the datacard taking into account the specific variable

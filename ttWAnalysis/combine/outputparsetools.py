@@ -36,16 +36,11 @@ def read_fitdiagnostics_from_txt( filepath ):
   with open(filepath,'r') as f:
     for l in f.readlines():
       if l.startswith('Best fit r:'):
-        print(l)
         l = l.replace('Best fit r: ','').replace(' (68% CL)','')
-        print(l)
         l = l.split(' ')
         r = l[0]
         uperror = l[2].split('/')[1].strip('+')
         downerror = l[2].split('/')[0].strip('-')
-        print(r)
-        print(uperror)
-        print(downerror)
 	if not (isnumber(r) and isnumber(uperror) and isnumber(downerror)): continue
 	nvalid += 1
   if nvalid != 1:
@@ -70,7 +65,6 @@ def read_fitdiagnostics( datacarddir, card, statonly=False, usedata=False, mode=
   # read output file
   if mode=='txt':
     txtfile = os.path.join(datacarddir,resultfile+'.txt')
-    print(txtfile)
     return read_fitdiagnostics_from_txt( txtfile )
   elif mode=='root':
     raise Exception('ERROR in read_fitdiagnostics: mode "root" not yet implemented')
@@ -201,7 +195,6 @@ def read_signalstrength( datacarddir, card, statonly=False, usedata=False, mode=
     return poidict['r']
     
   elif method=='FitDiagnostics':
-    print(1)
     if interpendix is None: interpendix = '_out_fitdiagnostics'
     res = read_fitdiagnostics(datacarddir, card, 
             statonly=statonly, usedata=usedata, mode=mode,
