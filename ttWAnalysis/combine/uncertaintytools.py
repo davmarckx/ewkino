@@ -35,7 +35,8 @@ def get_lumi_unc_sources( year ):
   return get_lumi_unc_dict()[year]
 
 
-def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=None ):
+def get_systematics_to_disable( processes, pnonorm=None,
+  year=None, allyears=None, region=None ):
   ### get systematics to disable in a ProcessInfoCollection
   
   rmforall = []
@@ -70,6 +71,12 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
     rmspecific[p].append('njets*')
     rmspecific[p].append('nbjets*')
 
+  # remove nonprompt shape uncertainties for all but nonprompt
+  for p in processes:
+    if( p=='Nonprompt' or p=='NonpromptE' or p=='NonpromptMu' ): continue
+    rmspecific[p].append('efakerate*')
+    rmspecific[p].append('mfakerate*')
+
   # remove specific nJets uncertainty except for chargeflips
   # (also remove for chargeflips since it was not yet correctly initialized)
   rmforall.append('njetscf*')
@@ -95,6 +102,23 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
   for p in processes:
     if p=='WZ': rmspecific[p].append('fsrShape')
 
+  # remove nonprompt shape uncertainties in fourleptoncontrolegion
+  # (see notes 27/10/2023)
+  # update: now remove everywhere to see if it solves fit problems
+  if region is not None:
+    if region=='fourleptoncontrolregion':
+      rmforall.append('efakerate*')
+      rmforall.append('mfakerate*')
+
+  # remove JEC and JER uncertainty in NP control region for ZG process
+  # (see notes 31/10/2023)
+  #if region is not None:
+  #  if region=='npcontrolregion_dilepton_inclusive':
+  #    for p in processes:
+  #      if p=='ZG':
+  #        rmspecific[p].append('JEC*')
+  #        rmspecific[p].append('JER*')
+
   # remove uncertainties for other years
   # (cleaner, but not strictly needed since they are set to nominal anyway)
   if( year is not None and allyears is not None and year in allyears ):
@@ -104,7 +128,7 @@ def get_systematics_to_disable( processes, pnonorm=None, year=None, allyears=Non
 
   return (rmforall, rmspecific)
 
-def remove_systematics_default( processinfo, year=None ):
+def remove_systematics_default( processinfo, year=None, region=None ):
   ### default sequence removing some shape systematics
 
   # define processes for which normalization systematics should be removed
@@ -117,12 +141,12 @@ def remove_systematics_default( processinfo, year=None ):
   if 'NonpromptMu' in processinfo.plist: pnonorm.append('NonpromptMu')
   if 'Chargeflips' in processinfo.plist: pnonorm.append('Chargeflips')
   for p in processinfo.plist:
-    for tag in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4']:
+    for tag in ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4','TTW5','TTW6','TTW7']:
       if p.startswith(tag): pnonorm.append(p)
   allyears = ['2016PreVFP', '2016PostVFP', '2017', '2018']
   # get standard systematics to disable
   (rmforall, rmspecific) = get_systematics_to_disable( processinfo.plist, 
-    pnonorm=pnonorm, year=year, allyears=allyears )
+    pnonorm=pnonorm, year=year, allyears=allyears, region=region )
   removedforall = []
   removedspecific = {}
   # remove some systematics for all processes
@@ -207,6 +231,10 @@ def add_systematics_default( processinfo, year=None ):
     norms['Chargeflips'] = 1.3
   for process,mag in norms.items():
     source = 'Norm_{}'.format(process)
+    # extra for nonprompt: decorrelate over years
+    if( process=='Nonprompt' or process=='NonpromptE' or process=='NonpromptMu' ):
+      if year is not None: source += year
+    # make the correct impacts
     impacts = {}
     for p in processinfo.plist: impacts[p] = '-'
     impacts[process] = mag
@@ -216,6 +244,9 @@ def add_systematics_default( processinfo, year=None ):
   # also add a correlated uncertainty for split nonprompt
   if( 'NonpromptE' in processinfo.plist and 'NonpromptMu' in processinfo.plist ):
     source = 'Norm_Nonprompt'
+    # extra for nonprompt: decorrelate over years
+    if year is not None: source += year
+    # make the correct impacts
     impacts = {}
     for p in processinfo.plist: impacts[p] = '-'
     impacts['NonpromptE'] = 1.2
@@ -244,7 +275,7 @@ def add_systematics_dummy( processinfo ):
 
 def get_systematics_to_smooth( shapesyslist ):
   tags = []
-  tags.append('JEC') # smooth JEC variations
+  #tags.append('JEC') # smooth JEC variations
   res = []
   for systematic in shapesyslist:
     keep = False

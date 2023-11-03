@@ -23,6 +23,10 @@ def category( systematic ):
     if( systematic.startswith('isr')
         or systematic.startswith('fsr') ): return 'parton shower'
     if( systematic.startswith('pdf') ): return 'pdf'
+    if( systematic.startswith('lumi') ): return 'lumi'
+    if( systematic.startswith('njets')
+        or systematic.startswith('nbjets') ): return 'njets'
+    if( systematic.startswith('Norm_') ): return 'norm'
     return systematic
 
 

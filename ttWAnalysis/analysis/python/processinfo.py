@@ -637,9 +637,11 @@ class ProcessInfoCollection(object):
             startidx = i+1
     lastblock = [lines[j] for j in range(startidx,i+1)]
     blocks.append(lastblock)
-    if len(blocks)!=7:
+    if(len(blocks)!=7 and len(blocks)!=8):
+        # (standard 7 blocks,
+        #  +1 in case of rate parameters)
         msg = 'ERROR: number of blocks is {}'.format(len(blocks))
-        msg += ' while 7 were expected.'
+        msg += ' while 7 or 8were expected.'
         msg += ' Check the datacard formatting.'
         raise Exception(msg)
     # get a list of processes from the 'process' line

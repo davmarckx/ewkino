@@ -214,8 +214,9 @@ def read_signalstrength( datacarddir, card, statonly=False, usedata=False, mode=
                 exp=exp, obs=obs, stat=stat, method='MultiDimFit')
         return res
       except:
-        raise Exception('ERROR in outputparsetools.py / read_signalstrength:'
-                       +' none of the methods succeeded')
+        msg = 'ERROR in outputparsetools.py / read_signalstrength:';
+        msg += ' none of the methods succeeded on card {} (in {})'.format(card, datacarddir)
+        raise Exception(msg)
 
 
 ##### Tools for reading significance (output from Significance)

@@ -10,7 +10,13 @@
     "_bTag_shape_hfstats2",
     "_trigger",
     "_njetscf",
-    "_prefire"
+    "_prefire",
+    "_efakeratenorm",
+    "_efakerateeta",
+    "_efakeratept",
+    "_mfakeratenorm",
+    "_mfakerateeta",
+    "_mfakeratept"
   ],
   "decorrelate_processes": [
     "_qcdScalesNorm",

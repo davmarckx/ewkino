@@ -421,7 +421,8 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
-        extrainfos=extrainfos, infosize=15 )
+        extrainfos=extrainfos, infosize=15,
+        writeuncs=True )
 
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'
@@ -434,4 +435,5 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
-        extrainfos=extrainfos, infosize=15 )
+        extrainfos=extrainfos, infosize=15,
+        writeuncs=True )

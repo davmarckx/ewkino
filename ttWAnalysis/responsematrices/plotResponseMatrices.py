@@ -24,6 +24,7 @@ if __name__=='__main__':
   parser.add_argument('--inputfile', required=True, type=os.path.abspath)
   parser.add_argument('--outputdir', required=True)
   parser.add_argument('--variables', required=True, type=os.path.abspath)
+  parser.add_argument('--event_selection', required=True, nargs='+')
   #parser.add_argument('--include_outerflow', default=False, action='store_true')
   # update: set automatically to false for resolution and true for response
   parser.add_argument('--writebincontent', default=False, action='store_true')
@@ -65,65 +66,62 @@ if __name__=='__main__':
         xmax = var.xhigh
         avrg = (xmax-xmin)/binnr
         for i in range(binnr+1):
-            binnings.append(xmin + avrg*i)
-    
+            binnings.append(xmin + avrg*i) 
     axtitle = var.axtitle
     unit = var.unit
-    print('now running on variable {}...'.format(varname))
+    print('Now running on variable {}...'.format(varname))
 
-    # select histograms
-    thishists = ht.selecthistograms(histlist, mustcontainall=[varname])[1]
-    # additional selections for overlapping histogram names
-    thishists = ([hist for hist in thishists if
-                  (hist.GetName().endswith(varname) or varname+'_' in hist.GetName())])
-    if len(thishists)==0:
-      print('ERROR: histogram list for variable {} is empty,'.format(varname)
-            +' skipping this variable.')
-      continue
-    if len(thishists)!=1:
-      msg = 'ERROR: {} histograms found for variable {}'.format(len(thishists),varname)
-      msg += ' while 1 was expected; check file content.'
-      raise Exception(msg)
-      # this error will be triggered in case fillResponseMatrices is run 
-      # with multiple event selections;
-      # assume for now that that will not happen;
-      # extend histogram selection later if needed.
-    hist = thishists[0]
+    # loop over event selections
+    for event_selection in args.event_selections:
+      selection_tag = event_selection + '_' + varname
 
-    # get normalized histograms, stability and purity
-    colnormhist = rmt.normalize_columns(hist, include_outerflow=False)
-    rownormhist = rmt.normalize_rows(hist, include_outerflow=False)
-    colnormhist_outerflow = rmt.normalize_columns(hist, include_outerflow=True)
+      # select histograms
+      thishists = ht.selecthistograms(histlist, mustcontainall=[selection_tag])[1]
+      # additional selections for overlapping histogram names
+      thishists = ([hist for hist in thishists if
+                    (hist.GetName().endswith(varname) or varname+'_' in hist.GetName())])
+      if len(thishists)==0:
+        print('ERROR: histogram list for tag {} is empty,'.format(selection_tag)
+               +' skipping this variable.')
+        continue
+      if len(thishists)!=1:
+        msg = 'ERROR: {} histograms found for tag {}'.format(len(thishists), selection_tag)
+        msg += ' while 1 was expected; check file content.'
+        raise Exception(msg)
+      hist = thishists[0]
 
-    stability = rmt.get_stability(hist, include_outerflow=False)
-    purity = rmt.get_purity(hist, include_outerflow=False)
-    efficiency = rmt.get_efficiency(hist)
+      # get normalized histograms, stability and purity
+      colnormhist = rmt.normalize_columns(hist, include_outerflow=False)
+      rownormhist = rmt.normalize_rows(hist, include_outerflow=False)
+      colnormhist_outerflow = rmt.normalize_columns(hist, include_outerflow=True)
 
-    # set common plot properties
-    if( axtitle is not None and unit is not None ):
-      axtitle += ' ({})'.format(unit)
-    xaxtitle = 'Particle-level'
-    yaxtitle = 'Detector-level'
-    xtitleoffset = 1.2
-    ytitleoffset = 1.2
-    ztitleoffset = 1.2
-    rightmargin = 0.2
-    drawoptions = 'colz'
-    if args.writebincontent: drawoptions += 'texte'
-    if args.writebincontentauto:
-      if hist.GetNbinsX()<10: drawoptions += 'texte'
-    lumi = None
-    lumitext = ''
-    extracmstext = 'Preliminary'
-    extrainfos = []
+      stability = rmt.get_stability(hist, include_outerflow=False)
+      purity = rmt.get_purity(hist, include_outerflow=False)
+      efficiency = rmt.get_efficiency(hist)
 
-    # generic approach using simple 2D histogram plotter
-    if args.dogeneric:
+      # set common plot properties
+      if( axtitle is not None and unit is not None ): axtitle += ' ({})'.format(unit)
+      xaxtitle = 'Particle-level'
+      yaxtitle = 'Detector-level'
+      xtitleoffset = 1.2
+      ytitleoffset = 1.2
+      ztitleoffset = 1.2
+      rightmargin = 0.2
+      drawoptions = 'colz'
+      if args.writebincontent: drawoptions += 'texte'
+      if args.writebincontentauto: if hist.GetNbinsX()<10: drawoptions += 'texte'
+      lumi = None
+      lumitext = ''
+      extracmstext = 'Preliminary'
+      extrainfos = []
 
-      # make raw plot, against common approach but useful for statistics
-      outfile = os.path.join(args.outputdir, varname+'_absolute')
-      histtitle = 'Resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
-      h2dp.plot2dhistogram( hist, outfile, outfmts=['.png'],
+      # generic approach using simple 2D histogram plotter
+      if args.dogeneric:
+
+        # make raw plot, against common approach but useful for statistics
+        outfile = os.path.join(args.outputdir, varname+'_absolute')
+        histtitle = 'Resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
+        h2dp.plot2dhistogram( hist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
@@ -132,10 +130,10 @@ if __name__=='__main__':
     	    docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-      # make column-normalized plot
-      outfile = os.path.join(args.outputdir, varname+'_colnorm')
-      histtitle = 'Column normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
-      h2dp.plot2dhistogram( colnormhist, outfile, outfmts=['.png'],
+        # make column-normalized plot
+        outfile = os.path.join(args.outputdir, varname+'_colnorm')
+        histtitle = 'Column normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
+        h2dp.plot2dhistogram( colnormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (column-normalized)',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
@@ -144,10 +142,10 @@ if __name__=='__main__':
             docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-      # make row-normalized plot
-      outfile = os.path.join(args.outputdir, varname+'_rownorm')
-      histtitle = 'Row normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
-      h2dp.plot2dhistogram( rownormhist, outfile, outfmts=['.png'],
+        # make row-normalized plot
+        outfile = os.path.join(args.outputdir, varname+'_rownorm')
+        histtitle = 'Row normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
+        h2dp.plot2dhistogram( rownormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (row-normalized)',
             xtitleoffset=xtitleoffset, ytitleoffset=ytitleoffset, ztitleoffset=ztitleoffset,
@@ -156,28 +154,28 @@ if __name__=='__main__':
             docmstext=True, lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-    # custom approach using dedicated plotting function
-    if args.docustom:
-      xaxtitle = 'Particle level '+axtitle[:1].lower()+axtitle[1:]
-      yaxtitle = 'Detector level '+axtitle[:1].lower()+axtitle[1:]
+      # custom approach using dedicated plotting function
+      if args.docustom:
+        xaxtitle = 'Particle level '+axtitle[:1].lower()+axtitle[1:]
+        yaxtitle = 'Detector level '+axtitle[:1].lower()+axtitle[1:]
       
-      # do response matrix
-      outfile = os.path.join(args.outputdir, varname+'_response')
-      # we also need to make the underflow bin part of the new histo but at the top.
-      # ugly fix is to make a new one and fill by hand.
-      # update: not needed since this information is already shown in efficiency,
-      #         maybe to be re-discussed later.
-      #colnormhist_outerflow = rmt.AddUnderflowBins(colnormhist_outerflow, binnings)
-      rmp.plotresponsematrix( colnormhist_outerflow, efficiency, 
+        # do response matrix
+        outfile = os.path.join(args.outputdir, varname+'_response')
+        # we also need to make the underflow bin part of the new histo but at the top.
+        # ugly fix is to make a new one and fill by hand.
+        # update: not needed since this information is already shown in efficiency,
+        #         maybe to be re-discussed later.
+        #colnormhist_outerflow = rmt.AddUnderflowBins(colnormhist_outerflow, binnings)
+        rmp.plotresponsematrix( colnormhist_outerflow, efficiency, 
             stability, purity, outfile, outfmts=['.png'],
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
             drawoptions=drawoptions,
             lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
-      # do resolution matrix
-      outfile = os.path.join(args.outputdir, varname+'_resolution')
-      rmp.plotresponsematrix( colnormhist, efficiency, 
+        # do resolution matrix
+        outfile = os.path.join(args.outputdir, varname+'_resolution')
+        rmp.plotresponsematrix( colnormhist, efficiency, 
             stability, purity, outfile, outfmts=['.png'],
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
             drawoptions=drawoptions,

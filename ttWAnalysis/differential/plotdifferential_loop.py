@@ -4,14 +4,15 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20230922'
-  ssdirbase = '../combine/datacards_20230922_double_'
-  regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
-             'signalregion_trilepton': ssdirbase + 'trilepton'}
+  inputdir = 'output_20231031'
+  ssdirbase = '../combine/datacards_20231031_double'
+  regions = {'signalregion_dilepton_inclusive': ssdirbase + '_dilepton', 
+             'signalregion_trilepton': ssdirbase + '_trilepton'}
+  variables = '../variables/variables_particlelevel_single_bintest.json'
 
   # basic command
   basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018 --xsecs xsecs/xsecs.json'
-  basiccmd += ' --variables ../variables/variables_particlelevel_single.json'
+  basiccmd += ' --variables {}'.format(variables)
 
   # loop over configurations
   for region,ssdir in regions.items():
