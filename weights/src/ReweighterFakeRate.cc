@@ -153,6 +153,7 @@ double ReweighterFakeRate::weightDown( const Event& event ) const{
     // retrieve down-varied weight for and event
     double nom = readFakeRateTools::fakeRateWeight(event,
                     muonFakeRateMap, electronFakeRateMap);
+    if( nom<1e-12 ) return 1;
     double down = readFakeRateTools::fakeRateWeight(event,
 		    muonFakeRateMapDown, electronFakeRateMapDown);
     return down/nom;
@@ -162,6 +163,7 @@ double ReweighterFakeRate::weightUp( const Event& event ) const{
     // retrieve up-varied weight for an event
     double nom = readFakeRateTools::fakeRateWeight(event,
                     muonFakeRateMap, electronFakeRateMap);
+    if( nom<1e-12 ) return 1;
     double up = readFakeRateTools::fakeRateWeight(event,
                     muonFakeRateMapUp, electronFakeRateMapUp);
     return up/nom;
