@@ -1,15 +1,10 @@
 #################################################################################################
 # A very simple submitter that runs runanalysis.py for a number of predefined regions and years #
 #################################################################################################
-# - update: can also be used for the runanalysis2 executable!
-#   runanalysis2 is used for the signal region for differential measurements,
-#   where all samples are put into 2D histograms
-#   and additionally the signal is split into particle level bins.
 
 import os
 import sys
 
-exe = 'runanalysis2'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
@@ -100,7 +95,6 @@ for year in years:
     cmd += ' --frdir ' + frdir
     cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
-    cmd += ' --exe ' + exe
     if splitprocess is not None: cmd += ' --splitprocess {}'.format(splitprocess)
     if splitvariables is not None: cmd += ' --splitvarfile {}'.format(splitvariables)
     if runlocal: cmd += ' --runmode local'

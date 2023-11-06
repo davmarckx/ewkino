@@ -9,14 +9,13 @@ import sys
 submit_event_selections_combined = True
 submit_selection_types_combined = True
 
-# loop over executables
-#exes = ['runanalysis', 'runanalysis2']
-exes = ['runanalysis2']
-for exe in exes:
+# loop over variable types
+mtypes = ['single', 'double']
+for mtype in mtypes:
 
   # define regions
   regions = []
-  if exe=='runanalysis':
+  if mtype=='single':
     for r in ['signalregion_dilepton_inclusive']: regions.append(r)
     #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
     for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
@@ -28,9 +27,11 @@ for exe in exes:
     for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
     for r in ['cfcontrolregion']: regions.append(r)
     for r in ['cfjetscontrolregion']: regions.append(r)
-  elif exe=='runanalysis2':
+  elif mtype=='double':
     for r in ['signalregion_dilepton_inclusive']: regions.append(r)
     for r in ['signalregion_trilepton']: regions.append(r)
+  else:
+    raise Exception('ERROR: mtype {} not recognized'.format(mtype))
 
   # define years
   years = ['2016PreVFP','2016PostVFP','2017','2018']
@@ -66,10 +67,10 @@ for exe in exes:
 
     # define variables
     variables = None
-    if exe=='runanalysis':
+    if mtype=='single':
       #variables = '../variables/variables_main.json'
       variables = '../variables/variables_main_reduced.json'
-    elif exe=='runanalysis2':
+    elif mtype=='double':
       #variables = '../variables/variables_particlelevel_double.json'
       variables = '../variables/variables_particlelevel_double_bintest.json'
 
@@ -79,13 +80,12 @@ for exe in exes:
 
     # define splitting at particle level
     splitprocess = None # do not split any process at particle level
-    if( dtype=='sig' and exe=='runanalysis2' ):
+    if( dtype=='sig' and mtype=='double' ):
       splitprocess = 'TTW' # split TTW process at particle level
 
     # define output directory
     datetag = 'test'
-    exetag = 'double' if exe=='runanalysis2' else 'single'
-    outputdir = 'output_{}_{}_{}'.format(datetag, exetag, dtype)
+    outputdir = 'output_{}_{}_{}'.format(datetag, mtype, dtype)
 
     # define number of events
     nevents = 1e6
@@ -119,7 +119,6 @@ for exe in exes:
       cmd += ' --frdir ' + frdir
       cmd += ' --cfdir ' + cfdir
       cmd += ' --variables ' + variables
-      cmd += ' --exe ' + exe
       if splitprocess is not None: cmd += ' --splitprocess {}'.format(splitprocess)
       #if splitvariables is not None: cmd += ' --splitvarfile {}'.format(splitvariables)
       if runlocal: cmd += ' --runmode local'

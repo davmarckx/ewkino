@@ -31,8 +31,7 @@ HistogramVariable::HistogramVariable(	const std::string& name,
 					double xlow,
 					double xhigh,
 					const std::vector<double> bins ):
-    _name( name ),
-    _variable( variable ),
+    Variable( name, variable, "single" ),
     _nbins( nbins ),
     _xlow( xlow ),
     _xhigh( xhigh ),
@@ -44,13 +43,18 @@ HistogramVariable::HistogramVariable(	const std::string& name,
                                         const std::string& nbins,
                                         const std::string& xlow,
                                         const std::string& xhigh,
-                                        const std::vector<std::string> bins ){
-    _name = name;
-    _variable = variable;
+                                        const std::vector<std::string> bins ):
+    Variable( name, variable, "single" ){
     _nbins = std::stoi(nbins);
     _xlow = std::stod(xlow);
     _xhigh = std::stod(xhigh);
     for( std::string binedge: bins ){ _bins.push_back(std::stod(binedge)); }
+}
+
+HistogramVariable HistogramVariable::histogramVariable() const{
+    // a sort of copy constructor,
+    // mainly intended to get a HistogramVariable from a std::shared_ptr<Variable>
+    return HistogramVariable( _name, _variable, _nbins, _xlow, _xhigh, _bins );
 }
 
 std::string HistogramVariable::toString() const{
@@ -123,7 +127,7 @@ DoubleHistogramVariable::DoubleHistogramVariable(
     const std::string& secondaryVariable,
     const std::vector<double> primaryBins,
     const std::vector<double> secondaryBins ):
-    _name( name ),
+    Variable( name, "", "double" ),
     _primaryVariable( primaryVariable ),
     _secondaryVariable( secondaryVariable ),
     _primaryBins( primaryBins ),
@@ -135,8 +139,8 @@ DoubleHistogramVariable::DoubleHistogramVariable(
     const std::string& primaryVariable,
     const std::string& secondaryVariable,
     const std::vector<std::string> primaryBins,
-    const std::vector<std::string> secondaryBins ){
-    _name = name;
+    const std::vector<std::string> secondaryBins ):
+    Variable( name, "", "double" ){
     _primaryVariable = primaryVariable;
     _secondaryVariable = secondaryVariable;
     for( std::string binedge: primaryBins ){ _primaryBins.push_back(std::stod(binedge)); }
@@ -156,6 +160,16 @@ std::string DoubleHistogramVariable::toString() const{
     for( double binedge: secondaryBins() ){ res.append( std::to_string(binedge)+"," ); }
     res.append(" )" );
     return res;
+}
+
+HistogramVariable DoubleHistogramVariable::primary() const{
+    return HistogramVariable(_name, _primaryVariable, nPrimaryBins(),
+	    _primaryBins[0], _primaryBins[_primaryBins.size()-1], _primaryBins);
+}
+
+HistogramVariable DoubleHistogramVariable::secondary() const{
+    return HistogramVariable(_name, _secondaryVariable, nSecondaryBins(),
+            _secondaryBins[0], _secondaryBins[_secondaryBins.size()-1], _secondaryBins);
 }
 
 unsigned int DoubleHistogramVariable::nPrimaryBins() const{
@@ -209,6 +223,12 @@ std::vector<std::vector<std::string>> readTxtLines( const std::string& txtFile )
     // returns a vector, where each element represents a line in the txt file,
     // and consists of a vector of strings (space-separated elements on that line).
     std::vector< std::vector<std::string> > res;
+    // check if file exists
+    if( !systemTools::fileExists(txtFile) ){
+	std::string msg = "ERROR in readTxtLines:";
+	msg += " file " + txtFile + " does not seem to exist.";
+	throw std::runtime_error(msg);
+    }
     // read the file line by line
     std::ifstream infile(txtFile);
     std::string line;
@@ -240,37 +260,42 @@ std::vector<HistogramVariable> variableTools::readVariables( const std::string& 
     // read the file
     std::vector<std::vector<std::string>> fileContent;
     fileContent = readTxtLines(txtFile);
-    for( std::vector<std::string> elems: fileContent ){
+    unsigned int lineIndex = 0;
+    while( lineIndex<fileContent.size() ){
+	// read line
+	std::vector<std::string> line = fileContent[lineIndex];
 	// check the length
-        if( elems.size()<5 ){
+        if( line.size()<5 ){
             std::string msg = "ERROR in variableTools::readVariables:";
             msg += " line representing a histogram variable has unexpected length: ";
-            for( std::string elem: elems ){ msg += elem + ","; }
+            for( std::string elem: line ){ msg += elem + ","; }
             throw std::runtime_error(msg);
         }
-        // case of fixed bin width
-        if( elems[2]!="0" ){
+	// case of fixed bin width
+	if( line[2]!="0" ){
 	    // check the length
-	    if( elems.size()!=5 ){
+	    if( line.size()!=5 ){
 		std::string msg = "ERROR in variableTools::readVariables:";
 		msg += " line representing a histogram variable has unexpected length: ";
-		for( std::string elem: elems ){ msg += elem + ","; }
+		for( std::string elem: line ){ msg += elem + ","; }
 		throw std::runtime_error(msg);
 	    }
 	    // make a HistogramVariable and add to the result
 	    HistogramVariable var = HistogramVariable( 
-		elems[0], elems[1], elems[2], elems[3], elems[4]);
+		line[0], line[1], line[2], line[3], line[4]);
 	    res.push_back( var );
 	}
 	// case of variable bin width
 	else{
-            // make a HistogramVariable and add to the result
-            std::vector<std::string> binedges( elems.begin()+3, elems.end() );
-            HistogramVariable var = HistogramVariable(
-                elems[0], elems[1], std::to_string(binedges.size()-1), 
+	    // make a HistogramVariable and add to the result
+	    std::vector<std::string> binedges( line.begin()+3, line.end() );
+	    HistogramVariable var = HistogramVariable(
+		line[0], line[1], std::to_string(binedges.size()-1), 
 		binedges[0], binedges[binedges.size()-1], binedges);
 	    res.push_back( var );
 	}
+	// increment line index by one
+	lineIndex += 1;
     }
     return res;
 }
@@ -324,6 +349,86 @@ std::vector<DoubleHistogramVariable> variableTools::readDoubleVariables(
     }
     return res;
 }
+
+std::vector<std::shared_ptr<Variable>> variableTools::readHistogramVariables(
+    const std::string& txtFile ){
+    // read a vector of pointers to HistogramVariable or DoubleHistogramVariable from a txt file.
+    // expected formatting of the txt file is the same as for readVariables and readDoubleVariables.
+    std::vector<std::shared_ptr<Variable>> res;
+    // read the file
+    std::vector<std::vector<std::string>> fileContent;
+    fileContent = readTxtLines(txtFile);
+    unsigned int lineIndex = 0;
+    while( lineIndex<fileContent.size() ){
+        // read line
+        std::vector<std::string> line = fileContent[lineIndex];
+        // check the length
+        if( line.size()<5 ){
+            std::string msg = "ERROR in variableTools::readVariables:";
+            msg += " line representing a histogram variable has unexpected length: ";
+            for( std::string elem: line ){ msg += elem + ","; }
+            throw std::runtime_error(msg);
+        }
+        // check if this is a double variable
+        bool isdouble = false;
+        std::vector<std::string> line2;
+        if( lineIndex+1<fileContent.size() ){
+            line2 = fileContent[lineIndex+1];
+            if( line[0]==line2[0] ) isdouble = true;
+        }
+        // case of double variable
+        if( isdouble ){
+            // check the length of the second line
+            if( line2.size()<5 ){
+                std::string msg = "ERROR in variableTools::readVariables:";
+                msg += " line representing a histogram variable has unexpected length: ";
+                for( std::string elem: line2 ){ msg += elem + ","; }
+                throw std::runtime_error(msg);
+            }
+            // make a DoubleHistogramVariable and add to the result
+            std::vector<std::string> primaryBins( line.begin()+3, line.end() );
+            std::vector<std::string> secondaryBins( line2.begin()+3, line2.end() );
+            std::shared_ptr<DoubleHistogramVariable> var = std::make_shared<DoubleHistogramVariable>(
+                line[0], line[1], line2[1],
+                primaryBins, secondaryBins );
+	    std::cout << var->toString() << std::endl;
+            res.push_back( var );
+	    std::cout << res[0]->toString() << std::endl;
+            // increment line index by 2
+            lineIndex += 2;
+	}
+        // case of single variable
+        else{
+            // case of fixed bin width
+            if( line[2]!="0" ){
+                // check the length
+                if( line.size()!=5 ){ 
+                    std::string msg = "ERROR in variableTools::readVariables:";
+                    msg += " line representing a histogram variable has unexpected length: ";
+                    for( std::string elem: line ){ msg += elem + ","; }
+                    throw std::runtime_error(msg);
+                }
+                // make a HistogramVariable and add to the result
+                std::shared_ptr<HistogramVariable> var = std::make_shared<HistogramVariable>( 
+                    line[0], line[1], line[2], line[3], line[4]);
+                res.push_back( var );
+            }
+            // case of variable bin width
+            else{
+                // make a HistogramVariable and add to the result
+                std::vector<std::string> binedges( line.begin()+3, line.end() );
+                std::shared_ptr<HistogramVariable> var = std::make_shared<HistogramVariable>(
+                    line[0], line[1], std::to_string(binedges.size()-1),
+                    binedges[0], binedges[binedges.size()-1], binedges);
+                res.push_back( var );
+            }
+            // increment line index by one
+            lineIndex += 1;
+        }
+    }
+    return res;
+}
+
 
 std::map< std::string, std::shared_ptr<TH1D> > variableTools::initializeHistograms(
     const std::vector<HistogramVariable>& vars ){
