@@ -93,14 +93,16 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   for p in signals: 
     if not strict_signals:
       if p not in PIC.plist:
-        print('WARNING: requested signal {} not found in ProcessInfoCollection. Will continue anyway without this signal.'.format(p))
+        msg = 'WARNING in makedatacard.py:'
+        msg += ' requested signal {} not found in ProcessInfoCollection;'.format(p)
+        msg += ' will continue anyway without this signal.'
+        print(msg)
         continue
     PIC.makesig( p )
 
   # manage systematics
   if( not rawsystematics and not dummysystematics ):
-    print("correct filter")
-    (removedforall, removedspecific) = remove_systematics_default( PIC, year=year )
+    (removedforall, removedspecific) = remove_systematics_default( PIC, year=year, region=region )
     for el in removedforall:
       if el in shapesyslist: shapesyslist.remove(el)
     for p in PIC.plist:

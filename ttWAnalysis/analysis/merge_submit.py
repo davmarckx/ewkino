@@ -23,11 +23,12 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+
+years = ['auto']
 
 npmodes = []
 #npmodes.append( 'npfromsim' )
-#npmodes.append( 'npfromdata' )
+npmodes.append( 'npfromdata' )
 npmodes.append( 'npfromdatasplit' )
 
 cfmodes = []
@@ -47,7 +48,9 @@ doclip = True
 runmode = 'condor'
 
 cmds = []
+if 'auto' in years: years = os.listdir(topdir)
 for year in years:
+  if 'auto' in regions: regions = os.listdir(os.path.join(topdir,year))
   for region in regions:
     for npmode in npmodes:
       for cfmode in cfmodes:

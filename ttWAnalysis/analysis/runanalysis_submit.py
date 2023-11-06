@@ -9,23 +9,24 @@
 import os
 import sys
 
-exe = 'runanalysis'
+exe = 'runanalysis2'
 
 regions = []
-#for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
-#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
-#for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 #for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
 #for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2016PreVFP']
+#years = ['2018']
 
 dtypes = ['sim','data']
 #dtypes = ['sim']

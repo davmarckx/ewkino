@@ -139,6 +139,10 @@ if __name__=='__main__':
     hist.SetDirectory(0)
     f.Close()
 
+    # printouts for testing
+    print('Found histogram {} in file {}'.format(hist.GetName(), args.inputfile))
+    print('Number of bins: {} x {}'.format(hist.GetNbinsX(), hist.GetNbinsY()))
+
     # set initial bins
     if args.initbins is not None:
         initbins = [float(el) for el in args.initbins.split(',')]
@@ -160,6 +164,7 @@ if __name__=='__main__':
     # start iteration
     bins = initbins[:]
     for i in range(args.maxiter):
+        print(i)
 	rate = max(0.1/(i+1), 0.01)
         gradient = get_gradient(hist, bins, rate=rate)
         absgradient = [abs(el) for el in gradient]

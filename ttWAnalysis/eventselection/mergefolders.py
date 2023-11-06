@@ -8,35 +8,47 @@
 import sys
 import os
 
-def mergefolders( inputdir, years,remove ):
+def mergefolders( inputdir, years, remove ):
   # loop over years
   for year in years:
-    simdir = os.path.join(inputdir,year+'_sim')
-    datadir = os.path.join(inputdir,year+'_data')
-    mergeddir = os.path.join(inputdir,year)
-    # check input directories
-    if not os.path.exists(simdir):
-      print('ERROR: directory {} not found, skipping...'.format(simdir))
-      continue
-    if not os.path.exists(datadir):
-      print('ERROR: directory {} not found, skipping...'.format(datadir))
-      continue
-    # make the commands
-    cmds = []
-    if remove:
-      cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),simdir) )
-      cmds.append( 'rm -r {}'.format(datadir) )
-      cmds.append( 'mv {} {}'.format(simdir,mergeddir) )
-      # run the commands
-      for cmd in cmds:
-        os.system(cmd)
+    simdir = os.path.join(inputdir, year+'_sim')
+    datadir = os.path.join(inputdir, year+'_data')
+    sigdir = os.path.join(inputdir, year+'_sig')
+    bkgdir = os.path.join(inputdir, year+'_bkg')
+    mergeddir = os.path.join(inputdir, year)
+    # case 1: data and sim:
+    if( os.path.exists(simdir) and os.path.exists(datadir) ):
+        # make the commands
+        cmds = []
+        if remove:
+          cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),simdir) )
+          cmds.append( 'rm -r {}'.format(datadir) )
+          cmds.append( 'mv {} {}'.format(simdir,mergeddir) )
+          # run the commands
+          for cmd in cmds: os.system(cmd)
+        else:
+          cmds.append( 'mkdir {}'.format(mergeddir) )
+          cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),mergeddir) )
+          cmds.append( 'cp -rl {} {}'.format(os.path.join(simdir,'*'),mergeddir) )
+          # run the commands
+          for cmd in cmds: os.system(cmd)
+    # case 2: data, sig and bkg
+    if( os.path.exists(sigdir) and os.path.exists(bkgdir) and os.path.exists(datadir) ):
+        # make the commands
+        cmds = []
+        if remove:
+          cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),bkgdir) )
+          cmds.append( 'rm -r {}'.format(datadir) )
+          cmds.append( 'cp -rl {} {}'.format(os.path.join(sigdir,'*'),bkgdir) )
+          cmds.append( 'rm -r {}'.format(sigdir) )
+          cmds.append( 'mv {} {}'.format(bkgdir,mergeddir) )
+          # run the commands
+          for cmd in cmds: os.system(cmd)
+        else: raise Exception('Not yet implemented')
     else:
-      cmds.append( 'mkdir {}'.format(mergeddir) )
-      cmds.append( 'cp -rl {} {}'.format(os.path.join(datadir,'*'),mergeddir) )
-      cmds.append( 'cp -rl {} {}'.format(os.path.join(simdir,'*'),mergeddir) )
-      # run the commands
-      for cmd in cmds:
-        os.system(cmd)
+        print('Some required directories not found for year {}, skipping.'.format(year))
+        continue
+
 
 if __name__=='__main__':
 

@@ -17,6 +17,7 @@ if __name__=='__main__':
   # make the commands
   cmds = []
   cmds.append( 'cp -rl {} {}'.format(os.path.join(sourcedir,'*'),targetdir) )
+  cmds.append( 'rm -r {}'.format(sourcedir) )
   # run the commands
   for cmd in cmds:
     os.system(cmd)

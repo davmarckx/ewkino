@@ -12,6 +12,7 @@ import json
 inputdir = sys.argv[1]
 runmode = 'condor'
 
+
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
@@ -30,10 +31,9 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
 npmodes = ['npfromdatasplit']
-#npmodes = ['npfromdata']
 cfmodes = ['cffromdata']
 
-unblind = True
+unblind = False
 
 dummysystematics = False
 
@@ -56,26 +56,29 @@ filemode = 'split'
 
 datatag = 'Data'
 
-excludetags = ""
+excludetags = None
 
-#signals = None
-#signals = ['TTW'] # for single variables
-signals = ['TTW','TTW0','TTW1','TTW2','TTW3','TTW4'] # for double variables
+signals = ['TTW']
+for i in range(1,10): signals.append('TTW{}'.format(i))
 
 # split variables can either be a list or a json file
 #splitvariables = [''] # no splitting
 splitvariables = '../variables/variables_particlelevel_single.json'
 #splitvariables = ['differential']
+
 splitprocess = 'TTW'
+
 
 if isinstance(splitvariables,str):
     with open(splitvariables) as json_file:
         splitvariables = [d['variable'] for d in json.load(json_file)]
 
 cmds = []
+if 'auto' in years: years = os.listdir(inputdir)
 for year in years:
   for npmode in npmodes:
     for cfmode in cfmodes:
+      if 'auto' in regions: regions = os.listdir(os.path.join(inputdir,year))
       for region in regions:
         for splitvar in splitvariables:
           regiondir = ''
@@ -99,7 +102,7 @@ for year in years:
           cmd += ' --outputdir '+thisoutputdir
           cmd += ' --datatag '+datatag
           cmd += ' --colormap '+colormap
-          if excludetags != '':
+          if excludetags is not None:
             cmd += ' --excludetags ' +excludetags
           if splitvar != '':
             cmd += ' --splitvariable '+splitvar

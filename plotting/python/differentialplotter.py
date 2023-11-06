@@ -21,7 +21,8 @@ def plotdifferential(
     drawoptions='', 
     lumitext='', extracmstext = '',
     ratiorange=None, ylims=None, yminzero=False,
-    extrainfos=[], infosize=None, infoleft=None, infotop=None ):
+    extrainfos=[], infosize=None, infoleft=None, infotop=None,
+    writeuncs=False ):
     ### plot multiple overlaying histograms (e.g. for shape comparison)
     # note: the ratio plot will show ratios w.r.t. the first histogram in the list!
     # arguments:
@@ -279,6 +280,18 @@ def plotdifferential(
     line = ROOT.TLine(xmin,1,xmax,1)
     line.SetLineStyle(2)
     line.Draw("same")
+
+    # write per-bin uncertainty if requested
+    # to be tested and continued...
+    uncinfo = ROOT.TLatex()
+    uncinfo.SetTextFont(10*infofont+3)
+    uncinfo.SetTextSize(infosize)
+    if writeuncs:
+        for i in range(1, ratiodatahist.GetNbinsX()+1):
+            error = ratiodatahist.GetBinError(i)
+            xpos = ratiodatahist.GetBinCenter(i)
+            errorstr = '{:.0f} %'.format(error*100)
+            tinfo.DrawLatex(xpos, 1.5, errorstr)
 
     c1.SaveAs(figname.replace('.png','')+'.png')
     #c1.SaveAs(figname.replace('.png','')+'.eps')

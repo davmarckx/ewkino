@@ -30,7 +30,7 @@ def getcardcombinations(datacarddir, combinations=None, verbose=False):
   # no specific combinations
   if combinations is None: pass
   # per year
-  if combinations=='peryear':
+  elif combinations=='peryear':
     combineddict['dc_combined_2016PreVFP.txt'] = [c for c in cards_all if '2016PreVFP' in c]
     combineddict['dc_combined_2016PostVFP.txt'] = [c for c in cards_all if '2016PostVFP' in c]
     combineddict['dc_combined_2017.txt'] = [c for c in cards_all if '2017' in c]

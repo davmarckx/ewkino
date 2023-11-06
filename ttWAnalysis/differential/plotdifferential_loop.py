@@ -10,9 +10,10 @@ if __name__=='__main__':
              'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
 
+
   # basic command
   basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018 --xsecs xsecs/xsecs.json'
-  basiccmd += ' --variables ../variables/variables_particlelevel_single.json'
+  basiccmd += ' --variables {}'.format(variables)
 
   # loop over configurations
   for region,ssdir in regions.items():

@@ -8,6 +8,7 @@
 #include "LeptonCollection.h"
 #include "JetCollection.h"
 #include "GeneratorInfo.h"
+#include "EFTInfo.h"
 #include "TriggerInfo.h"
 #include "JetInfo.h"
 #include "EventTags.h"
@@ -27,6 +28,7 @@ class Met;
 class TriggerInfo;
 class JetInfo;
 class GeneratorInfo;
+class EFTInfo;
 class Sample;
 
 
@@ -38,7 +40,8 @@ class Event{
 		const bool readIndividualMetFilters = false,
 		const bool readAllJECVariations = false,
 		const bool readGroupedJECVariations = false,
-                const bool readParticleLevel = false );
+                const bool readParticleLevel = false,
+                const bool readEFTCoefficients = false );
         Event( const Event& );
         Event( Event&& ) noexcept;
 
@@ -55,6 +58,7 @@ class Event{
 	JetInfo& jetInfo() const{ return *_jetInfoPtr; }
         EventTags& eventTags() const{ return *_eventTagsPtr; }
         GeneratorInfo& generatorInfo() const;
+        EFTInfo& eftInfo() const;
         SusyMassInfo& susyMassInfo() const;
 	LeptonParticleLevelCollection& leptonParticleLevelCollection() const;
 	JetParticleLevelCollection& jetParticleLevelCollection() const;
@@ -260,6 +264,7 @@ class Event{
         EventTags* _eventTagsPtr = nullptr;
         GeneratorInfo* _generatorInfoPtr = nullptr;
         SusyMassInfo* _susyMassInfoPtr = nullptr;
+	EFTInfo* _eftInfoPtr = nullptr;
 	LeptonParticleLevelCollection* _leptonParticleLevelCollectionPtr = nullptr;
 	JetParticleLevelCollection* _jetParticleLevelCollectionPtr = nullptr;
 	MetParticleLevel* _metParticleLevelPtr = nullptr;
@@ -282,6 +287,10 @@ class Event{
         //check the presence of generator information
         bool hasGeneratorInfo() const{ return ( _generatorInfoPtr != nullptr ); }
         void checkGeneratorInfo() const;
+
+        // check the presence of EFT information
+        bool hasEFTInfo() const{ return ( _eftInfoPtr != nullptr ); }
+        void checkEFTInfo() const;
 
         //check the presence of susy information
         bool hasSusyMassInfo() const{ return ( _susyMassInfoPtr != nullptr ); }

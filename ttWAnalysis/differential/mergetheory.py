@@ -37,8 +37,8 @@ if __name__=='__main__':
     raise Exception('ERROR: rename file {} does not exist.'.format(args.rename))
 
   # set hard-coded arguments needed in called function
-  args.npmode = 'merging'
-  args.cfmode = 'dir'
+  args.npmode = 'merging' # only used for naming temp directory
+  args.cfmode = 'dir' # only used for naming temp directory
   args.decorrelate = None
   args.selectmode = None
   args.doclip = False

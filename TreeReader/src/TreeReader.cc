@@ -254,6 +254,11 @@ bool TreeReader::containsPrefireComponents() const{
 }
 
 
+bool TreeReader::containsEFTCoefficients() const{
+    return treeHasBranchWithName( _currentTreePtr, "_nEFTCoefficients" );
+}
+
+
 bool TreeReader::containsSusyMassInfo() const{
     return treeHasBranchWithName( _currentTreePtr, "_mChi" );
 }
@@ -536,22 +541,22 @@ void TreeReader::GetEntry( long unsigned entry ){
 Event TreeReader::buildEvent( const Sample& samp, long unsigned entry, 
 	const bool readIndividualTriggers, const bool readIndividualMetFilters,
 	const bool readAllJECVariations, const bool readGroupedJECVariations,
-	const bool readParticleLevel ){
+	const bool readParticleLevel, const bool readEFTCoefficients ){
     GetEntry( samp, entry );
     return Event( *this, readIndividualTriggers, readIndividualMetFilters,
 			readAllJECVariations, readGroupedJECVariations,
-			readParticleLevel );
+			readParticleLevel, readEFTCoefficients );
 }
 
 
 Event TreeReader::buildEvent( long unsigned entry, 
 	const bool readIndividualTriggers, const bool readIndividualMetFilters,
 	const bool readAllJECVariations, const bool readGroupedJECVariations,
-	const bool readParticleLevel ){
+	const bool readParticleLevel, const bool readEFTCoefficients ){
     GetEntry( entry );
     return Event( *this, readIndividualTriggers, readIndividualMetFilters,
 			readAllJECVariations, readGroupedJECVariations,
-			readParticleLevel );
+			readParticleLevel, readEFTCoefficients );
 }
 
 
@@ -847,6 +852,15 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
 	    _currentTreePtr->SetBranchAddress("_prefireWeightECALDown", &_prefireWeightECALDown, &b__prefireWeightECALDown);
 	    _currentTreePtr->SetBranchAddress("_prefireWeightECALUp", &_prefireWeightECALUp, &b__prefireWeightECALUp);
 	}
+
+        if( !containsEFTCoefficients() ){
+            std::string msg = "WARNING: input tree does not seem to contain EFT coefficients;";
+            msg.append( " will not read EFT coefficient branches!" );
+            std::cerr << msg << std::endl;
+        } else{
+            _currentTreePtr->SetBranchAddress("_nEFTCoefficients", &_nEFTCoefficients, &b__nEFTCoefficients);
+            _currentTreePtr->SetBranchAddress("_EFTCoefficients", &_EFTCoefficients, &b__EFTCoefficients);
+        }
     }
 
     //add all individually stored triggers 
@@ -895,7 +909,8 @@ void TreeReader::setOutputTree( TTree* outputTree,
 				bool includeGenParticles,
 				bool includePrefire,
 				bool includePrefireComponents,
-                                bool includeParticleLevel ){
+                                bool includeParticleLevel,
+                                bool includeEFTCoefficients ){
     outputTree->Branch("_runNb",                        &_runNb,                        "_runNb/l");
     outputTree->Branch("_lumiBlock",                    &_lumiBlock,                    "_lumiBlock/l");
     outputTree->Branch("_eventNb",                      &_eventNb,                      "_eventNb/l");
@@ -1178,6 +1193,20 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	    outputTree->Branch("_prefireWeightECAL",             &_prefireWeightECAL,             "_prefireWeightECAL/F");
             outputTree->Branch("_prefireWeightECALUp",           &_prefireWeightECALUp,           "_prefireWeightECALUp/F");
             outputTree->Branch("_prefireWeightECALDown",         &_prefireWeightECALDown,         "_prefireWeightECALDown/F");
+        }
+    }
+
+    if( isMC() && includeEFTCoefficients ){
+        if( !containsEFTCoefficients() ){
+            std::string msg = "WARNING in TreeReader.setOutputTree:";
+            msg.append(" requested to include EFT coefficients in output tree,");
+            msg.append(" but there appear to be no EFT coefficient branches in the input tree;");
+            msg.append(" will skip writing EFT coefficients to output tree!");
+            std::cerr << msg << std::endl;
+        }
+        else{
+            outputTree->Branch("_nEFTCoefficients",         &_nEFTCoefficients,     "_nEFTCoefficients/i");
+            outputTree->Branch("_EFTCoefficients",          &_EFTCoefficients,      "_EFTCoefficients/D");
         }
     }
 

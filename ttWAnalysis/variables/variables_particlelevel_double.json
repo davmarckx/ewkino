@@ -140,12 +140,12 @@
     "name": "_leptonPtLeading",
     "variable": "_leptonPtLeading",
     "nbins": "4",
-    "xlow": "0.0",
+    "xlow": "25.0",
     "xhigh": "200.0",
     "axtitle": "Leading lepton p_{T}",
     "shorttitle": "p_{T}(l_{1})",
     "unit": "GeV",
-    "bins": [0.0, 50.0, 75.0, 100.0, 200.0]
+    "bins": [25.0, 50.0, 75.0, 120.0, 200.0]
   }
 },
 { "name": "_eventBDTleptonPtSubLeading",
@@ -164,12 +164,12 @@
     "name": "_leptonPtSubLeading",
     "variable": "_leptonPtSubLeading",
     "nbins": "3",
-    "xlow": "0.0",
+    "xlow": "15.0",
     "xhigh": "100.0",
     "axtitle": "Subleading lepton p_{T}",
     "shorttitle": "p_{T}(l_{2})",
     "unit": "GeV",
-    "bins": [0.0, 30.0, 50.0, 100.0]
+    "bins": [15.0, 30.0, 50.0, 100.0]
   }
 },
 { "name": "_eventBDTleptonEtaLeading",
@@ -192,7 +192,7 @@
     "xhigh": "2.5",
     "axtitle": "Leading lepton #eta",
     "shorttitle": "#eta(l_{1})",
-    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
+    "bins": [-2.5, -0.8, 0.0, 0.8, 2.5]
   }
 },
 { "name": "_eventBDTleptonAbsEtaLeading",
@@ -238,7 +238,7 @@
     "xhigh": "2.5",
     "axtitle": "Subleading lepton #eta",
     "shorttitle": "#eta(l_{2})",
-    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
+    "bins": [-2.5, -0.8, 0.0, 0.8, 2.5]
   }
 },
 { "name": "_eventBDTleptonAbsEtaSubLeading",
@@ -285,7 +285,7 @@
     "axtitle": "Leading jet p_{T}",
     "shorttitle": "p_{T}(jet_{1})",
     "unit": "GeV",
-    "bins": [25.0, 100.0, 200.0, 300.0]
+    "bins": [25.0, 100.0, 180.0, 300.0]
   }
 },
 { "name": "_eventBDTjetEtaLeading",
@@ -308,7 +308,7 @@
     "xhigh": "2.5",
     "axtitle": "Leading jet #eta",
     "shorttitle": "#eta(jet_{1})",
-    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
+    "bins": [-2.5, -0.8, 0.0, 0.8, 2.5]
   }
 },
 { "name": "_eventBDTjetAbsEtaLeading",
@@ -355,7 +355,7 @@
     "axtitle": "Subleading jet p_{T}",
     "shorttitle": "p_{T}(jet_{2})",
     "unit": "GeV",
-    "bins": [25.0, 100.0, 150.0, 200.0]
+    "bins": [25.0, 90.0, 150.0, 200.0]
   }
 },
 { "name": "_eventBDTjetEtaSubLeading",
@@ -378,7 +378,7 @@
     "xhigh": "2.5",
     "axtitle": "Subleading jet #eta",
     "shorttitle": "#eta(jet_{2})",
-    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
+    "bins": [-2.5, -0.8, 0.0, 0.8, 2.5]
   }
 },
 { "name": "_eventBDTjetAbsEtaSubLeading",
@@ -425,7 +425,7 @@
     "axtitle": "Leading b-tagged jet p_{T}",
     "shorttitle": "p_{T}(bjet_{1})",
     "unit": "GeV",
-    "bins": [25.0, 100.0, 150.0, 200.0]
+    "bins": [25.0, 85.0, 150.0, 200.0]
   }
 },
 { "name": "_eventBDTbjetEtaLeading",
@@ -448,7 +448,7 @@
     "xhigh": "2.5",
     "axtitle": "Leading b-tagged jet #eta",
     "shorttitle": "#eta(bjet_{1})",
-    "bins": [-2.5, -0.5, 0.0, 0.5, 2.5]
+    "bins": [-2.5, -0.8, 0.0, 0.8, 2.5]
   }
 },
 { "name": "_eventBDTbjetAbsEtaLeading",
@@ -517,7 +517,7 @@
     "xhigh": "5.0",
     "axtitle": "#Delta R (l_{1} , l_{2})",
     "shorttitle": "#Delta R (l_{1} , l_{2})",
-    "bins": [0.0, 1.5, 2.5, 3.5, 5.0]
+    "bins": [0.0, 1.6, 2.5, 3.3, 5.0]
   }
 },
 { "name": "_eventBDTleptonMaxEta",
@@ -540,7 +540,7 @@
     "xhigh": "2.5",
     "axtitle": "Lepton maximum pseudorapidity (abs)",
     "shorttitle": "|#eta(l)_{max}|",
-    "bins": [0.0, 0.75, 1.5, 2.0, 2.5]
+    "bins": [0.0, 1.0, 1.5, 2.0, 2.5]
   }
 },
 { "name": "_eventBDTHT",
@@ -564,7 +564,7 @@
     "axtitle": "H_{T}",
     "shorttitle": "H_{T}",
     "unit": "GeV",
-    "bins": [0.0, 200.0, 400.0, 600.0, 1000.0]
+    "bins": [0.0, 250.0, 400.0, 600.0, 1000.0]
   }
 },
 { "name": "_eventBDTdeltaEtaLeadingLeptonPair",
@@ -587,7 +587,7 @@
     "xhigh": "3.0",
     "axtitle": "#Delta #eta (l_{1} , l_{2})",
     "shorttitle": "#Delta #eta (l_{1} , l_{2})",
-    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+    "bins": [0.0, 0.5, 1.1, 1.8, 3.0]
   }
 },
 { "name": "_eventBDTdRl1bjet",
@@ -610,7 +610,7 @@
     "xhigh": "3.0",
     "axtitle": "#Delta R (l_{1} , b-jet)",
     "shorttitle": "#Delta R (l_{1} , b-jet)",
-    "bins": [0.0, 0.5, 1.0, 2.0, 3.0]
+    "bins": [0.0, 0.6, 1.1, 1.8, 3.0]
   }
 },
 { "name": "_eventBDTM3l",
@@ -633,7 +633,7 @@
     "xhigh": "400.0",
     "axtitle": "m(leptons)",
     "shorttitle": "m(leptons)",
-    "bins": [0.0, 100.0, 200.0, 300.0, 400.0]
+    "bins": [0.0, 95.0, 185.0, 280.0, 400.0]
   }
 },
 { "name": "_eventBDTleptonPtSum",
@@ -656,7 +656,7 @@
     "xhigh": "400.0",
     "axtitle": "#Sum lepton p_{T}",
     "shorttitle": "#Sum lepton p_{T}",
-    "bins": [0.0, 100.0, 200.0, 300.0, 400.0]
+    "bins": [0.0, 110.0, 185.0, 280.0, 400.0]
   }
 }
 ]

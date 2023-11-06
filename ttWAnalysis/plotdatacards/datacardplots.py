@@ -10,6 +10,7 @@ import os
 import argparse
 sys.path.append(os.path.abspath('../../plotting/python'))
 import histplotter as hp
+sys.path.append(os.path.abspath('../plotting'))
 import colors
 import infodicts
 sys.path.append(os.path.abspath('../analysis/python'))

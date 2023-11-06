@@ -431,7 +431,8 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
-        extrainfos=extrainfos, infosize=15 )
+        extrainfos=extrainfos, infosize=15,
+        writeuncs=True )
 
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'
@@ -444,7 +445,8 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
-        extrainfos=extrainfos, infosize=15 )
+        extrainfos=extrainfos, infosize=15,
+        writeuncs=True  )
     
     # we write the histograms if requested
     if args.write_rootfiles:
@@ -476,5 +478,3 @@ if __name__=='__main__':
   # close rootfile if it was requested
   if args.write_rootfiles:
      rootfile.Close()
-   
-

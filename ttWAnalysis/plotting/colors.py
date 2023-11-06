@@ -213,6 +213,9 @@ def getcolormap_systematics_grouped():
     cmap['scales'] = ROOT.kMagenta
     cmap['parton shower'] = ROOT.kViolet
     cmap['pdf'] = ROOT.kOrange-4
+    cmap['lumi'] = ROOT.kMagenta+2
+    cmap['njets'] = ROOT.kGreen+3
+    cmap['norm'] = ROOT.kRed+2
     return cmap
 
 def getcolormap_ttw():
@@ -222,6 +225,7 @@ def getcolormap_ttw():
     cmap['Nonprompt'] = cmap['nonprompt']
     cmap['Nonprompt(e)'] = define_color_hex('#ffe380')[0]
     cmap['Nonprompt (e)'] = cmap['Nonprompt(e)']
+    cmap['NonpromptE'] = cmap['Nonprompt(e)']
     cmap['Nonprompt(m)'] = define_color_hex('#fcda60')[0]
     cmap['Nonprompt (mu)'] = cmap['Nonprompt(m)']
     cmap['NonpromptE'] = cmap['Nonprompt(e)']
