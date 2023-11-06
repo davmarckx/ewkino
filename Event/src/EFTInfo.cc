@@ -34,7 +34,8 @@ EFTInfo::EFTInfo( const TreeReader& treeReader ) :
 // get weight
 
 double EFTInfo::nominalWeight() const{
-    return _EFTCoefficients[0];
+    unsigned int idx = getIndex("sm", "sm");
+    return _EFTCoefficients[idx];
 }
 
 double EFTInfo::weight(const std::map<std::string, double>& WCValueMap) const{
@@ -43,9 +44,11 @@ double EFTInfo::weight(const std::map<std::string, double>& WCValueMap) const{
     // - WCValueMap: maps wilson coefficient names to their values,
     //               e.g. {{"ctlTi",  0.5}, {"ctq1", 2.8}, ...}
     //               (coefficients not in the map are assumed to be zero).
+    // the calculation is done as follows:
+    // weight = nominal + sum_{i}( WC_i * coeff_i ) + sum_{ij}( WC_i * WC_j * coeff_ij )
     
     // initialize result
-    double weight = 0;
+    double weight = nominalWeight();
     // put map keys in a vector
     std::vector<std::string> wcnames;
     for( auto el: WCValueMap ){ wcnames.push_back(el.first); }
@@ -54,16 +57,18 @@ double EFTInfo::weight(const std::map<std::string, double>& WCValueMap) const{
     for( unsigned int i=0; i<nwcnames; i++){
 	std::string wcname_i = wcnames[i];
 	// linear term
-	double linear_weight = WCValueMap.at(wcname_i) * _EFTCoefficients[getIndex(wcname_i)];
+	unsigned int idx = getIndex("sm", wcname_i);
+	double linear_weight = WCValueMap.at(wcname_i) * _EFTCoefficients[idx];
 	weight += linear_weight;
 	// iterate over provided wilson coefficients in second order
-	/*for( unsigned int j=i; j<nwcnames; j++){
+	for( unsigned int j=i; j<nwcnames; j++){
 	    std::string wcname_j = wcnames[j];
 	    // quadratic term
+	    idx = getIndex(wcname_i, wcname_j);
 	    double quadratic_weight = WCValueMap.at(wcname_i) * WCValueMap.at(wcname_j);
-	    quadratic_weight *= _EFTCoefficients[getIndex(wcname_i, wcname_j)];
+	    quadratic_weight *= _EFTCoefficients[idx];
 	    weight += quadratic_weight;
-	}*/
+	}
     }
     // return result
     return weight; 
@@ -78,9 +83,6 @@ double EFTInfo::relativeWeight(const std::map<std::string, double>& WCValueMap) 
 
 
 // internal helper functions to get correct index
-// note: this depends on the assumed order in the EFTCoefficients array in the ntuples.
-//       for now: first nominal (SM), then linear terms (in the order defined by _WCNames),
-//       then quadratic terms (not fully clear yet in what order)
 
 void EFTInfo::checkWCName(const std::string& WCName) const{
     if( std::find(_WCNames.begin(), _WCNames.end(), WCName) == _WCNames.end() ){
@@ -90,20 +92,17 @@ void EFTInfo::checkWCName(const std::string& WCName) const{
     }
 }
 
-unsigned int EFTInfo::getIndex(const std::string& WCName) const{
-    // get linear index for a given wilson coefficient name
-    checkWCName(WCName);
-    unsigned int idx = std::find(_WCNames.begin(), _WCNames.end(), WCName) - _WCNames.begin();
-    return 1 + idx;
-}
-
 unsigned int EFTInfo::getIndex(const std::string& WCName1, const std::string& WCName2) const{
-    // get quadratic index for a given combination of wilson coefficient names
+    // get index for a given combination of wilson coefficient names
+    // note: WCName1 and/or WCName2 can also be "sm", to retrieve the SM or linear terms
     checkWCName(WCName1);
     checkWCName(WCName2);
+    std::string key = WCName1 + "_" + WCName2;
+    // re-order the coefficient names if needed,
+    // to make sure WCName1 comes before WCName2 in the list
+    // (as the keys in the names-to-index map are only defined for that case).
     unsigned int idx1 = std::find(_WCNames.begin(), _WCNames.end(), WCName1) - _WCNames.begin();
     unsigned int idx2 = std::find(_WCNames.begin(), _WCNames.end(), WCName2) - _WCNames.begin();
-    unsigned int nWCs = _WCNames.size();
-    if( idx1 > idx2 ){ unsigned int temp = idx2; idx2 = idx1; idx1 = temp; }
-    return 1 + nWCs + unsigned((idx2 + 1)*idx2/2) + idx1;
+    if( idx1 > idx2 ){ key = WCName2 + "_" + WCName1; }
+    return _WCIndexMap.at(key);
 }

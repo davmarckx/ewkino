@@ -27,13 +27,34 @@ int main( int argc, char* argv[] ){
     unsigned long nEvents = std::stoul(argvStr[2]);
 
     // define wilson coefficients to check
-    std::vector<std::string> wcnames = {
-            "ctlTi",  "ctq1",  "ctq8",  "cQq83",  "cQq81",
-            "cQlMi",  "cbW",  "cpQ3",  "ctei",  "cQei",
-            "ctW",  "cpQM",  "ctlSi",  "ctZ",  "cQl3i",
-            "ctG",  "cQq13",  "cQq11",  "cptb",  "ctli",
-            "ctp",  "cpt"
+    // note: the values of the coefficients have been tuned
+    // to obtain "reasonably" varying distributions on a TTW sample
+    std::map<std::string, double> wcconfig = {
+        {"ctlTi", 0.001},
+	{"ctq1", 0.01},
+	{"ctq8", 0.01},
+	{"cQq83", 0.01},
+	{"cQq81", 0.01},
+	{"cQlMi", 0.1},
+	{"cbW", 5.},
+	{"cpQ3", 0.5},
+	{"ctei", 5.},
+	{"cQei", 5.},
+        {"ctW", 0.01},
+	{"cpQM", 2.},
+	{"ctlSi", 0.001},
+	{"ctZ", 0.5},
+	{"cQl3i", 0.01},
+        {"ctG", 0.01},
+	{"cQq13", 0.01},
+	{"cQq11", 0.01},
+	{"cptb", 5.},
+	{"ctli", 0.001},
+        {"ctp", 5.},
+	{"cpt", 0.5}
     };
+    std::vector<std::string> wcnames;
+    for( auto el: wcconfig ){ wcnames.push_back(el.first); }
 
     // read the input file
     TreeReader treeReader;
@@ -61,8 +82,8 @@ int main( int argc, char* argv[] ){
 	// loop over wilson coefficients and derive alternative weights
 	std::map<std::string, double> wcweights;
 	for( std::string wcname: wcnames ){
-	    std::map<std::string, double> wcvalues = {{wcname, 1.0}};
-	    double weight = nominal_weight + event.eftInfo().weight(wcvalues);
+	    std::map<std::string, double> wcvalues = {{wcname, wcconfig.at(wcname)}};
+	    double weight = event.eftInfo().relativeWeight(wcvalues);
 	    wcweights[wcname] = weight;
 	}
 	// fill histograms
