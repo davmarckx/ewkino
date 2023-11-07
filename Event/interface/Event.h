@@ -83,6 +83,7 @@ class Event{
         unsigned numberOfVertices() const{ return _numberOfVertices; }
         double weight() const{ return _weight; }
 	double genWeight() const{ return _genWeight; }
+	double lumiScale() const{ return _lumiScale; }
 
         double HT() const{ return _jetCollectionPtr->scalarPtSum(); }
         double LT() const{ return _leptonCollectionPtr->scalarPtSum(); }
@@ -271,6 +272,7 @@ class Event{
         unsigned _numberOfVertices = 0;
         double _weight = 1;
 	double _genWeight = 1;
+	double _lumiScale = 1;
         const Sample* _samplePtr = nullptr;
 
         //presence of Z boson

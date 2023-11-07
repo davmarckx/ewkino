@@ -31,7 +31,7 @@ bdtcut = None
 splitprocess = None
 splitvariables = None
 
-outputdir = 'output_20231106_double_eft'
+outputdir = 'output_20231107_double_eft'
 
 nevents = 1e6
 runlocal = False

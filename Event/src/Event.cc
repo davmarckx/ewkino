@@ -41,6 +41,7 @@ Event::Event( const TreeReader& treeReader,
     // since the former already includes cross-section and lumiosity scaling
     _weight( treeReader._scaledWeight ),
     _genWeight( treeReader._weight ),
+    _lumiScale( treeReader._lumiScale ),
     _samplePtr( treeReader.currentSamplePtr() )
     {}
 
@@ -88,6 +89,7 @@ Event::Event( const Event& rhs ) :
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
     _genWeight( rhs._genWeight ),
+    _lumiScale( rhs._lumiScale ),
     _samplePtr( rhs._samplePtr )
     {}
 
@@ -108,6 +110,7 @@ Event::Event( Event&& rhs ) noexcept :
     _numberOfVertices( rhs._numberOfVertices ),
     _weight( rhs._weight ),
     _genWeight( rhs._genWeight ),
+    _lumiScale( rhs._lumiScale ),
     _samplePtr( rhs._samplePtr )
 {
     rhs._leptonCollectionPtr = nullptr;
@@ -167,6 +170,7 @@ Event& Event::operator=( const Event& rhs ){
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
 	_genWeight = rhs._genWeight;
+	_lumiScale = rhs._lumiScale;
         _samplePtr = rhs._samplePtr;
     }
     return *this;
@@ -223,6 +227,7 @@ Event& Event::operator=( Event&& rhs ) noexcept{
         _numberOfVertices = rhs._numberOfVertices;
         _weight = rhs._weight;
 	_genWeight = rhs._genWeight;
+	_lumiScale = rhs._lumiScale;
         _samplePtr = rhs._samplePtr;
     }
     return *this;

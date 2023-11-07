@@ -79,7 +79,7 @@ def loadhistogramlist(histfile, histnames,
     f = ROOT.TFile.Open(histfile)
     histlist = []
     for histname in histnames:
-        hist = f.Get(histname)
+        hist = f.Get(str(histname))
         # check the object type
         ishist = ( isinstance(hist,ROOT.TH1)
                    or isinstance(hist,ROOT.TH2) )

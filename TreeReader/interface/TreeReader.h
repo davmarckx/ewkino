@@ -289,7 +289,8 @@ class TreeReader {
         std::map< std::string, bool > _triggerMap;
         std::map< std::string, bool > _MetFilterMap;
 
-        //weight including cross section scaling 
+        //weight including cross section scaling
+	double          _lumiScale = 0; // xsection * lumi
         double          _scaledWeight;
 
         //set up tree for reading and writing
@@ -437,7 +438,7 @@ class TreeReader {
         int currentSampleIndex = -1;
 
         //luminosity scaling
-        double scale = 0;
+        double scale = 0; // lumiScale / sum of weights
 
         //some safety-checks for errors 
         void checkSampleEraConsistency() const; //make sure a sample is not is2016() AND 2017() 

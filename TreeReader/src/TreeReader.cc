@@ -432,7 +432,8 @@ void TreeReader::initSample( const Sample& samp,
 	else if( is2016PostVFP() ){ dataLumi = lumi::lumi2016PostVFP; }
         else if( is2017() ){ dataLumi = lumi::lumi2017; } 
 	else { dataLumi = lumi::lumi2018; }
-        scale = samp.xSec()*dataLumi*1000 / sumSimulatedEventWeights;
+	_lumiScale = samp.xSec() * dataLumi * 1000;
+        scale = _lumiScale / sumSimulatedEventWeights;
     }
 
     //check whether current sample is a SUSY sample
@@ -501,6 +502,7 @@ void TreeReader::initSampleFromFile( const std::string& pathToFile,
     _isSusy = containsSusyMassInfo();
 
     //set scale so weights don't become 0 when building the event
+    _lumiScale = 1.;
     scale = 1.;
 }
 

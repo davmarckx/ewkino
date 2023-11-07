@@ -35,6 +35,10 @@ EFTCrossSections::EFTCrossSections( const Sample& sample ){
 }
 
 
+double EFTCrossSections::nominalSumOfWeights() const{
+    return eftSumOfWeights[ 0 ];
+}
+
 double EFTCrossSections::EFTSumOfWeights( const size_type index ) const{
     if( index > eftSumOfWeights.size() ){
 	std::string msg = "Requesting EFT cross section variation " + std::to_string( index );
@@ -43,6 +47,7 @@ double EFTCrossSections::EFTSumOfWeights( const size_type index ) const{
     }
     return eftSumOfWeights[ index ];
 }
+
 double EFTCrossSections::EFTCrossSectionRatio( const size_type index ) const{
     if( index > eftCrossSectionRatios.size() ){
 	std::string msg = "Requesting EFT cross section variation " + std::to_string( index ); 

@@ -16,6 +16,7 @@ def getcolormap( style='default' ):
   if(style=='tttt'): return getcolormap_tttt()
   if(style=='systematics'): return getcolormap_systematics()
   if(style=='systematics_grouped'): return getcolormap_systematics_grouped()
+  if(style=='eft'): return getcolormap_eft()
   if(style=='ttw'): return getcolormap_ttw()
   if(style=='oviedo'): return getcolormap_oviedo()
   else: print('WARNING in getcolormap: style not recognized, returning None')
@@ -216,6 +217,34 @@ def getcolormap_systematics_grouped():
     cmap['lumi'] = ROOT.kMagenta+2
     cmap['njets'] = ROOT.kGreen+3
     cmap['norm'] = ROOT.kRed+2
+    return cmap
+
+def getcolormap_eft():
+    cmap = {}
+    cmap['nominal'] = ROOT.kBlack
+    cmap['sm'] = cmap['nominal']
+    cmap['cQei'] = ROOT.kRed
+    cmap['cQl3i'] = ROOT.kRed
+    cmap['cQlMi'] = ROOT.kRed
+    cmap['cQq11'] = ROOT.kBlue
+    cmap['cQq13'] = ROOT.kBlue
+    cmap['cQq81'] = ROOT.kBlue
+    cmap['cQq83'] = ROOT.kBlue
+    cmap['cbW'] = ROOT.kCyan
+    cmap['cpQ3'] = ROOT.kOrange
+    cmap['cpQM'] = ROOT.kOrange
+    cmap['cpt'] = ROOT.kOrange
+    cmap['cptb'] = ROOT.kOrange
+    cmap['ctG'] = ROOT.kOrange+9
+    cmap['ctW'] = ROOT.kOrange+9
+    cmap['ctZ'] = ROOT.kOrange+9
+    cmap['ctei'] = ROOT.kOrange+7
+    cmap['ctlSi'] = ROOT.kOrange+7
+    cmap['ctlTi'] = ROOT.kOrange+7
+    cmap['ctli'] = ROOT.kOrange+7
+    cmap['ctp'] = ROOT.kGreen+1
+    cmap['ctq'] = ROOT.kGreen+1
+    cmap['ctq8'] = ROOT.kGreen+1
     return cmap
 
 def getcolormap_ttw():

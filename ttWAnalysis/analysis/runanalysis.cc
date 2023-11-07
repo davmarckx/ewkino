@@ -24,6 +24,7 @@
 #include "../../Tools/interface/variableTools.h"
 #include "../../Tools/interface/rootFileTools.h"
 #include "../../Tools/interface/SampleCrossSections.h"
+#include "../../Tools/interface/EFTCrossSections.h"
 #include "../../weights/interface/ConcreteReweighterFactory.h"
 #include "../../weights/interface/ReweighterBTagShape.h"
 
@@ -704,7 +705,8 @@ void fillSystematicsHistograms(
 
     // determine global sample properties related to EFT coefficients
     std::vector<std::string> eftVariations;
-    // check which jec variations are needed
+    std::shared_ptr<EFTCrossSections> eftCrossSections;
+    // check if EFT variations are needed
     bool considereft = false;
     for( std::string systematic: systematics ){
         if( systematic=="eft") considereft = true;
@@ -715,8 +717,9 @@ void fillSystematicsHistograms(
             std::cout << "finding available EFT variations..." << std::endl;
             Event event = treeReader.buildEvent(0,false,false,false,false,false,true);
 	    for(std::string wcName: event.eftInfo().wcNames()){
-		if(wcName != "sm") eftVariations.push_back(wcName);
+		eftVariations.push_back(wcName);
 	    }
+	    eftCrossSections = std::make_shared<EFTCrossSections>( treeReader.currentSample() );
             std::cout << "found following EFT variations:" << std::endl;
             for(auto el: eftVariations) std::cout << "  - " << el << std::endl;
         }
@@ -724,28 +727,29 @@ void fillSystematicsHistograms(
     // set magnitude of wilson coefficients
     // (hard-coded for now, maybe extend later)
     std::map<std::string, double> WCConfig = {
-        {"ctlTi", 0.003},
-        {"ctq1", 0.03},
-        {"ctq8", 0.03},
-        {"cQq83", 0.03},
-        {"cQq81", 0.03},
-        {"cQlMi", 0.3},
+        {"ctlTi", 5.},
+        {"ctq1", 0.3},
+        {"ctq8", 0.3},
+        {"cQq83", 1.},
+        {"cQq81", 1.},
+        {"cQlMi", 5.},
         {"cbW", 5.},
-        {"cpQ3", 1.},
+        {"cpQ3", 5.},
         {"ctei", 5.},
         {"cQei", 5.},
-        {"ctW", 0.03},
-        {"cpQM", 2.},
-        {"ctlSi", 0.003},
-        {"ctZ", 1.},
-        {"cQl3i", 0.03},
-        {"ctG", 0.03},
-        {"cQq13", 0.03},
-        {"cQq11", 0.03},
+        {"ctW", 1.},
+        {"cpQM", 5.},
+        {"ctlSi", 5.},
+        {"ctZ", 5.},
+        {"cQl3i", 5.},
+        {"ctG", 0.3},
+        {"cQq13", 0.1}, // here
+        {"cQq11", 0.1}, // here
         {"cptb", 5.},
-        {"ctli", 0.003},
+        {"ctli", 1.},
         {"ctp", 5.},
-        {"cpt", 1.}
+        {"cpt", 5.},
+	{"sm", 0.}
     };
     for(std::string eftVariation: eftVariations){
 	if(WCConfig.find(eftVariation) == WCConfig.end()){
@@ -1129,7 +1133,11 @@ void fillSystematicsHistograms(
 	    else if(systematic=="eft"){
 		for(std::string eftVariation: eftVariations){
 		    std::map<std::string, double> wcvalues = {{eftVariation, WCConfig.at(eftVariation)}};
-		    double weight = nominalWeight * event.eftInfo().relativeWeight(wcvalues);
+		    double eftNominalWeight = event.lumiScale()
+						* event.eftInfo().nominalWeight()
+						/ eftCrossSections->nominalSumOfWeights()
+						* varmap.at("_reweight");
+		    double weight = eftNominalWeight * event.eftInfo().relativeWeight(wcvalues);
 		    fillHistograms( histMap, thisProcessName,
                             event_selection, selection_type, "EFT"+eftVariation,
                             histVars, varmap, weight,
