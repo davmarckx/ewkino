@@ -114,6 +114,7 @@ for year in years:
     if bdtfile is not None: cmd += ' --bdt ' + bdtfile
     if bdtcut is not None: cmd += ' --bdtcut {}'.format(bdtcut)
     if trainingreweight: cmd += ' --trainingreweight'
+    cmd += ' --systematics default'
 
     # consider different submission strategies
     if( submit_event_selections_combined and submit_selection_types_combined ):

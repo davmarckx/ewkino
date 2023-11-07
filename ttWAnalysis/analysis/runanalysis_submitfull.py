@@ -125,6 +125,7 @@ for mtype in mtypes:
       if nevents!=0: cmd += ' --nevents {}'.format(int(nevents))
       if bdtfile is not None: cmd += ' --bdt ' + bdtfile
       if bdtcut is not None: cmd += ' --bdtcut {}'.format(bdtcut)
+      cmd += ' --systematics default'
       # consider different submission strategies
       if( submit_event_selections_combined and submit_selection_types_combined ):
         # submit jobs combined in event selections and selection types
