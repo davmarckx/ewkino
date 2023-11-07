@@ -16,6 +16,7 @@ class EFTInfo{
 
         // basic getters
         unsigned int numberOfEFTCoefficients() const{ return _numberOfEFTCoefficients; }
+	std::vector<std::string> wcNames() const{ return _WCNames; }
 
 	// calculate weight for a given configuration of wilson coefficients
 	double nominalWeight() const;

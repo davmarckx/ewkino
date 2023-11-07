@@ -1,0 +1,3 @@
+# samples located in /pnfs/iihe/cms/store/user/llambrec/heavyNeutrinoTTWEFT
+
+TTW  TTW_EFT_Autumn18.root  0.2269

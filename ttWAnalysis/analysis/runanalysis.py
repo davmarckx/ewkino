@@ -216,7 +216,9 @@ if __name__=='__main__':
 
   # submit the jobs
   if args.runmode=='local':
-    for command in commands: os.system(command)
+    for command in commands:
+      print(command)
+      os.system(command)
   elif args.runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_runanalysis', commands,
                                       cmssw_version=CMSSW_VERSION ) 

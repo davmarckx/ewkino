@@ -1,8 +1,6 @@
 // This is the main C++ class used to run the analysis,
 // i.e. produce distributions + systematic variations as input for combine.
 
-// Draft for merging run analysis and runanalysis2 into one flexible script.
-
 // inlcude c++ library classes
 #include <string>
 #include <vector>
@@ -108,7 +106,8 @@ std::map< std::string,     // process
     unsigned numberOfQcdScaleVariations=6,
     const std::vector<std::string>& allJecVariations={},
     const std::vector<std::string>& groupedJecVariations={},
-    const std::vector<std::string>& bTagShapeSystematics={} ){
+    const std::vector<std::string>& bTagShapeSystematics={},
+    const std::vector<std::string>& eftVariations={} ){
     // make map of histograms
     // the resulting map has five levels: 
     // map[process name][event selection][selection type][variable name][systematic]
@@ -220,6 +219,14 @@ std::map< std::string,     // process
 				histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
 			    }
 			}
+			// special case for EFT variations: store individual variations
+                        else if(systematic=="eft"){
+                            for(std::string eftVariation: eftVariations){
+				std::string temp = "EFT" + eftVariation;
+                                histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar->initializeHistogram( baseName+"_"+temp );
+                                histMap.at(thisProcessName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(thisProcessName.c_str());
+                            }
+                        }
 			// now general case: store up and down variation
 			else{
 			    std::string temp = systematic + "Up";
@@ -643,6 +650,59 @@ void fillSystematicsHistograms(
 	}
     }
 
+    // determine global sample properties related to EFT coefficients
+    std::vector<std::string> eftVariations;
+    // check which jec variations are needed
+    bool considereft = false;
+    for( std::string systematic: systematics ){
+        if( systematic=="eft") considereft = true;
+    }
+    if( treeReader.numberOfEntries()>0 && considereft ){
+        // find available EFT variations
+        if( treeReader.containsEFTCoefficients() ){
+            std::cout << "finding available EFT variations..." << std::endl;
+            Event event = treeReader.buildEvent(0,false,false,false,false,false,true);
+	    for(std::string wcName: event.eftInfo().wcNames()){
+		if(wcName != "sm") eftVariations.push_back(wcName);
+	    }
+            std::cout << "found following EFT variations:" << std::endl;
+            for(auto el: eftVariations) std::cout << "  - " << el << std::endl;
+        }
+    }
+    // set magnitude of wilson coefficients
+    // (hard-coded for now, maybe extend later)
+    std::map<std::string, double> WCConfig = {
+        {"ctlTi", 0.003},
+        {"ctq1", 0.03},
+        {"ctq8", 0.03},
+        {"cQq83", 0.03},
+        {"cQq81", 0.03},
+        {"cQlMi", 0.3},
+        {"cbW", 5.},
+        {"cpQ3", 1.},
+        {"ctei", 5.},
+        {"cQei", 5.},
+        {"ctW", 0.03},
+        {"cpQM", 2.},
+        {"ctlSi", 0.003},
+        {"ctZ", 1.},
+        {"cQl3i", 0.03},
+        {"ctG", 0.03},
+        {"cQq13", 0.03},
+        {"cQq11", 0.03},
+        {"cptb", 5.},
+        {"ctli", 0.003},
+        {"ctp", 5.},
+        {"cpt", 1.}
+    };
+    for(std::string eftVariation: eftVariations){
+	if(WCConfig.find(eftVariation) == WCConfig.end()){
+	    std::string msg = "ERROR: eft variation " + eftVariation;
+	    msg += " not found in hard-coded config map.";
+	    throw std::runtime_error(msg);
+	}
+    }
+
     // make output collection of histograms
     std::cout << "making output collection of histograms..." << std::endl;
     std::vector<std::string> processNames = {processName};
@@ -657,7 +717,8 @@ void fillSystematicsHistograms(
 	event_selections, selection_types, histVars, systematics,
 	numberOfPdfVariations, 6, 
 	allJECVariations, groupedJECVariations,
-	bTagShapeSystematics);
+	bTagShapeSystematics,
+	eftVariations );
 
     // load the BDT
     // default value is nullptr, 
@@ -705,7 +766,8 @@ void fillSystematicsHistograms(
                         false,false,
                         considerjecall,
                         considerjecgrouped,
-			doSplitParticleLevel );
+			doSplitParticleLevel,
+                        considereft );
 
 	// initialize map of variables
         std::map<std::string,double> varmap = eventFlattening::initVarMap();
@@ -998,6 +1060,21 @@ void fillSystematicsHistograms(
 		}
 	    }
 	    // ELSE apply nominal weight (already in variable nominalWeight)
+
+	    // EFT reweighting
+	    else if(systematic=="eft"){
+		for(std::string eftVariation: eftVariations){
+		    std::map<std::string, double> wcvalues = {{eftVariation, WCConfig.at(eftVariation)}};
+		    double weight = nominalWeight * event.eftInfo().relativeWeight(wcvalues);
+		    fillHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, "EFT"+eftVariation,
+                            histVars, varmap, weight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );
+		}
+	    }
+
+	    // theory reweighting
 	    else if(systematic=="fScale" && hasValidQcds){
 		double upWeight = nominalWeight * event.generatorInfo().relativeWeight_MuR_1_MuF_2()
 							    / xsecs.get()->crossSectionRatio_MuR_1_MuF_2();

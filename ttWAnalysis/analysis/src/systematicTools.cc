@@ -66,6 +66,8 @@ std::string systematicTools::systematicType( const std::string systematic ){
     }
     // electron reco uncertainty
     if(systematic=="electronReco") return std::string("electronReco");
+    // EFT variations
+    if(systematic=="eft") return std::string("eft");
     // if none of the above, throw an error
     std::string msg = "ERROR in systematicTools::systematicType:";
     msg.append( " systematic '" + systematic + "' not recognized." );
