@@ -132,7 +132,7 @@ other1 = other1.replace({"class": dictio})
 other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject the test signal samples later on (otherwise bias)
 
 #make other validation sets
-X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
+X_other = other1.drop(['_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading','_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 
@@ -140,7 +140,7 @@ X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_event
 #X_other.loc[X_other['class'] != 1, 'class'] = 0
 
 # make training and testing sets
-X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
+X = alle1.drop(['_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading','_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
@@ -261,7 +261,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_robustnessv3_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_robustnessvNOshape_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 
@@ -279,14 +279,14 @@ ax.legend()
 plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
 plt.ylabel('Error\n',fontsize=14,fontweight='semibold')
 plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
-plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_robustnessv3_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_robustnessvNOshape_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 print(list(X_train.columns))
 
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_robustnessv3".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_robustnessvNOshape".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBrobustnessv3_{}.root".format(year))
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBrobustnessvNOshape_{}.root".format(year))

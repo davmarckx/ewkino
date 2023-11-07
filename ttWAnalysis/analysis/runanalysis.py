@@ -28,7 +28,7 @@ systematics = ([
   "JER",
   "Uncl",
   #"JECAll" # not in current samples
-  "JECGrouped",
+  #"JECGrouped",
   # via standard reweighting
   "muonReco",
   "electronReco",
@@ -90,6 +90,7 @@ if __name__=='__main__':
   parser.add_argument('--cfdir', default=None, type=apt.path_or_none)
   parser.add_argument('--bdt', default=None, type=apt.path_or_none)
   parser.add_argument('--bdtcut', default=None, type=float)
+  parser.add_argument('--trainingreweight', default=False, action='store_true')
   parser.add_argument('--nevents', default=0, type=int)
   parser.add_argument('--forcenevents', default=False, action='store_true')
   parser.add_argument('--exe', default='runanalysis', 
@@ -216,7 +217,12 @@ if __name__=='__main__':
                     args.inputdir, args.samplelist, i, args.outputdir,
                     variablestxt, event_selections, selection_types,
                     muonfrmap, electronfrmap, electroncfmap, 
-                    args.nevents, args.forcenevents, bdt, bdtcut )
+                    args.nevents, args.forcenevents, bdt, bdtcut)
+    # apply reweighting of training
+    if args.trainingreweight:
+        command += ' true'
+    else:
+        command += ' false'
     # manage particle level splitting
     if( args.splitprocess is not None 
         and samples.get_samples()[i].process == args.splitprocess ):

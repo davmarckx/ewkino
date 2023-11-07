@@ -9,7 +9,8 @@ CMSSW_VERSION = '~/CMSSW_10_6_29'
 
 if __name__=='__main__':
 
-  topfolder = '../analysis/output_20230920_single'
+
+  topfolder = '../analysis/output_inclusive_main/'
   outputdir = 'output_test'
   years = ['run2']
   regions = []
@@ -61,6 +62,7 @@ if __name__=='__main__':
   includetags = ({ 
                    'allsys': 'none',
                    'jets': 'JEC,JER,Uncl',
+                   'grouped':'JECGrouped', 
                    'leptons': 'electron,muon',
                    'scales': 'rScale,fScale',
                    'qcdscales': 'qcdScales,rfScales',

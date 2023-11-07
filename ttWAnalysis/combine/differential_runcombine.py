@@ -8,7 +8,8 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_16_patch1' # temporary
+#CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_16_patch1' # temporary
+CMSSW_VERSION = '~/CMSSW_10_2_16_UL3'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -124,8 +125,8 @@ if __name__=='__main__':
       (pois, pomap) = getpomap(signals)
     print('Using following POIs:')
     print(pois)
-    #print('Using following PO map:')
-    #print(pomap)
+    print('Using following PO map:')
+    print(pomap)
 
     # add elementary signal region cards if requested
     if args.runelementary:

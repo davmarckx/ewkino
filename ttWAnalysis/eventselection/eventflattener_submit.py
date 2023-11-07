@@ -14,12 +14,12 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2018']
+#years = ['2016PreVFP']
 
 selection_types = []
 selection_types.append('tight')
 #selection_types.append('prompt')
-selection_types.append('fakerate')
+#selection_types.append('fakerate')
 #selection_types.append('chargeflips')
 #selection_types.append('chargegood')
 #selection_types.append('irreducible')
@@ -37,7 +37,7 @@ dtypes.append('sim')
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops'
+samplelistdir = '../samplelists/fourtops_notused'
 samplelistbase = 'samples_tttt_{}_{}.txt'
 
 #bdtfile = None
@@ -46,7 +46,7 @@ bdtfile = '../bdtweights/XGBfinal_all_newbackgrd_30features_lepMVA_removed_withb
 
 nevents = -1
 
-outputdir = 'flattened_robustness'
+outputdir = 'flattened_robustnessv2'
 
 for year in years:
   for dtype in dtypes:

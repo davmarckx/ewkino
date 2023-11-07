@@ -4,11 +4,12 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20231031'
-  ssdirbase = '../combine/datacards_20231031_double'
-  regions = {'signalregion_dilepton_inclusive': ssdirbase + '_dilepton', 
-             'signalregion_trilepton': ssdirbase + '_trilepton'}
-  variables = '../variables/variables_particlelevel_single_bintest.json'
+  inputdir = 'output_20230922'
+  ssdirbase = '../combine/datacards_20230922_double_'
+  regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
+             'signalregion_trilepton': ssdirbase + 'trilepton'}
+  write_roots = False
+
 
   # basic command
   basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018 --xsecs xsecs/xsecs.json'
@@ -27,6 +28,8 @@ if __name__=='__main__':
         cmd += ' --outputdir {}'.format(outputdir)
         cmd += ' --signalstrength {}'.format(ssfile)
         cmd += ' --region {}'.format(region)
+        if write_roots:
+            cmd += ' --write_rootfiles'
         # run command
         print('Now running:')
         print(cmd)
