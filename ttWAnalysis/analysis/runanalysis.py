@@ -24,7 +24,7 @@ default_systematics = ([
   "JER",
   "Uncl",
   #"JECAll" # not in current samples
-  "JECGrouped",
+  #"JECGrouped",
   # via standard reweighting
   "muonReco",
   "electronReco",
@@ -86,6 +86,7 @@ if __name__=='__main__':
   parser.add_argument('--bdtcut', default=None, type=float)
   parser.add_argument('-n', '--nevents', default=0, type=int)
   parser.add_argument('-f', '--forcenevents', default=False, action='store_true')
+  parser.add_argument('--trainingreweight', default=False, action='store_true')
   parser.add_argument('--splitprocess', default=None)
   # process name to split at particle level (i.e. usually TTW in this analysis)
   # - if None, no process will be split at particle level.
@@ -211,6 +212,10 @@ if __name__=='__main__':
                     muonfrmap, electronfrmap, electroncfmap, 
                     args.nevents, args.forcenevents, bdt, bdtcut )
     command += ' {}'.format(splitvartxt)
+    # apply reweighting of training
+    if args.trainingreweight: command += ' true'
+    else: command += ' false'
+    # add systematics
     command += ' {}'.format(systematics)
     commands.append(command)
 

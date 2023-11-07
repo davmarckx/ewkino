@@ -7,6 +7,7 @@ import os
 import json
 import argparse
 import ROOT
+from ROOT import TFile
 sys.path.append('tools')
 from uncertaintyprop import normalizexsec
 from uncertaintyprop import sstoxsec
@@ -66,6 +67,8 @@ if __name__=='__main__':
                       help='If specified, do not divide by bin width,'
                           +' so y-axis unit is in fb instead of fb/GeV.'
                           +' Mostly for testing purposes.')
+  parser.add_argument('--write_rootfiles', default=False, action='store_true',
+                      help='If specified, rootfiles are written for data by applying the signal strengths. (Only needed for e.g. hepdata submissions.)')
   args = parser.parse_args()
 
   # print arguments
@@ -111,8 +114,9 @@ if __name__=='__main__':
   extratags = [t.replace('_',' ') for t in extratags]
 
   # make the output directory
-  if not os.path.exists(args.outputdir):
-    os.makedirs(args.outputdir)
+  outputdir = os.path.join(args.outputdir,args.region)
+  if not os.path.exists(outputdir):
+    os.makedirs(outputdir)
 
   # get all relevant histograms
   print('Loading histogram names from input file...')
@@ -195,6 +199,12 @@ if __name__=='__main__':
       xsections.append(xsecs[process]*1000)
       # (factor 1000 is to convert from pb to fb)
   f.Close()
+
+  # if we want a collection of data histograms we innit the root file here
+  if args.write_rootfiles:
+    if not os.path.exists(os.path.join(outputdir,"rootfiles")):
+        os.makedirs(os.path.join(outputdir,"rootfiles"))
+    rootfile = TFile( os.path.join(outputdir,"rootfiles/differentialplots_{}.root".format(args.year)), 'RECREATE' )
 
   # loop over variables
   for var in varlist:
@@ -378,7 +388,7 @@ if __name__=='__main__':
 
     # set plot properties
     figname = variablename
-    figname = os.path.join(args.outputdir,figname)
+    figname = os.path.join(outputdir,figname)
     yaxdenom = var.axtitle
     if var.shorttitle is not None: yaxdenom = var.shorttitle
     yaxunit = 'fb'
@@ -436,4 +446,35 @@ if __name__=='__main__':
         extracmstext=extracmstext,
         lumitext=lumitext,
         extrainfos=extrainfos, infosize=15,
-        writeuncs=True )
+        writeuncs=True  )
+    
+    # we write the histograms if requested
+    if args.write_rootfiles:
+        rootfile.cd()
+        print("...and write the data histograms to " + os.path.join(outputdir,"rootfiles/differentialplots_{}_{}.root".format(args.region,args.year)) )
+        datahist.SetName( datahist.GetName().replace("nominal","data"))
+        datahist.Write()
+        statdatahist.SetName( statdatahist.GetName().replace("nominal","datastat"))
+        statdatahist.Write()
+        normdatahist.SetName( normdatahist.GetName().replace("nominal","normdata"))
+        normdatahist.Write()
+        normstatdatahist.SetName( normstatdatahist.GetName().replace("nominal","normstatdata"))
+        normstatdatahist.Write()
+        print("...and try the theory histograms as well")
+        if len(nominalhists) == 1:
+            nominalhists[0].SetName( nominalhists[0].GetName().replace("nominal","MC"))
+            nominalhists[0].Write()
+            nominalhists_norm[0].SetName( nominalhists_norm[0].GetName().replace("nominal","normMC"))
+            nominalhists_norm[0].Write()
+        if len(systhists) == 1:    
+            systhists[0].SetName( systhists[0].GetName().replace("nominal","MC_syst"))
+            systhists[0].Write()
+            systhists_norm[0].SetName( systhists_norm[0].GetName().replace("nominal","normMC_syst"))
+            systhists_norm[0].Write()
+        elif len(nominalhists) != 1 or len(systhists) != 1:
+            print("WARNING: one theory histogram was expected so theory histograms aren't written!")
+
+
+  # close rootfile if it was requested
+  if args.write_rootfiles:
+     rootfile.Close()

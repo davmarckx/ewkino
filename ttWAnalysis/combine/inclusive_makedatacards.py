@@ -10,15 +10,22 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-topdir = '../analysis/output_20231025_single'
- 
-years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
-#years = ['run2']
+
+topdir = '../analysis/output_inclusive_mainv4'
+  
+#years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
+years = ['run2']
 #years = ['2018']
 
 regions = ({
-  'peryear': {
     'signalregion_dilepton_inclusive': '_eventBDT',
+    #'signalregion_dilepton_ee': '_eventBDT',
+    #'signalregion_dilepton_em': '_eventBDT',
+    #'signalregion_dilepton_me': '_eventBDT',
+    #'signalregion_dilepton_mm': '_eventBDT',
+    #'signalregion_dilepton_plus': '_eventBDT',
+    #'signalregion_dilepton_minus': '_eventBDT',
+
     'signalregion_trilepton': '_eventBDT',
     'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
@@ -49,8 +56,12 @@ regions = ({
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
+
+outputdir = 'datacards_single_txt2ws'
+
 #rateparams = None
 rateparams = ['WZ', 'ZZ', 'TTZ']
+
 
 outputdir = 'datacards_inclusive_test_newfiles_newuncs'
 

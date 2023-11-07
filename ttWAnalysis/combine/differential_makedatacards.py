@@ -13,7 +13,7 @@ from variabletools import read_variables
 # settings
 
 controlregions = ({
-    'topdir': '../analysis/output_20231025_single',
+    'topdir': '../analysis/output_sbv2',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
     'regions': {
@@ -25,15 +25,14 @@ controlregions = ({
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_20231025_double',
+    'topdir': '../analysis/output_dbv2',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
-    'region': 'signalregion_trilepton',
-    #'region': 'signalregion_dilepton_inclusive',
-    'variables': '../variables/variables_particlelevel_double_bintest.json'
+    'region': 'signalregion_dilepton_inclusive',
+    'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
-  
-outputdir = 'datacards_test_double_trilepton'
+
+outputdir = 'datacards_binstudyv1'
 
 runmode = 'condor'
 
@@ -43,7 +42,7 @@ if not os.path.exists(outputdir):
 
 # initialize empty list of commands to run
 cmds = []
-
+cmds2 = []
 # read variables
 variables = read_variables( signalregion['variables'] )
 varnames = [str(var.name) for var in variables]
@@ -96,12 +95,16 @@ for year in controlregions['years']:
     cmd += ' --variable {}'.format(variable)
     cmd += ' --outputfile {}'.format(outputfiletag)
     cmd += ' --processes all'
+    cmd += ' --signals {}'.format(['TTW'])
     cmd += ' --datatag Data'
-    cmds.append(cmd)
+    cmds2.append(cmd)
 
 # run commands
 if runmode=='local':
   for cmd in cmds: os.system(cmd)
+  for cmd in cmds2: os.system(cmd)
 elif runmode=='condor':
   ct.submitCommandsAsCondorJob( 'cjob_makedatacard', cmds,
-             cmssw_version=CMSSW_VERSION ) 
+             cmssw_version=CMSSW_VERSION )
+  ct.submitCommandsAsCondorJob( 'cjob_CRmakedatacard', cmds2,
+             cmssw_version=CMSSW_VERSION )

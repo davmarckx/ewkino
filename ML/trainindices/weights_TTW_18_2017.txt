@@ -1,0 +1,7 @@
+signalregion_dilepton_inclusive 1.2517142924009454
+signalregion_dilepton_ee 1.2502854306279474
+signalregion_dilepton_em 1.250597298202523
+signalregion_dilepton_me 1.250597298202523
+signalregion_dilepton_mm 1.2555533904910365
+signalregion_dilepton_plus 1.2541444225906153
+signalregion_dilepton_minus 1.2492865497076024

@@ -39,8 +39,8 @@ variations.append('nominal')
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops'
-samplelistbase = 'samples_EWNLO_{}_{}.txt'
+samplelistdir = '../samplelists/fourtops_notused'
+samplelistbase = 'samples_tttt_{}_{}.txt'
 
 #variables = '../variables/variables_main.json'
 variables = '../variables/variables_eventbdt.json'
@@ -48,13 +48,14 @@ variables = '../variables/variables_eventbdt.json'
 #bdtfile = None
 #bdtfile = '../bdtweights/XGBfinal_all.root'
 #bdtfile = '../bdtweights/XGB_dummyanalysis_all_30features_lepMVA_removed.root'
-bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
+#bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
+bdtfile = '../../ML/models/XGBrobustnessvNOshape_all.root'
 
 nevents = -1
 
 runmode = 'condor'
 
-outputdir = 'EWtest/output_plusEW'
+outputdir = 'output_noshape'
 
 for year in years:
   for dtype in dtypes:

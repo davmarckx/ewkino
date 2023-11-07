@@ -21,7 +21,7 @@ from uncertaintytools import add_systematics_default
 from uncertaintytools import get_systematics_to_smooth
 from uncertaintytools import remove_systematics_all
 from uncertaintytools import add_systematics_dummy
-
+from copy import deepcopy
 
 def makeProcessInfoCollection( inputfile, year, region, variable, processes, 
   signals=[], strict_signals=True,
@@ -82,8 +82,9 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
     print('Extracted following valid process tags from input file:')
     for process in processes: print('  - '+process)
 
-  # get valid systematics and compare to arguments
-  shapesyslist = PIC.slist
+  # get valid systematics and compare to arguments, [deep(just to be sure)]copy is really necessary, otherwise unexpected updates of shapesyslist can happen later on when PIC is modified
+  shapesyslist = deepcopy(PIC.slist)
+
   if verbose:
     print('Extracted following relevant systematics from histogram file:')
     for systematic in shapesyslist: print('  - '+systematic)
@@ -109,8 +110,11 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
       for el in removedspecific[p]:
         if( p in el and el in shapesyslist ):
           shapesyslist.remove(el)
+    print(shapesyslist)
     normsyslist = add_systematics_default( PIC, year=year )
+    (shapesyslist)
     smoothsyslist = get_systematics_to_smooth( shapesyslist )
+    print(shapesyslist)
   elif( dummysystematics ):
     (removedforall, _) = remove_systematics_all( PIC )
     for el in removedforall: shapesyslist.remove(el)
@@ -207,6 +211,8 @@ if __name__=="__main__":
   # rename signals if requested
   for oldname,newname in zip(signals,renamesignals):
     PIC.changename(oldname, newname)
+
+
 
   # write the datacard
   writedatacard( outputdir, outputfilename, PIC,

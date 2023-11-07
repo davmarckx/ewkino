@@ -35,6 +35,50 @@
 #include "../eventselection/interface/eventFlatteningParticleLevel.h"
 
 
+// help function for loading training weights from ML directory
+
+std::map< std::string, double > loadWeights(
+    const std::string& processName,
+    int sampleInd ,
+    const std::string& year ){
+    // function to find the reweighting factors needed for taking into account
+    // the missing training sample in the dilepton signalregions.
+    // these factors are stored in the ML directory and are made by make_analysisdatasets.py.
+
+   int sampleIndex = sampleInd;
+   if (processName == "TTW" && sampleIndex == 0){ sampleIndex = 16;}
+   if (processName == "TTW" && sampleIndex == 1){ sampleIndex = 18;}
+
+   std::fstream newfile;
+   std::string location = "../../ML/trainindices/";
+   location += "weights_" + processName + "_" + std::to_string(sampleIndex) + "_" + year + ".txt";
+
+   newfile.open(location);
+
+   std::map< std::string, double > weightMap;
+
+   if (newfile.is_open()){ //checking whether the file is open
+      std::string tp;
+      while(getline(newfile, tp)){ //read data from file object and put it into string.
+        if( tp == "" ) continue;
+        std::stringstream ss(tp);
+        std::istream_iterator<std::string> begin(ss);
+        std::istream_iterator<std::string> end;
+        std::vector<std::string> vstrings(begin, end);
+
+        std::string region = vstrings[0];
+        double val = std::stod(vstrings[1]);
+        //std::cout << "region="+region+"=" << std::endl;
+        //std::cout << "weight="+std::to_string(val)+"=" << std::endl;
+
+        weightMap.insert(make_pair(region, val));
+   }
+      newfile.close(); //close the file object.
+   }
+
+   return weightMap;
+}
+
 // help functions for modifying or splitting the process name
 
 std::string modProcessName( const std::string& processName, const std::string& selectionType ){
@@ -453,6 +497,7 @@ void fillSystematicsHistograms(
 	    bool doBDT,
 	    const std::string& bdtWeightsFile,
 	    double bdtCutValue,
+            bool trainingreweight,
             std::vector<std::string>& systematics ){
 
     // initialize TreeReader from input file
@@ -466,6 +511,13 @@ void fillSystematicsHistograms(
     std::string year = treeReader.getYearString();
     std::string inputFileName = treeReader.currentSample().fileName();
     std::string processName = treeReader.currentSample().processName();
+
+    //load training reweights if needed
+    std::vector<std::string> trainingSampleVector = {"TT", "TTZ", "TTH", "TTW", "TTG"};
+    std::map< std::string, double > weightMap;
+    if( trainingreweight && std::count(trainingSampleVector.begin(), trainingSampleVector.end(), processName)){
+       weightMap = loadWeights(processName, sampleIndex, year);
+    }
 
     // load fake rate maps if needed
     std::shared_ptr<TH2D> frmap_muon;
@@ -780,6 +832,18 @@ void fillSystematicsHistograms(
 	// loop over event selections
 	for( std::string event_selection: event_selections ){
 
+        // nEntriesReweight is also used for when samples lost 20% SR training samples, therefore here it's renamed to nEntriesAndTrainingReweight 
+        double nEntriesAndTrainingReweight = nEntriesReweight;
+        // reweight if requested, if dilepton signalregion and if the sample was in the training set// selection_type == "tight"
+        if( trainingreweight && event_selection.find("signalregion_dilepton") != std::string::npos && std::count(trainingSampleVector.begin(), trainingSampleVector.end(), processName)){
+          //std::cout << "reweighting" << std::endl;
+          double trainingweight = weightMap[event_selection];
+          //std::cout << "weight: " + std::to_string(trainingweight) << std::endl;
+          nEntriesAndTrainingReweight *= trainingweight;
+          //std::cout << "result: " + std::to_string(nEntriesAndTrainingReweight) << std::endl;
+        }
+
+
 	// calculate particle-level event variables
         bool passParticleLevel = false;
         if(doSplitParticleLevel){
@@ -811,7 +875,7 @@ void fillSystematicsHistograms(
 			reweighter, selection_type, 
 			frmap_muon, frmap_electron, cfmap_electron, "nominal",
                         bdt, year);
-	    nominalWeight = varmap.at("_normweight")*nEntriesReweight;
+	    nominalWeight = varmap.at("_normweight")*nEntriesAndTrainingReweight;
 	    if( bdtCutValue>-1 ){
 		// do additional selection on final BDT score
 		// note: to be 100% correct, this should be re-evaluated for every jec systematic,
@@ -901,7 +965,7 @@ void fillSystematicsHistograms(
 				    reweighter, selection_type, 
 				    frmap_muon, frmap_electron, cfmap_electron, upvar,
                                     bdt, year);
-		    double weight = accvarmap["_normweight"]*nEntriesReweight;
+		    double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 		    // for JEC: propagate into b-tag shape reweighting
 		    /*if( systematic=="JEC" && considerbtagshape ){
 			weight *= dynamic_cast<const ReweighterBTagShape*>( 
@@ -923,7 +987,7 @@ void fillSystematicsHistograms(
 				    reweighter, selection_type, 
 				    frmap_muon, frmap_electron, cfmap_electron, downvar,
                                     bdt, year);
-		    double weight = accvarmap["_normweight"]*nEntriesReweight;
+		    double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 		    // for JEC: propagate into b-tag shape reweighting
                     /*if( systematic=="JEC" && considerbtagshape ){
                         weight *= dynamic_cast<const ReweighterBTagShape*>(
@@ -957,7 +1021,7 @@ void fillSystematicsHistograms(
 				    frmap_muon, frmap_electron, 
 				    cfmap_electron, thisupvar,
                                     bdt, year);
-			double weight = accvarmap["_normweight"]*nEntriesReweight;
+			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 			// for JEC: propagate into b-tag shape reweighting
 			/*if( considerbtagshape && jecvar!="RelativeSample" ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
@@ -987,7 +1051,7 @@ void fillSystematicsHistograms(
 				frmap_muon, frmap_electron, 
 				cfmap_electron, thisdownvar,
                                 bdt, year);
-			double weight = accvarmap["_normweight"]*nEntriesReweight;
+			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
                         // for JEC: propagate into b-tag shape reweighting
                         /*if( considerbtagshape && jecvar!="RelativeSample" ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
@@ -1041,10 +1105,10 @@ void fillSystematicsHistograms(
 	    else if(systematic=="bTag_shape"){
 		double nombweight = reweighter["bTag_shape"]->weight( event );
 		for(std::string btagsys: bTagShapeSystematics){
-		    double upWeight = varmap["_normweight"]*nEntriesReweight / nombweight
+		    double upWeight = varmap["_normweight"]*nEntriesAndTrainingReweight / nombweight
 					* dynamic_cast<const ReweighterBTagShape*>(
 					    reweighter["bTag_shape"])->weightUp( event, btagsys );
-		    double downWeight = varmap["_normweight"]*nEntriesReweight / nombweight
+		    double downWeight = varmap["_normweight"]*nEntriesAndTrainingReweight / nombweight
                                         * dynamic_cast<const ReweighterBTagShape*>(
                                             reweighter["bTag_shape"])->weightDown( event, btagsys );
 		    fillHistograms( histMap, thisProcessName,
@@ -1612,7 +1676,7 @@ int main( int argc, char* argv[] ){
 
     std::cerr << "###starting###" << std::endl;
 
-    int nargs = 16;
+    int nargs = 17;
     if( argc != nargs+1 ){
         std::cerr << "ERROR: runanalysis.cc requires " << std::to_string(nargs);
 	std::cerr << " arguments to run...: " << std::endl;
@@ -1634,6 +1698,7 @@ int main( int argc, char* argv[] ){
 	std::cerr << "    (spcial case: 'none' to not split at particle level)" << std::endl;
 	std::cerr << "    (spcial case: 'auto': use same variable as main variable (for single variables" << std::endl;
 	std::cerr << "     OR use secondary variable (for double variables)" << std::endl;
+	std::cerr << "  - bool whether to use reweighting of samples with partial removal for training" << std::endl;
 	std::cerr << "  - systematics (comma-separated list) (use 'none' for no systematics)" << std::endl;
         return -1;
     }
@@ -1665,7 +1730,8 @@ int main( int argc, char* argv[] ){
     bool autoSplitParticleLevel = false;
     if( splitParticleLevelVarFile=="none" ) doSplitParticleLevel = false;
     if( splitParticleLevelVarFile=="auto" ) autoSplitParticleLevel = true;
-    std::string& systematicstr = argvStr[16];
+    bool trainingreweight = ( argvStr[16]=="true" || argvStr[16]=="True" );
+    std::string& systematicstr = argvStr[17];
     std::vector<std::string> systematics;
     if( systematicstr!="none" ){
 	systematics = stringTools::split(systematicstr,",");
@@ -1688,6 +1754,7 @@ int main( int argc, char* argv[] ){
     std::cout << "  - BDT weights file: " << bdtWeightsFile << std::endl;
     std::cout << "  - BDT cut value: " << bdtCutValue << std::endl;
     std::cout << "  - split particle level variable file: " << splitParticleLevelVarFile << std::endl;
+    std::cout << "  - training reweight is used: " << std::to_string(trainingreweight) << std::endl;
     std::cout << "  - systematics:" << std::endl;
     for( std::string systematic: systematics ) std::cout << "      " << systematic << std::endl;
 
@@ -1822,7 +1889,7 @@ int main( int argc, char* argv[] ){
                                nevents, forcenevents,
 			       doSplitParticleLevel, splitParticleLevelVars,
 			       doBDT, bdtWeightsFile, bdtCutValue,
-			       systematics );
+			       trainingreweight, systematics );
 
     std::cerr << "###done###" << std::endl;
     return 0;

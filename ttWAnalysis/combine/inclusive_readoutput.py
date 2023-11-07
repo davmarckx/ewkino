@@ -26,6 +26,9 @@ if __name__=='__main__':
   for arg in vars(args):
     print('  - {}: {}'.format(arg,getattr(args,arg)))
 
+  data = "exp"
+  if args.usedata:
+    data = "obs"
   # argument checking
   if not os.path.exists(args.datacarddir):
     raise Exception('ERROR: input directory {} does not exist.'.format(args.datacarddir))

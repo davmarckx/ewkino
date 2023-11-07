@@ -228,6 +228,7 @@ def getcolormap_ttw():
     cmap['NonpromptE'] = cmap['Nonprompt(e)']
     cmap['Nonprompt(m)'] = define_color_hex('#fcda60')[0]
     cmap['Nonprompt (mu)'] = cmap['Nonprompt(m)']
+    cmap['NonpromptE'] = cmap['Nonprompt(e)']
     cmap['NonpromptMu'] = cmap['Nonprompt(m)']
     cmap['chargeflips'] = define_color_hex('#fcee1e')[0]
     cmap['Chargeflips'] = cmap['chargeflips']

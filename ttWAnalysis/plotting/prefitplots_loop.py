@@ -12,10 +12,22 @@ import json
 inputdir = sys.argv[1]
 runmode = 'condor'
 
-regions = ['auto']
+
+regions = []
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
+#for r in ['signalregion_trilepton']: regions.append(r)
+#for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
+#for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['cfcontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = []
-#years = ['auto']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 
 npmodes = ['npfromdatasplit']
@@ -30,11 +42,13 @@ rawsystematics = False
 dolog = True
 
 #variables = '../variables/variables_main.json' # single variables
-variables = '../variables/variables_main_reduced.json' # single variables, slightly reduced set
+
+#variables = '../variables/variables_main_reduced.json' # single variables, slightly reduced set
 #variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
 #variables = '../variables/variables_particlelevel_double.json' # double variables
-#variables = '../variables/variables_particlelevel_double_bintest.json'
+variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double variables for bin study
+
 
 colormap = 'ttw'
 
@@ -48,11 +62,12 @@ signals = ['TTW']
 for i in range(1,10): signals.append('TTW{}'.format(i))
 
 # split variables can either be a list or a json file
-splitvariables = [''] # no splitting
-#splitvariables = '../variables/variables_particlelevel_single.json'
+#splitvariables = [''] # no splitting
+splitvariables = '../variables/variables_particlelevel_single.json'
 #splitvariables = ['differential']
 
-#splitprocess = 'TTW'
+splitprocess = 'TTW'
+
 
 if isinstance(splitvariables,str):
     with open(splitvariables) as json_file:
