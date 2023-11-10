@@ -21,6 +21,7 @@
 #include "../../Tools/interface/rootFileTools.h"
 #include "../../Tools/interface/histogramTools.h"
 #include "../../Tools/interface/SampleCrossSections.h"
+#include "../../Tools/interface/EFTCrossSections.h"
 #include "../../weights/interface/ConcreteReweighterFactory.h"
 #include "../eventselection/interface/eventSelectionsParticleLevel.h"
 #include "../eventselection/interface/eventFlatteningParticleLevel.h"
@@ -39,7 +40,8 @@ std::map< std::string,     // process
     const std::vector<HistogramVariable>& histVars,
     const std::vector<std::string>& systematics,
     unsigned numberOfPdfVariations=100,
-    unsigned numberOfQcdScaleVariations=6 ){
+    unsigned numberOfQcdScaleVariations=6,
+    const std::vector<std::string>& eftVariations={} ){
     // make map of histograms
     // the resulting map has five levels: 
     // map[process name][event selection][selection type][variable name][systematic]
@@ -129,6 +131,13 @@ std::map< std::string,     // process
                             }
                             std::vector<std::string> temps = {"qcdScalesTotalEnvUp", "qcdScalesTotalEnvDown"};
                             for(std::string temp: temps){
+                                histMap[processName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
+                                histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
+                            }
+                        }
+                        else if(systematic=="eft"){
+                            for(std::string eftVariation: eftVariations){
+                                std::string temp = "EFT" + eftVariation;
                                 histMap[processName][eventSelection][selectionType][variableName][temp] = histVar.initializeHistogram( baseName+"_"+temp );
                                 histMap.at(processName).at(eventSelection).at(selectionType).at(variableName).at(temp)->SetTitle(processName.c_str());
                             }
@@ -259,6 +268,62 @@ void fillTheoryHistograms(
         std::cout << "- hasValidPSs: " << hasValidPSs << std::endl;
     }
 
+    // determine global sample properties related to EFT coefficients
+    std::vector<std::string> eftVariations;
+    std::shared_ptr<EFTCrossSections> eftCrossSections;
+    // check if EFT variations are needed
+    bool considereft = false;
+    for( std::string systematic: systematics ){
+        if( systematic=="eft") considereft = true;
+    }
+    if( treeReader.numberOfEntries()>0 && considereft ){
+        // find available EFT variations
+        if( treeReader.containsEFTCoefficients() ){
+            std::cout << "finding available EFT variations..." << std::endl;
+            Event event = treeReader.buildEvent(0,false,false,false,false,false,true);
+            for(std::string wcName: event.eftInfo().wcNames()){
+                eftVariations.push_back(wcName);
+            }
+            eftCrossSections = std::make_shared<EFTCrossSections>( treeReader.currentSample() );
+            std::cout << "found following EFT variations:" << std::endl;
+            for(auto el: eftVariations) std::cout << "  - " << el << std::endl;
+        }
+    }
+    // set magnitude of wilson coefficients
+    // (hard-coded for now, maybe extend later)
+    std::map<std::string, double> WCConfig = {
+        {"ctlTi", 5.},
+        {"ctq1", 0.3},
+        {"ctq8", 0.3},
+        {"cQq83", 1.},
+        {"cQq81", 1.},
+        {"cQlMi", 5.},
+        {"cbW", 5.},
+        {"cpQ3", 5.},
+        {"ctei", 5.},
+        {"cQei", 5.},
+        {"ctW", 1.},
+        {"cpQM", 5.},
+        {"ctlSi", 5.},
+        {"ctZ", 5.},
+        {"cQl3i", 5.},
+        {"ctG", 0.3},
+        {"cQq13", 0.1}, // here
+        {"cQq11", 0.1}, // here
+        {"cptb", 5.},
+        {"ctli", 1.},
+        {"ctp", 5.},
+        {"cpt", 5.},
+        {"sm", 0.}
+    };
+    for(std::string eftVariation: eftVariations){
+        if(WCConfig.find(eftVariation) == WCConfig.end()){
+            std::string msg = "ERROR: eft variation " + eftVariation;
+            msg += " not found in hard-coded config map.";
+            throw std::runtime_error(msg);
+        }
+    }
+
     // make output collection of histograms
     std::cout << "making output collection of histograms..." << std::endl;
     std::vector<std::string> processNames = {processName};
@@ -270,7 +335,7 @@ void fillTheoryHistograms(
         std::shared_ptr<TH1D> > > > > > histMap = initHistMap(
 	    processNames, event_selections, selection_types, 
 	    histVars, systematics,
-	    numberOfPdfVariations, 6);
+	    numberOfPdfVariations, 6, eftVariations);
 
     // fill hCounters
     for( std::string event_selection: event_selections ){
@@ -321,7 +386,7 @@ void fillTheoryHistograms(
                         entry,
                         false, false,
                         false, false,
-                        true );
+                        true ,considereft);
 
 	// initialize map of variables
         std::map<std::string,double> varmap = eventFlatteningParticleLevel::initVarMap();
@@ -355,7 +420,31 @@ void fillTheoryHistograms(
 	    std::string upvar = systematic + "Up";
             std::string downvar = systematic + "Down";
 
-	    if(systematic=="fScaleShape" && hasValidQcds){
+            // EFT reweighting
+            if(systematic=="eft"){
+                for(std::string eftVariation: eftVariations){
+                    std::map<std::string, double> wcvalues = {{eftVariation, WCConfig.at(eftVariation)}};
+                    double eftNominalWeight = event.lumiScale()
+                                                * event.eftInfo().nominalWeight()
+                                                / eftCrossSections->nominalSumOfWeights();
+                    double weight = eftNominalWeight * event.eftInfo().relativeWeight(wcvalues);
+                    for(HistogramVariable histVar: histVars){
+                      std::string variableName = histVar.name();
+                      std::string variable = histVar.variable();
+                      histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at("EFT" + eftVariation).get(),
+                                          varmap.at(variable), weight);
+                      /*histogram::fillValue( histMap.at(processName).at(event_selection).at(selection_type).at(variableName).at(downvar).get(),
+                                          varmap.at(variable), weight);
+                      fillTheoryHistograms( histMap, thisProcessName,
+                            event_selection, selection_type, "EFT"+eftVariation,
+                            histVars, varmap, weight,
+                            doSplitParticleLevel, splitParticleLevelVars,
+                            passParticleLevel, varmapParticleLevel );*/
+                    }
+                }
+            }
+
+	    else if(systematic=="fScaleShape" && hasValidQcds){
 		double upWeight = nominalWeight * event.generatorInfo().relativeWeight_MuR_1_MuF_2()
 							    / xsecs.get()->crossSectionRatio_MuR_1_MuF_2();
 		double downWeight = nominalWeight * event.generatorInfo().relativeWeight_MuR_1_MuF_0p5()

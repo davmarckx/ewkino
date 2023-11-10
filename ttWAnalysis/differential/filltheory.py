@@ -20,7 +20,7 @@ from eventflattener import year_from_samplelist
 
 
 # list of systematics to include (hard-coded for now, maybe extend later)
-systematics = ([
+"""systematics = ([
   # scale uncertainties
   "fScaleShape",
   "fScaleNorm",
@@ -46,7 +46,8 @@ systematics = ([
   "fsrShape",
   "fsrNorm",
   "fsrTotal"
-])
+])"""
+systematics = (['eft'])
 
 
 if __name__=='__main__':
