@@ -244,6 +244,7 @@ def getcolormap_eft():
     cmap['ctli'] = ROOT.kOrange+7
     cmap['ctp'] = ROOT.kGreen+1
     cmap['ctq'] = ROOT.kGreen+1
+    cmap['ctq1'] = ROOT.kGreen+1
     cmap['ctq8'] = ROOT.kGreen+1
     return cmap
 

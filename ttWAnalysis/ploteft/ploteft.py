@@ -34,6 +34,10 @@ if __name__=="__main__":
                       help='Path to json file holding variable definitions.')
   parser.add_argument('-o', '--outputdir', required=True, 
                       help='Directory where to store the output.')
+  parser.add_argument('-n', '--nominalfile', default=None,
+                      help='File with nominal histograms (i.e. non-EFT sample);'
+                          +' if it is specified, comparisons will be made to these histograms,'
+                          +' else with respect to the nominal histograms in the EFT file.')
   parser.add_argument('--datatag', default='data',
                       help='Process name of data histograms in input file.')
   parser.add_argument('--tags', default=None,
@@ -65,7 +69,7 @@ if __name__=="__main__":
   if not os.path.exists(args.outputdir):
     os.makedirs(args.outputdir)
 
-  # get all relevant histograms
+  # get all relevant histograms from EFT sample
   print('Loading histogram names from input file...')
   mustcontainall = []
   mustcontainall.append(args.process)
@@ -81,6 +85,23 @@ if __name__=="__main__":
   print('Further selection (variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
 
+  # get all relevant histograms from nominal sample
+  if args.nominalfile is not None:
+    print('Loading histogram names from nominal file...')
+    mustcontainall = []
+    mustcontainall.append(args.process)
+    if len(variablenames)==1: mustcontainall.append(variablenames[0])
+    mustcontainall.append('_nominal')
+    # do loading and initial selection
+    nominalhistnames = ht.loadhistnames(args.nominalfile, mustcontainall=mustcontainall)
+    print('Initial selection:')
+    print(' - mustcontainall: {}'.format(mustcontainall))
+    print('Resulting number of histograms: {}'.format(len(histnames)))
+    # select variables
+    nominalhistnames = lt.subselect_strings(nominalhistnames, mustcontainone=variablenames)[1]
+    print('Further selection (variables):')
+    print('Resulting number of histograms: {}'.format(len(histnames)))
+
   # do printouts (ony for testing)
   #for histname in histnames: print('  {}'.format(histname))
 
@@ -89,7 +110,8 @@ if __name__=="__main__":
 
     # get name and title
     variablename = var.name
-    xaxtitle = var.axtitle
+    if hasattr(var, 'axtitle'): xaxtitle = var.axtitle
+    else: xaxtitle = var.primary.axtitle + ' / ' + var.secondary.axtitle
     print('Now running on variable {}...'.format(variablename))
 
     # extra histogram selection for overlapping variable names
@@ -100,23 +122,39 @@ if __name__=="__main__":
 
     # get the nominal histogram name
     splittag = args.region+'_'+variablename
-    nominalhistname = '_'.join([args.process, splittag, 'EFTsm'])
-    if not nominalhistname in thishistnames:
-        msg = 'ERROR: nominal histogram {} not found.'.format(nominalhistname)
+    eftnominalhistname = '_'.join([args.process, splittag, 'EFTsm'])
+    if not eftnominalhistname in thishistnames:
+      msg = 'ERROR: nominal histogram {} not found among EFT histograms.'.format(eftnominalhistname)
+      raise Exception(msg)
+    if args.nominalfile is not None:
+      nominalhistname = '_'.join([args.process, splittag, 'nominal'])
+      if not nominalhistname in nominalhistnames:
+        msg = 'ERROR: nominal histogram {} not found in nominal histograms.'.format(nominalhistname)
         raise Exception(msg)
  
+    # get the EFT varied histogram names
     syshistnames = []
     for thishistname in thishistnames:
       if 'EFTsm' in thishistname: continue
       syshistnames.append(thishistname)
 
     # load histograms
-    nominalhist = ht.loadhistogramlist(args.inputfile, [nominalhistname])[0]
+    eftnominalhist = ht.loadhistogramlist(args.inputfile, [eftnominalhistname])[0]
     syshistlist = ht.loadhistogramlist(args.inputfile, syshistnames)
+    if args.nominalfile is not None:
+      nominalhist = ht.loadhistogramlist(args.nominalfile, [nominalhistname])[0]
+
+    # do some rescaling
+    if args.nominalfile is not None:
+      scale = nominalhist.Integral() / eftnominalhist.Integral()
+      for hist in syshistlist: hist.Scale(scale)
+
+    # decide which nominal histogram to compare to
+    if args.nominalfile is None: nominalhist = eftnominalhist
 
     # printouts for testing
-    print(nominalhist)
-    for hist in syshistlist: print(hist)
+    #print(nominalhist)
+    #for hist in syshistlist: print(hist)
 
     # format the labels
     # (remove year and process tags for more readable legends)
