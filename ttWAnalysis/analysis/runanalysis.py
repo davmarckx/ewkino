@@ -22,7 +22,7 @@ from eventselector import event_selections, selection_types, variations
 from eventflattener import year_from_samplelist
 
 # list of systematics to include (hard-coded for now, maybe extend later)
-systematics = ([
+"""systematics = ([
   # JEC and related
   "JEC", 
   "JER",
@@ -68,8 +68,8 @@ systematics = ([
   "mfakeratenorm",
   "mfakeratept",
   "mfakerateeta"
-])
-# systematics = []
+])"""
+systematics = []
 
 
 if __name__=='__main__':

@@ -26,14 +26,16 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
-years = []
+#years = ["2018"]
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
+EFT_WCs = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]
+
 
 npmodes = ['npfromdatasplit']
 cfmodes = ['cffromdata']
 
-unblind = False
+unblind = True
 
 dummysystematics = False
 
@@ -81,10 +83,11 @@ for year in years:
       if 'auto' in regions: regions = os.listdir(os.path.join(inputdir,year))
       for region in regions:
         for splitvar in splitvariables:
+         for eft in EFT_WCs:
           regiondir = ''
           if filemode=='split': regiondir = region
           subdir = os.path.join(year, regiondir, 'merged_{}_{}'.format(npmode,cfmode))
-          inputfile = os.path.join(inputdir, subdir, 'merged.root')
+          inputfile = os.path.join(inputdir, subdir, 'merged{}.root'.format(eft))
           if not os.path.exists(inputfile):
             print('WARNING: input file {} does not exist; continuing...'.format(inputfile))
             continue
@@ -92,7 +95,7 @@ for year in years:
           if not unblind: thisoutputdir += '_blind'
           if rawsystematics: thisoutputdir += '_rawsystematics'
           if dummysystematics: thisoutputdir += '_dummysystematics'
-          thisoutputdir = os.path.join(inputdir, subdir, 'plots', thisoutputdir)
+          thisoutputdir = os.path.join(inputdir, subdir, 'plots_{}'.format(eft), thisoutputdir)
           cmd = 'python prefitplots.py'
           cmd += ' --inputfile '+inputfile
           cmd += ' --year '+year

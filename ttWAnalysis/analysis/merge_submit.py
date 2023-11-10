@@ -28,7 +28,7 @@ years = ['auto']
 
 npmodes = []
 #npmodes.append( 'npfromsim' )
-npmodes.append( 'npfromdata' )
+#npmodes.append( 'npfromdata' )
 npmodes.append( 'npfromdatasplit' )
 
 cfmodes = []

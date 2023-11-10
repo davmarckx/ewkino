@@ -27,6 +27,7 @@ if __name__=='__main__':
   years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
   npmodes = ['npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
   cfmodes = ['cffromdata'] #['cffromsim', 'cffromdata']
+  EFTs = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
 
   # find regions (if applicable)
   regions = ['']
@@ -37,11 +38,12 @@ if __name__=='__main__':
   for region in regions:
     for npmode in npmodes:
       for cfmode in cfmodes:
+       for eft in EFTs:
         # check all required files
         allfiles = True
         hfiles = []
         for year in years:
-          f = os.path.join(args.directory,year,region,'merged_{}_{}'.format(npmode,cfmode),'merged.root')
+          f = os.path.join(args.directory,year,region,'merged_{}_{}'.format(npmode,cfmode),'merged'+eft+'.root')
           if not os.path.exists(f):
             msg = 'ERROR: file {} not does not exist (for year {});'.format(f,year)
             msg += ' skipping merging for npmode {} cfmode {}.'.format(npmode,cfmode)
@@ -52,7 +54,7 @@ if __name__=='__main__':
         # define output file
         outdir = os.path.join(args.directory,'run2',region,'merged_{}_{}'.format(npmode,cfmode))
         if not os.path.exists(outdir): os.makedirs(outdir)
-        outf = os.path.join(outdir,'merged.root')
+        outf = os.path.join(outdir,'merged'+eft+'.root')
         # do hadd
         cmd = 'hadd -f {}'.format(outf)
         for f in hfiles: cmd += ' {}'.format(f)

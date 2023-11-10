@@ -11,9 +11,10 @@ sys.path.append(os.path.abspath('../../Tools/python'))
 from variabletools import read_variables
 
 # settings
+eft = sys.argv[1]
 
 controlregions = ({
-    'topdir': '../analysis/output_sbv2',
+    'topdir': '../analysis/output_sbv3',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
     'regions': {
@@ -25,16 +26,16 @@ controlregions = ({
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_dbv2',
+    'topdir': '../analysis/output_db_noEWK_EFTData/',
     'years': ['run2'],
-    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
+    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_binstudyv1'
+outputdir = 'datacards_EFTstudy_'+eft
 
-runmode = 'condor'
+runmode = 'local'
 
 # make output directory
 if not os.path.exists(outputdir):

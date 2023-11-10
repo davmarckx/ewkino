@@ -4,12 +4,13 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20230922'
-  ssdirbase = '../combine/datacards_20230922_double_'
-  regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
-             'signalregion_trilepton': ssdirbase + 'trilepton'}
+  inputdir = 'output_TTW'
+  ssdirbase = '../combine/datacards_EFTstudy_EFTcQq83'
+  regions = {'signalregion_dilepton_inclusive': ssdirbase}# + 'dilepton', 
+             #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
 
+  variables = "../variables/variables_particlelevel_single.json"
 
   # basic command
   basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018 --xsecs xsecs/xsecs.json'
@@ -20,7 +21,7 @@ if __name__=='__main__':
     for obstag in ['exp', 'obs']:
       for crtag in ['nocr', 'withcr']:
         inputfile = os.path.join(inputdir, region, 'particlelevel/merged.root')
-        outputdir = os.path.join(os.path.dirname(inputfile), 'plots_{}_{}'.format(obstag,crtag))
+        outputdir = os.path.join(os.path.dirname(inputfile), 'NEWplots_EFTcQq83_{}_{}'.format(obstag,crtag))
         ssfile = os.path.join(ssdir, 'summary_{}_{}.json'.format(obstag, crtag))
         # customize command
         cmd = basiccmd
