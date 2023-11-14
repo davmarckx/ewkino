@@ -67,8 +67,12 @@ if __name__=='__main__':
                       help='If specified, do not divide by bin width,'
                           +' so y-axis unit is in fb instead of fb/GeV.'
                           +' Mostly for testing purposes.')
+  parser.add_argument('--writeuncs', default=False, action='store_true',
+                      help='Write measurement uncertainties in ratio plot')
   parser.add_argument('--write_rootfiles', default=False, action='store_true',
-                      help='If specified, rootfiles are written for data by applying the signal strengths. (Only needed for e.g. hepdata submissions.)')
+                      help='If specified, rootfiles are written for data'
+                          +' by applying the signal strengths.'
+                          +' (Only needed for e.g. hepdata submissions.)')
   args = parser.parse_args()
 
   # print arguments
@@ -114,7 +118,7 @@ if __name__=='__main__':
   extratags = [t.replace('_',' ') for t in extratags]
 
   # make the output directory
-  outputdir = os.path.join(args.outputdir,args.region)
+  outputdir = args.outputdir
   if not os.path.exists(outputdir):
     os.makedirs(outputdir)
 
@@ -212,6 +216,7 @@ if __name__=='__main__':
     # get name and title
     variablename = var.name
     xaxtitle = var.axtitle
+    if var.unit is not None: xaxtitle += ' ({})'.format(var.unit)
     print('Now running on variable {}...'.format(variablename))
 
     # extra histogram selection for overlapping variable names
@@ -432,7 +437,7 @@ if __name__=='__main__':
         extracmstext=extracmstext,
         lumitext=lumitext,
         extrainfos=extrainfos, infosize=15,
-        writeuncs=True )
+        writeuncs=args.writeuncs )
 
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'
@@ -446,7 +451,7 @@ if __name__=='__main__':
         extracmstext=extracmstext,
         lumitext=lumitext,
         extrainfos=extrainfos, infosize=15,
-        writeuncs=True  )
+        writeuncs=args.writeuncs  )
     
     # we write the histograms if requested
     if args.write_rootfiles:

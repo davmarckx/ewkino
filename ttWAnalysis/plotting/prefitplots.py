@@ -34,15 +34,15 @@ if __name__=="__main__":
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Make prefit plots')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--year', required=True)
-  parser.add_argument('--region', required=True)
-  parser.add_argument('--processes', required=True,
+  parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath)
+  parser.add_argument('-y', '--year', required=True)
+  parser.add_argument('-r', '--region', required=True)
+  parser.add_argument('-p', '--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
-  parser.add_argument('--variables', required=True, type=os.path.abspath,
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath,
                       help='Path to json file holding variable definitions.')
-  parser.add_argument('--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--datatag', default='data')
   parser.add_argument('--includetags', default=None,
                       help='Comma-separated list of systematic tags to include')
@@ -58,8 +58,11 @@ if __name__=="__main__":
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--splitvariable',default=None)
   parser.add_argument('--splitprocess',default=None)
-  parser.add_argument('--unblind', action='store_true')
-  parser.add_argument('--dolog', action='store_true')
+  parser.add_argument('--unblind', default=False, action='store_true')
+  parser.add_argument('--blind', default=True, action='store_true')
+  # (note: the --blind argument is not used anywhere, it is just here for syntax,
+  #        to allow jobs with blinded and unblinded plots in the same cluster)
+  parser.add_argument('--dolog', default=False, action='store_true')
   parser.add_argument('--rawsystematics', default=False, action='store_true',
                       help='Take the systematics from the input file without modifications'
                           +' (i.e. no disablings and no adding of norm uncertainties).')
@@ -330,7 +333,7 @@ if __name__=="__main__":
               newtitle = oldtitle[:]
               splitchar = ''
               # first case: names of the form TTW1
-              if oldtitle[-1].isdigit():
+              if( oldtitle[-1].isdigit() and not oldtitle.endswith(splitvariable) ):
                   splitchar = oldtitle[-1]
                   newtitle = newtitle[:-1]
               # second case: names of the form TTW1nMuons

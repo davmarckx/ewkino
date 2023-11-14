@@ -8,7 +8,7 @@ import os
 import argparse
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
-from variabletools import read_variables
+from variabletools import HistogramVariable, DoubleHistogramVariable, read_variables
 sys.path.append(os.path.abspath('../../plotting/python'))
 import hist2dplotter as h2dp
 sys.path.append(os.path.abspath('tools'))
@@ -21,18 +21,14 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Plot results of detector to particle level comparison')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--outputdir', required=True)
-  parser.add_argument('--variables', required=True, type=os.path.abspath)
-  parser.add_argument('--event_selection', required=True, nargs='+')
-  #parser.add_argument('--include_outerflow', default=False, action='store_true')
-  # update: set automatically to false for resolution and true for response
+  parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True)
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath)
+  parser.add_argument('-e', '--event_selections', required=True, nargs='+')
   parser.add_argument('--writebincontent', default=False, action='store_true')
   parser.add_argument('--writebincontentauto', default=False, action='store_true')
   parser.add_argument('--dogeneric', default=False, action='store_true')
   parser.add_argument('--docustom', default=False, action='store_true')
-  #parser.add_argument('--response', default=False, action='store_true')
-  # update: do both by default
   args = parser.parse_args()
 
   # print arguments
@@ -56,6 +52,15 @@ if __name__=='__main__':
 
   # loop over variables
   for var in variables:
+    
+    # check variable type
+    if isinstance(var, DoubleHistogramVariable):
+      msg = 'ERROR: variable {} is of type DoubleHistogramVariable'.format(var.name)
+      msg += ' wile a HistogramVariable was expected, skipping this variable.'
+      print(msg)
+      continue
+
+    # initialize some settings
     varname = var.name
     binnings = var.bins
     if binnings == None:
@@ -109,7 +114,8 @@ if __name__=='__main__':
       rightmargin = 0.2
       drawoptions = 'colz'
       if args.writebincontent: drawoptions += 'texte'
-      if args.writebincontentauto: if hist.GetNbinsX()<10: drawoptions += 'texte'
+      if args.writebincontentauto:
+        if hist.GetNbinsX()<10: drawoptions += 'texte'
       lumi = None
       lumitext = ''
       extracmstext = 'Preliminary'
@@ -168,7 +174,7 @@ if __name__=='__main__':
         #colnormhist_outerflow = rmt.AddUnderflowBins(colnormhist_outerflow, binnings)
         rmp.plotresponsematrix( colnormhist_outerflow, efficiency, 
             stability, purity, outfile, outfmts=['.png'],
-            xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
+            xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (normalized)',
             drawoptions=drawoptions,
             lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
@@ -177,7 +183,7 @@ if __name__=='__main__':
         outfile = os.path.join(args.outputdir, varname+'_resolution')
         rmp.plotresponsematrix( colnormhist, efficiency, 
             stability, purity, outfile, outfmts=['.png'],
-            xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events',
+            xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (normalized)',
             drawoptions=drawoptions,
             lumitext=lumitext, extracmstext=extracmstext,
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )

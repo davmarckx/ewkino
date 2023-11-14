@@ -15,8 +15,8 @@ if __name__=='__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser('Optimize response matrix binning')
-    parser.add_argument('--inputfiles', required=True, type=os.path.abspath, nargs='+')
-    parser.add_argument('--outputfile', required=True, type=os.path.abspath)
+    parser.add_argument('-i', '--inputfiles', required=True, type=os.path.abspath, nargs='+')
+    parser.add_argument('-o', '--outputfile', required=True, type=os.path.abspath)
     args = parser.parse_args()
 
     # print arguments
@@ -45,8 +45,6 @@ if __name__=='__main__':
         #infostr += '\n  metric: {} -> {}'.format(
         #  thisinfo['initial']['metric'], thisinfo['final']['metric'])
         print(infostr)
-
-    sys.exit()
 
     # initialize the figure
     (fig,axs) = plt.subplots(nrows=1, ncols=3, sharey=True)

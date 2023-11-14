@@ -104,7 +104,6 @@ def get_systematics_to_disable( processes, pnonorm=None,
 
   # remove nonprompt shape uncertainties in fourleptoncontrolegion
   # (see notes 27/10/2023)
-  # update: now remove everywhere to see if it solves fit problems
   if region is not None:
     if region=='fourleptoncontrolregion':
       rmforall.append('efakerate*')

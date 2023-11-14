@@ -240,8 +240,8 @@
   "nbins": "4",
   "xlow": "0.0",
   "xhigh": "2.5",
-  "axtitle": "Lepton maximum pseudorapidity (abs)",
-  "shorttitle": "|#eta(l)_{max}|",
+  "axtitle": "Lepton maximum |#eta|",
+  "shorttitle": "|#eta(l)|_{max}",
   "bins": [0.0, 1.0, 1.5, 2.0, 2.5]
 },
 {
@@ -283,6 +283,7 @@
   "xhigh": "400.0",
   "axtitle": "m(leptons)",
   "shorttitle": "m(leptons)",
+  "unit": "GeV",
   "bins": [0.0, 95.0, 185.0, 280.0, 400.0]
 },
 {
@@ -291,8 +292,9 @@
   "nbins": "4",
   "xlow": "0.0",
   "xhigh": "400.0",
-  "axtitle": "#Sum lepton p_{T}",
-  "shorttitle": "#Sum lepton p_{T}",
+  "axtitle": "#sum lepton p_{T}",
+  "shorttitle": "#sum lepton p_{T}",
+  "unit": "GeV",
   "bins": [0.0, 110.0, 185.0, 280.0, 400.0]
 }
 ]

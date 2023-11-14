@@ -21,6 +21,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
                     titlefont=None, titlesize=None,
 		    drawoptions='colztexte', cmin=None, cmax=None,
 		    bintextoptions=None,
+                    bintextfontsize=1.5,
 		    extracmstext='', lumitext='',
 		    extrainfos=[], infofont=None, infosize=None, 
                     infoleft=None, infotop=None ):
@@ -76,6 +77,7 @@ def plotresponsematrix( hist, efficiency, stability, purity, outfilepath,
     if infotop is None: infotop = 1-p1topmargin-0.1
     # options for bin texts
     if bintextoptions is not None: ROOT.gStyle.SetPaintTextFormat( bintextoptions )
+    hist.SetMarkerSize(bintextfontsize) # marker size affects text size
     # legend boxes
     p2legendbox = ([leftmargin+0.03, 1-p2topmargin-0.13,
                     1-rightmargin-0.03, 1-p2topmargin-0.03])

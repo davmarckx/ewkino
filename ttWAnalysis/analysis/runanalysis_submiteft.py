@@ -23,7 +23,8 @@ cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 samplelistdir = '../samplelists/eft'
 samplelistbase = 'samplelist_{}_TTW_eftinfo.txt'
 
-variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_particlelevel_double.json' # double variables
+variables = '../variables/variables_particlelevel_single.json' # single variables
 
 bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
 bdtcut = None
@@ -31,7 +32,7 @@ bdtcut = None
 splitprocess = None
 splitvariables = None
 
-outputdir = 'output_20231107_double_eft'
+outputdir = 'output_20231107_single_eft'
 
 nevents = 1e6
 runlocal = False
@@ -58,6 +59,7 @@ for year in years:
     cmd += ' --frdir ' + frdir
     cmd += ' --cfdir ' + cfdir
     cmd += ' --variables ' + variables
+    cmd += ' --systematics eft'
     if splitprocess is not None: cmd += ' --splitprocess {}'.format(splitprocess)
     if splitvariables is not None: cmd += ' --splitvarfile {}'.format(splitvariables)
     if runlocal: cmd += ' --runmode local'
