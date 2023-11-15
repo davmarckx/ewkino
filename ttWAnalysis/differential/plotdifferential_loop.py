@@ -5,14 +5,16 @@ if __name__=='__main__':
 
   # arguments
   inputdir = 'output_TTW'
-  inputdir2 = 'output_TTWEFT'
-  outputdirect = "~/public_html/EFT_study"
+  #inputdir2 = 'output_TTWEFT'
+  inputdir2 = 'output_TTWEFTv2/{}'
+  #outputdirect = "~/public_html/EFT_study"
+  outputdirect = "~/public_html/EFT_study_manual"
   ssdirbase = '../combine/datacards_EFTstudy_{}'
   regions = {'signalregion_dilepton_inclusive': ssdirbase}# + 'dilepton', 
              #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
-  efts = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1"]
-  efts = ["EFTctq8"]
+  #efts = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]
+  efts = ["_nBJets","_HT","_jetPtSubLeading"]
 
   variables = "../variables/variables_particlelevel_single.json"
 
@@ -26,7 +28,8 @@ if __name__=='__main__':
       for crtag in ['nocr']:
        for eft in efts:
         inputfile = os.path.join(inputdir, region, 'particlelevel/merged.root')
-        inputfile2 = os.path.join(inputdir2, region, 'particlelevel/TTW_EFT_Autumn18.root')
+        inputfile2 = os.path.join(inputdir2.format(eft), region, 'particlelevel/merged.root')
+        #inputfile2 = os.path.join(inputdir2, region, 'particlelevel/TTW_EFT_Autumn18.root')
         outputdir = os.path.join(os.path.dirname(outputdirect), 'plots_{}_{}_{}'.format(eft,obstag,crtag))
         ssfile = os.path.join(ssdir.format(eft), 'summary_{}_{}.json'.format(obstag, crtag))
         # customize command

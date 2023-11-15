@@ -164,6 +164,12 @@ if __name__=='__main__':
   splittag = args.region+'_particlelevel_'+variablenames[0]
   print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag )
+  if plotEFT and args.eft[0] == "_":
+    histnames2 = ht.loadhistnames(args.inputfile2, mustcontainone=mustcontainone,
+                                               maynotcontainone=excludetags,
+                                               mustcontainall=mustcontainall)
+    PIC2 = ProcessInfoCollection.fromhistlist( histnames2, splittag )
+    
   #print('Constructed following ProcessInfoCollection from histogram list:')
   #print(PIC)
 
@@ -233,6 +239,13 @@ if __name__=='__main__':
     splittag = args.region+'_particlelevel_'+variablename
     PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag )
     PC = ProcessCollection( PIC, args.inputfile )
+    if plotEFT and args.eft[0] == "_":
+      thishistnames2 = lt.subselect_strings(histnames2,
+                      mustcontainall=[variablename],
+                      maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
+      splittag = args.region+'_particlelevel_'+variablename
+      PIC2 = ProcessInfoCollection.fromhistlist( thishistnames2, splittag )
+      PC2 = ProcessCollection( PIC2, args.inputfile2 ) 
 
     # make some copies of reference histograms before dividing by bin width
     # (note: do not forget to scale by xsec and lumi below!)
@@ -244,6 +257,13 @@ if __name__=='__main__':
     if not args.absolute:
       for hist in PC.get_allhists():
         for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+
+      if plotEFT and args.eft[0] == "_":
+        for hist in PC2.get_allhists():
+         for i in range(1,hist.GetNbinsX()+1):
           binwidth = hist.GetBinWidth(i)
           hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
           hist.SetBinError(i, hist.GetBinError(i)/binwidth)
@@ -260,6 +280,19 @@ if __name__=='__main__':
         hist.Scale(1./hist.Integral('width'))
       else:
         hist.Scale(1./hist.Integral())
+
+    if plotEFT and args.eft[0] == "_":
+     PC2_norm = ProcessCollection( PIC2, args.inputfile2 )
+     for hist in PC2_norm.get_allhists():
+      if not args.absolute:
+        for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+        hist.Scale(1./hist.Integral('width'))
+      else:
+        hist.Scale(1./hist.Integral())
+
 
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
@@ -288,6 +321,30 @@ if __name__=='__main__':
       nominalhists_norm.append(nominalhist)
       systhists_norm.append(systhist)
 
+    # make extra plot for case where manual reweighting was performed
+    if plotEFT and args.eft[0] == "_":
+     for process in processes:
+      nominalhist = PC2.processes[process].get_nominal()
+      nominalhist.SetTitle( process.split('_')[0] )
+      #rsshist = PC2.processes[process].get_systematics_rss(systematics=systematics)
+      systhist = nominalhist.Clone()
+      for i in range(0, nominalhist.GetNbinsX()+2):
+        systhist.SetBinError(i, systhists[0].GetBinError(i))
+      nominalhists.append(nominalhist)
+      systhists.append(systhist)
+
+     # do the same for normalized histograms
+     for process in processes:
+      nominalhist = PC2_norm.processes[process].get_nominal()
+      nominalhist.SetTitle( process.split('_')[0] )
+      #rsshist = PC2_norm.processes[process].get_systematics_rss(systematics=systematics)
+      systhist = nominalhist.Clone()
+      for i in range(0, nominalhist.GetNbinsX()+2):
+        systhist.SetBinError(i, systhists_norm[0].GetBinError(i))
+      nominalhists_norm.append(nominalhist)
+      systhists_norm.append(systhist)
+
+
     # do scaling with hCounter (for non-normalized histograms)
     for i, process in enumerate(processes):
       hcounter = hcounters[i]
@@ -307,6 +364,11 @@ if __name__=='__main__':
       nominalhists[i].Scale(scale)
       systhists[i].Scale(scale)
       nominalrefs[i].Scale(scale)
+      # scale manual histograms with same scale
+      if plotEFT and args.eft[0] == "_":
+        nominalhists[i+len(processes)].Scale(scale)
+        systhists[i+len(processes)].Scale(scale)
+
 
     # find signal strengths
     datahist = nominalrefs[0].Clone()
@@ -423,7 +485,7 @@ if __name__=='__main__':
       lumi = lumimap.get(args.year,None)
       if lumi is not None: lumitext = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
 
-    if plotEFT:
+    if plotEFT and args.eft[:3] == "EFT":
       # we do the same for EFT as for data case (work with signal strengths)
       EFThist = nominalhists[0].Clone()
       systEFThist = systhists[0].Clone()
@@ -431,7 +493,7 @@ if __name__=='__main__':
       EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, processes[0], args.region], mustcontainone=["_EFTsm", args.eft]) 
       EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"EFTsm")) 
       EFT = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,args.eft))
-
+  
       for i in range(1, EFThist.GetNbinsX()+1):
         factor = EFT.GetBinContent(i)/EFTsm.GetBinContent(i)
         EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor)
@@ -439,7 +501,7 @@ if __name__=='__main__':
         #systEFThist.SetBinError(i,1)
       nominalhists.append(EFThist)
       systhists.append(systEFThist)
-        
+         
       
 
     # temporary for plots: change label for legend
@@ -451,7 +513,7 @@ if __name__=='__main__':
 
     if len(nominalhists)==2:
         nominalhists[0].SetTitle('SM Unfolding sample')
-        nominalhists[1].SetTitle('True EFT ' + args.eft)
+        nominalhists[1].SetTitle('True ' + args.eft)
     if len(nominalhists_norm)==2:
         nominalhists_norm[0].SetTitle('SM Unfolding sample')
 
