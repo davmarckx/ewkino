@@ -404,6 +404,16 @@ void fillTheoryHistograms(
         if( !eventSelectionsParticleLevel::passES(event, event_selection) ) continue;
 	varmap = eventFlatteningParticleLevel::eventToEntry(event);
 	double nominalWeight = event.genWeight()*nEntriesReweight;
+
+        double reweightFactor = 1.;
+        if ( reweightVar == "_nJets"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_nJets")-3.0);}
+        else if ( reweightVar == "_nBJets"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_nBJets"));}
+        else if ( reweightVar == "_HT"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_HT")/250.0);}
+        else if ( reweightVar == "_leptonAbsEtaLeading"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_leptonAbsEtaLeading.png")/0.5);}
+        else if ( reweightVar == "_jetPtSubLeading"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_jetPtSubLeading")/62.5);}
+
+        nominalWeight *= reweightFactor
+
 	for(HistogramVariable histVar: histVars){
 	    std::string variableName = histVar.name();
 	    std::string variable = histVar.variable();

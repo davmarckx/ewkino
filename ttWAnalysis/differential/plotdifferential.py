@@ -41,12 +41,13 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser('Plot differential cross-section')
   parser.add_argument('--inputfile', required=True, type=os.path.abspath,
                       help='Path to input root file with theoretical differential distributions.')
-  parser.add_argument('--inputfile2', required=True, type=os.path.abspath,
-                      help='Path to 2nd input root file with theoretical differential distributions for EFT variation.')
+  parser.add_argument('--inputfile2', required=False, type=os.path.abspath,
+                      help='Path to input root file with theoretical EFT differential distributions.')
+  parser.add_argument('--eft', default=None,
+                      help='EFT variation we want to use')
   parser.add_argument('--year', required=True,
                       help='Data-taking year (only used for plot aesthetics)')
   parser.add_argument('--region', required=True)
-  parser.add_argument('--eft', required=True)
   parser.add_argument('--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
@@ -83,14 +84,15 @@ if __name__=='__main__':
   if not os.path.exists(args.inputfile):
     raise Exception('ERROR: requested to run on '+args.inputfile
                     +' but it does not seem to exist...')
-  # parse input file
-  if not os.path.exists(args.inputfile2):
-    raise Exception('ERROR: requested to run on '+args.inputfile2
-                    +' but it does not seem to exist...')
 
   # parse the string with process tags
   processes = args.processes.split(',')
   doallprocesses = (len(processes)==1 and processes[0]=='all')
+
+  #look if we have to plot the EFT difference
+  plotEFT = False
+  if args.eft is not None:
+    plotEFT = True
 
   # parse the cross-sections
   if not os.path.exists(args.xsecs):
@@ -138,9 +140,6 @@ if __name__=='__main__':
   histnames = ht.loadhistnames(args.inputfile, mustcontainone=mustcontainone,
                                                maynotcontainone=excludetags,
                                                mustcontainall=mustcontainall)
-  histnames2 = ht.loadhistnames(args.inputfile2, mustcontainone=mustcontainone,
-                                               maynotcontainone=excludetags,
-                                               mustcontainall=mustcontainall)
   print('Initial selection:')
   print(' - mustcontainone: {}'.format(mustcontainone))
   print(' - mustontainall: {}'.format(mustcontainall))
@@ -150,15 +149,11 @@ if __name__=='__main__':
   if not doallprocesses:
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
-    histnames2 = lt.subselect_strings(histnames2, mustcontainone=mustcontainone)[1]
   # select regions
   mustcontainone = ['_{}_'.format(args.region)]
   histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
-  histnames2 = lt.subselect_strings(histnames2, mustcontainone=mustcontainone)[1]
-
   # select variables
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
-  histnames2 = lt.subselect_strings(histnames2, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
   #for histname in histnames: print('  {}'.format(histname))
@@ -169,8 +164,6 @@ if __name__=='__main__':
   splittag = args.region+'_particlelevel_'+variablenames[0]
   print('Constructing ProcessInfoCollection using split tag "{}"'.format(splittag))
   PIC = ProcessInfoCollection.fromhistlist( histnames, splittag )
-  PIC2 = ProcessInfoCollection.fromhistlist( histnames2, splittag )
-
   #print('Constructed following ProcessInfoCollection from histogram list:')
   #print(PIC)
 
@@ -235,26 +228,17 @@ if __name__=='__main__':
     thishistnames = lt.subselect_strings(histnames,
                       mustcontainall=[variablename],
                       maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
-    thishistnames2 = lt.subselect_strings(histnames2,
-                      mustcontainall=[variablename],
-                      maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
 
     # make a ProcessCollection for this variable
     splittag = args.region+'_particlelevel_'+variablename
     PIC = ProcessInfoCollection.fromhistlist( thishistnames, splittag )
-    PIC2 = ProcessInfoCollection.fromhistlist( thishistnames2, splittag )
-
     PC = ProcessCollection( PIC, args.inputfile )
-    PC2 = ProcessCollection( PIC2, args.inputfile2 )
 
     # make some copies of reference histograms before dividing by bin width
     # (note: do not forget to scale by xsec and lumi below!)
     nominalrefs = []
-    nominalrefs2 = []
-
     for process in processes:
       nominalrefs.append( PC.processes[process].get_nominal().Clone() )
-      nominalrefs2.append( PC2.processes[process].get_nominal().Clone() )
 
     # divide bin contents by bin widths in all histograms
     if not args.absolute:
@@ -264,28 +248,10 @@ if __name__=='__main__':
           hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
           hist.SetBinError(i, hist.GetBinError(i)/binwidth)
 
-      for hist in PC2.get_allhists():
-        for i in range(1,hist.GetNbinsX()+1):
-          binwidth = hist.GetBinWidth(i)
-          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
-          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
-
     # make a second ProcessCollection and normalize all its histograms
     # to unit surface area
     PC_norm = ProcessCollection( PIC, args.inputfile )
-    PC_norm2 = ProcessCollection( PIC2, args.inputfile2 )
-
     for hist in PC_norm.get_allhists():
-      if not args.absolute:
-        for i in range(1,hist.GetNbinsX()+1):
-          binwidth = hist.GetBinWidth(i)
-          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
-          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
-        hist.Scale(1./hist.Integral('width'))
-      else:
-        hist.Scale(1./hist.Integral())
-
-    for hist in PC_norm2.get_allhists():
       if not args.absolute:
         for i in range(1,hist.GetNbinsX()+1):
           binwidth = hist.GetBinWidth(i)
@@ -309,15 +275,6 @@ if __name__=='__main__':
       nominalhists.append(nominalhist)
       systhists.append(systhist)
 
-      nominalhist2 = PC2.processes[process].get_nominal()
-      nominalhist2.SetTitle( process.split('_')[0] + "EFT" )
-      nominalhists.append(nominalhist2)
-      systhist2 = nominalhist2.Clone()
-      for i in range(0, nominalhist2.GetNbinsX()+2):
-        systhist2.SetBinError(i, 0)
-      systhists.append(systhist2)
-
-
     # do the same for normalized histograms
     nominalhists_norm = []
     systhists_norm = []
@@ -326,20 +283,10 @@ if __name__=='__main__':
       nominalhist.SetTitle( process.split('_')[0] )
       rsshist = PC_norm.processes[process].get_systematics_rss(systematics=systematics)
       systhist = nominalhist.Clone()
-      #for i in range(0, nominalhist.GetNbinsX()+2):
-      #  systhist.SetBinError(i, rsshist.GetBinContent(i))
+      for i in range(0, nominalhist.GetNbinsX()+2):
+        systhist.SetBinError(i, rsshist.GetBinContent(i))
       nominalhists_norm.append(nominalhist)
       systhists_norm.append(systhist)
-
-      nominalhist2 = PC_norm2.processes[process].get_nominal()
-      nominalhist2.SetTitle( process.split('_')[0] + "EFT" )
-      nominalhists_norm.append(nominalhist2)
-      systhist_norm2 = nominalhist2.Clone()
-      #for i in range(0, nominalhist2.GetNbinsX()+2):
-      #  systhist_norm2.SetBinError(i, 0)
-      systhists_norm.append(systhist_norm2)
-
-
 
     # do scaling with hCounter (for non-normalized histograms)
     for i, process in enumerate(processes):
@@ -366,7 +313,7 @@ if __name__=='__main__':
     statdatahist = nominalrefs[0].Clone()
     normdatahist = nominalrefs[0].Clone()
     normstatdatahist = nominalrefs[0].Clone()
-    dochi2 = False
+    dochi2 = True
     if signalstrengths is None:
       dochi2 = False
       datahist.Reset()
@@ -476,28 +423,53 @@ if __name__=='__main__':
       lumi = lumimap.get(args.year,None)
       if lumi is not None: lumitext = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
 
+    if plotEFT:
+      # we do the same for EFT as for data case (work with signal strengths)
+      EFThist = nominalhists[0].Clone()
+      systEFThist = systhists[0].Clone()
+      # calculate weights
+      EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, processes[0], args.region], mustcontainone=["_EFTsm", args.eft]) 
+      EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"EFTsm")) 
+      EFT = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,args.eft))
+
+      for i in range(1, EFThist.GetNbinsX()+1):
+        factor = EFT.GetBinContent(i)/EFTsm.GetBinContent(i)
+        EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor)
+        systEFThist.SetBinContent(i, systEFThist.GetBinContent(i)*factor)
+        #systEFThist.SetBinError(i,1)
+      nominalhists.append(EFThist)
+      systhists.append(systEFThist)
+        
+      
+
     # temporary for plots: change label for legend
     # (to do more cleanly later)
-    if len(nominalhists)==2:
+    if len(nominalhists)==1:
         nominalhists[0].SetTitle('Prediction')
-        nominalhists[1].SetTitle("True " + args.eft)
-    if len(nominalhists_norm)==2:
+    if len(nominalhists_norm)==1:
         nominalhists_norm[0].SetTitle('Prediction')
-        nominalhists_norm[1].SetTitle("True " + args.eft)
-    
+
+    if len(nominalhists)==2:
+        nominalhists[0].SetTitle('SM Unfolding sample')
+        nominalhists[1].SetTitle('True EFT ' + args.eft)
+    if len(nominalhists_norm)==2:
+        nominalhists_norm[0].SetTitle('SM Unfolding sample')
+
+
+
 
     # make the plot
-    """plotdifferential(
+    plotdifferential(
         nominalhists, datahist,
-	systhists=systhists,
+        systhists=systhists,
         statdatahist=statdatahist,
-	figname=figname,
+        figname=figname,
         yaxtitle=yaxtitle, xaxtitle=xaxtitle,
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
         extrainfos=extrainfos, infosize=15,
-        writeuncs=False )"""
+        writeuncs=False )
 
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'

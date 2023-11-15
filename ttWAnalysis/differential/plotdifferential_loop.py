@@ -12,7 +12,7 @@ if __name__=='__main__':
              #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
   efts = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1"]
-
+  efts = ["EFTctq8"]
 
   variables = "../variables/variables_particlelevel_single.json"
 

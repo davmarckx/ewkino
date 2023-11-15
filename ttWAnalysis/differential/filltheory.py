@@ -20,7 +20,7 @@ from eventflattener import year_from_samplelist
 
 
 # list of systematics to include (hard-coded for now, maybe extend later)
-"""systematics = ([
+systematics = ([
   # scale uncertainties
   "fScaleShape",
   "fScaleNorm",
@@ -46,8 +46,8 @@ from eventflattener import year_from_samplelist
   "fsrShape",
   "fsrNorm",
   "fsrTotal"
-])"""
-systematics = (['eft'])
+])
+#systematics = (['eft'])
 
 
 if __name__=='__main__':
@@ -61,6 +61,7 @@ if __name__=='__main__':
   parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
   parser.add_argument('--selection_type', default=['particlelevel'], choices=['particlelevel'], nargs='+')
   parser.add_argument('--nevents', default=0, type=int)
+  parser.add_argument('--reweightVar', default=None)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
