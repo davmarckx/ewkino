@@ -14,7 +14,7 @@ if __name__=='__main__':
              #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
   #efts = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]
-  efts = ["_nBJets","_HT","_jetPtSubLeading"]
+  efts = [u'_nMuons', u'_nJets', u'_nBJets', u'_nLooseBJets', u'_leptonPtLeading', u'_leptonPtSubLeading', u'_leptonEtaLeading', u'_leptonAbsEtaLeading', u'_leptonEtaSubLeading', u'_leptonAbsEtaSubLeading', u'_jetPtLeading', u'_jetEtaLeading', u'_jetAbsEtaLeading', u'_jetPtSubLeading', u'_jetEtaSubLeading', u'_jetAbsEtaSubLeading', u'_bjetPtLeading', u'_bjetEtaLeading', u'_bjetAbsEtaLeading', u'_dRl1jet', u'_dRl1l2', u'_leptonMaxEta', u'_HT']
 
   variables = "../variables/variables_particlelevel_single.json"
 
