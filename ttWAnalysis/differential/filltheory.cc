@@ -406,11 +406,29 @@ void fillTheoryHistograms(
 	double nominalWeight = event.genWeight()*nEntriesReweight;
 
         double reweightFactor = 1.;
-        if ( reweightVar == "_nJets"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_nJets")-3.0);}
-        else if ( reweightVar == "_nBJets"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_nBJets"));}
-        else if ( reweightVar == "_HT"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_HT")/250.0);}
-        else if ( reweightVar == "_leptonAbsEtaLeading"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_leptonAbsEtaLeading.png")/0.5);}
-        else if ( reweightVar == "_jetPtSubLeading"){reweightFactor += 0.1*(1.0*varmapParticleLevel.at("_jetPtSubLeading")/62.5);}
+        if ( reweightVar == "_nJets"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_nJets")-3.0);}
+        else if ( reweightVar == "_nBJets"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_nBJets"));}
+        else if ( reweightVar == "_HT"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_HT")/250.0);}
+        else if ( reweightVar == "_leptonAbsEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonAbsEtaLeading.png")/0.5);}
+        else if ( reweightVar == "_jetPtSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_jetPtSubLeading")/62.5);}
+        else if ( reweightVar == "_jetPtLeading"){EFTweight = 1. + 0.15*(1.0*varmapParticleLevel.at("_jetPtSubLeading")/100);}
+        else if ( reweightVar == "_nMuons"){EFTweight = 1. + 0.2*(1.0*varmapParticleLevel.at("_nMuons"));}
+        else if ( reweightVar == "_bjetAbsEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_bjetAbsEtaLeading")/0.5);}
+        else if ( reweightVar == "_bjetEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_bjetEtaLeading"));}
+        else if ( reweightVar == "_bjetPtLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_bjetPtLeading")/50);}
+        else if ( reweightVar == "_dRl1jet"){EFTweight = 1. + 0.15*(1.0*varmapParticleLevel.at("_dRl1jet"));}
+        else if ( reweightVar == "_dRl1l2"){EFTweight = 1. + 0.15*(1.0*varmapParticleLevel.at("_dRl1l2"));}
+        else if ( reweightVar == "_jetAbsEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_jetAbsEtaLeading")/0.5);}
+        else if ( reweightVar == "_jetAbsEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_jetAbsEtaSubLeading")/0.5);}
+        else if ( reweightVar == "jetEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaLeading"));}
+        else if ( reweightVar == "jetEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaSubLeading"));}
+        else if ( reweightVar == "_leptonAbsEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonAbsEtaSubLeading")/0.5);}
+        else if ( reweightVar == "_leptonEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonEtaLeading"));}
+        else if ( reweightVar == "_leptonEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonEtaSubLeading"));}
+        else if ( reweightVar == "_leptonMaxEta"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonMaxEta")/0.5);}
+        else if ( reweightVar == "_leptonPtLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtLeading")/0.5);}
+        else if ( reweightVar == "_leptonPtSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtSubLeading")/0.5);}
+        else if ( reweightVar == "_nLooseBJets"){EFTweight = 1. + 0.2*(1.0*varmapParticleLevel.at("_nLooseBJets"));}
 
         nominalWeight *= reweightFactor
 
