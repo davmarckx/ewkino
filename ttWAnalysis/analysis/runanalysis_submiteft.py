@@ -9,6 +9,11 @@ import sys
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 for r in ['signalregion_trilepton']: regions.append(r)
+for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
+for r in ['cfcontrolregion']: regions.append(r)
+for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
@@ -32,7 +37,7 @@ bdtcut = None
 splitprocess = None
 splitvariables = None
 
-outputdir = 'output_20231107_single_eft'
+outputdir = 'output_20231120_single_eft_newcoeff'
 
 nevents = 1e6
 runlocal = False

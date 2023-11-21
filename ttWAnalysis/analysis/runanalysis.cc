@@ -727,26 +727,26 @@ void fillSystematicsHistograms(
     // set magnitude of wilson coefficients
     // (hard-coded for now, maybe extend later)
     std::map<std::string, double> WCConfig = {
-        {"ctlTi", 5.},
-        {"ctq1", 0.3},
+	{"ctlTi", 0.1},
+        {"ctq1", 0.5},
         {"ctq8", 0.3},
-        {"cQq83", 1.},
+        {"cQq83", 0.5},
         {"cQq81", 1.},
-        {"cQlMi", 5.},
+        {"cQlMi", 1.},
         {"cbW", 5.},
         {"cpQ3", 5.},
         {"ctei", 5.},
         {"cQei", 5.},
         {"ctW", 1.},
         {"cpQM", 5.},
-        {"ctlSi", 5.},
-        {"ctZ", 5.},
-        {"cQl3i", 5.},
-        {"ctG", 0.3},
-        {"cQq13", 0.1}, // here
-        {"cQq11", 0.1}, // here
+        {"ctlSi", 0.3},
+        {"ctZ", 2.5},
+        {"cQl3i", 1.},
+        {"ctG", 0.6},
+        {"cQq13", 0.3},
+        {"cQq11", 1.},
         {"cptb", 5.},
-        {"ctli", 1.},
+        {"ctli", 0.1},
         {"ctp", 5.},
         {"cpt", 5.},
 	{"sm", 0.}
