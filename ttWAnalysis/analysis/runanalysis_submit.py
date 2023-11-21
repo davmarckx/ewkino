@@ -36,9 +36,9 @@ selection_types = []
 #selection_types.append('tight')
 #selection_types.append('prompt')
 #selection_types.append('fakerate')
-#selection_types.append('efakerate')
-#selection_types.append('mfakerate')
-#selection_types.append('chargeflips')
+selection_types.append('efakerate')
+selection_types.append('mfakerate')
+selection_types.append('chargeflips')
 #selection_types.append('chargegood')
 selection_types.append('irreducible')
 
@@ -69,14 +69,14 @@ bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
 bdtcut = None
 
 
-splitprocess = None # do not split any process at particle level
-#splitprocess = 'TTW' # split TTW process at particle level
-splitvariables = None
-#splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
+#splitprocess = None # do not split any process at particle level
+splitprocess = 'TTW' # split TTW process at particle level
+#splitvariables = None
+splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 
-outputdir = 'output_dbv4'
+outputdir = 'output_db_EFTData'
 
-nevents = 1e6
+nevents = 1e10
 runlocal = False
 
 submit_selection_types_combined = True

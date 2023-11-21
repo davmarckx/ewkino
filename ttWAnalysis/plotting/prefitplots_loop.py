@@ -10,7 +10,7 @@ from jobSettings import CMSSW_VERSION
 import json
 
 inputdir = sys.argv[1]
-runmode = 'condor'
+runmode = 'local'
 
 
 regions = []
@@ -26,12 +26,12 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
-#years = ["2018"]
-years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = []
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
 years.append('run2')
 #EFT_WCs = ["EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]
-EFT_WCs = ["_nJets","_nBJets","_HT","_jetPtSubLeading"]
-
+#EFT_WCs = ["_nJets","_nBJets","_HT","_jetPtSubLeading"]
+EFT_WCs = ["EFTctG","EFTctW","EFTctZ"]
 npmodes = ['npfromdatasplit']
 cfmodes = ['cffromdata']
 
