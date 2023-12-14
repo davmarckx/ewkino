@@ -28,8 +28,9 @@ cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 samplelistdir = '../samplelists/eft'
 samplelistbase = 'samplelist_{}_TTW_eftinfo.txt'
 
+variables = '../variables/variables_fitcr.json' # control region variables
 #variables = '../variables/variables_particlelevel_double.json' # double variables
-variables = '../variables/variables_particlelevel_single.json' # single variables
+#variables = '../variables/variables_particlelevel_single.json' # single variables
 
 bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
 bdtcut = None
@@ -37,7 +38,7 @@ bdtcut = None
 splitprocess = None
 splitvariables = None
 
-outputdir = 'output_20231120_single_eft_newcoeff'
+outputdir = 'output_20231120_crvariables_eft_newcoeff'
 
 nevents = 1e6
 runlocal = False
