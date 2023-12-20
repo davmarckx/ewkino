@@ -1,0 +1,6 @@
+# samples located in /pnfs/iihe/cms/store/user/llambrec/heavyNeutrinoTTWEFT
+
+TTW2016PreVFP  TTW_EFT_Summer16PreVFP.root  0.2269
+TTW2016PostVFP  TTW_EFT_Summer16PostVFP.root  0.2269
+TTW2017  TTW_EFT_Fall17.root  0.2269
+TTW2018  TTW_EFT_Autumn18.root  0.2269

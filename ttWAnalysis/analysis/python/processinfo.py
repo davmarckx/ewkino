@@ -269,6 +269,12 @@ class Process(object):
     # arguments:
     # - systematics: list of systematics to include.
     #   use 'all' to include all systematics in the current Process.
+
+    # default case of no systematics
+    if( isinstance(systematics, list) and len(systematics)==0 ):
+      hist = self.get_nominal().Clone()
+      hist.Reset()
+      return hist 
     if( isinstance(systematics,str) and systematics=='all' ): 
       systematics = self.systhists.keys()
     self.info.check_systematics(systematics)

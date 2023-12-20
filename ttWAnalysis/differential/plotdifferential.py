@@ -39,21 +39,21 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Plot differential cross-section')
-  parser.add_argument('--inputfile', required=True, type=os.path.abspath,
+  parser.add_argument('-i', '--inputfile', required=True, type=os.path.abspath,
                       help='Path to input root file with theoretical differential distributions.')
-  parser.add_argument('--year', required=True,
+  parser.add_argument('-y', '--year', required=True,
                       help='Data-taking year (only used for plot aesthetics)')
-  parser.add_argument('--region', required=True)
-  parser.add_argument('--processes', required=True,
+  parser.add_argument('-r', '--region', required=True)
+  parser.add_argument('-p', '--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
-  parser.add_argument('--xsecs', required=True, type=os.path.abspath,
+  parser.add_argument('-x', '--xsecs', required=True, type=os.path.abspath,
                       help='Path to json file holding (predicted) total cross-sections for each process.')
-  parser.add_argument('--variables', required=True, type=os.path.abspath,
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath,
                       help='Path to json file holding variable definitions.')
-  parser.add_argument('--signalstrength', default=None, type=apt.path_or_none,
+  parser.add_argument('-s', '--signalstrength', default=None, type=apt.path_or_none,
                       help='Path to json file holding signal strengths.')
-  parser.add_argument('--outputdir', required=True,
+  parser.add_argument('-o', '--outputdir', required=True,
                       help='Directory where to store the output.')
   parser.add_argument('--includetags', default=None,
                       help='Comma-separated list of systematic tags to include')
@@ -126,7 +126,7 @@ if __name__=='__main__':
   print('Loading histogram names from input file...')
   # requirement: the histogram name must contain at least one includetag (or nominal)
   mustcontainone = []
-  if len(includetags)>0: mustcontainone = includetags + ['nominal'] + ['hCounter']
+  if len(includetags)>0: mustcontainone = includetags + ['nominal']
   # shortcut requirements for when only one process or variable is requested
   mustcontainall = []
   if( len(processes)==1 and not doallprocesses ): mustcontainall.append(processes[0])
@@ -152,6 +152,11 @@ if __name__=='__main__':
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
   #for histname in histnames: print('  {}'.format(histname))
+
+  # get all hCounter histograms (separate from above)
+  mustcontainall = ['hCounter']
+  # do loading and initial selection
+  hcnames = ht.loadhistnames(args.inputfile, mustcontainall=mustcontainall)
 
   # make a ProcessInfoCollection to extract information
   # (use first variable, assume list of processes, systematics etc.
@@ -185,11 +190,13 @@ if __name__=='__main__':
   for process in processes:
       # get the hCounter
       hcname = str(process+'_'+splittag+'_hCounter')
-      if hcname not in histnames:
+      if 'EFT' in process:
+        hcname = str(process.split('EFT')[0]+'EFT_'+splittag+'_hCounter')
+      if hcname not in hcnames:
         msg = 'ERROR: wrong hCounter name:'
         msg += ' histogram {} not found'.format(hcname)
         msg += ' in following list:\n'
-        for hname in histnames: msg += '    {}\n'.format(hname)
+        for hname in hcnames: msg += '    {}\n'.format(hname)
         raise Exception(msg)
       hcounter = f.Get(hcname)
       hcounter = hcounter.GetBinContent(1)
@@ -260,7 +267,9 @@ if __name__=='__main__':
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
     systhists = []
-    systematics = ['pdfTotalRMS','rfScalesTotal','isrTotal','fsrTotal']
+    #systematics = ['pdfTotalRMS','rfScalesTotal','isrTotal','fsrTotal']
+    systematics = [] 
+    print('WARNING: list of systematics set to empty for testing.')
     for process in processes:
       nominalhist = PC.processes[process].get_nominal()
       nominalhist.SetTitle( process.split('_')[0] )

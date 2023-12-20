@@ -112,6 +112,15 @@ def plotdifferential(
 		hist.SetFillStyle(3254)
 		hist.SetFillColor(colorlist[i])
 
+    ### plotting seems not to handle histograms with zero error correctly,
+    # so replace zero error by a small value
+    if systhists is not None:
+        for i,hist in enumerate(systhists):
+            if hist is not None:
+                for i in range(0,hist.GetNbinsX()+2):
+                    if hist.GetBinError(i)==0:
+                        hist.SetBinError(i, hist.GetBinContent(i)/1e6)
+
     ### style operations on data histogram
     datahist.SetMarkerStyle(markerstyle)
     datahist.SetMarkerColor(markercolor)

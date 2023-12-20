@@ -198,7 +198,7 @@ if __name__=='__main__':
   # parse systematics
   systematics = args.systematics
   if systematics is None: systematics = ['none']
-  if 'default' in systematics: systemtics = default_systematics
+  if 'default' in systematics: systematics = default_systematics
   if len(systematics)==0: systematics = ['none']
   systematics = ','.join(systematics)
 

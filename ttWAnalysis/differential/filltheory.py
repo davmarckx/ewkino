@@ -20,7 +20,7 @@ from eventflattener import year_from_samplelist
 
 
 # list of systematics to include (hard-coded for now, maybe extend later)
-systematics = ([
+'''systematics = ([
   # scale uncertainties
   "fScaleShape",
   "fScaleNorm",
@@ -46,20 +46,24 @@ systematics = ([
   "fsrShape",
   "fsrNorm",
   "fsrTotal"
-])
+])'''
+# alternative list of systematics: only eft variations
+#systematics = (['eft'])
+# alternative list of systematics: none
+systematics = []
 
 
 if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Fill theoretical differential xsections')
-  parser.add_argument('--inputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--samplelist', required=True, type=os.path.abspath)
-  parser.add_argument('--outputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--variables', required=True, type=os.path.abspath)
-  parser.add_argument('--event_selection', required=True, choices=event_selections, nargs='+')
-  parser.add_argument('--selection_type', default=['particlelevel'], choices=['particlelevel'], nargs='+')
-  parser.add_argument('--nevents', default=0, type=int)
+  parser.add_argument('-i', '--inputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-s', '--samplelist', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath)
+  parser.add_argument('-e', '--event_selection', required=True, choices=event_selections, nargs='+')
+  parser.add_argument('-t', '--selection_type', default=['particlelevel'], choices=['particlelevel'], nargs='+')
+  parser.add_argument('-n', '--nevents', default=0, type=int)
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 

@@ -38,6 +38,8 @@ if __name__=="__main__":
                       help='File with nominal histograms (i.e. non-EFT sample);'
                           +' if it is specified, comparisons will be made to these histograms,'
                           +' else with respect to the nominal histograms in the EFT file.')
+  parser.add_argument('--wc', default=['all'], nargs='+',
+                      help='Name of wilson coefficients to display on plot (default: all in file).')
   parser.add_argument('--datatag', default='data',
                       help='Process name of data histograms in input file.')
   parser.add_argument('--tags', default=None,
@@ -136,6 +138,11 @@ if __name__=="__main__":
     syshistnames = []
     for thishistname in thishistnames:
       if 'EFTsm' in thishistname: continue
+      if not 'all' in args.wc:
+        keep = False
+        for wc in args.wc:
+          if wc in thishistname: keep = True
+        if not keep: continue
       syshistnames.append(thishistname)
 
     # load histograms

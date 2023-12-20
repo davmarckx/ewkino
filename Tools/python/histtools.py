@@ -383,7 +383,7 @@ def rootsumsquare( histlist ):
     ### return a histogram that is the root-sum-square of all histograms in histlist.
     # check the input list
     if( len(histlist)<1 ):
-        print('### ERROR ###: at least one histogram required for rootsumsquare')
+        print('WARNING in histtools.py / rootsumsquare: at least one histogram required for rootsumsquare')
         return None
     res = histlist[0].Clone()
     res.Reset()

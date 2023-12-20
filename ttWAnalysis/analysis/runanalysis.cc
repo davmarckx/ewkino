@@ -726,7 +726,8 @@ void fillSystematicsHistograms(
     }
     // set magnitude of wilson coefficients
     // (hard-coded for now, maybe extend later)
-    /*std::map<std::string, double> WCConfig = {
+    // first set (agreed magnitudes with Oviedo)
+    std::map<std::string, double> WCConfig = {
         {"ctlTi", 5.},
         {"ctq1", 0.3},
         {"ctq8", 0.3},
@@ -750,8 +751,9 @@ void fillSystematicsHistograms(
         {"ctp", 5.},
         {"cpt", 5.},
         {"sm", 0.}
-    };*/
-    std::map<std::string, double> WCConfig = {
+    };
+    // second set (for internal testing)
+    /*std::map<std::string, double> WCConfig = {
 	{"ctlTi", 0.1},
         {"ctq1", 0.5},
         {"ctq8", 0.3},
@@ -775,7 +777,7 @@ void fillSystematicsHistograms(
         {"ctp", 5.},
         {"cpt", 5.},
 	{"sm", 0.}
-    };
+    };*/
     for(std::string eftVariation: eftVariations){
 	if(WCConfig.find(eftVariation) == WCConfig.end()){
 	    std::string msg = "ERROR: eft variation " + eftVariation;
@@ -1159,7 +1161,7 @@ void fillSystematicsHistograms(
 		for(std::string eftVariation: eftVariations){
 		    std::map<std::string, double> wcvalues = {{eftVariation, WCConfig.at(eftVariation)}};
 		    double eftNominalWeight = event.lumiScale()
-						* event.eftInfo().nominalWeight()
+						* event.eftInfo().nominalWeight()*nEntriesAndTrainingReweight
 						/ eftCrossSections->nominalSumOfWeights()
 						* varmap.at("_reweight");
 		    double weight = eftNominalWeight * event.eftInfo().relativeWeight(wcvalues);
