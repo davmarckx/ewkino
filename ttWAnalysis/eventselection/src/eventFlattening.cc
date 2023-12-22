@@ -760,7 +760,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
 	// std::cout<< y(0,0);
 	// get the score out of the RTensor
 	//varmap["_eventBDT"] = float(y(0,0));
-	auto y_norm = 2*float(y(0,0)) - 1;
+	auto y_norm = 1./( 1. + exp (-1.*float(y(0,0))) );
+        y_norm = 2*float(y(0,0)) - 1.;
         varmap["_eventBDT"] = 1 / (1 + exp(-1*y_norm / 0.3));
     }
 

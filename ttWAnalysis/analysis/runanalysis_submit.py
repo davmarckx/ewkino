@@ -29,8 +29,8 @@ years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2018']
 
 #dtypes = ['sim','data']
-#dtypes = ['sim']
-dtypes = ['data']
+dtypes = ['sim']
+#dtypes = ['data']
 
 selection_types = []
 #selection_types.append('tight')
@@ -45,14 +45,14 @@ selection_types.append('irreducible')
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
-samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
+#samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
+#samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
 #samplelistdir = '../samplelists/backgrounds' # main sample lists
 #samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-#samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
-#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
+samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_main_reduced.json'
@@ -90,8 +90,8 @@ for year in years:
   for dtype in dtypes:
     # set correct input directory
     #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
-    #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
-    inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
+    inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
+    #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
     inputdiryear = year
     #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
     #inputdiryear = ''
