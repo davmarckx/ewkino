@@ -56,7 +56,7 @@ if __name__=='__main__':
     print('Running on variable {}'.format(varname))
 
     # find relevant workspace in the directory
-    starttag = 'datacard'
+    starttag = 'datacard_signalregion'
     if args.usecr: starttag = 'dc_combined'
     wspaces = ([ f for f in os.listdir(args.datacarddir)
                  if (f.startswith(starttag) and varname in f and f.endswith('.root')) ])

@@ -24,7 +24,7 @@ def getcardcombinations(datacarddir, varname, verbose=False):
   cards_all = [f for f in os.listdir(datacarddir) if f[-4:]=='.txt']
   cards_all = lt.subselect_strings(cards_all,maynotcontainone=['_out_'])[1]
   cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion',varname])[1]
-  cards_cr = lt.subselect_strings(cards_all,mustcontainone=['controlregion'])[1]
+  cards_cr = lt.subselect_strings(cards_all,mustcontainall=['controlregion',varname])[1]
   # total combination  
   combineddict['dc_combined_{}.txt'.format(varname)] = cards_cr + cards_sr
   # convert list of cards to dictionary of cards to channel names

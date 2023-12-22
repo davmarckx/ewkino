@@ -709,8 +709,10 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // evaluate BDT
     if( bdt ){
 	float bdtYearCode;
-	if (bdtYear == "2018" || bdtYear == "2017"){ bdtYearCode = 1.0; }
-	else{ bdtYearCode = 0.0; }
+	if (bdtYear == "2018"){ bdtYearCode = 2.0; }
+        else if (bdtYear == "2017"){ bdtYearCode = 1.0; }
+        else if (bdtYear == "2016PostVFP"){ bdtYearCode = 0.0; }
+	else{ bdtYearCode = -1.0; }
 	// construct the vector of features that is fed into the bdt
 	/*float vec[] = { float(varmap["_abs_eta_recoil"]),float(varmap["_Mjj_max"]),
                         float(varmap["_deepFlavor_max"]),float(varmap["_deepFlavor_leading"]),
@@ -735,7 +737,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
                         float(varmap["_pTjj_max"]),float(varmap["_dRlb_min"]),
                         float(varmap["_dRl1l2"]),
                         float(varmap["_dRl1jet"]),
-                        float(varmap["_HT"]),
+                        //float(varmap["_HT"]),
                         float(varmap["_nJets"]),float(varmap["_nBJets"]),
                         float(varmap["_nLooseBJets"]),float(varmap["_nTightBJets"]),
                         float(varmap["_dRlWrecoil"]),float(varmap["_dRlWbtagged"]),

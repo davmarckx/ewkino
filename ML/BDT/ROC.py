@@ -10,6 +10,7 @@ import pickle
 import json
 
 #sklearn imports
+from typing import Tuple
 import sklearn
 import matplotlib.pyplot as plt
 from itertools import cycle
@@ -71,6 +72,7 @@ pickle.dump(boostfeaturemap, open(file_name, "wb"))
 
 
 #get the xgboost parameters
+balance = float(sys.argv[5])
 n_estimators = int(sys.argv[4])
 max_depth = int(sys.argv[3])
 lr = float(sys.argv[2])
@@ -131,16 +133,16 @@ other1 = other1[other1["_weight"]>0]
 other1 = other1.replace({"class": dictio})
 other1 = other1[other1["class"]!='TTW'] #remove signal samples to only inject the test signal samples later on (otherwise bias)
 
-#make other validation sets
-X_other = other1.drop(['_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading','_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
+#make other validation sets '_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading',
+X_other = other1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 
 #X_other.loc[X_other['class'] == 'TTW', 'class'] = 1
 #X_other.loc[X_other['class'] != 1, 'class'] = 0
 
-# make training and testing sets
-X = alle1.drop(['_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading','_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
+# make training and testing sets '_deepFlavor_max','_deepFlavor_leading','_deepFlavor_subLeading',
+X = alle1.drop(['_runNb', '_lumiBlock', '_eventNb', '_normweight','_eventBDT','_dPhill_max','_MET_phi', '_nElectrons','_numberOfVertices',"_deepCSV_subLeading","_deepCSV_max","_deepCSV_leading",'_leptonChargeSubLeading',"_l1dxy","_l1dz","_l1sip3d","_l2dxy","_l2dz","_l2sip3d",'_lW_charge','_lW_pt','_leptonMVATOP_min','nominal',
        '_leptonMVAttH_min','_leptonreweight', '_nonleptonreweight', '_fakerateweight','_MT','_yield', 'region',
        '_chargeflipweight','_fakeRateFlavour','_bestZMass', '_Z_pt','_leptonPtTrailing','_leptonEtaTrailing', '_lW_asymmetry','_reweight','_leptonAbsEtaLeading', '_leptonAbsEtaSubLeading','_leptonAbsEtaTrailing','_leptonMaxEta','_jetAbsEtaLeading', '_jetAbsEtaSubLeading','_bjetAbsEtaLeading', 'deltaPhiLeadingLeptonPair','deltaRLeadingLeptonPair','mLeadingLeptonPair', '_nJetsNBJetsCat', '_nJetsNZCat'], axis=1)
 X.loc[X['class'] == 'TTW', 'class'] = 1
@@ -172,16 +174,18 @@ weight_train = X_train['_weight']
 weight_test = X_test['_weight']
 weight_train_balanced = X_train['_weight_balanced']
 
-
+HT_train = X_train['_HT']
+HT_test = X_test['_HT']
+HT_other = X_other['_HT']
 
 # last unused features can be dropped
-X_train = X_train.drop(['_weight', 'class','_weight_balanced'], axis = 1)
+X_train = X_train.drop(['_HT','_weight', 'class','_weight_balanced'], axis = 1)
 X_other = pd.concat([X_other, X_test[X_test["class"]==1]],ignore_index=True)
-X_test = X_test.drop(['_weight', 'class'], axis = 1)
+X_test = X_test.drop(['_HT','_weight', 'class'], axis = 1)
 
 y_other = X_other['class'].astype(int)
 weight_other =  X_other['_weight']
-X_other = X_other.drop(['_weight', 'class'], axis = 1)
+X_other = X_other.drop(['_HT','_weight', 'class'], axis = 1)
 
 
 # last safety to modify classes to numerical
@@ -203,8 +207,44 @@ X_other.rename(columns=boostfeaturemap,inplace=True)
 print("do we have signals?")
 print(not y_train[y_train.isin([1])].empty)
 
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
 
-bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective='binary:logistic',n_jobs = 4)
+def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndarray]:
+
+    def gradiant(p: np.ndarray, dtrain: xgb.DMatrix) -> np.ndarray:
+        p = sigmoid(p)
+        y = dtrain.get_label()
+        return p - y
+
+    def hessian(p: np.ndarray, dtrain: xgb.DMatrix) -> np.ndarray:
+        p = sigmoid(p)
+        y = dtrain.get_label()
+        eps = 1e-16
+        hess = p * (1 - p)
+        hess[hess < eps] = eps
+        return hess
+
+
+    predt[predt < -1] = -1 + 1e-6
+    grad = gradiant(predt, dtrain)                #abs(delta HT*delta y)
+    if len(predt) == len(X_train):
+      grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
+    elif len(predt) == len(X_test):
+      grad += balance*(dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())**2 / abs((dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())*HT_test.mean())
+    elif len(predt) == len(X_other):
+      grad += balance*(dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())**2 / abs((dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())*HT_other.mean())
+    else:
+      grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
+    hess = hessian(predt, dtrain) #hessian has no extra terms
+    return grad, hess
+
+def my_eval(predt,dmat):
+    y=dmat.get_label() if isinstance(dmat,xgb.DMatrix) else dmat
+    predt=np.clip(predt,10e-7,1-10e-7)
+    return 'logloss_myerror', - np.mean(y * np.log(predt) + (1-y) * np.log(1-predt))
+
+#bst = XGBClassifier(n_estimators=n_estimators, max_depth=max_depth, learning_rate= lr, objective=loglikelood,n_jobs = 4)
 print("start training")
 print(X_train.columns)
 print(X_train)
@@ -218,20 +258,43 @@ print("==")
 print(y_test.astype(int).unique())
 print("==")
 print(y_other.astype(int).unique())
-bst.fit(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy(), sample_weight=weight_train_balanced.astype(float).to_numpy(),eval_set = [(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy()), (X_test.astype(float).to_numpy(), y_test.astype(int).to_numpy()), (X_other.astype(float).to_numpy(), y_other.astype(int).to_numpy())])
+dtrain = xgb.DMatrix(X_train.astype(float).to_numpy(), label=y_train.astype(int).to_numpy(), weight=weight_train.astype(float).to_numpy())
+dtest = xgb.DMatrix(X_test.astype(float).to_numpy(), label=y_test.astype(int).to_numpy(), weight=weight_test.astype(float).to_numpy())
+dother = xgb.DMatrix(X_other.astype(float).to_numpy(), label=y_other.astype(int).to_numpy(), weight=weight_other.astype(float).to_numpy())
+cpu_res = {}
+og_res = {}
+bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'base_score':0.01,'eval_metric':'auc'},  # any other tree method is fine.
+           dtrain=dtrain,
+           num_boost_round=n_estimators,
+           obj=logloss, evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=cpu_res)
+
+
+bst2 = xgb.train({'max_depth':max_depth, 'eta':lr,'objective':'binary:logistic','seed':13,'eval_metric':'auc','base_score':0.01},  # any other tree method is fine.
+           dtrain=dtrain,
+           num_boost_round=n_estimators,
+           evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=og_res)
+
+
+print(bst.predict(data=dtest))
+print("XGB implementation:")
+print(bst2.predict(data=dtest))
+print(bst.predict(data=dtrain))
+print("XGB implementation:")
+print(bst2.predict(data=dtrain))
+#bst.fit(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy(), sample_weight=weight_train_balanced.astype(float).to_numpy(),eval_set = [(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy()), (X_test.astype(float).to_numpy(), y_test.astype(int).to_numpy()), (X_other.astype(float).to_numpy(), y_other.astype(int).to_numpy())])
 print("done, plotting")
 
 
 # calculations for ROC
-y_pred_proba_orig = bst.predict_proba(X_test)[::,1]
+y_pred_proba_orig = bst.predict(data=dtest)#.predict_proba(X_test)[::,1]
 fpr_orig, tpr_orig, _ = metrics.roc_curve(y_test.astype(int), y_pred_proba_orig.astype(float), sample_weight = weight_test.astype(float))
 aucval_orig = metrics.roc_auc_score(y_test.astype(int), y_pred_proba_orig.astype(float), sample_weight = weight_test.astype(float))
 
-y_pred_proba = bst.predict_proba(X_train)[::,1]
+y_pred_proba = bst.predict(data=dtrain)#_proba(X_train)[::,1]
 fpr, tpr, _ = metrics.roc_curve(y_train.astype(int),  y_pred_proba.astype(float), sample_weight = weight_train.astype(float))
 aucval = metrics.roc_auc_score(y_train.astype(int), y_pred_proba.astype(float), sample_weight = weight_train.astype(float))
 
-y_pred_proba_other = bst.predict_proba(X_other)[::,1]
+y_pred_proba_other = bst.predict(data=dother)#_proba(X_other)[::,1]
 fpr_other, tpr_other, _ = metrics.roc_curve(y_other.astype(int),  y_pred_proba_other.astype(float), sample_weight = weight_other.astype(float))
 aucval_other = metrics.roc_auc_score(y_other.astype(int), y_pred_proba_other.astype(float), sample_weight = weight_other.astype(float))
 
@@ -261,12 +324,12 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_robustnessvNOshape_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemoved_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string + ".png")
 plt.close()
 
 
 #make the loss plot. this still doesnt include the sample weights in the loss, so these are wrong
-results = bst.evals_result()
+"""results = cpu_res #bst.evals_result()
 
 epochs = len(results['validation_0']['logloss'])
 x_axis = range(0, epochs)
@@ -279,14 +342,20 @@ ax.legend()
 plt.xlabel('\nEpochs',fontsize=14,fontweight='semibold')
 plt.ylabel('Error\n',fontsize=14,fontweight='semibold')
 plt.title('XGBoost learning curve\n',fontsize=20,fontweight='semibold')
-plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_robustnessvNOshape_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/loss_{}_decorHT_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + dt_string + ".png")
 plt.close()
 
 print(list(X_train.columns))
-
+"""
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_robustnessvNOshape".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedv2".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGBrobustnessvNOshape_{}.root".format(year))
+
+xgb_classifier = xgb.XGBClassifier()
+xgb_classifier._Booster = bst
+xgb_classifier.max_depth=max_depth
+xgb_classifier.n_estimators=n_estimators
+
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedv2".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".root")

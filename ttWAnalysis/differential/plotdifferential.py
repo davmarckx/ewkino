@@ -375,7 +375,7 @@ if __name__=='__main__':
     statdatahist = nominalrefs[0].Clone()
     normdatahist = nominalrefs[0].Clone()
     normstatdatahist = nominalrefs[0].Clone()
-    dochi2 = True
+    dochi2 = False
     if signalstrengths is None:
       dochi2 = False
       datahist.Reset()
@@ -530,6 +530,7 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
+        ratiorange=(0.8,1.2),
         extrainfos=extrainfos, infosize=15,
         writeuncs=False )
 

@@ -116,7 +116,7 @@ std::vector<std::string> splitProcessNames(
 	splitProcessNames.push_back( processName+"0" );
 	for(const HistogramVariable& splitParticleLevelVar: splitParticleLevelVars){
 	    for(int i=1; i<=splitParticleLevelVar.nbins(); i++){
-		splitProcessNames.push_back( processName + splitParticleLevelVar.name() + std::to_string(i) );
+		splitProcessNames.push_back( processName + std::to_string(i) + stringTools::removeOccurencesOf(splitParticleLevelVar.name(),"_") );
 	    }
         }
     }
@@ -302,7 +302,7 @@ std::shared_ptr<TH1D> findHistogramToFill(
         // else use appendix bin number
         else{
             int binNumber = splitParticleLevelVar.findBinNumber( valueParticleLevel );
-            thisProcessName = processName + splitParticleLevelVar.name() + std::to_string(binNumber);
+            thisProcessName = processName + std::to_string(binNumber) + stringTools::removeOccurencesOf(splitParticleLevelVar.name(),"_");
         }
     }
     // find the histogram in the map
@@ -696,7 +696,7 @@ void fillSystematicsHistograms(
 	// calculate particle-level event variables
         bool passParticleLevel = false;
         if(doSplitParticleLevel){
-            if( eventSelectionsParticleLevel::passES(event, event_selection) ){
+            if( eventSelectionsParticleLevel::passES(event, "signalregion_dilepton_inclusive") ){
                 passParticleLevel = true;
                 varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
             }
