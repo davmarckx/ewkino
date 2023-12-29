@@ -16,26 +16,26 @@ import listtools as lt
 eft = sys.argv[1]
 
 controlregions = ({
-    'topdir': '../analysis/output_sbv3_split',
+    'topdir': '../analysis/output_sb_EFTstudy',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'regions': {
         'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
         'fourleptoncontrolregion': '_nJetsNZCat',
         'npcontrolregion_dilepton_inclusive': '_nMuons',
-        'cfjetscontrolregion': '_nJetsNZCat'
+        'cfjetscontrolregion': '_nJets'
     }
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_dbv3/',
+    'topdir': '../analysis/output_dbv4_decorHT_noHTfinal/',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_EFTstudy_npsplitAndUnbiasedAndbgstat_'+eft
+outputdir = 'datacards_EFTstudy_newBDT_'+eft
 
 runmode = 'local'
 

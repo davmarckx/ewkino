@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-
+CMSSW_VERSION = '/user/dmarckx/CMSSW_10_6_28'
 topdir = sys.argv[1]
 
 regions = []

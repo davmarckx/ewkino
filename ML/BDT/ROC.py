@@ -174,9 +174,10 @@ weight_train = X_train['_weight']
 weight_test = X_test['_weight']
 weight_train_balanced = X_train['_weight_balanced']
 
-HT_train = X_train['_HT']
-HT_test = X_test['_HT']
-HT_other = X_other['_HT']
+steps = np.array([200,325,500,800])
+HT_train = X_train['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+HT_test = X_test['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+HT_other = X_other['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 
 # last unused features can be dropped
 X_train = X_train.drop(['_HT','_weight', 'class','_weight_balanced'], axis = 1)
@@ -229,13 +230,17 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     predt[predt < -1] = -1 + 1e-6
     grad = gradiant(predt, dtrain)                #abs(delta HT*delta y)
     if len(predt) == len(X_train):
-      grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
+      grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
+      #grad += balance*(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
     elif len(predt) == len(X_test):
-      grad += balance*(dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())**2 / abs((dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())*HT_test.mean())
+      grad += balance*sigmoid(predt)**2 *(dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())**2 / abs((dtest.get_label()-dtest.get_label().mean())*(HT_test-HT_test.mean())*HT_test.mean())
+      #grad += balance*(dtrain.get_label())*(HT_test-HT_test.mean()) / HT_test.mean()
     elif len(predt) == len(X_other):
-      grad += balance*(dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())**2 / abs((dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())*HT_other.mean())
+      #grad += balance*(dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())**2 / abs((dother.get_label()-dother.get_label().mean())*(HT_other-HT_other.mean())*HT_other.mean())
+      grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_other-HT_other.mean()) / HT_other.mean()
     else:
-      grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
+      #grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
+      grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
     hess = hessian(predt, dtrain) #hessian has no extra terms
     return grad, hess
 
@@ -269,18 +274,18 @@ bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'base_score':0.01,'ev
            obj=logloss, evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=cpu_res)
 
 
-bst2 = xgb.train({'max_depth':max_depth, 'eta':lr,'objective':'binary:logistic','seed':13,'eval_metric':'auc','base_score':0.01},  # any other tree method is fine.
-           dtrain=dtrain,
-           num_boost_round=n_estimators,
-           evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=og_res)
+#bst2 = xgb.train({'max_depth':max_depth, 'eta':lr,'objective':'binary:logistic','seed':13,'eval_metric':'auc','base_score':0.01},  # any other tree method is fine.
+#           dtrain=dtrain,
+#           num_boost_round=n_estimators,
+#           evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=og_res)
 
 
 print(bst.predict(data=dtest))
 print("XGB implementation:")
-print(bst2.predict(data=dtest))
+#print(bst2.predict(data=dtest))
 print(bst.predict(data=dtrain))
 print("XGB implementation:")
-print(bst2.predict(data=dtrain))
+#print(bst2.predict(data=dtrain))
 #bst.fit(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy(), sample_weight=weight_train_balanced.astype(float).to_numpy(),eval_set = [(X_train.astype(float).to_numpy(), y_train.astype(int).to_numpy()), (X_test.astype(float).to_numpy(), y_test.astype(int).to_numpy()), (X_other.astype(float).to_numpy(), y_other.astype(int).to_numpy())])
 print("done, plotting")
 
@@ -324,7 +329,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemoved_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string + ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemovedv5_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
 plt.close()
 
 
@@ -348,7 +353,7 @@ plt.close()
 print(list(X_train.columns))
 """
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedv2".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedv6".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
@@ -358,4 +363,5 @@ xgb_classifier._Booster = bst
 xgb_classifier.max_depth=max_depth
 xgb_classifier.n_estimators=n_estimators
 
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedv2".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + ".root")
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedv6".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
+

@@ -28,8 +28,8 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2018']
 
-#dtypes = ['sim','data']
-dtypes = ['sim']
+dtypes = ['sim','data']
+#dtypes = ['sim']
 #dtypes = ['data']
 
 selection_types = []
@@ -45,14 +45,14 @@ selection_types.append('irreducible')
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
-#samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
-#samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
+samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
+samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
 #samplelistdir = '../samplelists/backgrounds' # main sample lists
 #samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
-samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+#samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
+#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_main_reduced.json'
@@ -66,7 +66,8 @@ variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double
 #bdtfile = None
 #bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
 #bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
-bdtfile = '../../ML/models/XGB_all_decorHTrealRemovedv237_1500_3_01.root'
+#bdtfile = '../../ML/models/XGB_all_decorHTrealRemovedv237_1500_3_01.root'
+bdtfile = '../../ML/models/XGB_all_decorHTrealRemovedv537_2000_3_0.1_0.275.root'
 bdtcut = None
 
 
@@ -76,7 +77,7 @@ splitprocess = 'TTW' # split TTW process at particle level
 #splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 splitvariables = '../variables/variables_particlelevel_single_BINSTUDY.json'
 
-outputdir = 'output_dbv4_decorHT_noHTfinal'
+outputdir = 'output_dbv5_decorHT_noHTfinal'
 
 nevents = 1e10
 runlocal = False
@@ -90,8 +91,8 @@ for year in years:
   for dtype in dtypes:
     # set correct input directory
     #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
-    inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
-    #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
+    #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
+    inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
     inputdiryear = year
     #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
     #inputdiryear = ''
