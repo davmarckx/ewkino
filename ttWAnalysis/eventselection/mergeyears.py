@@ -28,7 +28,7 @@ if __name__=='__main__':
   npmodes = ['npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
   cfmodes = ['cffromdata'] #['cffromsim', 'cffromdata']
   #EFTs = ["_nJets","_nBJets","_HT","_jetPtSubLeading"]
-  EFTs = ["","EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
+  EFTs = ["EFTsm","","EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
 
   # find regions (if applicable)
   regions = ['']

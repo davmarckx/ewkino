@@ -175,9 +175,14 @@ weight_test = X_test['_weight']
 weight_train_balanced = X_train['_weight_balanced']
 
 steps = np.array([200,325,500,800])
-HT_train = X_train['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
-HT_test = X_test['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
-HT_other = X_other['_HT'].apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+HT_train = X_train['_HT']
+HT_train.clip(upper=800)
+#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+HT_test = X_test['_HT']
+HT_test.clip(upper=800)
+#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+HT_other = X_other['_HT']
+HT_other.clip(upper=800)#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 
 # last unused features can be dropped
 X_train = X_train.drop(['_HT','_weight', 'class','_weight_balanced'], axis = 1)
@@ -329,7 +334,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemovedv5_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemovedvclipped_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
 plt.close()
 
 
@@ -353,7 +358,7 @@ plt.close()
 print(list(X_train.columns))
 """
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedv6".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedvclipped".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
@@ -363,5 +368,5 @@ xgb_classifier._Booster = bst
 xgb_classifier.max_depth=max_depth
 xgb_classifier.n_estimators=n_estimators
 
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedv6".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedvclipped".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
 

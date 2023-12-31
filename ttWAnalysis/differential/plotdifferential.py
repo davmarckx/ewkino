@@ -486,19 +486,35 @@ if __name__=='__main__':
       if lumi is not None: lumitext = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
 
     if plotEFT and args.eft[:3] == "EFT":
-      # we do the same for EFT as for data case (work with signal strengths)
+      # we do the same for EFT as for data case (work with 'signal strengths' based on SM)
       EFThist = nominalhists[0].Clone()
       systEFThist = systhists[0].Clone()
       # calculate weights
-      EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, processes[0], args.region], mustcontainone=["_EFTsm", args.eft]) 
-      EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"EFTsm")) 
+      EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, processes[0], args.region], mustcontainone=["_EFTsm","_hCounter", args.eft])
+
+      print("{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"hCounter"))
+      EFThcounter = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"hCounter")).GetBinContent(1)
+ 
+      EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"EFTsm"))
       EFT = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,args.eft))
-  
+      EFT.Scale(1./EFTsm.Integral())
+      EFTsm.Scale(1./EFTsm.Integral())
+      NLOsm = nominalrefs[0].Clone()
+      NLOsm.Scale(1./NLOsm.Integral())
+
+      #first scale to EFTsm
       for i in range(1, EFThist.GetNbinsX()+1):
-        factor = EFT.GetBinContent(i)/EFTsm.GetBinContent(i)
-        EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor)
-        systEFThist.SetBinContent(i, systEFThist.GetBinContent(i)*factor)
+        factor1 = EFT.GetBinContent(i)/EFTsm.GetBinContent(i)
+        EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor1)
+        systEFThist.SetBinContent(i, systEFThist.GetBinContent(i)*factor1)
         #systEFThist.SetBinError(i,1)
+      #now also scale EFTsm to NLO sm shape, because there are some differences
+      for i in range(1, EFThist.GetNbinsX()+1):
+        factor2 = EFTsm.GetBinContent(i)/NLOsm.GetBinContent(i)
+        EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor2)
+        systEFThist.SetBinContent(i, systEFThist.GetBinContent(i)*factor2)
+
+
       nominalhists.append(EFThist)
       systhists.append(systEFThist)
          
