@@ -50,11 +50,11 @@ if __name__=="__main__":
   extratags = []
   if args.tags is not None: extratags = args.tags.split(',')
   extratags = [t.replace('_',' ') for t in extratags]
-
+  print(1)
   # build a ProcessInfoCollection from the datacard
   PIC = ProcessInfoCollection.fromdatacard(args.datacard, adddata=True)
   #print('Extracted the following ProcessInfoCollection from the datacard:')
-  #print(PIC)
+  print(PIC)
   print('Processes:')
   for p in PIC.plist: print('  - {}'.format(p))
   print('Systematics:')

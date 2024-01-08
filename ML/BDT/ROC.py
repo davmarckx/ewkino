@@ -184,6 +184,7 @@ HT_test.clip(upper=800)
 HT_other = X_other['_HT']
 HT_other.clip(upper=800)#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 
+
 # last unused features can be dropped
 X_train = X_train.drop(['_HT','_weight', 'class','_weight_balanced'], axis = 1)
 X_other = pd.concat([X_other, X_test[X_test["class"]==1]],ignore_index=True)
@@ -201,6 +202,8 @@ if (not y_train[y_train.isin(['TTW','TTX'])].empty):
     y_test = pd.Series(np.where(y_test.values == 'TTW', 1, 0),y_test.index).astype(int)
     y = pd.Series(np.where(y.values == 'TTW', 1, 0),y.index).astype(int)
     
+# define globally what HT is for signals
+HT_train_signal = HT_train[y_train == 1]
 
 # rename the features so we can save the model to TMVA
 X.rename(columns=boostfeaturemap,inplace=True)
@@ -213,8 +216,62 @@ X_other.rename(columns=boostfeaturemap,inplace=True)
 print("do we have signals?")
 print(not y_train[y_train.isin([1])].empty)
 
+
+
+# returns the losses of the current bdt output bin and the ones next to it
+htbins = [250,400,600]
+def getlosses(xi, hti,binvalsmap):
+ index = int(xi/0.2)
+ for i in range(3):
+  if hti < htbins[i]:
+   lijst = binvalsmap["ht"+str(i+1)]
+  else:
+   lijst = binvalsmap["ht4"]
+   
+  if index == 0:
+    return 0, lijst[0], lijst[1]
+  elif index == 4:
+    return lijst[3], lijst[4],0
+  else:
+    return lijst[index-1], lijst[index], lijst[index+1]
+  
+
+
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
+
+def FlatnessLoss(x, HT, binvalsmap,labels):
+  # predicted bin, HT, map that has all bin loss values for all HTs
+
+  # start with zeros list
+  lijst = np.zeros(len(x))
+  for i in range(len(lijst)):
+
+   # no loss needed for backgrounds
+   if labels[i] == 0:
+    continue
+
+   # look for losses of the bins next to current bin
+   loss1,loss2,loss3 = getlosses(x[i], HT[i],binvalsmap)
+
+   # if this loss is the lowest, no transport is needed (we want to keep as much as possible)
+   if loss2 <= loss1 and loss2 <= loss3:
+    continue
+
+   # if loss1 is smaller than loss 3, we need to transport to 1 (NEGATIVE GRADIENT)
+   if loss1 < loss3:
+    lijst[i] += abs(loss3-loss1)
+    continue
+
+   # if loss1 is BIGGER than loss 3, we need to transport to 3 (POSITIVE GRADIENT)
+   if loss3 < loss1:
+    lijst[i] -= abs(loss3-loss1)
+    continue    
+
+   print("WARNING, SOMEHOW THE LIST OFF GRADIENTS WASNT UPDATED BECAUSE THERE IS A LEAK")
+
+  return lijst
+    
 
 def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndarray]:
 
@@ -234,6 +291,7 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
 
     predt[predt < -1] = -1 + 1e-6
     grad = gradiant(predt, dtrain)                #abs(delta HT*delta y)
+    '''
     if len(predt) == len(X_train):
       grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
       #grad += balance*(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
@@ -246,6 +304,79 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     else:
       #grad += balance*(dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())**2 / abs((dtrain.get_label()-dtrain.get_label().mean())*(HT_train-HT_train.mean())*HT_train.mean())
       grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
+    '''
+
+    #try new thing based on SDE from https://iopscience.iop.org/article/10.1088/1748-0221/10/03/T03002/pdf, we work with the bins used in the fit so we first transform:
+    tfm_predicts_all = 1 /( 1 + np.exp(-4*(2*sigmoid(predt)-1)))
+   
+    tfm_predicts_all = pd.Series(tfm_predicts_all,index=y_train.index)
+    tfm_predicts = tfm_predicts_all[y_train == 1]
+
+
+    
+    # get predicted values per HT bin (assumed to be: [0.0, 250.0, 400.0, 600.0, 1000.0])
+    tfm_predicts_ht1 = tfm_predicts[HT_train_signal < 250]
+    tfm_predicts_ht2 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400)]
+    tfm_predicts_ht3 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600)]
+    tfm_predicts_ht4 = tfm_predicts[HT_train_signal > 600]
+
+
+
+    # first calculate which bins need more content, start calculating each bincontent
+    total = len(tfm_predicts)
+    bin1 = (tfm_predicts < 0.2).sum() / total
+    bin2 = ((tfm_predicts > 0.2) & (tfm_predicts < 0.4)).sum() / total
+    bin3 = ((tfm_predicts > 0.4) & (tfm_predicts < 0.6)).sum() / total
+    bin4 = ((tfm_predicts > 0.6) & (tfm_predicts < 0.8)).sum() / total
+    bin5 = (tfm_predicts > 0.8).sum() / total
+
+    ht1total = len(tfm_predicts_ht1)
+    ht1bin1 = (tfm_predicts_ht1 < 0.2).sum() / ht1total - bin1
+    ht1bin2 = ((tfm_predicts_ht1 > 0.2) & (tfm_predicts_ht1 < 0.4)).sum() / ht1total - bin2
+    ht1bin3 = ((tfm_predicts_ht1 > 0.4) & (tfm_predicts_ht1 < 0.6)).sum() / ht1total - bin3
+    ht1bin4 = ((tfm_predicts_ht1 > 0.6) & (tfm_predicts_ht1 < 0.8)).sum() / ht1total - bin4
+    ht1bin5 = (tfm_predicts_ht1 > 0.8).sum() / ht1total - bin5
+    
+
+    ht2total = len(tfm_predicts_ht2)
+    ht2bin1 = ( tfm_predicts_ht2 < 0.2).sum() / ht2total - bin1
+    ht2bin2 = ((tfm_predicts_ht2 > 0.2) & (tfm_predicts_ht2 < 0.4)).sum() / ht2total - bin2
+    ht2bin3 = ((tfm_predicts_ht2 > 0.4) & (tfm_predicts_ht2 < 0.6)).sum() / ht2total - bin3
+    ht2bin4 = ((tfm_predicts_ht2 > 0.6) & (tfm_predicts_ht2 < 0.8)).sum() / ht2total - bin4
+    ht2bin5 = ( tfm_predicts_ht2 > 0.8).sum() / ht2total - bin5
+
+    ht3total = len(tfm_predicts_ht3)
+    ht3bin1 = (tfm_predicts_ht3 < 0.2).sum() / ht3total - bin1
+    ht3bin2 = ((tfm_predicts_ht3 > 0.2) & (tfm_predicts_ht3 < 0.4)).sum() / ht3total - bin2
+    ht3bin3 = ((tfm_predicts_ht3 > 0.4) & (tfm_predicts_ht3 < 0.6)).sum() / ht3total - bin3
+    ht3bin4 = ((tfm_predicts_ht3 > 0.6) & (tfm_predicts_ht3 < 0.8)).sum() / ht3total - bin4
+    ht3bin5 = (tfm_predicts_ht3 > 0.8).sum() / ht3total - bin5
+
+    ht4total = len(tfm_predicts_ht4)
+    ht4bin1 = (tfm_predicts_ht4 < 0.2).sum() / ht4total - bin1
+    ht4bin2 = ((tfm_predicts_ht4 > 0.2) & (tfm_predicts_ht4 < 0.4)).sum() / ht4total - bin2
+    ht4bin3 = ((tfm_predicts_ht4 > 0.4) & (tfm_predicts_ht4 < 0.6)).sum() / ht4total - bin3
+    ht4bin4 = ((tfm_predicts_ht4 > 0.6) & (tfm_predicts_ht4 < 0.8)).sum() / ht4total - bin4
+    ht4bin5 = (tfm_predicts_ht4 > 0.8).sum() / ht4total - bin5
+
+    lossdict = {
+    "ht1": [ht1bin1,ht1bin2,ht1bin3,ht1bin4,ht1bin5],
+    "ht2": [ht1bin1,ht2bin2,ht2bin3,ht2bin4,ht2bin5],
+    "ht3": [ht3bin1,ht3bin2,ht3bin3,ht3bin4,ht3bin5],
+    "ht4": [ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5]
+    }
+
+    print("ht4 currently has:")
+    print(*[ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5], sep = ", ")
+
+    # now that we calculated which bins need more content, we define the loss gradient
+    if len(predt) == len(X_train):
+      print("at least we us len of xtrain")
+      extraloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), lossdict, np.array(y_train))
+      grad -= balance*extraloss
+    else:
+      grad += 0
+
     hess = hessian(predt, dtrain) #hessian has no extra terms
     return grad, hess
 
@@ -273,7 +404,7 @@ dtest = xgb.DMatrix(X_test.astype(float).to_numpy(), label=y_test.astype(int).to
 dother = xgb.DMatrix(X_other.astype(float).to_numpy(), label=y_other.astype(int).to_numpy(), weight=weight_other.astype(float).to_numpy())
 cpu_res = {}
 og_res = {}
-bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'base_score':0.01,'eval_metric':'auc'},  # any other tree method is fine.
+bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'base_score':0.5,'eval_metric':'auc'},  # any other tree method is fine.
            dtrain=dtrain,
            num_boost_round=n_estimators,
            obj=logloss, evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=cpu_res)
@@ -334,7 +465,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_decorHTrealRemovedvclipped_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_uGBFLminus_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
 plt.close()
 
 
@@ -358,7 +489,7 @@ plt.close()
 print(list(X_train.columns))
 """
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_decorHTrealRemovedvclipped".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_uGBFLminus".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
@@ -368,5 +499,5 @@ xgb_classifier._Booster = bst
 xgb_classifier.max_depth=max_depth
 xgb_classifier.n_estimators=n_estimators
 
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_decorHTrealRemovedvclipped".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_uGBFL".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
 

@@ -16,26 +16,26 @@ import listtools as lt
 eft = sys.argv[1]
 
 controlregions = ({
-    'topdir': '../analysis/output_sbv3_split/',
+    'topdir': '../analysis/output_sbv4_split/',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'regions': {
         'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
         'fourleptoncontrolregion': '_nJetsNZCat',
-        'npcontrolregion_dilepton_inclusive': '_eventBDT',
+        'npcontrolregion_dilepton_inclusive': '_nMuons',
         'cfjetscontrolregion': '_nJets'
     }
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_dbv5_decorHT_noHTfinal/',
+    'topdir': '../analysis/output_db_EFTData/',#output_dbv5_decorHT_noHTfinal/',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_EFTstudy_newBDTv4split_'+eft
+outputdir = 'datacards_EFTstudy_old_splitredonemuons_'+eft
 
 runmode = 'local'
 
@@ -81,7 +81,7 @@ for year in signalregion['years']:
     cmds.append(cmd)
 
 # write control region datacards
-splitCRs = ["npcontrolregion_dilepton_inclusive"]
+splitCRs = ["npcontrolregion_dilepton_inclusive", "cfjetscontrolregion"]
 for year in controlregions['years']:
   for region,variable in controlregions['regions'].items():
    for varname, secondaryvarname in zip(varnames, secondaryvarnames):

@@ -221,20 +221,27 @@ def makeJobDescription(name, exe, argstring=None,
     print('makeJobDescription created {}'.format(fname))
 
 #settings for each year, found with gridsearch
-years = ['all','all','all','all','all']
-lr = ['0.1','0.1','0.1','0.1','0.1']
-depths = ['3','3','3','3','3']
-n_estimators = ['2000','2000','2000','2000','2000']
-balance = ['0.21','0.22','0.23', '0.24','0.26']
+years = ['all','all','all','all','all','all']
+lr = ['0.1','0.1','0.1','0.1','0.1','0.1']
+depths = ['3','3','3','3','3','3']
+n_estimators = ['2000','2000','2000','2000','2000','2000']
+balance = ['0.05','0.2','0.5', '1','2','8']
+#runmode = 'local'
+runmode = 'condor'
 
 commands = []
 for i in range(len(years)):
     print("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depths[i] + " " + n_estimators[i] + " " + balance[i])
     commands.append("python3.9 ROC.py " + years[i] + " " + lr[i] + " " + depths[i] + " " + n_estimators[i] + " " + balance[i])
 
-submitCommandsAsCondorCluster('cjob_ROC', commands, stdout=None, stderr=None, log=None,
+if runmode == 'condor':
+   submitCommandsAsCondorCluster('cjob_ROC', commands, stdout=None, stderr=None, log=None,
                         cpus=4, mem=2048, disk=10240,
                         home=None,
                         proxy=None,
                         cmssw_version="CMSSW_12_4_6",
                         jobflavour=None)
+
+else:
+    for cmd in commands:
+     os.system(cmd) 

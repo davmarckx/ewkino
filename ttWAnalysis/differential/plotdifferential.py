@@ -169,6 +169,12 @@ if __name__=='__main__':
                                                maynotcontainone=excludetags,
                                                mustcontainall=mustcontainall)
     PIC2 = ProcessInfoCollection.fromhistlist( histnames2, splittag )
+
+  if plotEFT and args.eft[0] != "_":
+    histnames2 = ht.loadhistnames(args.inputfile2, mustcontainone=mustcontainone,
+                                               maynotcontainone=excludetags,
+                                               mustcontainall=mustcontainall)
+    PIC2 = ProcessInfoCollection.fromhistlist( histnames2, splittag )
     
   #print('Constructed following ProcessInfoCollection from histogram list:')
   #print(PIC)
@@ -293,6 +299,17 @@ if __name__=='__main__':
       else:
         hist.Scale(1./hist.Integral())
 
+    if plotEFT and args.eft[0] != "_":
+      PC2_norm = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename,processes[0], args.region], mustcontainone=[args.eft])
+      for hist in PC2_norm:
+       if not args.absolute:
+        for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+        hist.Scale(1./hist.Integral('width'))
+      else:
+        hist.Scale(1./hist.Integral())
 
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
@@ -344,6 +361,18 @@ if __name__=='__main__':
       nominalhists_norm.append(nominalhist)
       systhists_norm.append(systhist)
 
+    if plotEFT and args.eft[0] != "_":
+     # do the same for normalized histograms
+     if len(PC2_norm)>1:
+       print("WARNING: WE HAVE " + str(len(PC2_norm)) +'EFT HISTS AND EXPECTED 1')
+     nominalhist = PC2_norm[0]
+     nominalhist.Scale(nominalhists_norm[0].Integral() / nominalhist.Integral())
+     nominalhist.SetTitle( process.split('_')[0] )
+     systhist = nominalhist.Clone()
+     for i in range(0, nominalhist.GetNbinsX()+2):
+        systhist.SetBinError(i, systhists_norm[0].GetBinError(i))
+     nominalhists_norm.append(nominalhist)
+     systhists_norm.append(systhist)
 
     # do scaling with hCounter (for non-normalized histograms)
     for i, process in enumerate(processes):
@@ -517,8 +546,7 @@ if __name__=='__main__':
 
       nominalhists.append(EFThist)
       systhists.append(systEFThist)
-         
-      
+
 
     # temporary for plots: change label for legend
     # (to do more cleanly later)
@@ -532,6 +560,7 @@ if __name__=='__main__':
         nominalhists[1].SetTitle('True ' + args.eft)
     if len(nominalhists_norm)==2:
         nominalhists_norm[0].SetTitle('SM Unfolding sample')
+        nominalhists_norm[1].SetTitle('True ' + args.eft)
 
 
 
