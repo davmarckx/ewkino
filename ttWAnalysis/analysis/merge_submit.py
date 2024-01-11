@@ -24,7 +24,8 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
 
-years = ['auto']
+#years = ['auto']
+years = ['2018']
 
 npmodes = []
 #npmodes.append( 'npfromsim' )

@@ -22,20 +22,20 @@ controlregions = ({
     'regions': {
         'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
         'fourleptoncontrolregion': '_nJetsNZCat',
-        'npcontrolregion_dilepton_inclusive': '_nMuons',
+        'npcontrolregion_dilepton_inclusive': '_eventBDT',
         'cfjetscontrolregion': '_nJets'
     }
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_db_EFTData/',#output_dbv5_decorHT_noHTfinal/',
+    'topdir': '../analysis/output_dbvclipped/',#output_dbv5_decorHT_noHTfinal/',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_EFTstudy_old_splitredonemuons_'+eft
+outputdir = 'datacards_EFTstudy_dbvclipped_eventbdt_'+eft
 
 runmode = 'local'
 

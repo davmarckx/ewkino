@@ -176,23 +176,23 @@ weight_train_balanced = X_train['_weight_balanced']
 
 steps = np.array([200,325,500,800])
 HT_train = X_train['_HT']
-HT_train.clip(upper=800)
+#HT_train.clip(upper=800)
 #.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 HT_test = X_test['_HT']
-HT_test.clip(upper=800)
+#HT_test.clip(upper=800)
 #.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 HT_other = X_other['_HT']
-HT_other.clip(upper=800)#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
+#HT_other.clip(upper=800)#.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 
 
 # last unused features can be dropped
-X_train = X_train.drop(['_HT','_weight', 'class','_weight_balanced'], axis = 1)
+X_train = X_train.drop(['_weight', 'class','_weight_balanced'], axis = 1)
 X_other = pd.concat([X_other, X_test[X_test["class"]==1]],ignore_index=True)
-X_test = X_test.drop(['_HT','_weight', 'class'], axis = 1)
+X_test = X_test.drop(['_weight', 'class'], axis = 1)
 
 y_other = X_other['class'].astype(int)
 weight_other =  X_other['_weight']
-X_other = X_other.drop(['_HT','_weight', 'class'], axis = 1)
+X_other = X_other.drop(['_weight', 'class'], axis = 1)
 
 
 # last safety to modify classes to numerical
@@ -221,17 +221,24 @@ print(not y_train[y_train.isin([1])].empty)
 # returns the losses of the current bdt output bin and the ones next to it
 htbins = [250,400,600]
 def getlosses(xi, hti,binvalsmap):
+ #get bdt bin index
  index = int(xi/0.2)
+
+ # get ht bin index
+ name = ''
  for i in range(3):
   if hti < htbins[i]:
-   lijst = binvalsmap["ht"+str(i+1)]
+   name = "ht"+str(i+1)
   else:
-   lijst = binvalsmap["ht4"]
+   name = "ht4"
    
+  lijst = binvalsmap[name]
+
+  
   if index == 0:
-    return 0, lijst[0], lijst[1]
+    return 99, lijst[0], lijst[1]
   elif index == 4:
-    return lijst[3], lijst[4],0
+    return lijst[3], lijst[4],99
   else:
     return lijst[index-1], lijst[index], lijst[index+1]
   
@@ -253,29 +260,38 @@ def FlatnessLoss(x, HT, binvalsmap,labels):
 
    # look for losses of the bins next to current bin
    loss1,loss2,loss3 = getlosses(x[i], HT[i],binvalsmap)
+ 
 
    # if this loss is the lowest, no transport is needed (we want to keep as much as possible)
    if loss2 <= loss1 and loss2 <= loss3:
     continue
 
-   # if loss1 is smaller than loss 3, we need to transport to 1 (NEGATIVE GRADIENT)
+   # if loss1 is smaller than loss 3, we need to transport to 1 (NEGATIVE GRADIENT in the end)
    if loss1 < loss3:
-    lijst[i] += abs(loss3-loss1)
+    lijst[i] = abs(loss2-loss1)
     continue
 
-   # if loss1 is BIGGER than loss 3, we need to transport to 3 (POSITIVE GRADIENT)
+   # if loss1 is BIGGER than loss 3, we need to transport to 3 (POSITIVE GRADIENT in the end)
    if loss3 < loss1:
-    lijst[i] -= abs(loss3-loss1)
+    lijst[i] -= abs(loss3-loss2)
     continue    
 
    print("WARNING, SOMEHOW THE LIST OFF GRADIENTS WASNT UPDATED BECAUSE THERE IS A LEAK")
+   
+  # now go over list again and boost backgrounds to lower values to remedy shape collapse
+  balancesum = sum(abs(number) for number in lijst) / sum(labels)
+
+
+  for i in range(len(lijst)):
+    if labels[i] == 0:
+      lijst[i] = balancesum
 
   return lijst
     
 
 def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndarray]:
 
-    def gradiant(p: np.ndarray, dtrain: xgb.DMatrix) -> np.ndarray:
+    def gradient(p: np.ndarray, dtrain: xgb.DMatrix) -> np.ndarray:
         p = sigmoid(p)
         y = dtrain.get_label()
         return p - y
@@ -288,9 +304,9 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
         hess[hess < eps] = eps
         return hess
 
-
-    predt[predt < -1] = -1 + 1e-6
-    grad = gradiant(predt, dtrain)                #abs(delta HT*delta y)
+    #print(predt)
+    #predt[predt < -1] = -1 + 1e-6
+    grad = gradient(predt, dtrain)                #abs(delta HT*delta y)
     '''
     if len(predt) == len(X_train):
       grad += balance*sigmoid(predt)**2 *(dtrain.get_label())*(HT_train-HT_train.mean()) / HT_train.mean()
@@ -307,13 +323,19 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     '''
 
     #try new thing based on SDE from https://iopscience.iop.org/article/10.1088/1748-0221/10/03/T03002/pdf, we work with the bins used in the fit so we first transform:
-    tfm_predicts_all = 1 /( 1 + np.exp(-4*(2*sigmoid(predt)-1)))
-   
+    tfm_predicts_all = 1 /( 1 + np.exp(-4*(2*sigmoid(predt)-1)))  
+ 
     tfm_predicts_all = pd.Series(tfm_predicts_all,index=y_train.index)
     tfm_predicts = tfm_predicts_all[y_train == 1]
 
+    print(tfm_predicts)
 
-    
+    print("___")
+    print(len(tfm_predicts_all))
+    print(len(tfm_predicts))
+    print(len(y_train[y_train == 1]))
+    print("___")
+
     # get predicted values per HT bin (assumed to be: [0.0, 250.0, 400.0, 600.0, 1000.0])
     tfm_predicts_ht1 = tfm_predicts[HT_train_signal < 250]
     tfm_predicts_ht2 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400)]
@@ -359,21 +381,27 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     ht4bin4 = ((tfm_predicts_ht4 > 0.6) & (tfm_predicts_ht4 < 0.8)).sum() / ht4total - bin4
     ht4bin5 = (tfm_predicts_ht4 > 0.8).sum() / ht4total - bin5
 
+    weights = [1.,1.,1.,8.]
     lossdict = {
-    "ht1": [ht1bin1,ht1bin2,ht1bin3,ht1bin4,ht1bin5],
-    "ht2": [ht1bin1,ht2bin2,ht2bin3,ht2bin4,ht2bin5],
-    "ht3": [ht3bin1,ht3bin2,ht3bin3,ht3bin4,ht3bin5],
-    "ht4": [ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5]
+    "ht1": [x*weights[0] for x in [ht1bin1,ht1bin2,ht1bin3,ht1bin4,ht1bin5]],
+    "ht2": [x*weights[1] for x in [ht1bin1,ht2bin2,ht2bin3,ht2bin4,ht2bin5]],
+    "ht3": [x*weights[2] for x in [ht3bin1,ht3bin2,ht3bin3,ht3bin4,ht3bin5]],
+    "ht4": [x*weights[3] for x in [ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5]],
+    "total": [bin1,bin2,bin3,bin4,bin5],
+    "httotal": [ht1total,ht2total,ht3total,ht4total],
     }
 
-    print("ht4 currently has:")
-    print(*[ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5], sep = ", ")
-
+    print("current bin status")
+    print(ht4bin1)
+    print(ht4bin2)
+    print(ht4bin3)
+    print(ht4bin4)
+    print(ht4bin5)
     # now that we calculated which bins need more content, we define the loss gradient
     if len(predt) == len(X_train):
-      print("at least we us len of xtrain")
       extraloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), lossdict, np.array(y_train))
-      grad -= balance*extraloss
+      extraloss = [balance*x for x in extraloss]
+      grad = [sum(x) for x in zip(grad, extraloss)]
     else:
       grad += 0
 
@@ -404,9 +432,18 @@ dtest = xgb.DMatrix(X_test.astype(float).to_numpy(), label=y_test.astype(int).to
 dother = xgb.DMatrix(X_other.astype(float).to_numpy(), label=y_other.astype(int).to_numpy(), weight=weight_other.astype(float).to_numpy())
 cpu_res = {}
 og_res = {}
-bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'base_score':0.5,'eval_metric':'auc'},  # any other tree method is fine.
+
+#pretrained model
+bst2 = xgb.train({'max_depth':max_depth, 'eta':lr,'objective':'binary:logistic','seed':13,'eval_metric':'auc'},  # any other tree method is fine.
            dtrain=dtrain,
-           num_boost_round=n_estimators,
+           num_boost_round=3*int(n_estimators/4),
+           evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=og_res)
+
+#second model
+bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'eval_metric':'auc'},  # any other tree method is fine.
+           dtrain=dtrain,
+           xgb_model=bst2,
+           num_boost_round=int(n_estimators/4),
            obj=logloss, evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=cpu_res)
 
 
@@ -465,7 +502,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_uGBFLminus_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_uGBFL_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
 plt.close()
 
 
@@ -489,7 +526,7 @@ plt.close()
 print(list(X_train.columns))
 """
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_uGBFLminus".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_uGBFL_balancedandfocussedpretrained".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
@@ -499,5 +536,5 @@ xgb_classifier._Booster = bst
 xgb_classifier.max_depth=max_depth
 xgb_classifier.n_estimators=n_estimators
 
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_uGBFL".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_uGBFL_balancedandfocussedpretrained".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
 

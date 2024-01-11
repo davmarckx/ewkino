@@ -16,6 +16,7 @@ if __name__=='__main__':
   parser = argparse.ArgumentParser(description='Merge years')
   parser.add_argument('--directory', required=True, type=os.path.abspath)
   parser.add_argument('--filemode', default='combined', choices=['combined','split'])
+  parser.add_argument('--eft', default='')
   args = parser.parse_args()
 
   # print arguments
@@ -28,7 +29,7 @@ if __name__=='__main__':
   npmodes = ['npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
   cfmodes = ['cffromdata'] #['cffromsim', 'cffromdata']
   #EFTs = ["_nJets","_nBJets","_HT","_jetPtSubLeading"]
-  EFTs = ["EFTsm","","EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
+  EFTs = [args.eft]#"EFTsm","","EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
 
   # find regions (if applicable)
   regions = ['']

@@ -8,9 +8,9 @@ if __name__=='__main__':
   inputdir2 = 'output_TTWEFT'
   #inputdir2 = 'output_TTWEFTv2/{}'
   #outputdirect = "~/public_html/EFT_study"
-  outputdirect = "~/public_html/EFT_study_oldBDT_newCRsmuons/"
+  outputdirect = "~/public_html/EFT_study_dbvclipped/"
   #ssdirbase = '../combine/datacards_EFTstudy_newBDTv4split_{}'
-  ssdirbase = '../combine/datacards_EFTstudy_old_splitredonemuons_{}'
+  ssdirbase = '../combine/datacards_EFTstudy_dbvclipped_{}'
   regions = {'signalregion_dilepton_inclusive': ssdirbase}# + 'dilepton', 
              #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False
@@ -26,7 +26,7 @@ if __name__=='__main__':
   # loop over configurations
   for region,ssdir in regions.items():
     for obstag in ['obs']:
-      for crtag in ['withcr']:
+      for crtag in ['nocr']:
        for eft in efts:
         inputfile = os.path.join(inputdir, region, 'particlelevel/mergedTOTAL.root')
         #inputfile2 = os.path.join(inputdir2.format(eft), region, 'particlelevel/merged.root')

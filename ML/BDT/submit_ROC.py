@@ -221,11 +221,11 @@ def makeJobDescription(name, exe, argstring=None,
     print('makeJobDescription created {}'.format(fname))
 
 #settings for each year, found with gridsearch
-years = ['all','all','all','all','all','all']
-lr = ['0.1','0.1','0.1','0.1','0.1','0.1']
-depths = ['3','3','3','3','3','3']
-n_estimators = ['2000','2000','2000','2000','2000','2000']
-balance = ['0.05','0.2','0.5', '1','2','8']
+years = ['all','all','all','all','all','all','all','all','all','all','all','all']
+lr = ['0.1','0.1','0.1','0.1','0.1','0.1','0.1','0.1','0.1','0.1','0.1','0.1']
+depths = ['3','3','3','3','3','3','3','3','3','3','3','3']
+n_estimators = ['2000','2000','2000','2000','2000','2000','3000','3000','3000','3000','3000','3000','3000','3000','3000','3000']
+balance = ['0.0001','0.5','0.8', '0.1','1.5','0.25','0.0001','0.5','0.8', '0.1','1.5','0.25']
 #runmode = 'local'
 runmode = 'condor'
 
