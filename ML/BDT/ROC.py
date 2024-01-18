@@ -229,17 +229,18 @@ def getlosses(xi, hti,binvalsmap):
  for i in range(3):
   if hti < htbins[i]:
    name = "ht"+str(i+1)
+   break
   else:
    name = "ht4"
    
-  lijst = binvalsmap[name]
+ lijst = binvalsmap[name]
 
   
-  if index == 0:
+ if index == 0:
     return 99, lijst[0], lijst[1]
-  elif index == 4:
+ elif index == 4:
     return lijst[3], lijst[4],99
-  else:
+ else:
     return lijst[index-1], lijst[index], lijst[index+1]
   
 
@@ -284,7 +285,7 @@ def FlatnessLoss(x, HT, binvalsmap,labels):
 
   for i in range(len(lijst)):
     if labels[i] == 0:
-      lijst[i] = balancesum
+      lijst[i] = balancesum/2
 
   return lijst
     
@@ -502,7 +503,7 @@ plt.xticks(fontsize=25)
 plt.yticks(fontsize=25)
 now = datetime.now()
 dt_string = now.strftime("%d-%m-%Y_%H-%M-%S")
-plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_uGBFL_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
+plt.savefig("/user/dmarckx/public_html/ML/BDT/ROC_{}_uGBFL_fixed_".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + "_" + str(balance) + dt_string +'_' + str(balance) +  ".png")
 plt.close()
 
 
@@ -526,7 +527,7 @@ plt.close()
 print(list(X_train.columns))
 """
 #save the model
-file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_uGBFL_balancedandfocussedpretrained".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
+file_name = "/user/dmarckx/ewkino/ML/models/XGB_{}_uGBFL_fixed".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) +'_' + str(balance) +  ".pkl"
 
 # save
 pickle.dump(bst, open(file_name, "wb"))
@@ -536,5 +537,5 @@ xgb_classifier._Booster = bst
 xgb_classifier.max_depth=max_depth
 xgb_classifier.n_estimators=n_estimators
 
-ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_uGBFL_balancedandfocussedpretrained".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
+ROOT.TMVA.Experimental.SaveXGBoost(bst, "XGB", "../models/XGB_{}_uGBFL_fixed".format(year) + str(len(X_train.columns)) + "_" + str(n_estimators) + "_" + str(max_depth) + "_" + str(lr) + '_' + str(balance) + ".root")
 

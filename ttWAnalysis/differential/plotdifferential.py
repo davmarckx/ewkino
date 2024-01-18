@@ -575,9 +575,9 @@ if __name__=='__main__':
         drawoptions='hist e',
         extracmstext=extracmstext,
         lumitext=lumitext,
-        ratiorange=(0.8,1.2),
+        #ratiorange=(0.8,1.2),
         extrainfos=extrainfos, infosize=15,
-        writeuncs=False )
+        writeuncs=True )
 
     # make the plot with normalized distributions
     figname_norm = figname+'_norm'
@@ -591,7 +591,7 @@ if __name__=='__main__':
         extracmstext=extracmstext,
         lumitext=lumitext,
         extrainfos=extrainfos, infosize=15,
-        writeuncs=False  )
+        writeuncs=True  )
     
     # we write the histograms if requested
     if args.write_rootfiles:

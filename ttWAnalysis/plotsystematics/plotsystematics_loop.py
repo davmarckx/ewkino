@@ -33,8 +33,8 @@ if __name__=='__main__':
   #regions.append('zzcontrolregion')
   #regions.append('zgcontrolregion')
   processes = ({ 
-                 'allprocesses': 'all',
-		 #'ttwprocess': 'TTW',
+                 #'allprocesses': 'all',
+		 'ttwprocess': 'TTW',
                  #'ttbar': 'TT',
                  #'ttz': 'TTZ',
                  #'ttx': 'TTX',
