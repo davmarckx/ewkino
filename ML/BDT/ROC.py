@@ -176,6 +176,7 @@ weight_train_balanced = X_train['_weight_balanced']
 
 steps = np.array([200,325,500,800])
 HT_train = X_train['_HT']
+nJet_train = X_train['_nJets']
 #HT_train.clip(upper=800)
 #.apply(lambda x: steps[np.argmin(np.abs(x-steps))])
 HT_test = X_test['_HT']
@@ -204,6 +205,7 @@ if (not y_train[y_train.isin(['TTW','TTX'])].empty):
     
 # define globally what HT is for signals
 HT_train_signal = HT_train[y_train == 1]
+nJet_train_signal = nJet_train[y_train == 1]
 
 # rename the features so we can save the model to TMVA
 X.rename(columns=boostfeaturemap,inplace=True)
@@ -220,18 +222,19 @@ print(not y_train[y_train.isin([1])].empty)
 
 # returns the losses of the current bdt output bin and the ones next to it
 htbins = [250,400,600]
-def getlosses(xi, hti,binvalsmap):
+jetbins = [3.5,4.5,5.5]
+def gethtlosses(xi, hti,binvalsmap):
  #get bdt bin index
  index = int(xi/0.2)
 
  # get ht bin index
  name = ''
- for i in range(3):
-  if hti < htbins[i]:
-   name = "ht"+str(i+1)
-   break
-  else:
-   name = "ht4"
+ for i in range(len(htbins)):
+    if hti < htbins[i]:
+     name = "ht"+str(i+1)
+     break
+    else:
+     name = "ht4"
    
  lijst = binvalsmap[name]
 
@@ -243,12 +246,32 @@ def getlosses(xi, hti,binvalsmap):
  else:
     return lijst[index-1], lijst[index], lijst[index+1]
   
+def getnjetlosses(xi, njeti,binvalsmap):
+ #get bdt bin index
+ index = int(xi/0.2)
+
+ # get njet bin index
+ name = ''
+ for i in range(len(jetbins)):
+    if njeti < jetbins[i]:
+     name = "njet"+str(i+1)
+     break
+    else:
+     name = "njet4"
+
+ lijst = binvalsmap[name]
+ if index == 0:
+    return 99, lijst[0], lijst[1]
+ elif index == 4:
+    return lijst[3], lijst[4],99
+ else:
+    return lijst[index-1], lijst[index], lijst[index+1]
 
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def FlatnessLoss(x, HT, binvalsmap,labels):
+def FlatnessLoss(x, variableval, binvalsmap,labels, trueMeansHT):
   # predicted bin, HT, map that has all bin loss values for all HTs
 
   # start with zeros list
@@ -260,8 +283,11 @@ def FlatnessLoss(x, HT, binvalsmap,labels):
     continue
 
    # look for losses of the bins next to current bin
-   loss1,loss2,loss3 = getlosses(x[i], HT[i],binvalsmap)
- 
+   if trueMeansHT:
+     loss1,loss2,loss3 = gethtlosses(x[i], variableval[i],binvalsmap)
+   else:
+     loss1,loss2,loss3 = getnjetlosses(x[i], variableval[i],binvalsmap)
+
 
    # if this loss is the lowest, no transport is needed (we want to keep as much as possible)
    if loss2 <= loss1 and loss2 <= loss3:
@@ -337,12 +363,17 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     print(len(y_train[y_train == 1]))
     print("___")
 
-    # get predicted values per HT bin (assumed to be: [0.0, 250.0, 400.0, 600.0, 1000.0])
+    # get predicted values per HT bin (assumed to be: [0.0, 250.0, 400.0, 600.0])
     tfm_predicts_ht1 = tfm_predicts[HT_train_signal < 250]
     tfm_predicts_ht2 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400)]
     tfm_predicts_ht3 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600)]
     tfm_predicts_ht4 = tfm_predicts[HT_train_signal > 600]
 
+    # get predicted values per nJet bin (assumed to be: [3, 4, 5, 6])
+    tfm_predicts_njet1 = tfm_predicts[nJet_train_signal < 3.5]
+    tfm_predicts_njet2 = tfm_predicts[(nJet_train_signal > 3.5) & (nJet_train_signal < 4.5)]
+    tfm_predicts_njet3 = tfm_predicts[(nJet_train_signal > 4.5) & (nJet_train_signal < 5.5)]
+    tfm_predicts_njet4 = tfm_predicts[nJet_train_signal > 5.5]
 
 
     # first calculate which bins need more content, start calculating each bincontent
@@ -382,8 +413,37 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     ht4bin4 = ((tfm_predicts_ht4 > 0.6) & (tfm_predicts_ht4 < 0.8)).sum() / ht4total - bin4
     ht4bin5 = (tfm_predicts_ht4 > 0.8).sum() / ht4total - bin5
 
-    weights = [1.,1.,1.,8.]
-    lossdict = {
+    njet1total = len(tfm_predicts_njet1)
+    njet1bin1 = (tfm_predicts_njet1 < 0.2).sum() / njet1total - bin1
+    njet1bin2 = ((tfm_predicts_njet1 > 0.2) & (tfm_predicts_njet1 < 0.4)).sum() / njet1total - bin2
+    njet1bin3 = ((tfm_predicts_njet1 > 0.4) & (tfm_predicts_njet1 < 0.6)).sum() / njet1total - bin3
+    njet1bin4 = ((tfm_predicts_njet1 > 0.6) & (tfm_predicts_njet1 < 0.8)).sum() / njet1total - bin4
+    njet1bin5 = (tfm_predicts_njet1 > 0.8).sum() / njet1total - bin5
+
+    njet2total = len(tfm_predicts_njet2)
+    njet2bin1 = (tfm_predicts_njet2 < 0.2).sum() / njet2total - bin1
+    njet2bin2 = ((tfm_predicts_njet2 > 0.2) & (tfm_predicts_njet2 < 0.4)).sum() / njet2total - bin2
+    njet2bin3 = ((tfm_predicts_njet2 > 0.4) & (tfm_predicts_njet2 < 0.6)).sum() / njet2total - bin3
+    njet2bin4 = ((tfm_predicts_njet2 > 0.6) & (tfm_predicts_njet2 < 0.8)).sum() / njet2total - bin4
+    njet2bin5 = (tfm_predicts_njet2 > 0.8).sum() / njet2total - bin5
+
+    njet3total = len(tfm_predicts_njet3)
+    njet3bin1 = (tfm_predicts_njet3 < 0.2).sum() / njet3total - bin1
+    njet3bin2 = ((tfm_predicts_njet3 > 0.2) & (tfm_predicts_njet3 < 0.4)).sum() / njet3total - bin2
+    njet3bin3 = ((tfm_predicts_njet3 > 0.4) & (tfm_predicts_njet3 < 0.6)).sum() / njet3total - bin3
+    njet3bin4 = ((tfm_predicts_njet3 > 0.6) & (tfm_predicts_njet3 < 0.8)).sum() / njet3total - bin4
+    njet3bin5 = (tfm_predicts_njet3 > 0.8).sum() / njet3total - bin5
+
+    njet4total = len(tfm_predicts_njet4)
+    njet4bin1 = (tfm_predicts_njet4 < 0.2).sum() / njet4total - bin1
+    njet4bin2 = ((tfm_predicts_njet4 > 0.2) & (tfm_predicts_njet4 < 0.4)).sum() / njet4total - bin2
+    njet4bin3 = ((tfm_predicts_njet4 > 0.4) & (tfm_predicts_njet4 < 0.6)).sum() / njet4total - bin3
+    njet4bin4 = ((tfm_predicts_njet4 > 0.6) & (tfm_predicts_njet4 < 0.8)).sum() / njet4total - bin4
+    njet4bin5 = (tfm_predicts_njet4 > 0.8).sum() / njet4total - bin5
+
+
+    weights = [1.,1.,1.,1.]
+    htlossdict = {
     "ht1": [x*weights[0] for x in [ht1bin1,ht1bin2,ht1bin3,ht1bin4,ht1bin5]],
     "ht2": [x*weights[1] for x in [ht1bin1,ht2bin2,ht2bin3,ht2bin4,ht2bin5]],
     "ht3": [x*weights[2] for x in [ht3bin1,ht3bin2,ht3bin3,ht3bin4,ht3bin5]],
@@ -392,17 +452,33 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     "httotal": [ht1total,ht2total,ht3total,ht4total],
     }
 
-    print("current bin status")
+    weights = [1.,1.,1.,1.]
+    jetlossdict = {
+    "njet1": [x*weights[0] for x in [njet1bin1,njet1bin2,njet1bin3,njet1bin4,njet1bin5]],
+    "njet2": [x*weights[1] for x in [njet1bin1,njet2bin2,njet2bin3,njet2bin4,njet2bin5]],
+    "njet3": [x*weights[2] for x in [njet3bin1,njet3bin2,njet3bin3,njet3bin4,njet3bin5]],
+    "njet4": [x*weights[3] for x in [njet4bin1,njet4bin2,njet4bin3,njet4bin4,njet4bin5]],
+    "total": [bin1,bin2,bin3,bin4,bin5],
+    "njettotal": [njet1total,njet2total,njet3total,njet4total],
+    }
+
+    print("current ht bin status")
     print(ht4bin1)
     print(ht4bin2)
     print(ht4bin3)
     print(ht4bin4)
     print(ht4bin5)
+
     # now that we calculated which bins need more content, we define the loss gradient
     if len(predt) == len(X_train):
-      extraloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), lossdict, np.array(y_train))
-      extraloss = [balance*x for x in extraloss]
-      grad = [sum(x) for x in zip(grad, extraloss)]
+      extrahtloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), htlossdict, np.array(y_train), True)
+      extrahtloss = [balance*x for x in extrahtloss]
+
+      extrajetloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(nJet_train), jetlossdict, np.array(y_train), False)
+      extrajetloss = [balance*x for x in extrajetloss]
+
+      grad = [sum(x) for x in zip(grad, extrahtloss)]
+      grad = [sum(x) for x in zip(grad, extrajetloss)]
     else:
       grad += 0
 

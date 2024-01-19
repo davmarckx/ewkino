@@ -26,8 +26,8 @@ if __name__=='__main__':
   
   # fixed arguments (for now)
   years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
-  npmodes = ['npfromdatasplit'] #['npfromsim', 'npfromdata', 'npfromdatasplit']
-  cfmodes = ['cffromdata'] #['cffromsim', 'cffromdata']
+  npmodes = ['npfromdatasplit','npfromsim']#, 'npfromdata', 'npfromdatasplit']
+  cfmodes = ['cffromdata','cffromsim']#, 'cffromdata']
   #EFTs = ["_nJets","_nBJets","_HT","_jetPtSubLeading"]
   EFTs = [args.eft]#"EFTsm","","EFTcQq81","EFTcQq83","EFTcQei","EFTcQl3i","EFTcQlMi","EFTcQq11","EFTcQq13","EFTcbW","EFTcpQ3","EFTcpQM","EFTcpt","EFTcptb","EFTctG","EFTctW","EFTctZ","EFTctei","EFTctlSi","EFTctlTi","EFTctli","EFTctp","EFTctq1","EFTctq8"]  
 
