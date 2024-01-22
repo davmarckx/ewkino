@@ -35,7 +35,7 @@ signalregion = ({
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_EFTstudy_dbv5_'+eft
+outputdir = 'datacards_EFTstudy_dbv5_RFsplit_'+eft
 
 runmode = 'local'
 

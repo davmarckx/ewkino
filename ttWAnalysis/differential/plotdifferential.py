@@ -253,6 +253,15 @@ if __name__=='__main__':
       PIC2 = ProcessInfoCollection.fromhistlist( thishistnames2, splittag )
       PC2 = ProcessCollection( PIC2, args.inputfile2 ) 
 
+    if plotEFT and args.eft[0] != "_":
+      thishistnames2 = lt.subselect_strings(histnames2,
+                      mustcontainall=[variablename],
+                      maynotcontainone=['_{}_'.format(el) for el in othervarnames])[1]
+      splittag = args.region+'_particlelevel_'+variablename
+      #PIC2 = ProcessInfoCollection.fromhistlist( thishistnames2, splittag )
+      #PC2 = ProcessCollection( PIC2, args.inputfile2 )
+      PC2 = ht.loadhistogramlist(args.inputfile2, thishistnames2)
+
     # make some copies of reference histograms before dividing by bin width
     # (note: do not forget to scale by xsec and lumi below!)
     nominalrefs = []
@@ -269,6 +278,13 @@ if __name__=='__main__':
 
       if plotEFT and args.eft[0] == "_":
         for hist in PC2.get_allhists():
+         for i in range(1,hist.GetNbinsX()+1):
+          binwidth = hist.GetBinWidth(i)
+          hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
+          hist.SetBinError(i, hist.GetBinError(i)/binwidth)
+
+      if plotEFT and args.eft[0] != "_":
+        for hist in PC2:
          for i in range(1,hist.GetNbinsX()+1):
           binwidth = hist.GetBinWidth(i)
           hist.SetBinContent(i, hist.GetBinContent(i)/binwidth)
@@ -300,7 +316,8 @@ if __name__=='__main__':
         hist.Scale(1./hist.Integral())
 
     if plotEFT and args.eft[0] != "_":
-      PC2_norm = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename,processes[0], args.region], mustcontainone=[args.eft])
+      print(variablename)
+      PC2_norm = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename,'TTW', args.region], mustcontainone=[args.eft])
       for hist in PC2_norm:
        if not args.absolute:
         for i in range(1,hist.GetNbinsX()+1):
@@ -363,7 +380,7 @@ if __name__=='__main__':
 
     if plotEFT and args.eft[0] != "_":
      # do the same for normalized histograms
-     if len(PC2_norm)>1:
+     if len(PC2_norm) !=1:
        print("WARNING: WE HAVE " + str(len(PC2_norm)) +'EFT HISTS AND EXPECTED 1')
      nominalhist = PC2_norm[0]
      nominalhist.Scale(nominalhists_norm[0].Integral() / nominalhist.Integral())
@@ -515,17 +532,18 @@ if __name__=='__main__':
       if lumi is not None: lumitext = '{0:.3g}'.format(lumi/1000.)+' fb^{-1} (13 TeV)'
 
     if plotEFT and args.eft[:3] == "EFT":
-      # we do the same for EFT as for data case (work with 'signal strengths' based on SM)
+      # we do the same for EFT as for data case (work with 'signal strengths' based on SM, this is the only one that needs changes)
       EFThist = nominalhists[0].Clone()
       systEFThist = systhists[0].Clone()
       # calculate weights
-      EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, processes[0], args.region], mustcontainone=["_EFTsm","_hCounter", args.eft])
+      EFThists = ht.loadhistograms(args.inputfile2, mustcontainall=[variablename, 'TTW', args.region], mustcontainone=["_EFTsm","_hCounter", args.eft])
 
-      print("{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"hCounter"))
-      EFThcounter = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"hCounter")).GetBinContent(1)
+      print(EFThists)
+      print("{}_{}_{}_{}_{}".format('TTW',args.region,"particlelevel",variablename,"hCounter"))
+      EFThcounter = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format('TTW',args.region,"particlelevel",variablename,"hCounter")).GetBinContent(1)
  
-      EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,"EFTsm"))
-      EFT = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format(processes[0],args.region,"particlelevel",variablename,args.eft))
+      EFTsm = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format('TTW',args.region,"particlelevel",variablename,"EFTsm"))
+      EFT = ht.findhistogram(EFThists, "{}_{}_{}_{}_{}".format('TTW',args.region,"particlelevel",variablename,args.eft))
       EFT.Scale(1./EFTsm.Integral())
       EFTsm.Scale(1./EFTsm.Integral())
       NLOsm = nominalrefs[0].Clone()
@@ -543,6 +561,21 @@ if __name__=='__main__':
         EFThist.SetBinContent(i, EFThist.GetBinContent(i)*factor2)
         systEFThist.SetBinContent(i, systEFThist.GetBinContent(i)*factor2)
 
+      # independent version
+      #scale = xsections[0]/EFThcounter
+      #EFT.Scale(scale)
+      
+      #for i in range(1,EFT.GetNbinsX()+1):
+      #    binwidth = EFT.GetBinWidth(i)
+      #    EFT.SetBinContent(i, EFT.GetBinContent(i)/binwidth)
+      #    EFT.SetBinError(i, EFThist.GetBinError(i))
+
+
+      #for i in range(1, EFT.GetNbinsX()+1):
+      #  systEFThist.SetBinContent(i,EFT.GetBinContent(i))
+
+      #nominalhists.append(EFT)
+      #systhists.append(systEFThist)
 
       nominalhists.append(EFThist)
       systhists.append(systEFThist)
@@ -570,7 +603,7 @@ if __name__=='__main__':
         nominalhists, datahist,
         systhists=systhists,
         statdatahist=statdatahist,
-        figname=figname,
+        figname=figname+"v2",
         yaxtitle=yaxtitle, xaxtitle=xaxtitle,
         drawoptions='hist e',
         extracmstext=extracmstext,
@@ -580,7 +613,7 @@ if __name__=='__main__':
         writeuncs=True )
 
     # make the plot with normalized distributions
-    figname_norm = figname+'_norm'
+    figname_norm = figname+'_normv2'
     plotdifferential(
         nominalhists_norm, normdatahist,
         systhists=systhists_norm,

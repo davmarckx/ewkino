@@ -43,11 +43,11 @@ def get_systematics_to_disable( processes, pnonorm=None,
   rmspecific = {}
   for p in processes: rmspecific[p] = []
 
-  # remove overlap between renormalization and factorization scales
-  rmforall.append('rScale*')
-  rmforall.append('fScale*')
-  rmforall.append('rfScales*')
-  #rmforall.append('qcdScales*')
+  # remove overlap between renormalization and factorization scales => now reverse, use single scale variations
+  #rmforall.append('rScale*')
+  #rmforall.append('fScale*')
+  #rmforall.append('rfScales*')
+  rmforall.append('qcdScales*')
 
   # remove overlap between pdf envelope types
   rmforall.append('pdfShapeEnv*')
