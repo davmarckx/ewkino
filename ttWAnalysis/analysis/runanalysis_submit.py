@@ -9,7 +9,7 @@
 import os
 import sys
 
-exe = 'runanalysisCD'
+exe = 'runanalysis2v2'
 
 regions = []
 
@@ -28,19 +28,19 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2018']
 
-dtypes = ['sim','data']
+#dtypes = ['sim','data']
 #dtypes = ['sim']
-#dtypes = ['data']
+dtypes = ['data']
 
 selection_types = []
-selection_types.append('tight')
-selection_types.append('prompt')
-selection_types.append('fakerate')
+#selection_types.append('tight')
+#selection_types.append('prompt')
+#selection_types.append('fakerate')
 selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
-selection_types.append('chargegood')
-selection_types.append('irreducible')
+#selection_types.append('chargegood')
+#selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
@@ -56,11 +56,11 @@ samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist pl
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_main_reduced.json'
-variables = '../variables/variables_inputfeatures.json' # bdt input variables
+#variables = '../variables/variables_inputfeatures.json' # bdt input variables
 #variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
 #variables = '../variables/variables_particlelevel_double.json' # double variables
-#variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double variables for bin study
+variables = '../variables/variables_particlelevel_double_BINSTUDY.json' # double variables for bin study
 #variables = '../variables/variables_particlelevel_single_BINSTUDY.json'
 #variables = '../variables/variables_particlelevel_single_HTnJets.json'
 
@@ -69,7 +69,8 @@ variables = '../variables/variables_inputfeatures.json' # bdt input variables
 #bdtfile = '../../ML/models/XGBrobustnessv3_all.root'
 #bdtfile = '../../ML/models/XGB_all_decorHTrealRemovedv237_1500_3_01.root'
 #bdtfile = '../../ML/models/XGB_all_decorHTrealRemovedv537_2000_3_0.1_0.275.root'
-bdtfile = '../../ML/models/XGB_all_uGBFL_pretrainedBalancedHighHTFocus38_3000_3_0.1_0.8.root'
+#bdtfile = '../../ML/models/XGB_all_uGBFL_pretrainedBalancedHighHTFocus38_3000_3_0.1_0.8.root'
+bdtfile = '../../ML/models/XGB_all_uGBFL_HTnJets_38_2000_3_0.1_1.5.root'
 bdtcut = None
 
 
@@ -79,13 +80,13 @@ splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 #splitvariables = '../variables/variables_particlelevel_single_BINSTUDY.json'
 
-outputdir = 'output_single_CD_fromsim'
+outputdir = 'output_uGBFL_fixedxsecs'
 
 nevents = 1e10
 runlocal = False
 
-submit_selection_types_combined = True
-submit_event_selections_combined = True
+submit_selection_types_combined = False
+submit_event_selections_combined = False
 trainingreweight = False #turns to true if /pnfs/iihe/cms/store/user/dmarckx/ttWsamples is selected and reweights training samples by roughly 1.25 (measured exactly for each dilepton SR separately) if we are in dilepton signal region
 
 # loop over years and data types

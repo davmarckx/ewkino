@@ -28,12 +28,12 @@ years = ['auto']
 #years = ['2018']
 
 npmodes = []
-npmodes.append( 'npfromsim' )
+#npmodes.append( 'npfromsim' )
 #npmodes.append( 'npfromdata' )
 npmodes.append( 'npfromdatasplit' )
 
 cfmodes = []
-cfmodes.append( 'cffromsim' )
+#cfmodes.append( 'cffromsim' )
 cfmodes.append( 'cffromdata' )
 
 rename = '../eventselection/processes/rename_processes.json'
