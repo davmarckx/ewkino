@@ -26,4 +26,4 @@ if __name__=='__main__':
       cmd += ' --eft _scaled{}'.format(eft)
     #os.system(cmd)
     ct.submitCommandAsCondorJob( 'cjob_mergeyears', cmd,
-                               cmssw_version=CMSSW_VERSION )
+                               cmssw_version='~/CMSSW_10_6_28' )

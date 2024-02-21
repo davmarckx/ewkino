@@ -40,7 +40,7 @@ selection_types.append('efakerate')
 selection_types.append('mfakerate')
 selection_types.append('chargeflips')
 #selection_types.append('chargegood')
-#selection_types.append('irreducible')
+selection_types.append('irreducible')
 
 frdir = '../fakerates/fakeRateMaps_v20220912_tttt'
 cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
@@ -80,7 +80,7 @@ splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 #splitvariables = '../variables/variables_particlelevel_single_BINSTUDY.json'
 
-outputdir = 'output_uGBFL_fixedxsecs'
+outputdir = 'output_uGBFL_vHTnJets'
 
 nevents = 1e10
 runlocal = False

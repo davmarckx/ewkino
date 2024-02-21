@@ -420,14 +420,14 @@ void fillTheoryHistograms(
         else if ( reweightVar == "_dRl1l2"){EFTweight = 1. + 0.15*(1.0*varmapParticleLevel.at("_dRl1l2"));}
         else if ( reweightVar == "_jetAbsEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_jetAbsEtaLeading")/0.5);}
         else if ( reweightVar == "_jetAbsEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_jetAbsEtaSubLeading")/0.5);}
-        else if ( reweightVar == "jetEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaLeading"));}
-        else if ( reweightVar == "jetEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaSubLeading"));}
+        else if ( reweightVar == "_jetEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaLeading"));}
+        else if ( reweightVar == "_jetEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("jetEtaSubLeading"));}
         else if ( reweightVar == "_leptonAbsEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonAbsEtaSubLeading")/0.5);}
         else if ( reweightVar == "_leptonEtaLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonEtaLeading"));}
         else if ( reweightVar == "_leptonEtaSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonEtaSubLeading"));}
         else if ( reweightVar == "_leptonMaxEta"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonMaxEta")/0.5);}
-        else if ( reweightVar == "_leptonPtLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtLeading")/0.5);}
-        else if ( reweightVar == "_leptonPtSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtSubLeading")/0.5);}
+        else if ( reweightVar == "_leptonPtLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtLeading")/25);}
+        else if ( reweightVar == "_leptonPtSubLeading"){EFTweight = 1. + 0.1*(1.0*varmapParticleLevel.at("_leptonPtSubLeading")/25);}
         else if ( reweightVar == "_nLooseBJets"){EFTweight = 1. + 0.2*(1.0*varmapParticleLevel.at("_nLooseBJets"));}
 
         nominalWeight *= reweightFactor

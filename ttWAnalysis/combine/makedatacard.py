@@ -36,18 +36,35 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
   doallprocesses = (len(processes)==1 and processes[0]=='all')
   # requirement: the histogram name must contain at least one includetag (or nominal)
   mustcontainone = []
+  mustcontainone_sg = []
+
   if len(includetags)>0: mustcontainone = includetags + ['nominal']
+  if len(includetags)>0: mustcontainone_sg = includetags + ['nominal']
+
+  sgvarname = variable.replace("_","")
+  mustcontainone_sg += ['TTW0','1'+sgvarname,'2'+sgvarname,'3'+sgvarname,'4'+sgvarname,'5'+sgvarname,'6'+sgvarname,'7'+sgvarname]
   # requirement: consider only the requested variable
   mustcontainall = []
-  mustcontainall.append('_{}_'.format(variable))
+  mustcontainall.append('_{}_'.format(variable)) 
   # requirement: consider only the requested region
   mustcontainall.append('_{}_'.format(region))
   # shortcut requirement for when only one process is requested
   if( len(processes)==1 and not doallprocesses ): mustcontainall.append(processes[0])
+  # only select backgrounds for this
+  #maynotcontainone_bg = ['TTW']
+  #maynotcontainone_bg += excludetags
+
+  maynotcontainone = []
+  maynotcontainone += excludetags
   # do loading and initial selection
   histnames = ht.loadhistnames(inputfile, mustcontainone=mustcontainone,
-                           maynotcontainone=excludetags,
+                           maynotcontainone=maynotcontainone,
                            mustcontainall=mustcontainall)
+
+  #histnames_sg = ht.loadhistnames(inputfile, mustcontainone=mustcontainone_sg,
+  #                         maynotcontainone=maynotcontainone,
+  #                         mustcontainall=mustcontainall)
+  #histnames = histnames_sg + histnames_bg
   if verbose:
     print('Initial selection:')
     print(' - mustcontainone: {}'.format(mustcontainone))

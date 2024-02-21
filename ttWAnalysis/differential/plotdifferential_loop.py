@@ -8,9 +8,9 @@ if __name__=='__main__':
   inputdir2 = 'output_TTWEFTv3'
   #inputdir2 = 'output_TTWEFTv2/{}'
   #outputdirect = "~/public_html/EFT_study"
-  outputdirect = "~/public_html/EFTstudy_dbv5_RFsplit/"
+  outputdirect = "~/public_html/EFTstudy_uGBFL_vHTnJets/"
   #ssdirbase = '../combine/datacards_EFTstudy_newBDTv4split_{}'
-  ssdirbase = '../combine/datacards_EFTstudy_dbv5_RFsplit_{}'
+  ssdirbase = '../combine/datacards_uGBFL_v2HTnJets_{}'
   regions = {'signalregion_dilepton_inclusive': ssdirbase}# + 'dilepton', 
              #'signalregion_trilepton': ssdirbase + 'trilepton'}
   write_roots = False

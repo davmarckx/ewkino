@@ -78,7 +78,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
 	extracmstext='', lumi=None,
 	extrainfos=[], infosize=None, infoleft=None, infotop=None,
         binlabels=None, labelsize=None, labelangle=None,
-        canvaswidth=None, canvasheight=None):
+        canvaswidth=None, canvasheight=None,onlyPNG=False):
     ### make a (stacked) simulation vs. data plot
     # arguments:
     # - outfile is the output file where the figure will be saved
@@ -459,5 +459,6 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     
     ### save the plot
     c1.SaveAs(outfile+'.png')
-    c1.SaveAs(outfile+'.eps')
-    c1.SaveAs(outfile+'.pdf')
+    if not onlyPNG:
+      c1.SaveAs(outfile+'.eps')
+      c1.SaveAs(outfile+'.pdf')

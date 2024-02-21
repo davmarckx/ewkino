@@ -43,11 +43,11 @@ def get_systematics_to_disable( processes, pnonorm=None,
   rmspecific = {}
   for p in processes: rmspecific[p] = []
 
-  # remove overlap between renormalization and factorization scales => now reverse, use single scale variations
-  #rmforall.append('rScale*')
-  #rmforall.append('fScale*')
-  #rmforall.append('rfScales*')
-  rmforall.append('qcdScales*')
+  # remove overlap between renormalization and factorization scales
+  rmforall.append('rScale*')
+  rmforall.append('fScale*')
+  rmforall.append('rfScales*')
+  #rmforall.append('qcdScales*')
 
   # remove overlap between pdf envelope types
   rmforall.append('pdfShapeEnv*')
@@ -96,6 +96,8 @@ def get_systematics_to_disable( processes, pnonorm=None,
   # (now commented out since will use single JEC for now)
   for p in ['Nonprompt', 'NonpromptMu', 'NonpromptE']:
     if p in processes: rmspecific[p].append('JECGrouped*')
+    if p in processes: rmspecific[p].append('bTag*')                   # !!!!!!!!!!!!!! added to see as these look strange
+
 
   # remove fsrShape for WZ
   # (gives unresolved strange behaviour in latest iteration)

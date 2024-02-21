@@ -28,14 +28,14 @@ controlregions = ({
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_dbv5_decorHT_noHTfinal/',
+    'topdir': '../analysis/output_uGBFL_vHTnJets/',
     'years': ['run2'],
-    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged'+eft+'.root',
+    'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged_scaled'+eft+'.root',
     'region': 'signalregion_dilepton_inclusive',
     'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
 })
 
-outputdir = 'datacards_EFTstudy_dbv5_RFsplit_'+eft
+outputdir = 'datacards_uGBFL_v2HTnJets_'+eft
 
 runmode = 'local'
 
@@ -68,6 +68,13 @@ for year in signalregion['years']:
     signals = []
     for i in [1,2,3,4,5,6]: signals.append('TTW{}{}'.format(i,secondaryvarname.strip('_')))
     signals = ','.join(signals)
+
+    allprocesses = list(set( [x.split("_")[0] for x in loadallhistnames(inputfile)] ))
+    print(allprocesses)
+    ttwprocesses = lt.subselect_strings(allprocesses,mustcontainone=["TTW0","1"+secondaryvarname.strip('_'),"2"+secondaryvarname.strip('_'),"3"+secondaryvarname.strip('_'),"4"+secondaryvarname.strip('_'),"5"+secondaryvarname.strip('_'),"6"+secondaryvarname.strip('_'),"7"+secondaryvarname.strip('_')],mustcontainall=[],maynotcontainone=[])[1]
+    bgrdprocesses = lt.subselect_strings(allprocesses,mustcontainone=[],mustcontainall=[],maynotcontainone=["TTW"])[1]
+    selectedprocesses = ttwprocesses+bgrdprocesses
+
     # make command
     cmd = 'python makedatacard.py'
     cmd += ' --inputfile {}'.format(inputfile)
@@ -75,7 +82,7 @@ for year in signalregion['years']:
     cmd += ' --region {}'.format(region)
     cmd += ' --variable {}'.format(varname)
     cmd += ' --outputfile {}'.format(outputfiletag)
-    cmd += ' --processes all'
+    cmd += ' --processes {}'.format(",".join(selectedprocesses))
     cmd += ' --signals {}'.format(signals)
     cmd += ' --datatag Data'
     cmds.append(cmd)
@@ -92,7 +99,7 @@ for year in controlregions['years']:
       raise Exception('ERROR: file {} does not exist.'.format(inputfile))
     allprocesses = list(set( [x.split("_")[0] for x in loadallhistnames(inputfile)] ))
     print(allprocesses)
-    ttwprocesses = lt.subselect_strings(allprocesses,mustcontainone=["TTW0",secondaryvarname.strip('_')],mustcontainall=[],maynotcontainone=[])[1] 
+    ttwprocesses = lt.subselect_strings(allprocesses,mustcontainone=["TTW0","1"+secondaryvarname.strip('_'),"2"+secondaryvarname.strip('_'),"3"+secondaryvarname.strip('_'),"4"+secondaryvarname.strip('_'),"5"+secondaryvarname.strip('_'),"6"+secondaryvarname.strip('_'),"7"+secondaryvarname.strip('_')],mustcontainall=[],maynotcontainone=[])[1] 
     bgrdprocesses = lt.subselect_strings(allprocesses,mustcontainone=[],mustcontainall=[],maynotcontainone=["TTW"])[1]
     selectedprocesses = ttwprocesses+bgrdprocesses
     signals = []

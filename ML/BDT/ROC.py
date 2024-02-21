@@ -222,56 +222,76 @@ print(not y_train[y_train.isin([1])].empty)
 
 # returns the losses of the current bdt output bin and the ones next to it
 htbins = [250,400,600]
-jetbins = [3.5,4.5,5.5]
-def gethtlosses(xi, hti,binvalsmap):
+jetbins = [3.5,4.5,5.5,6.5]
+
+def getlosses(xi, hti, njeti,binvalsmap):
  #get bdt bin index
  index = int(xi/0.2)
 
  # get ht bin index
  name = ''
- for i in range(len(htbins)):
-    if hti < htbins[i]:
-     name = "ht"+str(i+1)
-     break
-    else:
-     name = "ht4"
-   
- lijst = binvalsmap[name]
-
-  
- if index == 0:
-    return 99, lijst[0], lijst[1]
- elif index == 4:
-    return lijst[3], lijst[4],99
- else:
-    return lijst[index-1], lijst[index], lijst[index+1]
-  
-def getnjetlosses(xi, njeti,binvalsmap):
- #get bdt bin index
- index = int(xi/0.2)
-
- # get njet bin index
- name = ''
  for i in range(len(jetbins)):
-    if njeti < jetbins[i]:
-     name = "njet"+str(i+1)
+    jetbin = jetbins[i]
+    if njeti < jetbin:
+     name = "jet"+str(i+3)
      break
     else:
-     name = "njet4"
+     name = "jet7"
 
- lijst = binvalsmap[name]
+ if name == "jet3":
+   if hti < 250:
+     name = "ht1" + name
+   else:
+     name = "ht2" + name
+
+ elif name == "jet4":
+   if hti < 250:
+     name = "ht1" + name
+   elif hti < 400:
+     name = "ht2" + name
+   else:
+     name = "ht3" + name
+
+ elif name == "jet5":
+   if hti < 400:
+     name = "ht2" + name
+   elif hti < 600:
+     name = "ht3" + name
+   else:
+     name = "ht4" + name
+
+ elif name == "jet6":
+   if hti < 400:
+     name = "ht2" + name
+   elif hti < 600:
+     name = "ht3" + name
+   else:
+     name = "ht4" + name
+
+ else:
+   if hti < 600:
+     name = "ht3" + name
+   else:
+     name = "ht4" + name
+
+ if name in binvalsmap.keys():  
+   lijst = binvalsmap[name]
+ else:
+   raise Exception("ERROR: trying to find the key {} in the lossmap that doesn't exist".format(name)) 
+
+  
  if index == 0:
     return 99, lijst[0], lijst[1]
  elif index == 4:
     return lijst[3], lijst[4],99
  else:
     return lijst[index-1], lijst[index], lijst[index+1]
-
+  
 
 def sigmoid(x):
     return 1 / (1 + np.exp(-x))
 
-def FlatnessLoss(x, variableval, binvalsmap,labels, trueMeansHT):
+def FlatnessLoss(x, variable1val, variable2val, binvalsmap,labels):
   # predicted bin, HT, map that has all bin loss values for all HTs
 
   # start with zeros list
@@ -283,10 +303,7 @@ def FlatnessLoss(x, variableval, binvalsmap,labels, trueMeansHT):
     continue
 
    # look for losses of the bins next to current bin
-   if trueMeansHT:
-     loss1,loss2,loss3 = gethtlosses(x[i], variableval[i],binvalsmap)
-   else:
-     loss1,loss2,loss3 = getnjetlosses(x[i], variableval[i],binvalsmap)
+   loss1,loss2,loss3 = getlosses(x[i], variable1val[i],variable2val[i],binvalsmap)
 
 
    # if this loss is the lowest, no transport is needed (we want to keep as much as possible)
@@ -364,16 +381,38 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     print("___")
 
     # get predicted values per HT bin (assumed to be: [0.0, 250.0, 400.0, 600.0])
-    tfm_predicts_ht1 = tfm_predicts[HT_train_signal < 250]
-    tfm_predicts_ht2 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400)]
-    tfm_predicts_ht3 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600)]
-    tfm_predicts_ht4 = tfm_predicts[HT_train_signal > 600]
+    tfm_predicts_ht1jet3 = tfm_predicts[(HT_train_signal < 250) & (nJet_train_signal <= 3)]
+    tfm_predicts_ht2jet3 = tfm_predicts[(HT_train_signal > 250) & (nJet_train_signal <= 3)]
+    #tfm_predicts_ht3jet3 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600)]
+    #tfm_predicts_ht4jet3 = tfm_predicts[HT_train_signal > 600]
+
+    tfm_predicts_ht1jet4 = tfm_predicts[(HT_train_signal < 250) & (nJet_train_signal == 4)]
+    tfm_predicts_ht2jet4 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400) & (nJet_train_signal == 4)]
+    tfm_predicts_ht3jet4 = tfm_predicts[(HT_train_signal > 400)  & (nJet_train_signal == 4)]
+    #tfm_predicts_ht4jet4 = tfm_predicts[HT_train_signal > 600]
+
+    #tfm_predicts_ht1jet5 = tfm_predicts[HT_train_signal < 250]
+    tfm_predicts_ht2jet5 = tfm_predicts[(HT_train_signal < 400)  & (nJet_train_signal == 5)]
+    tfm_predicts_ht3jet5 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600)  & (nJet_train_signal == 5)]
+    tfm_predicts_ht4jet5 = tfm_predicts[(HT_train_signal > 600)  & (nJet_train_signal == 5)]
+
+    #tfm_predicts_ht1jet6 = tfm_predicts[HT_train_signal < 250]
+    tfm_predicts_ht2jet6 = tfm_predicts[(HT_train_signal < 400) & (nJet_train_signal == 6)]
+    tfm_predicts_ht3jet6 = tfm_predicts[(HT_train_signal > 400) & (HT_train_signal < 600) & (nJet_train_signal == 6)]
+    tfm_predicts_ht4jet6 = tfm_predicts[(HT_train_signal > 600) & (nJet_train_signal == 6)]
+
+    #tfm_predicts_ht1jet7 = tfm_predicts[HT_train_signal < 250]
+    #tfm_predicts_ht2jet7 = tfm_predicts[(HT_train_signal > 250) & (HT_train_signal < 400)]
+    tfm_predicts_ht3jet7 = tfm_predicts[(HT_train_signal < 600) & (nJet_train_signal >= 7)]
+    tfm_predicts_ht4jet7 = tfm_predicts[(HT_train_signal > 600) & (nJet_train_signal >= 7)]
 
     # get predicted values per nJet bin (assumed to be: [3, 4, 5, 6])
-    tfm_predicts_njet1 = tfm_predicts[nJet_train_signal < 3.5]
-    tfm_predicts_njet2 = tfm_predicts[(nJet_train_signal > 3.5) & (nJet_train_signal < 4.5)]
-    tfm_predicts_njet3 = tfm_predicts[(nJet_train_signal > 4.5) & (nJet_train_signal < 5.5)]
-    tfm_predicts_njet4 = tfm_predicts[nJet_train_signal > 5.5]
+    #tfm_predicts_njet1 = tfm_predicts[nJet_train_signal < 3.5]
+    #tfm_predicts_njet2 = tfm_predicts[(nJet_train_signal > 3.5) & (nJet_train_signal < 4.5)]
+    #tfm_predicts_njet3 = tfm_predicts[(nJet_train_signal > 4.5) & (nJet_train_signal < 5.5)]
+    #tfm_predicts_njet4 = tfm_predicts[(nJet_train_signal > 5.5) & (nJet_train_signal < 6.5)]
+    #tfm_predicts_njet5 = tfm_predicts[nJet_train_signal > 6.5]
+
 
 
     # first calculate which bins need more content, start calculating each bincontent
@@ -384,101 +423,145 @@ def logloss(predt: np.ndarray, dtrain: xgb.DMatrix) -> Tuple[np.ndarray, np.ndar
     bin4 = ((tfm_predicts > 0.6) & (tfm_predicts < 0.8)).sum() / total
     bin5 = (tfm_predicts > 0.8).sum() / total
 
-    ht1total = len(tfm_predicts_ht1)
-    ht1bin1 = (tfm_predicts_ht1 < 0.2).sum() / ht1total - bin1
-    ht1bin2 = ((tfm_predicts_ht1 > 0.2) & (tfm_predicts_ht1 < 0.4)).sum() / ht1total - bin2
-    ht1bin3 = ((tfm_predicts_ht1 > 0.4) & (tfm_predicts_ht1 < 0.6)).sum() / ht1total - bin3
-    ht1bin4 = ((tfm_predicts_ht1 > 0.6) & (tfm_predicts_ht1 < 0.8)).sum() / ht1total - bin4
-    ht1bin5 = (tfm_predicts_ht1 > 0.8).sum() / ht1total - bin5
+    ht1jet3total = len(tfm_predicts_ht1jet3)
+    ht1jet3bin1 = (tfm_predicts_ht1jet3 < 0.2).sum() / ht1jet3total - bin1
+    ht1jet3bin2 = ((tfm_predicts_ht1jet3 > 0.2) & (tfm_predicts_ht1jet3 < 0.4)).sum() / ht1jet3total - bin2
+    ht1jet3bin3 = ((tfm_predicts_ht1jet3 > 0.4) & (tfm_predicts_ht1jet3 < 0.6)).sum() / ht1jet3total - bin3
+    ht1jet3bin4 = ((tfm_predicts_ht1jet3 > 0.6) & (tfm_predicts_ht1jet3 < 0.8)).sum() / ht1jet3total - bin4
+    ht1jet3bin5 = (tfm_predicts_ht1jet3 > 0.8).sum() / ht1jet3total - bin5
     
+    ht1jet4total = len(tfm_predicts_ht1jet4)
+    ht1jet4bin1 = (tfm_predicts_ht1jet4 < 0.2).sum() / ht1jet4total - bin1
+    ht1jet4bin2 = ((tfm_predicts_ht1jet4 > 0.2) & (tfm_predicts_ht1jet4 < 0.4)).sum() / ht1jet4total - bin2
+    ht1jet4bin3 = ((tfm_predicts_ht1jet4 > 0.4) & (tfm_predicts_ht1jet4 < 0.6)).sum() / ht1jet4total - bin3
+    ht1jet4bin4 = ((tfm_predicts_ht1jet4 > 0.6) & (tfm_predicts_ht1jet4 < 0.8)).sum() / ht1jet4total - bin4
+    ht1jet4bin5 = (tfm_predicts_ht1jet4 > 0.8).sum() / ht1jet4total - bin5
 
-    ht2total = len(tfm_predicts_ht2)
-    ht2bin1 = ( tfm_predicts_ht2 < 0.2).sum() / ht2total - bin1
-    ht2bin2 = ((tfm_predicts_ht2 > 0.2) & (tfm_predicts_ht2 < 0.4)).sum() / ht2total - bin2
-    ht2bin3 = ((tfm_predicts_ht2 > 0.4) & (tfm_predicts_ht2 < 0.6)).sum() / ht2total - bin3
-    ht2bin4 = ((tfm_predicts_ht2 > 0.6) & (tfm_predicts_ht2 < 0.8)).sum() / ht2total - bin4
-    ht2bin5 = ( tfm_predicts_ht2 > 0.8).sum() / ht2total - bin5
+    ht2jet3total = len(tfm_predicts_ht2jet3)
+    ht2jet3bin1 = ( tfm_predicts_ht2jet3 < 0.2).sum() / ht2jet3total - bin1
+    ht2jet3bin2 = ((tfm_predicts_ht2jet3 > 0.2) & (tfm_predicts_ht2jet3 < 0.4)).sum() / ht2jet3total - bin2
+    ht2jet3bin3 = ((tfm_predicts_ht2jet3 > 0.4) & (tfm_predicts_ht2jet3 < 0.6)).sum() / ht2jet3total - bin3
+    ht2jet3bin4 = ((tfm_predicts_ht2jet3 > 0.6) & (tfm_predicts_ht2jet3 < 0.8)).sum() / ht2jet3total - bin4
+    ht2jet3bin5 = ( tfm_predicts_ht2jet3 > 0.8).sum() / ht2jet3total - bin5
 
-    ht3total = len(tfm_predicts_ht3)
-    ht3bin1 = (tfm_predicts_ht3 < 0.2).sum() / ht3total - bin1
-    ht3bin2 = ((tfm_predicts_ht3 > 0.2) & (tfm_predicts_ht3 < 0.4)).sum() / ht3total - bin2
-    ht3bin3 = ((tfm_predicts_ht3 > 0.4) & (tfm_predicts_ht3 < 0.6)).sum() / ht3total - bin3
-    ht3bin4 = ((tfm_predicts_ht3 > 0.6) & (tfm_predicts_ht3 < 0.8)).sum() / ht3total - bin4
-    ht3bin5 = (tfm_predicts_ht3 > 0.8).sum() / ht3total - bin5
+    ht2jet4total = len(tfm_predicts_ht2jet4)
+    ht2jet4bin1 = ( tfm_predicts_ht2jet4 < 0.2).sum() / ht2jet4total - bin1
+    ht2jet4bin2 = ((tfm_predicts_ht2jet4 > 0.2) & (tfm_predicts_ht2jet4 < 0.4)).sum() / ht2jet4total - bin2
+    ht2jet4bin3 = ((tfm_predicts_ht2jet4 > 0.4) & (tfm_predicts_ht2jet4 < 0.6)).sum() / ht2jet4total - bin3
+    ht2jet4bin4 = ((tfm_predicts_ht2jet4 > 0.6) & (tfm_predicts_ht2jet4 < 0.8)).sum() / ht2jet4total - bin4
+    ht2jet4bin5 = ( tfm_predicts_ht2jet4 > 0.8).sum() / ht2jet4total - bin5
 
-    ht4total = len(tfm_predicts_ht4)
-    ht4bin1 = (tfm_predicts_ht4 < 0.2).sum() / ht4total - bin1
-    ht4bin2 = ((tfm_predicts_ht4 > 0.2) & (tfm_predicts_ht4 < 0.4)).sum() / ht4total - bin2
-    ht4bin3 = ((tfm_predicts_ht4 > 0.4) & (tfm_predicts_ht4 < 0.6)).sum() / ht4total - bin3
-    ht4bin4 = ((tfm_predicts_ht4 > 0.6) & (tfm_predicts_ht4 < 0.8)).sum() / ht4total - bin4
-    ht4bin5 = (tfm_predicts_ht4 > 0.8).sum() / ht4total - bin5
+    ht2jet5total = len(tfm_predicts_ht2jet5)
+    ht2jet5bin1 = ( tfm_predicts_ht2jet5 < 0.2).sum() / ht2jet5total - bin1
+    ht2jet5bin2 = ((tfm_predicts_ht2jet5 > 0.2) & (tfm_predicts_ht2jet5 < 0.4)).sum() / ht2jet5total - bin2
+    ht2jet5bin3 = ((tfm_predicts_ht2jet5 > 0.4) & (tfm_predicts_ht2jet5 < 0.6)).sum() / ht2jet5total - bin3
+    ht2jet5bin4 = ((tfm_predicts_ht2jet5 > 0.6) & (tfm_predicts_ht2jet5 < 0.8)).sum() / ht2jet5total - bin4
+    ht2jet5bin5 = ( tfm_predicts_ht2jet5 > 0.8).sum() / ht2jet5total - bin5
 
-    njet1total = len(tfm_predicts_njet1)
-    njet1bin1 = (tfm_predicts_njet1 < 0.2).sum() / njet1total - bin1
-    njet1bin2 = ((tfm_predicts_njet1 > 0.2) & (tfm_predicts_njet1 < 0.4)).sum() / njet1total - bin2
-    njet1bin3 = ((tfm_predicts_njet1 > 0.4) & (tfm_predicts_njet1 < 0.6)).sum() / njet1total - bin3
-    njet1bin4 = ((tfm_predicts_njet1 > 0.6) & (tfm_predicts_njet1 < 0.8)).sum() / njet1total - bin4
-    njet1bin5 = (tfm_predicts_njet1 > 0.8).sum() / njet1total - bin5
+    ht2jet6total = len(tfm_predicts_ht2jet6)
+    ht2jet6bin1 = ( tfm_predicts_ht2jet6 < 0.2).sum() / ht2jet6total - bin1
+    ht2jet6bin2 = ((tfm_predicts_ht2jet6 > 0.2) & (tfm_predicts_ht2jet6 < 0.4)).sum() / ht2jet6total - bin2
+    ht2jet6bin3 = ((tfm_predicts_ht2jet6 > 0.4) & (tfm_predicts_ht2jet6 < 0.6)).sum() / ht2jet6total - bin3
+    ht2jet6bin4 = ((tfm_predicts_ht2jet6 > 0.6) & (tfm_predicts_ht2jet6 < 0.8)).sum() / ht2jet6total - bin4
+    ht2jet6bin5 = ( tfm_predicts_ht2jet6 > 0.8).sum() / ht2jet6total - bin5
 
-    njet2total = len(tfm_predicts_njet2)
-    njet2bin1 = (tfm_predicts_njet2 < 0.2).sum() / njet2total - bin1
-    njet2bin2 = ((tfm_predicts_njet2 > 0.2) & (tfm_predicts_njet2 < 0.4)).sum() / njet2total - bin2
-    njet2bin3 = ((tfm_predicts_njet2 > 0.4) & (tfm_predicts_njet2 < 0.6)).sum() / njet2total - bin3
-    njet2bin4 = ((tfm_predicts_njet2 > 0.6) & (tfm_predicts_njet2 < 0.8)).sum() / njet2total - bin4
-    njet2bin5 = (tfm_predicts_njet2 > 0.8).sum() / njet2total - bin5
+    ht3jet4total = len(tfm_predicts_ht3jet4)
+    ht3jet4bin1 = (tfm_predicts_ht3jet4 < 0.2).sum() / ht3jet4total - bin1
+    ht3jet4bin2 = ((tfm_predicts_ht3jet4 > 0.2) & (tfm_predicts_ht3jet4 < 0.4)).sum() / ht3jet4total - bin2
+    ht3jet4bin3 = ((tfm_predicts_ht3jet4 > 0.4) & (tfm_predicts_ht3jet4 < 0.6)).sum() / ht3jet4total - bin3
+    ht3jet4bin4 = ((tfm_predicts_ht3jet4 > 0.6) & (tfm_predicts_ht3jet4 < 0.8)).sum() / ht3jet4total - bin4
+    ht3jet4bin5 = (tfm_predicts_ht3jet4 > 0.8).sum() / ht3jet4total - bin5
 
-    njet3total = len(tfm_predicts_njet3)
-    njet3bin1 = (tfm_predicts_njet3 < 0.2).sum() / njet3total - bin1
-    njet3bin2 = ((tfm_predicts_njet3 > 0.2) & (tfm_predicts_njet3 < 0.4)).sum() / njet3total - bin2
-    njet3bin3 = ((tfm_predicts_njet3 > 0.4) & (tfm_predicts_njet3 < 0.6)).sum() / njet3total - bin3
-    njet3bin4 = ((tfm_predicts_njet3 > 0.6) & (tfm_predicts_njet3 < 0.8)).sum() / njet3total - bin4
-    njet3bin5 = (tfm_predicts_njet3 > 0.8).sum() / njet3total - bin5
+    ht3jet5total = len(tfm_predicts_ht3jet5)
+    ht3jet5bin1 = (tfm_predicts_ht3jet5 < 0.2).sum() / ht3jet5total - bin1
+    ht3jet5bin2 = ((tfm_predicts_ht3jet5 > 0.2) & (tfm_predicts_ht3jet5 < 0.4)).sum() / ht3jet5total - bin2
+    ht3jet5bin3 = ((tfm_predicts_ht3jet5 > 0.4) & (tfm_predicts_ht3jet5 < 0.6)).sum() / ht3jet5total - bin3
+    ht3jet5bin4 = ((tfm_predicts_ht3jet5 > 0.6) & (tfm_predicts_ht3jet5 < 0.8)).sum() / ht3jet5total - bin4
+    ht3jet5bin5 = (tfm_predicts_ht3jet5 > 0.8).sum() / ht3jet5total - bin5
 
-    njet4total = len(tfm_predicts_njet4)
-    njet4bin1 = (tfm_predicts_njet4 < 0.2).sum() / njet4total - bin1
-    njet4bin2 = ((tfm_predicts_njet4 > 0.2) & (tfm_predicts_njet4 < 0.4)).sum() / njet4total - bin2
-    njet4bin3 = ((tfm_predicts_njet4 > 0.4) & (tfm_predicts_njet4 < 0.6)).sum() / njet4total - bin3
-    njet4bin4 = ((tfm_predicts_njet4 > 0.6) & (tfm_predicts_njet4 < 0.8)).sum() / njet4total - bin4
-    njet4bin5 = (tfm_predicts_njet4 > 0.8).sum() / njet4total - bin5
+    ht3jet6total = len(tfm_predicts_ht3jet6)
+    ht3jet6bin1 = (tfm_predicts_ht3jet6 < 0.2).sum() / ht3jet6total - bin1
+    ht3jet6bin2 = ((tfm_predicts_ht3jet6 > 0.2) & (tfm_predicts_ht3jet6 < 0.4)).sum() / ht3jet6total - bin2
+    ht3jet6bin3 = ((tfm_predicts_ht3jet6 > 0.4) & (tfm_predicts_ht3jet6 < 0.6)).sum() / ht3jet6total - bin3
+    ht3jet6bin4 = ((tfm_predicts_ht3jet6 > 0.6) & (tfm_predicts_ht3jet6 < 0.8)).sum() / ht3jet6total - bin4
+    ht3jet6bin5 = (tfm_predicts_ht3jet6 > 0.8).sum() / ht3jet6total - bin5
+
+    ht3jet7total = len(tfm_predicts_ht3jet7)
+    ht3jet7bin1 = (tfm_predicts_ht3jet7 < 0.2).sum() / ht3jet7total - bin1
+    ht3jet7bin2 = ((tfm_predicts_ht3jet7 > 0.2) & (tfm_predicts_ht3jet7 < 0.4)).sum() / ht3jet7total - bin2
+    ht3jet7bin3 = ((tfm_predicts_ht3jet7 > 0.4) & (tfm_predicts_ht3jet7 < 0.6)).sum() / ht3jet7total - bin3
+    ht3jet7bin4 = ((tfm_predicts_ht3jet7 > 0.6) & (tfm_predicts_ht3jet7 < 0.8)).sum() / ht3jet7total - bin4
+    ht3jet7bin5 = (tfm_predicts_ht3jet7 > 0.8).sum() / ht3jet7total - bin5
+
+    ht4jet5total = len(tfm_predicts_ht4jet5)
+    ht4jet5bin1 = (tfm_predicts_ht4jet5 < 0.2).sum() / ht4jet5total - bin1
+    ht4jet5bin2 = ((tfm_predicts_ht4jet5 > 0.2) & (tfm_predicts_ht4jet5 < 0.4)).sum() / ht4jet5total - bin2
+    ht4jet5bin3 = ((tfm_predicts_ht4jet5 > 0.4) & (tfm_predicts_ht4jet5 < 0.6)).sum() / ht4jet5total - bin3
+    ht4jet5bin4 = ((tfm_predicts_ht4jet5 > 0.6) & (tfm_predicts_ht4jet5 < 0.8)).sum() / ht4jet5total - bin4
+    ht4jet5bin5 = (tfm_predicts_ht4jet5 > 0.8).sum() / ht4jet5total - bin5
 
 
-    weights = [1.,1.,1.,1.]
-    htlossdict = {
-    "ht1": [x*weights[0] for x in [ht1bin1,ht1bin2,ht1bin3,ht1bin4,ht1bin5]],
-    "ht2": [x*weights[1] for x in [ht1bin1,ht2bin2,ht2bin3,ht2bin4,ht2bin5]],
-    "ht3": [x*weights[2] for x in [ht3bin1,ht3bin2,ht3bin3,ht3bin4,ht3bin5]],
-    "ht4": [x*weights[3] for x in [ht4bin1,ht4bin2,ht4bin3,ht4bin4,ht4bin5]],
+    ht4jet6total = len(tfm_predicts_ht4jet6)
+    ht4jet6bin1 = (tfm_predicts_ht4jet6 < 0.2).sum() / ht4jet6total - bin1
+    ht4jet6bin2 = ((tfm_predicts_ht4jet6 > 0.2) & (tfm_predicts_ht4jet6 < 0.4)).sum() / ht4jet6total - bin2
+    ht4jet6bin3 = ((tfm_predicts_ht4jet6 > 0.4) & (tfm_predicts_ht4jet6 < 0.6)).sum() / ht4jet6total - bin3
+    ht4jet6bin4 = ((tfm_predicts_ht4jet6 > 0.6) & (tfm_predicts_ht4jet6 < 0.8)).sum() / ht4jet6total - bin4
+    ht4jet6bin5 = (tfm_predicts_ht4jet6 > 0.8).sum() / ht4jet6total - bin5
+
+
+    ht4jet7total = len(tfm_predicts_ht4jet7)
+    ht4jet7bin1 = (tfm_predicts_ht4jet7 < 0.2).sum() / ht4jet7total - bin1
+    ht4jet7bin2 = ((tfm_predicts_ht4jet7 > 0.2) & (tfm_predicts_ht4jet7 < 0.4)).sum() / ht4jet7total - bin2
+    ht4jet7bin3 = ((tfm_predicts_ht4jet7 > 0.4) & (tfm_predicts_ht4jet7 < 0.6)).sum() / ht4jet7total - bin3
+    ht4jet7bin4 = ((tfm_predicts_ht4jet7 > 0.6) & (tfm_predicts_ht4jet7 < 0.8)).sum() / ht4jet7total - bin4
+    ht4jet7bin5 = (tfm_predicts_ht4jet7 > 0.8).sum() / ht4jet7total - bin5
+
+    weights = [1.,1.,1.,2.]
+    totallossdict = {
+    "ht1jet3": [x*weights[0] for x in [ht1jet3bin1,ht1jet3bin2,ht1jet3bin3,ht1jet3bin4,ht1jet3bin5]],
+    "ht1jet4": [x*weights[0] for x in [ht1jet4bin1,ht1jet4bin2,ht1jet4bin3,ht1jet4bin4,ht1jet4bin5]],
+
+    "ht2jet3": [x*weights[1] for x in [ht2jet3bin1,ht2jet3bin2,ht2jet3bin3,ht2jet3bin4,ht2jet3bin5]],
+    "ht2jet4": [x*weights[1] for x in [ht2jet4bin1,ht2jet4bin2,ht2jet4bin3,ht2jet4bin4,ht2jet4bin5]],
+    "ht2jet5": [x*weights[1] for x in [ht2jet5bin1,ht2jet5bin2,ht2jet5bin3,ht2jet5bin4,ht2jet5bin5]],
+    "ht2jet6": [x*weights[1] for x in [ht2jet6bin1,ht2jet6bin2,ht2jet6bin3,ht2jet6bin4,ht2jet6bin5]],
+    
+    "ht3jet4": [x*weights[2] for x in [ht3jet4bin1,ht3jet4bin2,ht3jet4bin3,ht3jet4bin4,ht3jet4bin5]],
+    "ht3jet5": [x*weights[2] for x in [ht3jet5bin1,ht3jet5bin2,ht3jet5bin3,ht3jet5bin4,ht3jet5bin5]],
+    "ht3jet6": [x*weights[2] for x in [ht3jet6bin1,ht3jet6bin2,ht3jet6bin3,ht3jet6bin4,ht3jet6bin5]],
+    "ht3jet7": [x*weights[2] for x in [ht3jet7bin1,ht3jet7bin2,ht3jet7bin3,ht3jet7bin4,ht3jet7bin5]],
+
+    "ht4jet5": [x*weights[3] for x in [ht4jet5bin1,ht4jet5bin2,ht4jet5bin3,ht4jet5bin4,ht4jet5bin5]],
+    "ht4jet6": [x*weights[3] for x in [ht4jet6bin1,ht4jet6bin2,ht4jet6bin3,ht4jet6bin4,ht4jet6bin5]],
+    "ht4jet7": [x*weights[3] for x in [ht4jet7bin1,ht4jet7bin2,ht4jet7bin3,ht4jet7bin4,ht4jet7bin5]],
+
     "total": [bin1,bin2,bin3,bin4,bin5],
-    "httotal": [ht1total,ht2total,ht3total,ht4total],
     }
 
-    weights = [1.,1.,1.,1.]
-    jetlossdict = {
-    "njet1": [x*weights[0] for x in [njet1bin1,njet1bin2,njet1bin3,njet1bin4,njet1bin5]],
-    "njet2": [x*weights[1] for x in [njet1bin1,njet2bin2,njet2bin3,njet2bin4,njet2bin5]],
-    "njet3": [x*weights[2] for x in [njet3bin1,njet3bin2,njet3bin3,njet3bin4,njet3bin5]],
-    "njet4": [x*weights[3] for x in [njet4bin1,njet4bin2,njet4bin3,njet4bin4,njet4bin5]],
-    "total": [bin1,bin2,bin3,bin4,bin5],
-    "njettotal": [njet1total,njet2total,njet3total,njet4total],
-    }
+    #weights = [1.,1.,1.,1.]
+    #jetlossdict = {
+    #"njet1": [x*weights[0] for x in [njet1bin1,njet1bin2,njet1bin3,njet1bin4,njet1bin5]],
+    #"njet2": [x*weights[1] for x in [njet1bin1,njet2bin2,njet2bin3,njet2bin4,njet2bin5]],
+    #"njet3": [x*weights[2] for x in [njet3bin1,njet3bin2,njet3bin3,njet3bin4,njet3bin5]],
+    #"njet4": [x*weights[3] for x in [njet4bin1,njet4bin2,njet4bin3,njet4bin4,njet4bin5]],
+    #"total": [bin1,bin2,bin3,bin4,bin5],
+    #"njettotal": [njet1total,njet2total,njet3total,njet4total],
+    #}
 
-    print("current ht bin status")
-    print(ht4bin1)
-    print(ht4bin2)
-    print(ht4bin3)
-    print(ht4bin4)
-    print(ht4bin5)
+    print("current bin status for ht 4, njet 7")
+    print(ht4jet7bin1)
+    print(ht4jet7bin2)
+    print(ht4jet7bin3)
+    print(ht4jet7bin4)
+    print(ht4jet7bin5)
 
     # now that we calculated which bins need more content, we define the loss gradient
     if len(predt) == len(X_train):
-      extrahtloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), htlossdict, np.array(y_train), True)
-      extrahtloss = [balance*x for x in extrahtloss]
+      extraloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(HT_train), np.array(nJet_train), totallossdict, np.array(y_train))
+      extraloss = [balance*x for x in extraloss]
 
-      extrajetloss = FlatnessLoss(np.array(tfm_predicts_all), np.array(nJet_train), jetlossdict, np.array(y_train), False)
-      extrajetloss = [balance*x for x in extrajetloss]
 
-      grad = [sum(x) for x in zip(grad, extrahtloss)]
-      grad = [sum(x) for x in zip(grad, extrajetloss)]
+      grad = [sum(x) for x in zip(grad, extraloss)]
     else:
       grad += 0
 
@@ -513,14 +596,14 @@ og_res = {}
 #pretrained model
 bst2 = xgb.train({'max_depth':max_depth, 'eta':lr,'objective':'binary:logistic','seed':13,'eval_metric':'auc'},  # any other tree method is fine.
            dtrain=dtrain,
-           num_boost_round=3*int(n_estimators/4),
+           num_boost_round=int(n_estimators/2),
            evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=og_res)
 
 #second model
 bst = xgb.train({'max_depth':max_depth, 'eta':lr,'seed':13,'eval_metric':'auc'},  # any other tree method is fine.
            dtrain=dtrain,
            xgb_model=bst2,
-           num_boost_round=int(n_estimators/4),
+           num_boost_round=int(n_estimators/2),
            obj=logloss, evals=[(dtest,'test'), (dtrain,'train'),(dother,'other')], evals_result=cpu_res)
 
 

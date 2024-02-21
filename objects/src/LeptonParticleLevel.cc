@@ -70,7 +70,7 @@ bool LeptonParticleLevel::isGood() const{
     //       dedicated LeptonSelector class, because particle level selection
     //       is supposed to be really simple and non-changing.
     if( isTau() ) return false; // do not consider taus for now.
-    if( pt() < 10. ) return false;
+    if( pt() < 15. ) return false;
     if( isElectron() && std::fabs(eta()) > 2.5 ) return false;
     if( isMuon() && std::fabs(eta()) > 2.4 ) return false;
     return true;
