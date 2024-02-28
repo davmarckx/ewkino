@@ -21,15 +21,16 @@ if __name__=="__main__":
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Make datacard plots')
-  parser.add_argument('--datacard', required=True, type=os.path.abspath)
-  parser.add_argument('--histfile', required=True, type=os.path.abspath)
-  parser.add_argument('--outputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--tags', default=None,
+  parser.add_argument('-d', '--datacard', required=True, type=os.path.abspath)
+  parser.add_argument('-f', '--histfile', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputfile', required=True, type=os.path.abspath)
+  parser.add_argument('-t', '--tags', default=None,
                       help='Comma-separated list of additional info to display on plot'
                           +' (e.g. simulation year or selection region).'
                           +' Use underscores for spaces.')
-  parser.add_argument('--colormap', default='default')
-  parser.add_argument('--signals', default=None, nargs='+')
+  parser.add_argument('-c', '--colormap', default='default')
+  parser.add_argument('-s', '--signals', default=None, nargs='+')
+  parser.add_argument('--processtagmod', default=None)
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', action='store_true')
   parser.add_argument('--dolog', action='store_true')
@@ -73,6 +74,12 @@ if __name__=="__main__":
 
   # get data histogram
   datahist = PC.datahist
+
+  # modify the process names
+  if args.processtagmod is not None:
+    for hist in simhists:
+      if args.processtagmod in hist.GetTitle():
+        hist.SetTitle(hist.GetTitle().replace(args.processtagmod,''))
 
   # blind data histogram
   if not args.unblind:
