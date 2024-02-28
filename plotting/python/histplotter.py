@@ -1,6 +1,8 @@
 ############################################################
 # A translation into python of ewkino/plotting/plotCode.cc #
 ############################################################
+# Contains the main functionality for the 'typical' MC vs data plots
+
 
 import ROOT
 import sys
@@ -11,23 +13,54 @@ import plottools as pt
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 
-def orderhistograms(histlist,ascending=True):
-    # order a list of histograms according to sumOfWeights
-    weightlist = []
-    for hist in histlist:
-        sumofweights = hist.GetSumOfWeights()
-        weightlist.append(sumofweights)
+
+# help functions
+
+def orderhistograms(histlist, ascending=True, weightlist=None):
+    # order a list of histograms
+    # input arguments:
+    # - ascending: set the order (ascending or descending)
+    # - weightlist: list of same length as histlist, with property to use for sorting,
+    #   if None, the sum of weights of each histogram is used.
+    if weightlist is None:
+        weightlist = []
+        for hist in histlist:
+            sumofweights = hist.GetSumOfWeights()
+            weightlist.append(sumofweights)
     weightlist = np.array(weightlist)
     sorted_indices = np.argsort(weightlist)
     if ascending: return [histlist[i] for i in sorted_indices]
     else: return [histlist[i] for i in np.flip(sorted_indices)]
 
-def findbytitle(histlist,title):
+def findbytitle(histlist, title):
     # find a histogram by its title, return the index or -1 if not found
     index = -1
     for i,hist in enumerate(histlist):
         if hist.GetTitle()==title: index = i
     return index
+
+def grouphistograms(histlist, groupdict):
+    # group some histograms together
+    # input arguments:
+    # - groupdict: dictionary defining the grouping,
+    #   formatted as follows: {"orig1": "groupedname", "orig2": "groupedname", ...}
+    # note: this only affects the plotting of nominal histograms,
+    #       not the uncertainties or the behaviour in the likelihood fit
+    # note: histograms that are not in groupdict are kept unchanged.
+    new_hists = {}
+    #for hist in histlist: print(hist.GetTitle())
+    for hist in histlist:
+      title = hist.GetTitle()
+      newtitle = title
+      if title in groupdict.keys():
+        newtitle = groupdict[title]
+        hist.SetTitle(newtitle)
+      if newtitle in new_hists.keys(): new_hists[newtitle].Add(hist.Clone())
+      else: new_hists[newtitle] = hist.Clone()
+    newhists = list(new_hists.values())
+    #print('---')
+    #for hist in newhists: print(hist.GetTitle())
+    return newhists
 
 def stackcol(hist,color):
     # set color and line properties of histogram in stack
@@ -69,7 +102,8 @@ def drawbincontent(mchistlist,mchisterror,tag):
     return None
 
 def plotdatavsmc(outfile, datahist, mchistlist,
-	mcsysthist=None, mcstathist=None, dostat=True, 
+	mcsysthist=None, mcstathist=None, dostat=True,
+        groupdict=None,
 	signals=None, datalabel=None, labelmap=None, colormap=None,
 	xaxtitle=None, xaxinteger=False,
 	yaxtitle=None, yaxlog=False, yaxrange=None,
@@ -116,6 +150,11 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     
     pt.setTDRstyle()
     ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
+    ### regroup mc histograms if requested
+    # note: this needs to be done first in order for automatic labels and colors
+    #       to work properly (see definition of labels and colors below)
+    if groupdict is not None: mchistlist = grouphistograms(mchistlist, groupdict)
 
     ### parse arguments
     if datalabel is None: datalabel = "Data"

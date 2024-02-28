@@ -20,7 +20,7 @@ sys.path.append(os.path.abspath('../../plotting/python'))
 import histplotter as hp
 import colors
 import infodicts
-import processdicts
+import regroupdicts
 sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../combine/'))
@@ -253,20 +253,9 @@ if __name__=="__main__":
           hist.SetTitle(args.splitprocess + lastchar)
 
     # optionally re-group some nominal histograms
+    regroup_processes_dict = None
     if args.regroup_processes:
-      regroup_processes_dict = processdicts.get_regroup_process_dict(args.region)
-      new_simhists = {}
-      for hist in simhists:
-        title = hist.GetTitle()
-        newtitle = title
-        if title in regroup_processes_dict.keys():
-          newtitle = regroup_processes_dict[title]
-          hist.SetTitle(newtitle)
-        if newtitle in new_simhists.keys(): new_simhists[newtitle].Add(hist.Clone())
-        else: new_simhists[newtitle] = hist.Clone()
-        # (warning: cloning the histograms is needed above,
-        #  else the ProcessCollection gets modified)
-      simhists = new_simhists.values()
+      regroup_processes_dict = regroupdicts.get_regroup_process_dict(groupid=args.region)
 
     # modify histogram titles
     for hist in simhists:
@@ -370,6 +359,7 @@ if __name__=="__main__":
 
     # make the plot
     hp.plotdatavsmc(outfile, datahist, simhists,
+            groupdict=regroup_processes_dict,
 	    mcsysthist=mcsysthist, 
 	    xaxtitle=xaxtitle,
 	    yaxtitle=yaxtitle,
@@ -388,6 +378,7 @@ if __name__=="__main__":
       # make plot in log scale
       outfile = os.path.join(args.outputdir, variablename)+'_log'
       hp.plotdatavsmc(outfile, datahist, simhists,
+            groupdict=regroup_processes_dict,
             mcsysthist=mcsysthist,
             xaxtitle=xaxtitle,
             yaxtitle=yaxtitle,

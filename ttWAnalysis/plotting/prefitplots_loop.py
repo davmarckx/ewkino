@@ -9,9 +9,11 @@ import condorTools as ct
 from jobSettings import CMSSW_VERSION
 import json
 
+# input directory
 inputdir = sys.argv[1]
 runmode = 'condor'
 
+# choose what to run on
 regions = ['auto']
 
 years = []
@@ -25,9 +27,12 @@ unblindmodes = []
 unblindmodes.append('blind')
 unblindmodes.append('unblind')
 
+# choose systematics
 dummysystematics = False
 
 rawsystematics = False
+
+# choose variables
 
 dolog = True
 
@@ -37,14 +42,13 @@ dolog = True
 #variables = '../variables/variables_inputfeatures.json'
 variables = '../variables/variables_particlelevel_double.json' # double variables
 
+# other settings
+
 colormap = 'ttw'
-
+regroup_processes = True
 filemode = 'split'
-
 datatag = 'Data'
-
 excludetags = None
-
 signals = ['TTW']
 for i in range(1,10): signals.append('TTW{}'.format(i))
 
@@ -92,6 +96,7 @@ for year in years:
             cmd += ' --outputdir '+thisoutputdir
             cmd += ' --datatag '+datatag
             cmd += ' --colormap '+colormap
+            if regroup_processes: cmd += ' --regroup_processes'
             if excludetags is not None: cmd += ' --excludetags ' +excludetags
             if splitvar != '':
               cmd += ' --splitvariable '+splitvar

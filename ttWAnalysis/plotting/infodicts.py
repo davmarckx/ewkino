@@ -32,5 +32,5 @@ def get_process_dict():
   ### get a printable name for each process
   res = {}
   res['NonpromptE'] = 'Nonprompt (e)'
-  res['NonpromptMu'] = 'Nonprompt (mu)'
+  res['NonpromptMu'] = 'Nonprompt (#mu)'
   return res
