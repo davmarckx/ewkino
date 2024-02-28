@@ -104,6 +104,7 @@ class Event{
 	// particle level jet selection and cleaning
 	void selectGoodParticleLevelJets() const;
 	void cleanParticleLevelJetsFromLeptons( const double coneSize = 0.4 ) const;
+        void cleanParticleLevelLeptonsFromJets( const double coneSize = 0.4 ) const;
 
         // b-tag collections
         JetCollection looseBTagCollection() const{ return _jetCollectionPtr->looseBTagCollection(); }

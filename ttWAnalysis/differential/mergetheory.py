@@ -19,9 +19,9 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Merge histograms')
-  parser.add_argument('--directory', required=True, type=os.path.abspath)
-  parser.add_argument('--outputfile', required=True, type=os.path.abspath)
-  parser.add_argument('--rename', default=None, type=apt.path_or_none)
+  parser.add_argument('-d', '--directory', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputfile', required=True, type=os.path.abspath)
+  parser.add_argument('-r', '--rename', default=None, type=apt.path_or_none)
   parser.add_argument('--renamemode', default='fast', choices=['custom','rootmv','fast'])
   args = parser.parse_args()
 

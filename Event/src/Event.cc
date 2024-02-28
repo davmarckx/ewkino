@@ -304,6 +304,11 @@ void Event::cleanParticleLevelJetsFromLeptons( const double coneSize ) const{
     _jetParticleLevelCollectionPtr->cleanJetsFromLeptons( *_leptonParticleLevelCollectionPtr, coneSize );
 }
 
+void Event::cleanParticleLevelLeptonsFromJets( const double coneSize ) const{
+    checkParticleLevel();
+    _leptonParticleLevelCollectionPtr->cleanLeptonsFromJets( *_jetParticleLevelCollectionPtr, coneSize );
+}
+
 void Event::selectGoodParticleLevelLeptons() const{
     checkParticleLevel();
     _leptonParticleLevelCollectionPtr->selectGoodLeptons();

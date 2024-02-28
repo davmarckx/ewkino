@@ -19,8 +19,8 @@ from eventselector import event_selections
 from eventflattener import year_from_samplelist
 
 
-# list of systematics to include (hard-coded for now, maybe extend later)
-'''systematics = ([
+# list of default systematics to include
+systematics_default = ([
   # scale uncertainties
   "fScaleShape",
   "fScaleNorm",
@@ -46,11 +46,9 @@ from eventflattener import year_from_samplelist
   "fsrShape",
   "fsrNorm",
   "fsrTotal"
-])'''
+])
 # alternative list of systematics: only eft variations
-#systematics = (['eft'])
-# alternative list of systematics: none
-systematics = []
+systematics_eft = ['eft']
 
 
 if __name__=='__main__':
@@ -64,6 +62,7 @@ if __name__=='__main__':
   parser.add_argument('-e', '--event_selection', required=True, choices=event_selections, nargs='+')
   parser.add_argument('-t', '--selection_type', default=['particlelevel'], choices=['particlelevel'], nargs='+')
   parser.add_argument('-n', '--nevents', default=0, type=int)
+  parser.add_argument('--systematics', default=None, nargs='+')
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   args = parser.parse_args()
 
@@ -111,7 +110,11 @@ if __name__=='__main__':
   write_variables_txt( varlist, variablestxt )
 
   # parse systematics
-  if len(systematics)==0: systematics = ['none']
+  systematics = ['none']
+  if( args.systematics is not None and len(args.systematics)>0 ):
+    if 'default' in args.systematics: systematics = systematics_default
+    elif 'eft' in args.systematics: systematics = systematics_eft
+    else: systematics = args.systematics
   systematics = ','.join(systematics)
 
   # loop over input files and submit jobs

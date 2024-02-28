@@ -8,9 +8,6 @@ import json
 import argparse
 import ROOT
 from ROOT import TFile
-sys.path.append('tools')
-from uncertaintyprop import normalizexsec
-from uncertaintyprop import sstoxsec
 sys.path.append(os.path.abspath('../../Tools/python'))
 import histtools as ht
 import listtools as lt
@@ -20,6 +17,9 @@ sys.path.append(os.path.abspath('../../plotting/python'))
 from differentialplotter import plotdifferential
 sys.path.append(os.path.abspath('../analysis/python'))
 from processinfo import ProcessInfoCollection, ProcessCollection
+sys.path.append(os.path.abspath('../differential/tools'))
+from uncertaintyprop import normalizexsec
+from uncertaintyprop import sstoxsec
 
 def calcchi2(observed, expected):
   ### calculate the chi2 divergence between two histograms
@@ -151,7 +151,8 @@ if __name__=='__main__':
   histnames = lt.subselect_strings(histnames, mustcontainone=variablenames)[1]
   print('Further selection (processes, regions and variables):')
   print('Resulting number of histograms: {}'.format(len(histnames)))
-  #for histname in histnames: print('  {}'.format(histname))
+  if len(histnames)<10:
+      for histname in histnames: print('  {}'.format(histname))
 
   # get all hCounter histograms (separate from above)
   mustcontainall = ['hCounter']
@@ -192,6 +193,8 @@ if __name__=='__main__':
       hcname = str(process+'_'+splittag+'_hCounter')
       if 'EFT' in process:
         hcname = str(process.split('EFT')[0]+'EFT_'+splittag+'_hCounter')
+        if 'EFTScaled' in process:
+          hcname = str(process.split('EFTScaled')[0]+'EFTScaled_'+splittag+'_hCounter')
       if hcname not in hcnames:
         msg = 'ERROR: wrong hCounter name:'
         msg += ' histogram {} not found'.format(hcname)
@@ -318,7 +321,7 @@ if __name__=='__main__':
     statdatahist = nominalrefs[0].Clone()
     normdatahist = nominalrefs[0].Clone()
     normstatdatahist = nominalrefs[0].Clone()
-    dochi2 = True
+    dochi2 = False # disable for now
     if signalstrengths is None:
       dochi2 = False
       datahist.Reset()
@@ -430,6 +433,12 @@ if __name__=='__main__':
 
     # temporary for plots: change label for legend
     # (to do more cleanly later)
+    for hist in nominalhists + nominalhists_norm:
+      title = hist.GetTitle()
+      title = title.replace('2018','')
+      title = title.replace('EFT',' ')
+      title += ' pred.'
+      hist.SetTitle(title)
     if len(nominalhists)==1:
         nominalhists[0].SetTitle('Prediction')
     if len(nominalhists_norm)==1:

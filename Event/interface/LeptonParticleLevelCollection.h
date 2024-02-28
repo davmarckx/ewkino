@@ -8,13 +8,19 @@
 #include "../../constants/particleMasses.h"
 #include "../../objects/interface/LeptonParticleLevel.h"
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../interface/JetParticleLevelCollection.h"
 #include "PhysicsObjectCollection.h"
 
+
+class JetParticleLevelCollection;
 
 class LeptonParticleLevelCollection : public PhysicsObjectCollection< LeptonParticleLevel > {
     
     public:
         LeptonParticleLevelCollection( const TreeReader& );
+
+        // cleaning
+        void cleanLeptonsFromJets( const JetParticleLevelCollection&, const double coneSize = 0.4 );
 
 	// count objects
 	size_type numberOfLeptons() const;

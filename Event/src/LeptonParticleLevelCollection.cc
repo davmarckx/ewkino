@@ -11,6 +11,29 @@ LeptonParticleLevelCollection::LeptonParticleLevelCollection( const TreeReader& 
     }
 }
 
+// cleaning
+void LeptonParticleLevelCollection::cleanLeptonsFromJets(
+    const JetParticleLevelCollection& jetCollection,
+    const double coneSize ){
+    // loop over leptons
+    for( const_iterator lIt = cbegin(); lIt != cend(); ){
+        LeptonParticleLevel& lepton = **lIt;
+        bool isDeleted = false;
+        // loop over jets
+        for( JetParticleLevelCollection::const_iterator jetIt = jetCollection.cbegin();
+             jetIt != jetCollection.cend(); ++jetIt ){
+            JetParticleLevel& jet = **jetIt;
+            // remove lepton if it overlaps with a jet
+            if( deltaR( jet, lepton ) < coneSize ){
+                lIt = erase( lIt );
+                isDeleted = true;
+                break;
+            }
+        }
+        if( !isDeleted ){ ++lIt; }
+    }
+}
+
 LeptonParticleLevelCollection::size_type LeptonParticleLevelCollection::numberOfLeptons() const{
     // return number of leptons (i.e. size of the collection)
     return size();
