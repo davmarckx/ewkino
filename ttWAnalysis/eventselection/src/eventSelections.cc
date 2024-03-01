@@ -481,34 +481,34 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     // new version used on 06/02/2023 for dummy xsec measurement sync with Oviedo.
     cleanLeptonsAndJets(event);
     // apply trigger, pt thresholds and mll veto
-    if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
-    if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
-    if(!hasnFOLeptons(event,2,true)) return std::make_tuple(2, "Fail 2 FO leptons");
-    if(!passMllMassVeto(event)) return std::make_tuple(3, "Fail low mass veto");
-    if(not passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
+    if(not event.passMetFilters()) return std::make_tuple(1, "Fail MET filters");
+    if(not passAnyTrigger(event)) return std::make_tuple(2, "Fail trigger");
+    if(!hasnFOLeptons(event,2,true)) return std::make_tuple(3, "Fail 2 tight leptons");
+    if(!passMllMassVeto(event)) return std::make_tuple(3, "Fail 2 tight leptons");
+    if(not passPhotonOverlapRemoval(event)) return std::make_tuple(3, "Fail 2 tight leptons");
     // do lepton selection for different types of selections
-    if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(5, "Fail 2 tight leptons");
+    if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(3, "Fail 2 tight leptons");
     event.sortLeptonsByPt();
-    if(!passDiLeptonPtThresholds(event)) return std::make_tuple(6, "Fail pT thresholds");
+    if(!passDiLeptonPtThresholds(event)) return std::make_tuple(4, "Fail pT thresholds");
     // re-added on 20/02/2023: invariant mass safety
-    if( event.leptonSystem().mass()<30. ) return std::make_tuple(7, "Fail invariant mass veto");
+    if( event.leptonSystem().mass()<30. ) return std::make_tuple(5, "Fail invariant mass veto");
     // leptons must be same sign
-    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return std::make_tuple(8, "Fail same sign"); }
-    else{ if( !event.leptonsAreSameSign() ) return std::make_tuple(8, "Fail same sign"); }
+    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return std::make_tuple(6, "Fail same sign"); }
+    else{ if( !event.leptonsAreSameSign() ) return std::make_tuple(6, "Fail same sign"); }
     // Z veto for electrons
     if( event.leptonCollection()[0].isElectron()
         && event.leptonCollection()[1].isElectron()
-        && event.hasZTollCandidate(10., true) ) return std::make_tuple(9, "Fail electron Z veto");
+        && event.hasZTollCandidate(10., true) ) return std::make_tuple(7, "Fail electron Z veto");
     // MET cut for electrons
     // re-added on 18/04/2023: MET cut for all lepton flavours
-    if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(10, "Fail MET"); }
-    else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(10, "Fail MET"); }
+    if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(8, "Fail MET"); }
+    else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(8, "Fail MET"); }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    if( njetsnloosebjets.second < 2 ) return std::make_tuple(11, "Fail b-jets");
-    if( njetsnloosebjets.first < 3 ) return std::make_tuple(12, "Fail jets");
+    if( njetsnloosebjets.second < 2 ) return std::make_tuple(9, "Fail number of (b-) jets");
+    if( njetsnloosebjets.first < 3 ) return std::make_tuple(9, "Fail number of (b-) jets");
     if(selectbjets){} // dummy to avoid unused parameter warning
-    return std::make_tuple(13, "Pass");
+    return std::make_tuple(10, "Pass");
 }
 
 bool pass_signalregion_dilepton_ee(Event& event, const std::string& selectiontype,
@@ -695,24 +695,24 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_trilepton_cutflow
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
     if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
-    if(!hasnFOLeptons(event,3,true)) return std::make_tuple(2, "Fail 3 FO leptons");
-    if(!passTriLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
-    if(!passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
+    if(!hasnFOLeptons(event,3,true)) return std::make_tuple(2, "Fail 3 tight leptons");
+    if(!passPhotonOverlapRemoval(event)) return std::make_tuple(2, "Fail 3 tight leptons");
     // do lepton selection for different types of selections
-    if( !doLeptonSelection(event, selectiontype, 3) ) return std::make_tuple(5, "Fail 3 tight leptons");
+    if( !doLeptonSelection(event, selectiontype, 3) ) return std::make_tuple(2, "Fail 3 tight leptons");
+    if(!passTriLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
     // Z candidate veto
     if( event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow) ){ 
-	return std::make_tuple(6, "Fail Z veto"); }
+	return std::make_tuple(4, "Fail Z veto"); }
     // invariant mass safety
-    if(not passMllMassVeto(event)) return std::make_tuple(7, "Fail low mass veto");
+    if(not passMllMassVeto(event)) return std::make_tuple(5, "Fail low mass veto");
     // sum of charges needs to be 1 or -1
-    if( !event.hasOSLeptonPair() ) return std::make_tuple(8, "Fail OS pair");
+    if( !event.hasOSLeptonPair() ) return std::make_tuple(6, "Fail OS pair");
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 ) return std::make_tuple(9, "Fail b-jets");
-    if( njetsnbjets.first < 2 ) return std::make_tuple(10, "Fail jets");
+    if( njetsnbjets.second < 1 ) return std::make_tuple(7, "Fail number of (b-) jets");
+    if( njetsnbjets.first < 2 ) return std::make_tuple(7, "Fail number of (b-) jets");
     if(selectbjets){} // dummy to avoid unused parameter warning
-    return std::make_tuple(11, "Pass");
+    return std::make_tuple(8, "Pass");
 }
 
 // -----------------------

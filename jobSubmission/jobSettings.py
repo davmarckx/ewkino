@@ -5,4 +5,4 @@
 # Path to an appropriate CMSSW folder.
 # Can be used as an argument to the condor job submission tools,
 # in order to set the cmsenv.
-CMSSW_VERSION = '/storage_mnt/storage/user/llambrec/CMSSW_10_6_29'
+CMSSW_VERSION = '/ada_mnt/ada/user/llambrec/CMSSW_10_6_29'

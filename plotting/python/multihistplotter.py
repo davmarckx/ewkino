@@ -16,10 +16,11 @@ def plotmultihistograms(histlist,
 	    colorlist=None,
 	    logy=False, ymaxlinfactor=1.8, yminlogfactor=0.2, ymaxlogfactor=100,
 	    drawoptions='', 
-	    lumitext='', extracmstext = '',
+	    lumitext='', extracmstext='',
 	    doratio=False, ratiorange=None, ylims=None, yminzero=False,
 	    extrainfos=[], infosize=None, infoleft=None, infotop=None,
-	    uncertainties=None ):
+	    uncertainties=None,
+            p1bottommargin=None ):
     ### plot multiple overlaying histograms (e.g. for shape comparison)
     # note: the ratio plot will show ratios w.r.t. the first histogram in the list!
     # arguments:
@@ -73,7 +74,7 @@ def plotmultihistograms(histlist,
     # margins and title offsets
     ytitleoffset = 1.5
     p1topmargin = 0.05
-    p1bottommargin = 0.15
+    if p1bottommargin is None: p1bottommargin = 0.15
     xtitleoffset = 1.
     if doratio:
 	p1topmargin = 0.07 
@@ -84,11 +85,11 @@ def plotmultihistograms(histlist,
     leftmargin = 0.15
     rightmargin = 0.05
     # legend box
-    pentryheight = 0.05
+    pentryheight = 0.03
     if doratio: pentryheight = 0.07
     nentries = 1 + len(histlist)
     if nentries>3: pentryheight = pentryheight*0.8
-    plegendbox = ([leftmargin+0.3,1-p1topmargin-0.03-pentryheight*nentries,
+    plegendbox = ([leftmargin+0.5,1-p1topmargin-0.03-pentryheight*nentries,
                     1-rightmargin-0.03,1-p1topmargin-0.03])
     # extra info box parameters
     if infoleft is None: infoleft = leftmargin+0.05
@@ -98,11 +99,14 @@ def plotmultihistograms(histlist,
     scale = 1
     if( normalizefirst ): scale = histlist[0].Integral("width")
     for i,hist in enumerate(histlist):
-        hist.SetLineWidth(3)
+        hist.SetLineWidth(4)
         hist.SetLineColor(colorlist[i])
 	hist.SetMarkerSize(0)
         if normalize: scale = hist.Integral("width")
-        for j in range(0,hist.GetNbinsX()+2):
+        for j in range(1, hist.GetNbinsX()+1):
+            # warning: for some unintellegible reason, this loop does not work
+            # if j goes from from 0 to hist.GetNbinsX()+2, the number of bins in hist is changed...
+            # no idea what is causing this, but ignore outerflow bins for now.
             hist.SetBinContent(j,hist.GetBinContent(j)/scale)
             hist.SetBinError(j,hist.GetBinError(j)/scale)
 

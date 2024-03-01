@@ -12,7 +12,7 @@ import histtools as ht
 def plotsinglehistogram(hist, figname, 
                 title=None, xaxtitle=None, yaxtitle=None, 
                 label=None, color=None, logy=False, drawoptions='',
-                do_cms_text=False, lumitext='', extralumitext='',
+                do_cms_text=False, lumitext='', extracmstext='',
                 topmargin=None, bottommargin=None,
                 leftmargin=None, rightmargin=None,
                 xaxlabelfont=None, xaxlabelsize=None,
@@ -149,7 +149,7 @@ def plotsinglehistogram(hist, figname,
     # draw all objects
     hist.Draw(drawoptions)
     ROOT.gPad.RedrawAxis()
-    if do_cms_text: pt.drawLumi(pad1, extratext=extralumitext, lumitext=lumitext)
+    if do_cms_text: pt.drawLumi(pad1, extratext=extracmstext, lumitext=lumitext)
     if label is not None: leg.Draw("same")
     if title is not None: ttitle.DrawLatexNDC(titlebox[0],titlebox[1],title)
 
