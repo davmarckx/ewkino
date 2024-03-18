@@ -65,29 +65,56 @@
 {
   "name": "_nJets",
   "variable": "_nJets",
-  "nbins": "7",
-  "xlow": "-0.5",
-  "xhigh": "6.5",
+  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5, 4.5, 5.5, 6.5],
   "axtitle": "Number of jets",
-  "unit": ""
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1". "2", "3", "4", "5", "6"]
+},
+{
+  "name": "_nJets2",
+  "variable": "_nJets",
+  "bins":   [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5],
+  "axtitle": "Number of jets",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["3", "4", "5", "6", "7", "8"]
 },
 {
   "name": "_nBJets",
   "variable": "_nBJets",
-  "nbins": "4",
-  "xlow": "-0.5",
-  "xhigh": "3.5",
+  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5],
   "axtitle": "Number of b-tagged jets",
-  "unit": ""
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_nBJets2",
+  "variable": "_nBJets",
+  "bins":   [1.5, 2.5, 3.5, 4.5],
+  "axtitle": "Number of b-tagged jets",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["2", "3", "4"]
 },
 {
   "name": "_nLooseBJets",
   "variable": "_nLooseBJets",
-  "nbins": "4",
-  "xlow": "-0.5",
-  "xhigh": "3.5",
+  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5],
   "axtitle": "Number of b-tagged jets",
-  "unit": ""
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_nLooseBJets2",
+  "variable": "_nLooseBJets",
+  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5],
+  "axtitle": "Number of b-tagged jets",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"]
 },
 {
   "name": "_nMuons",
