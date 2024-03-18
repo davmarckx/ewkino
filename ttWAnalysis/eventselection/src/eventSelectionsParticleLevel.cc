@@ -58,8 +58,8 @@ void eventSelectionsParticleLevel::cleanLeptonsAndJets(Event& event){
     event.leptonParticleLevelCollection().removeTaus();
     // do jet selection and cleaning
     event.selectGoodParticleLevelJets();
-    event.cleanParticleLevelJetsFromLeptons(); // default
-    //event.cleanParticleLevelLeptonsFromJets(); // sync with ATLAS+CMS note
+    //event.cleanParticleLevelJetsFromLeptons(); // default
+    event.cleanParticleLevelLeptonsFromJets(); // sync with ATLAS+CMS note
     // sort leptons and jets by pt
     event.leptonParticleLevelCollection().sortByPt();
     event.jetParticleLevelCollection().sortByPt();
@@ -78,11 +78,11 @@ bool eventSelectionsParticleLevel::passTriLeptonPtThresholds(const Event& event)
 
 bool eventSelectionsParticleLevel::passDiLeptonPtThresholds(const Event& event){
     event.leptonParticleLevelCollection().sortByPt();
-    if(event.leptonParticleLevelCollection()[0].pt() < 25.
-        || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
-    // (default)
     //if(event.leptonParticleLevelCollection()[0].pt() < 25.
-    //    || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
+    //    || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
+    // (default)
+    if(event.leptonParticleLevelCollection()[0].pt() < 25.
+        || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
     // (temp for syncing with ATLAS+CMS note)
     return true;
 }
@@ -135,8 +135,8 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive(Event& e
     cleanLeptonsAndJets(event);
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
     // basic requirements
-    //if( lepcollection.numberOfLeptons()!=2 ) return false; // sync with ATLAS+CMS note
-    if( lepcollection.numberOfLeptons()<2 ) return false; // sync with Oviedo
+    if( lepcollection.numberOfLeptons()!=2 ) return false; // sync with ATLAS+CMS note
+    //if( lepcollection.numberOfLeptons()<2 ) return false; // sync with Oviedo
     if( !passDiLeptonPtThresholds(event) ) return false;
     // leptons must be same sign
     if( !LeptonParticleLevel::sameSign(lepcollection[0],lepcollection[1]) ) return false;
@@ -150,11 +150,11 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive(Event& e
     if( event.metParticleLevel().pt()<30.) return false; */
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
-    if( njetsnbjets.second < 1 ) return false;
-    if( njetsnbjets.first < 3 ) return false;
-    //if( njetsnbjets.second < 2 ) return false; // temp for syncing with ATLAS+CMS note
+    //if( njetsnbjets.second < 1 ) return false;
+    //if( njetsnbjets.first < 3 ) return false;
+    if( njetsnbjets.second < 2 ) return false; // temp for syncing with ATLAS+CMS note
     //if( njetsnbjets.second != 1 ) return false; // temp for syncing with ATLAS+CMS note
-    //if( njetsnbjets.first < 4 ) return false; // temp for syncing with ATLAS+CMS note
+    if( njetsnbjets.first < 4 ) return false; // temp for syncing with ATLAS+CMS note
     return true;
 }
 

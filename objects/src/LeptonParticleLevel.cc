@@ -72,8 +72,8 @@ bool LeptonParticleLevel::isGood() const{
     if( isTau() ) return false; // do not consider taus for now.
     if( pt() < 10. ) return false;
     if( isElectron() && std::fabs(eta()) > 2.5 ) return false;
-    if( isMuon() && std::fabs(eta()) > 2.4 ) return false; // default
-    //if( isMuon() && std::fabs(eta()) > 2.5 ) return false; // sync with LHCHWG note
+    //if( isMuon() && std::fabs(eta()) > 2.4 ) return false; // default
+    if( isMuon() && std::fabs(eta()) > 2.5 ) return false; // sync with LHCHWG note
     return true;
 }
 
