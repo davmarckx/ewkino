@@ -82,7 +82,9 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
     print('Extracted following valid process tags from input file:')
     for process in processes: print('  - '+process)
 
-  # get valid systematics and compare to arguments, [deep(just to be sure)]copy is really necessary, otherwise unexpected updates of shapesyslist can happen later on when PIC is modified
+  # get valid systematics and compare to arguments,
+  # deep copy is really necessary, otherwise unexpected updates of shapesyslist
+  # can happen later on when PIC is modified
   shapesyslist = deepcopy(PIC.slist)
 
   if verbose:
@@ -110,11 +112,9 @@ def makeProcessInfoCollection( inputfile, year, region, variable, processes,
       for el in removedspecific[p]:
         if( p in el and el in shapesyslist ):
           shapesyslist.remove(el)
-    print(shapesyslist)
     normsyslist = add_systematics_default( PIC, year=year )
     (shapesyslist)
     smoothsyslist = get_systematics_to_smooth( shapesyslist )
-    print(shapesyslist)
   elif( dummysystematics ):
     (removedforall, _) = remove_systematics_all( PIC )
     for el in removedforall: shapesyslist.remove(el)

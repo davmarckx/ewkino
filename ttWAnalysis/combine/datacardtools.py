@@ -63,15 +63,14 @@ def makealigned(stringlist):
         stringlist[i] = str('{:<'+str(maxlen)+'}').format(s)
 
 def writedatacard( datacarddir, channelname, processinfo,
-
 		   histfile, variable, dummydata=False,
 		   shapesyslist=[], smoothsyslist=[], lnnsyslist=[],
 		   rateparamlist=[], ratio=[],
 		   automcstats=10,
 		   writeobs=False,
-       writeselectedhists=True,
-       writeallhists=False,
-       autof=False ):
+                   writeselectedhists=True,
+                   writeallhists=False,
+                   autof=False ):
     ### write a datacard corresponding to a single channel ('bin' in combine terminology)
     # input arguments:
     # - datacarddir: directory where the card and histograms will go

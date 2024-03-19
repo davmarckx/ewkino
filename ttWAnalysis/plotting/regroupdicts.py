@@ -20,7 +20,7 @@ def get_regroup_process_dict(groupid='default'):
     else:
         # default case
         pdict['Nonprompt (e)'] = 'Nonprompt'
-        pdict['Nonprompt (mu)'] = 'Nonprompt'
+        pdict['Nonprompt (#mu)'] = 'Nonprompt'
         pdict['ZZ'] = 'Multiboson'
         pdict['WZ'] = 'Multiboson'
         pdict['TTG'] = 'Conversions'
