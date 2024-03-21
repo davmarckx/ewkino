@@ -52,7 +52,7 @@ for year in years:
       command += ' --pt_threshold_id {}'.format(pt_threshold_id)
       command += ' --nevents {}'.format(nevents)
       command += ' --runmode {}'.format(runmode)
-      os.system(command)
+      #os.system(command)
 
 # settings for 2D measurements
 
@@ -70,7 +70,7 @@ event_selections.append('basic_recoptcuts')
 
 dtypes = []
 dtypes.append('sim')
-dtypes.append('data')
+#dtypes.append('data')
 
 nevents = 0
 

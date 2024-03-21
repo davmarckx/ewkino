@@ -21,8 +21,11 @@ std::map< std::string, std::shared_ptr<TH2D> > initializeHistograms(
 	    std::string fullName = prefix+"_"+flavour+"_"+numdenom;
 	    std::string mapName = flavour+"_"+numdenom;
 	    // define binning for 2D histograms
-	    const std::vector< double > leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.};
-	    const std::vector< double > trailingPtBins = {15., 25., 30., 35., 45., 55., 75., 100., 150., 200.};
+	    //const std::vector< double > leadingPtBins = {25., 30., 35., 45., 55., 75., 100., 150., 200.};
+	    //const std::vector< double > trailingPtBins = {15., 25., 30., 35., 45., 55., 75., 100., 150., 200.};
+	    // new binning after comments from trigger approval
+            const std::vector< double > leadingPtBins = {25., 30., 35., 40., 50., 100., 200.};
+            const std::vector< double > trailingPtBins = {15., 25., 30., 35., 40., 50., 100., 200.};
 	    // initialize histogram
 	    std::shared_ptr< TH2D > hist(
 		new TH2D( fullName.c_str(), 
@@ -167,7 +170,9 @@ void fillTriggerEfficiencyHistograms(
 		triggerTools::ptThresholds(ptThresholdId, flavourStr) )) continue;
 	}
 
-	double weight = event.weight();
+	//double weight = event.weight();
+	double weight = 1;
+
 	// for data: check if event passes orthogonal triggers and remove overlap
         if(isData){
 	    // builtin reference trigger boolean (not present in current samples)

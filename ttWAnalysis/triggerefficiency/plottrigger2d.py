@@ -68,11 +68,37 @@ if __name__=='__main__':
       simtrigcounts = objdict[simkey+'_trig']
       datatotcounts = objdict[datakey+'_tot']
       datatrigcounts = objdict[datakey+'_trig']
+
+      # temp for testing
+      '''if year!='2018': continue
+      if flavour!='mm': continue
+      if 'basic' not in mergedfilepath: continue
+      print('Total:')
+      print(simtotcounts.Integral())
+      print(simtrigcounts.Integral())
+      print(simtotcounts.GetEntries())
+      print(simtrigcounts.GetEntries())
+      print(datatotcounts.Integral())
+      print(datatrigcounts.Integral())'''
+
       # make efficiency histograms
       simeff = simtrigcounts.Clone()
       simeff.Divide(simeff,simtotcounts,1,1,'B')
       dataeff = datatrigcounts.Clone()
       dataeff.Divide(dataeff,datatotcounts,1,1,'B')
+
+      # temp for testing
+      '''binnb = (1,1)
+      print('Bin {}:'.format(binnb))
+      print(simtotcounts.GetBinContent(*binnb))
+      print(simtrigcounts.GetBinContent(*binnb))
+      print(datatotcounts.GetBinContent(*binnb))
+      print(datatrigcounts.GetBinContent(*binnb))
+      print(simeff.GetBinContent(*binnb))
+      print(dataeff.GetBinContent(*binnb))
+      print(simeff.GetBinError(*binnb))
+      print(dataeff.GetBinError(*binnb))'''
+
       # make scale factor histogram
       sf = dataeff.Clone()
       sf.Divide(simeff)
