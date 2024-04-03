@@ -87,7 +87,7 @@
   "axtitle": "Number of jets",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1". "2", "3", "4", "5", "6"]
+  "xlabels": ["0", "1", "2", "3", "4", "5", "6"]
 },
 {
   "name": "_nJets2",

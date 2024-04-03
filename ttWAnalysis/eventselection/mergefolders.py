@@ -33,7 +33,7 @@ def mergefolders( inputdir, years, remove ):
           # run the commands
           for cmd in cmds: os.system(cmd)
     # case 2: data, sig and bkg
-    if( os.path.exists(sigdir) and os.path.exists(bkgdir) and os.path.exists(datadir) ):
+    elif( os.path.exists(sigdir) and os.path.exists(bkgdir) and os.path.exists(datadir) ):
         # make the commands
         cmds = []
         if remove:

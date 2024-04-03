@@ -380,7 +380,7 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     nJetCFUncMap[5] = 0.5;
     combinedReweighter.addReweighter( "njetscf", std::make_shared< ReweighterNJets >( nJetCFUncMap, false ) );*/
 
-    // experimental: fake rate systematic variations (to be applied also in data)
+    // fake rate systematic variations (to be applied also in data)
     // define paths to fake rate map files
     std::string efile = stringTools::formatDirectoryName( weightDirectory );
     efile += "weightFilesUL/fakeRates/fakeRateMap_data_electron_"+year+"_mT.root";
