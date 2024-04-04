@@ -10,14 +10,15 @@ import combinetools as cbt
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
+#CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
+CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
 
 
 if __name__=='__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser(description='Run goodness-of-fit test')
-    parser.add_argument('--workspaces', required=True, type=os.path.abspath, nargs='+')
+    parser.add_argument('-w', '--workspaces', required=True, type=os.path.abspath, nargs='+')
     parser.add_argument('--ntoys', default=10, type=int)
     parser.add_argument('--ntoyjobs', default=1, type=int)
     parser.add_argument('--runmode', default='local', choices=['local','condor'])

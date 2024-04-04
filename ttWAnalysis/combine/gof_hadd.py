@@ -11,7 +11,7 @@ if __name__=='__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser(description='Goodness of fit test')
-    parser.add_argument('--workspace', required=True, type=os.path.abspath)
+    parser.add_argument('-w', '--workspace', required=True, type=os.path.abspath)
     # (note: workspace can be a single workspace (.root extension) or a directory.
     #  in the latter case, all goodness of fit output files in that directory will be merged appropriately)
     args = parser.parse_args()

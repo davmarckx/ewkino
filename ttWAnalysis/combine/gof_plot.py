@@ -55,15 +55,15 @@ if __name__=='__main__':
 
     # parse arguments
     parser = argparse.ArgumentParser(description='Goodness of fit test')
-    parser.add_argument('--workspace', required=True, type=os.path.abspath)
+    parser.add_argument('-w', '--workspace', required=True, type=os.path.abspath)
     # (note: workspace can be a single workspace (.root extension) or a directory.
     #  in the latter case, all goodness of fit output files in that directory will be used
     #  to create a summary plot)
-    parser.add_argument('--includetags', default=[], nargs='+',
+    parser.add_argument('-i', '--includetags', default=[], nargs='+',
       help='Tags to select workspaces to include (in case --workspace is a directory)')
-    parser.add_argument('--excludetags', default=[], nargs='+',
+    parser.add_argument('-e', '--excludetags', default=[], nargs='+',
       help='Tags to deselect workspaces to include (in case --workspace is a directory)')
-    parser.add_argument('--outputfile', default=None)
+    parser.add_argument('-o', '--outputfile', default=None)
     parser.add_argument('--nbins', type=int, default=30)
     parser.add_argument('--extrainfos', default=None,
       help='Comma-separated list of extra info to display on plot')
