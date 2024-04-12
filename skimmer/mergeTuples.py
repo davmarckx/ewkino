@@ -66,8 +66,8 @@ if __name__ == '__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser('Merge tuples')
-  parser.add_argument('--inputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-i', '--inputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True, type=os.path.abspath)
   parser.add_argument('--include_recovery', default=False )
   parser.add_argument('--runmode', default='condor', choices=['condor','local'])
   parser.add_argument('--searchkey', default=None)
