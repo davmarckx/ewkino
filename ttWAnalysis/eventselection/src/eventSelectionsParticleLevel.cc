@@ -58,8 +58,8 @@ void eventSelectionsParticleLevel::cleanLeptonsAndJets(Event& event){
     event.leptonParticleLevelCollection().removeTaus();
     // do jet selection and cleaning
     event.selectGoodParticleLevelJets();
-    //event.cleanParticleLevelJetsFromLeptons(); // default
-    event.cleanParticleLevelLeptonsFromJets(); // sync with ATLAS+CMS note
+    event.cleanParticleLevelJetsFromLeptons(); // default, synced with Oviedo
+    //event.cleanParticleLevelLeptonsFromJets(); // temp for syncing with LHCHWG note
     // sort leptons and jets by pt
     event.leptonParticleLevelCollection().sortByPt();
     event.jetParticleLevelCollection().sortByPt();
@@ -78,12 +78,12 @@ bool eventSelectionsParticleLevel::passTriLeptonPtThresholds(const Event& event)
 
 bool eventSelectionsParticleLevel::passDiLeptonPtThresholds(const Event& event){
     event.leptonParticleLevelCollection().sortByPt();
-    //if(event.leptonParticleLevelCollection()[0].pt() < 25.
-    //    || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
-    // (default)
     if(event.leptonParticleLevelCollection()[0].pt() < 25.
-        || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
-    // (temp for syncing with ATLAS+CMS note)
+        || event.leptonParticleLevelCollection()[1].pt() < 15.) return false;
+    // (default, synced with Oviedo)
+    //if(event.leptonParticleLevelCollection()[0].pt() < 25.
+    //    || event.leptonParticleLevelCollection()[1].pt() < 20.) return false;
+    // (temp for syncing with LHCHWG note)
     return true;
 }
 
@@ -134,27 +134,18 @@ bool eventSelectionsParticleLevel::pass_signalregion_dilepton_inclusive(Event& e
     // inclusive in lepton flavours
     cleanLeptonsAndJets(event);
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
-    // basic requirements
-    if( lepcollection.numberOfLeptons()!=2 ) return false; // sync with ATLAS+CMS note
-    //if( lepcollection.numberOfLeptons()<2 ) return false; // sync with Oviedo
+    // number of leptons and pt thresholds
+    if( lepcollection.numberOfLeptons()!=2 ) return false;
     if( !passDiLeptonPtThresholds(event) ) return false;
     // leptons must be same sign
     if( !LeptonParticleLevel::sameSign(lepcollection[0],lepcollection[1]) ) return false;
-    // Z veto for electrons
-    /*if( lepcollection[0].isElectron() 
-	&& lepcollection[1].isElectron()
-    	&& lepcollection.hasZTollCandidate(halfwindow_wide, true) ) return false;
-    // invariant mass safety
-    if( lepcollection.mass()<30. ) return false;
-    // MET
-    if( event.metParticleLevel().pt()<30.) return false; */
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
-    //if( njetsnbjets.second < 1 ) return false;
-    //if( njetsnbjets.first < 3 ) return false;
-    if( njetsnbjets.second < 2 ) return false; // temp for syncing with ATLAS+CMS note
-    //if( njetsnbjets.second != 1 ) return false; // temp for syncing with ATLAS+CMS note
-    if( njetsnbjets.first < 4 ) return false; // temp for syncing with ATLAS+CMS note
+    if( njetsnbjets.second < 1 ) return false; // default, synced with Oviedo
+    if( njetsnbjets.first < 3 ) return false; // default, synced with Oviedo
+    //if( njetsnbjets.second < 2 ) return false; // temp for syncing with LHCHWG note
+    //if( njetsnbjets.second != 1 ) return false; // temp for syncing with LHCHWG note
+    //if( njetsnbjets.first < 4 ) return false; // temp for syncing with LHCHWG note
     return true;
 }
 
@@ -164,21 +155,12 @@ std::tuple<int,std::string> eventSelectionsParticleLevel::pass_signalregion_dile
     // to allow cutflow studies
     cleanLeptonsAndJets(event);
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
-    // basic requirements
+    // number of leptons and pt thresholds
     if( lepcollection.numberOfLeptons()!=2 ) return std::make_tuple(0, "Fail 2 leptons");
     if( !passDiLeptonPtThresholds(event) ) return std::make_tuple(1, "Fail pT thresholds");
     // leptons must be same sign
     if( !LeptonParticleLevel::sameSign(lepcollection[0],lepcollection[1]) ){ 
 	return std::make_tuple(2, "Fail same sign"); }
-    // Z veto for electrons
-    /*if( lepcollection[0].isElectron()
-        && lepcollection[1].isElectron()
-        && lepcollection.hasZTollCandidate(halfwindow_wide, true) ){
-	return std::make_tuple(3, "Fail Z veto"); }
-    // invariant mass safety
-    if( lepcollection.mass()<30. ) return std::make_tuple(4, "Fail low mass veto");
-    // MET
-    if( event.metParticleLevel().pt()<30.) return std::make_tuple(5, "Fail MET");*/
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
     if( njetsnbjets.second < 1 ) return std::make_tuple(3, "Fail b-jets");
@@ -238,16 +220,9 @@ bool eventSelectionsParticleLevel::pass_signalregion_trilepton(Event& event){
     // signal region with three leptons and Z veto
     cleanLeptonsAndJets(event);
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
-    // basic requirements
+    // number of leptons and pt thresholds
     if( lepcollection.numberOfLeptons()!=3 ) return false;
     if( !passTriLeptonPtThresholds(event) ) return false;
-    // Z candidate veto
-    /*if( lepcollection.hasOppositeSignSameFlavorPair() 
-	&& lepcollection.hasZTollCandidate(halfwindow) ) return false;
-    // invariant mass safety
-    if( !passMllMassVeto(event) ) return false;
-    // sum of charges needs to be 1 or -1
-    if( !lepcollection.hasOppositeSignPair() ) return false;*/
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
     if( njetsnbjets.second < 1 ) return false;
@@ -261,16 +236,9 @@ std::tuple<int,std::string> eventSelectionsParticleLevel::pass_signalregion_tril
     // to allow cutflow studies
     cleanLeptonsAndJets(event);
     LeptonParticleLevelCollection lepcollection = event.leptonParticleLevelCollection();
-    // basic requirements
+    // number of leptons and pt thresholds
     if( lepcollection.numberOfLeptons()!=3 ) return std::make_tuple(0, "Fail 3 leptons");
     if( !passTriLeptonPtThresholds(event) ) return std::make_tuple(1, "Fail pt thresholds");
-    // Z candidate veto
-    /*if( lepcollection.hasOppositeSignSameFlavorPair()
-        && lepcollection.hasZTollCandidate(halfwindow) ) return std::make_tuple(2, "Fail Z veto");
-    // invariant mass safety
-    if( !passMllMassVeto(event) ) return std::make_tuple(3, "Fail low mass veto");
-    // sum of charges needs to be 1 or -1
-    if( !lepcollection.hasOppositeSignPair() ) return std::make_tuple(4, "Fail OS pair");*/
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
     if( njetsnbjets.second < 1 ) return std::make_tuple(2, "Fail b-jets");

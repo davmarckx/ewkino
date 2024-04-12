@@ -76,8 +76,8 @@ bool JetParticleLevel::isGood() const{
     // note: for jets, all relevant cuts should already be in the ntuplizer,
     //       but repeat here for safety if that should change.
     if( pt() < 25. ) return false;
-    //if( std::fabs(eta()) > 2.4 ) return false; // default
-    if( std::fabs(eta()) > 2.5 ) return false; // for syncing with ALTAS+CMS note
+    if( std::fabs(eta()) > 2.4 ) return false; // default, synced with Oviedo
+    //if( std::fabs(eta()) > 2.5 ) return false; // synced with LHCHWG note
     return true;
 }
 
