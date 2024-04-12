@@ -1,4 +1,13 @@
-# samples located in /pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal
+# samples located in:
+# - /pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal
+#   (old samples, with particle level configuration not completely in sync with Oviedo/nanoAOD, and with a dilepton skim)
+#   (not recommended to be used anymore!)
+# - /pnfs/iihe/cms/store/user/llambrec/noskim_ttw_signal
+#   (same particle level configuration as above (?), but no dilepton skim)
+#   (not recommended to be used, not thoroughly tested, maybe remove at some point!)
+# - /pnfs/iihe/cms/store/user/llambrec/noskim_ttw_signal_nanoaodsettings
+#   (particle level configuration synced with Oviedo/nanoAOD)
+#   (should use these ones!)
 
-TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PreVFP.root  0.2269
-TTW  ttWJetsToLNu_5f_EWK_TuneCP5_13TeV_amcatnlo-pythia8_Summer16PreVFP.root  0.016
+TTW  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Summer16PreVFP.root  0.2316
+TTW  ttWJetsToLNu_5f_EWK_TuneCP5_13TeV_amcatnlo-pythia8_Summer16PreVFP.root  0.01127
