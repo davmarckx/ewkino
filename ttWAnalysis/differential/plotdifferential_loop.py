@@ -4,16 +4,16 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20231031'
+  inputdir = 'output_20240412'
   ssdirbase = '../combine/datacards_20231031_double_'
   regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
              'signalregion_trilepton': ssdirbase + 'trilepton'}
   variables = '../variables/variables_particlelevel_single.json'
-  writeuncs = True
+  writeuncs = False
   write_roots = False
 
   # basic command
-  basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018 --xsecs xsecs/xsecs.json'
+  basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018'
   basiccmd += ' --variables {}'.format(variables)
 
   # loop over configurations

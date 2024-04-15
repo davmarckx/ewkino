@@ -1,6 +1,14 @@
 ############################################################
-# plot results of a differential cross-section measurement #
+# Plot results of a differential cross-section measurement #
 ############################################################
+
+# Note: the predictions are supposed to be obtained from the scripts 
+#       filltheory (for making particle-level histograms) 
+#       and mergetheory (for merging several files into one).
+#       Note that mergetheory also takes care of proper normalization with
+#       hCounter and cross-section, hence it is not optional and should always be used
+#       before plotting the results here, even if not actually merging multiple files.
+
 
 import sys
 import os
@@ -20,6 +28,7 @@ from processinfo import ProcessInfoCollection, ProcessCollection
 sys.path.append(os.path.abspath('../differential/tools'))
 from uncertaintyprop import normalizexsec
 from uncertaintyprop import sstoxsec
+
 
 def calcchi2(observed, expected):
   ### calculate the chi2 divergence between two histograms
@@ -47,8 +56,6 @@ if __name__=='__main__':
   parser.add_argument('-p', '--processes', required=True,
                       help='Comma-separated list of process tags to take into account;'
                           +' use "all" to use all processes in the input file.')
-  parser.add_argument('-x', '--xsecs', required=True, type=os.path.abspath,
-                      help='Path to json file holding (predicted) total cross-sections for each process.')
   parser.add_argument('-v', '--variables', required=True, type=os.path.abspath,
                       help='Path to json file holding variable definitions.')
   parser.add_argument('-s', '--signalstrength', default=None, type=apt.path_or_none,
@@ -88,13 +95,6 @@ if __name__=='__main__':
   # parse the string with process tags
   processes = args.processes.split(',')
   doallprocesses = (len(processes)==1 and processes[0]=='all')
-
-  # parse the cross-sections
-  if not os.path.exists(args.xsecs):
-    raise Exception('ERROR: cross-section file '+args.xsecs
-                    +' but it does not seem to exist...')
-  with open(args.xsecs, 'r') as f:
-    xsecs = json.load(f)
 
   # parse the variables
   varlist = read_variables(args.variables)
@@ -184,41 +184,12 @@ if __name__=='__main__':
   print('Extracted following relevant systematics from histogram file:')
   for systematic in shapesyslist: print('  - '+systematic)
 
-  # get the hCounter and cross-sections for each process
-  hcounters = []
-  xsections = []
-  f = ROOT.TFile.Open(args.inputfile,'read')
-  for process in processes:
-      # get the hCounter
-      hcname = str(process+'_'+splittag+'_hCounter')
-      if 'EFT' in process:
-        hcname = str(process.split('EFT')[0]+'EFT_'+splittag+'_hCounter')
-        if 'EFTScaled' in process:
-          hcname = str(process.split('EFTScaled')[0]+'EFTScaled_'+splittag+'_hCounter')
-      if hcname not in hcnames:
-        msg = 'ERROR: wrong hCounter name:'
-        msg += ' histogram {} not found'.format(hcname)
-        msg += ' in following list:\n'
-        for hname in hcnames: msg += '    {}\n'.format(hname)
-        raise Exception(msg)
-      hcounter = f.Get(hcname)
-      hcounter = hcounter.GetBinContent(1)
-      hcounters.append(hcounter)
-      # get the cross-section
-      if process not in xsecs.keys():
-        msg = 'ERROR: wrong cross-section:'
-        msg += ' process {} not found'.format(process)
-        msg += ' in provided dict: {}'.format(xsecs)
-        raise Exception(msg)
-      xsections.append(xsecs[process]*1000)
-      # (factor 1000 is to convert from pb to fb)
-  f.Close()
-
-  # if we want a collection of data histograms we innit the root file here
+  # if we want a collection of data histograms we initialize the root file here
   if args.write_rootfiles:
     if not os.path.exists(os.path.join(outputdir,"rootfiles")):
         os.makedirs(os.path.join(outputdir,"rootfiles"))
-    rootfile = TFile( os.path.join(outputdir,"rootfiles/differentialplots_{}.root".format(args.year)), 'RECREATE' )
+    rootfilename = os.path.join(outputdir,"rootfiles/differentialplots_{}.root".format(args.year))
+    rootfile = TFile( rootfilename, 'RECREATE' )
 
   # loop over variables
   for var in varlist:
@@ -270,9 +241,9 @@ if __name__=='__main__':
     # get one nominal and one total systematic histogram for each process
     nominalhists = []
     systhists = []
-    #systematics = ['pdfTotalRMS','rfScalesTotal','isrTotal','fsrTotal']
-    systematics = [] 
-    print('WARNING: list of systematics set to empty for testing.')
+    systematics = ['pdfTotalRMS','rfScalesTotal','isrTotal','fsrTotal']
+    #systematics = []
+    #print('WARNING: list of systematics set to empty for testing.')
     for process in processes:
       nominalhist = PC.processes[process].get_nominal()
       nominalhist.SetTitle( process.split('_')[0] )
@@ -295,26 +266,6 @@ if __name__=='__main__':
         systhist.SetBinError(i, rsshist.GetBinContent(i))
       nominalhists_norm.append(nominalhist)
       systhists_norm.append(systhist)
-
-    # do scaling with hCounter (for non-normalized histograms)
-    for i, process in enumerate(processes):
-      hcounter = hcounters[i]
-      xsection = xsections[i]
-      sumweights = nominalhists[i].GetSumOfWeights()
-      scale = xsection/hcounter
-      # printouts for testing
-      doprint = False
-      if doprint:
-        print('Rescaling process {}:'.format(process))
-        print('  - sum of weights in histogram: {}'.format(sumweights))
-        print('  - hcounter: {}'.format(hcounter))
-        print('  - xsection: {}'.format(xsection))
-        print('  --> selection efficiency: {}'.format(sumweights/hcounter))
-        print('  --> fiducial cross-section: {}'.format(sumweights/hcounter*xsection))
-        print('  --> rescaling factor: {}'.format(scale))
-      nominalhists[i].Scale(scale)
-      systhists[i].Scale(scale)
-      nominalrefs[i].Scale(scale)
 
     # find signal strengths
     datahist = nominalrefs[0].Clone()
@@ -474,7 +425,7 @@ if __name__=='__main__':
     # we write the histograms if requested
     if args.write_rootfiles:
         rootfile.cd()
-        print("...and write the data histograms to " + os.path.join(outputdir,"rootfiles/differentialplots_{}_{}.root".format(args.region,args.year)) )
+        print("Writing data histograms to {}...".format(rootfile))
         datahist.SetName( datahist.GetName().replace("nominal","data"))
         datahist.Write()
         statdatahist.SetName( statdatahist.GetName().replace("nominal","datastat"))
@@ -483,7 +434,7 @@ if __name__=='__main__':
         normdatahist.Write()
         normstatdatahist.SetName( normstatdatahist.GetName().replace("nominal","normstatdata"))
         normstatdatahist.Write()
-        print("...and try the theory histograms as well")
+        print("Writing theory histograms...")
         if len(nominalhists) == 1:
             nominalhists[0].SetName( nominalhists[0].GetName().replace("nominal","MC"))
             nominalhists[0].Write()

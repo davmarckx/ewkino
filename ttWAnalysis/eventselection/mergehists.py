@@ -255,6 +255,62 @@ def clip_histograms_in_file( rfile, mode='custom' ):
     f.Close()
 
 
+def normalize_histograms_in_file( rootfile, xsecs ):
+  ### normalize histograms in a file using cross-sections
+  # note: not normally needed!
+  #       currently only used for theory predictions at particle level
+  #       (see differential/mergetheory.py)
+  # input arguments:
+  # - rootfile: rootfile containing all histograms to be normalized,
+  #   as well as the hCounters needed for normalization.
+  #   expected naming convention: <process name>_<whatever>_<systematic>,
+  #   where process name and systematic cannot contain underscores,
+  #   and where systematic is 'hCounter' for the hCounter histogram.
+  # - xsecs: dictionary matching process names to cross-section values.
+  histlist = ht.loadallhistograms(rootfile)
+  histdict = {}
+  for hist in histlist: histdict[hist.GetName()] = hist
+  for histname, hist in histdict.items():
+    # extract the process, systematic name, and middle part
+    # warning: may need update in case the naming convention changes or is extended
+    parts = histname.split('_')
+    process = parts[0]
+    sysname = parts[-1]
+    splittag = '_'.join(parts[1:-1])
+    # skip hcounter histograms
+    if histname.endswith('_hCounter'): continue
+    # find hCounter for this histogram
+    # warning: may need update in case the naming convention changes or is extended
+    hcname = str(process+'_'+splittag+'_hCounter')
+    if 'EFT' in process:
+      hcname = str(process.split('EFT')[0]+'EFT_'+splittag+'_hCounter')
+      if 'EFTScaled' in process:
+        hcname = str(process.split('EFTScaled')[0]+'EFTScaled_'+splittag+'_hCounter')
+    if hcname not in histdict.keys():
+      msg = 'ERROR: wrong hCounter name:'
+      msg += ' histogram {} not found'.format(hcname)
+      msg += ' in list of histograms.'
+      raise Exception(msg)
+    # read the hCounter for this histogram
+    hcounter = histdict[hcname]
+    hcounter = hcounter.GetBinContent(1)
+    # get the cross-section
+    if process not in xsecs.keys():
+      msg = 'ERROR: wrong cross-section:'
+      msg += ' process {} not found'.format(process)
+      msg += ' in provided dict: {}'.format(xsecs)
+      raise Exception(msg)
+    xsection = xsecs[process]*1000
+    # (factor 1000 is to convert from pb to fb)
+    # normalize the histogram
+    normfactor = xsection / hcounter
+    hist.Scale(normfactor)
+  # re-write output file
+  f = ROOT.TFile.Open(rootfile, 'recreate')
+  for hist in histlist: hist.Write()
+  f.Close()
+
+
 def mergehists( selfiles, args ):
   ### main function
 
@@ -280,6 +336,18 @@ def mergehists( selfiles, args ):
     tempfile = os.path.join(tempdir,filename)
     os.system('cp {} {}'.format(f, tempfile))
     tempfiles.append(tempfile)
+
+  # scale processes if requested
+  if( hasattr(args, 'xsecs') and args.xsecs is not None):
+    print('Rescaling processes with provided cross-sections in all selected files...')
+    if not os.path.exists(args.xsecs):
+      msg = 'ERROR: cross-section file {} but it does not seem to exist...'.format(args.xsecs)
+      raise Exception(msg)
+    with open(args.xsecs, 'r') as f: xsecs = json.load(f)
+    for i,f in enumerate(tempfiles):
+      print('  - file {}/{}'.format(i+1,len(tempfiles)))
+      sys.stdout.flush()
+      normalize_histograms_in_file(f, xsecs)
 
   # rename processes if requested
   if args.rename is not None:

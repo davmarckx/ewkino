@@ -20,6 +20,7 @@ from eventflattener import year_from_samplelist
 
 
 # list of default systematics to include
+# (select this list by providing "--systematics default" as command line arg)
 systematics_default = ([
   # scale uncertainties
   "fScaleShape",
@@ -47,7 +48,9 @@ systematics_default = ([
   "fsrNorm",
   "fsrTotal"
 ])
+
 # alternative list of systematics: only eft variations
+# (select this list by providing "--systematics eft" as command line arg)
 systematics_eft = ['eft']
 
 

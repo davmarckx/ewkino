@@ -1,5 +1,14 @@
 // Fill theory (i.e. particle level) differential cross-section distributions
 
+// Note: contrary to the analysis script at detector level,
+//       this script uses the generator weight of each event instead of the full weight
+//       (i.e. event.genWeight() instead of event.weight()).
+//       Hence the histograms produced by this script are not normalized correctly to xsection;
+//       an additional normalization factor of xsection / hCounter needs to be applied
+//       in post-processing (and the hCounter is written to the output file for convenience).
+//       The motivation for this design is to allow quick xsection or lumi changes,
+//       without having to re-run this script.
+
 // inlcude c++ library classes
 #include <string>
 #include <vector>
