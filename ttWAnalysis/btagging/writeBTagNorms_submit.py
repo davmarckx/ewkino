@@ -7,14 +7,12 @@ import sys
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
-for r in ['signalregion_dilepton_oviedo']: regions.append(r)
 for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
 for r in ['signalregion_trilepton']: regions.append(r)
 for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
 for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
 for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
-for r in ['npcontrolregion_dilepton_oviedo']: regions.append(r)
 for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
 for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
 for r in ['cfcontrolregion']: regions.append(r)
@@ -22,10 +20,17 @@ for r in ['cfjetscontrolregion']: regions.append(r)
 
 years = ['2016PreVFP','2016PostVFP','2017','2018']
 
-samplelistdir = '../samplelists/fourtops' # standard samples
-samplelistbase = 'samples_tttt_{}_sim.txt' # standard samples
-#samplelistdir = '../analysis/samplelists' # sample lists for TTW signal samples
-#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+# settings for sample and file location
+loc = {
+  'bkg': {
+    'samplelist': '../samplelists/backgrounds/samples_tttt_{}_sim.txt',
+    'inputdir': '/pnfs/iihe/cms/store/user/nivanden/skims_v4/{}'
+  },
+  'sig': {
+    'samplelist': '../samplelists/particlelevel/samplelist_{}_TTW_particlelevel.txt',
+    'inputdir': '/pnfs/iihe/cms/store/user/llambrec/noskim_ttw_signal_nanoaodsettings'
+  }
+}
 
 nevents = 1e6
 
@@ -34,16 +39,13 @@ runmode = 'condor'
 outputdir = 'output_test'
 
 for year in years:
+  for sampletype, sampleloc in loc.items():
     # set correct input directory
-    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4' # standard samples
-    inputdiryear = year # standard samples
-    #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal' # signal samples
-    #inputdiryear = '' # signal samples
-    inputdir = os.path.join(inputdir, inputdiryear)
+    inputdir = sampleloc['inputdir'].format(year)
     # set correct sample list
-    samplelist = os.path.join(samplelistdir,samplelistbase.format(year))
+    samplelist = sampleloc['samplelist'].format(year)
     # set correct output directory
-    thisoutputdir = os.path.join(outputdir, '{}'.format(year))
+    thisoutputdir = os.path.join(outputdir, '{}_{}'.format(year, sampletype))
     # make the command
     cmd = 'python writeBTagNorms.py'
     cmd += ' --inputdir ' + inputdir

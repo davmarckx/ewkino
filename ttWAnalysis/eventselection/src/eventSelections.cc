@@ -173,12 +173,6 @@ bool passTriLeptonPtThresholds(Event& event){
 
 bool passDiLeptonPtThresholds(Event& event){
     event.sortLeptonsByPt();
-    // original
-    /*if(event.leptonCollection()[0].pt() < 25.
-        || event.leptonCollection()[1].pt() < 20.
-        || (event.leptonCollection()[0].isElectron() 
-	    && event.leptonCollection()[0].pt() < 30.)) return false;*/
-    // change to simpler (in sync with Oviedo)
     if(event.leptonCollection()[0].pt() < 25.
         || event.leptonCollection()[1].pt() < 15.) return false;
     return true;
@@ -323,14 +317,16 @@ std::pair<int,int> nJetsNLooseBJets(Event& event, const std::string& variation){
 
 // help function for lepton pair mass constraint //
 
-bool passMllMassVeto( const Event& event ){
+bool passMllMassVeto( const Event& event, double threshold ){
+    // returns false if there is a lepton pair with mll < threshold
+    // (independent of the flavor or sign of the leptons)
     for( LeptonCollection::const_iterator l1It = event.leptonCollection().cbegin(); 
 	l1It != event.leptonCollection().cend(); l1It++ ){
 	for( LeptonCollection::const_iterator l2It = l1It+1; 
 	    l2It != event.leptonCollection().cend(); l2It++ ){
             Lepton& lep1 = **l1It;
             Lepton& lep2 = **l2It;
-            if( sameFlavor(lep1,lep2) && (lep1+lep2).mass() < 12. ) return false;
+            if( (lep1+lep2).mass() < threshold ) return false;
 	}
     }
     return true;
@@ -356,58 +352,21 @@ bool pass_noselection(Event& event, const std::string& selectiontype,
 // signal regions 
 // ---------------
 
-/*bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
-                                const std::string& variation, const bool selectbjets){
-    // signal region with two same sign leptons,
-    // inclusive in lepton flavours.
-    // legacy version used before 06/02/2023, largely synchronized with Tu Thongs selection
-    // keep for reference but better to use version synchronized with Oviedo (see below).
-    cleanLeptonsAndJets(event);
-    // apply trigger and pt thresholds
-    if(not event.passMetFilters()) return false;
-    if(not passAnyTrigger(event)) return false;
-    if(!hasnFOLeptons(event,2,true)) return false;
-    if(!passDiLeptonPtThresholds(event)) return false;
-    if(!passPhotonOverlapRemoval(event)) return false;
-    // do lepton selection for different types of selections
-    if( !doLeptonSelection(event, selectiontype, 2) ) return false;
-    // leptons must be same sign
-    if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
-    else{ if( !event.leptonsAreSameSign() ) return false; }
-    // Z veto for electrons
-    if( event.leptonCollection()[0].isElectron() 
-	&& event.leptonCollection()[1].isElectron()
-	&& event.hasZTollCandidate(halfwindow_wide, true) ) return false;
-    // invariant mass safety
-    if( event.leptonSystem().mass()<30. ) return false;
-    // MET
-    if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
-    else{ if(event.getMet(variation).pt()<30.) return false; }
-    // number of jets and b-jets
-    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if(selectbjets){ if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ) return false; }
-    if( njetsnbjets.first < 2 ) return false;
-    return true;
-}*/
-
 bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
-    // signal region with two same sign leptons,
-    // inclusive in lepton flavours.
-    // new version used on 06/02/2023 for dummy xsec measurement sync with Oviedo.
+    // signal region with two same sign leptons, inclusive in lepton flavours
     cleanLeptonsAndJets(event);
     // apply trigger, pt thresholds and mll veto
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
     if(!hasnFOLeptons(event,2,true)) return false;
-    if(!passMllMassVeto(event)) return false;
+    if(!passMllMassVeto(event, 30.)) return false;
     if(not passPhotonOverlapRemoval(event)) return false;
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return false;
     event.sortLeptonsByPt();
     if(!passDiLeptonPtThresholds(event)) return false;
-    // re-added on 20/02/2023: invariant mass safety
+    // invariant mass safety
     if( event.leptonSystem().mass()<30. ) return false;
     // leptons must be same sign
     if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return false; }
@@ -416,8 +375,7 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     if( event.leptonCollection()[0].isElectron() 
         && event.leptonCollection()[1].isElectron()
         && event.hasZTollCandidate(10., true) ) return false;
-    // MET cut for electrons
-    // re-added on 18/04/2023: MET cut for all lepton flavours
+    // MET cut
     if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
     else{ if(event.getMet(variation).pt()<30.) return false; }
     // number of jets and b-jets
@@ -427,50 +385,6 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
     return true;
 }
 
-
-
-/*std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusive_cutflow(
-    Event& event, 
-    const std::string& selectiontype,
-    const std::string& variation, 
-    const bool selectbjets){
-    // copy of pass_signalregion_dilepton_inclusive
-    // but different return type to allow cutflow studies
-    // legacy version used before 06/02/2023, maybe return to it later
-    cleanLeptonsAndJets(event);
-    // apply trigger and pt thresholds
-    if(not event.passMetFilters()) return std::make_tuple(0, "Fail MET filters");
-    if(not passAnyTrigger(event)) return std::make_tuple(1, "Fail trigger");
-    if(!hasnFOLeptons(event,2,true)) return std::make_tuple(2, "Fail 2 FO leptons");
-    if(!passDiLeptonPtThresholds(event)) return std::make_tuple(3, "Fail pT thresholds");
-    if(!passPhotonOverlapRemoval(event)) return std::make_tuple(4, "Fail photon overlap");
-    // do lepton selection for different types of selections
-    if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(5, "Fail 2 tight leptons");
-    // leptons must be same sign
-    if( selectiontype=="chargeflips" ){ 
-	if( event.leptonsAreSameSign() ) return std::make_tuple(6, "Fail same sign"); }
-    else{ if( !event.leptonsAreSameSign() ) return std::make_tuple(6, "Fail same sign"); }
-    // Z veto for electrons
-    if( event.leptonCollection()[0].isElectron()
-        && event.leptonCollection()[1].isElectron()
-        && event.hasZTollCandidate(halfwindow_wide, true) ){ 
-	return std::make_tuple(7, "Fail electron Z veto"); }
-    // invariant mass safety
-    if( event.leptonSystem().mass()<30. ) return std::make_tuple(8, "Fail low mass veto");
-    // MET
-    if( variation=="all" ){ 
-	if(event.met().maxPtAnyVariation()<30) return std::make_tuple(9, "Fail MET"); }
-    else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(9, "Fail MET"); }
-    // number of jets and b-jets
-    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 && njetsnloosebjets.second < 2 ){ 
-	return std::make_tuple(10, "Fail b-jets"); }
-    if( njetsnbjets.first < 2 ) return std::make_tuple(11, "Fail jets");
-    if(selectbjets){} // dummy to avoid unused parameter warning
-    return std::make_tuple(12, "Pass");
-}*/
-
 std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusive_cutflow(
     Event& event, 
     const std::string& selectiontype,
@@ -478,19 +392,18 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     const bool selectbjets){
     // copy of pass_signalregion_dilepton_inclusive
     // but different return type to allow cutflow studies
-    // new version used on 06/02/2023 for dummy xsec measurement sync with Oviedo.
     cleanLeptonsAndJets(event);
     // apply trigger, pt thresholds and mll veto
     if(not event.passMetFilters()) return std::make_tuple(1, "Fail MET filters");
     if(not passAnyTrigger(event)) return std::make_tuple(2, "Fail trigger");
     if(!hasnFOLeptons(event,2,true)) return std::make_tuple(3, "Fail 2 tight leptons");
-    if(!passMllMassVeto(event)) return std::make_tuple(3, "Fail 2 tight leptons");
+    if(!passMllMassVeto(event, 30.)) return std::make_tuple(3, "Fail 2 tight leptons");
     if(not passPhotonOverlapRemoval(event)) return std::make_tuple(3, "Fail 2 tight leptons");
     // do lepton selection for different types of selections
     if( !doLeptonSelection(event, selectiontype, 2) ) return std::make_tuple(3, "Fail 2 tight leptons");
     event.sortLeptonsByPt();
     if(!passDiLeptonPtThresholds(event)) return std::make_tuple(4, "Fail pT thresholds");
-    // re-added on 20/02/2023: invariant mass safety
+    // invariant mass safety
     if( event.leptonSystem().mass()<30. ) return std::make_tuple(5, "Fail invariant mass veto");
     // leptons must be same sign
     if( selectiontype=="chargeflips" ){ if( event.leptonsAreSameSign() ) return std::make_tuple(6, "Fail same sign"); }
@@ -499,15 +412,13 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
     if( event.leptonCollection()[0].isElectron()
         && event.leptonCollection()[1].isElectron()
         && event.hasZTollCandidate(10., true) ) return std::make_tuple(7, "Fail electron Z veto");
-    // MET cut for electrons
-    // re-added on 18/04/2023: MET cut for all lepton flavours
+    // MET cut
     if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(8, "Fail MET"); }
     else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(8, "Fail MET"); }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
-    if( njetsnloosebjets.second < 2 ) return std::make_tuple(9, "Fail number of (b-) jets");
+    if( selectbjets){ if( njetsnloosebjets.second < 2 ) return std::make_tuple(9, "Fail number of (b-) jets"); }
     if( njetsnloosebjets.first < 3 ) return std::make_tuple(9, "Fail number of (b-) jets");
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return std::make_tuple(10, "Pass");
 }
 
@@ -674,13 +585,13 @@ bool pass_signalregion_trilepton(Event& event, const std::string& selectiontype,
     // Z candidate veto
     if( event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow) ) return false;
     // invariant mass safety
-    if(not passMllMassVeto(event)) return false;
+    if(not passMllMassVeto(event, 30.)) return false;
     // sum of charges needs to be 1 or -1
     if( !event.hasOSLeptonPair() ) return false;
     // number of jets and b-jets
-    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( selectbjets ){ if( njetsnbjets.second < 1 ) return false; }
-    if( njetsnbjets.first < 2 ) return false;
+    std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
+    if( selectbjets ){ if( njetsnloosebjets.second < 2 ) return false; }
+    if( njetsnloosebjets.first < 2 ) return false;
     return true; 
 }
 
@@ -704,14 +615,13 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_trilepton_cutflow
     if( event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow) ){ 
 	return std::make_tuple(4, "Fail Z veto"); }
     // invariant mass safety
-    if(not passMllMassVeto(event)) return std::make_tuple(5, "Fail low mass veto");
+    if(not passMllMassVeto(event, 30.)) return std::make_tuple(5, "Fail low mass veto");
     // sum of charges needs to be 1 or -1
     if( !event.hasOSLeptonPair() ) return std::make_tuple(6, "Fail OS pair");
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
-    if( njetsnbjets.second < 1 ) return std::make_tuple(7, "Fail number of (b-) jets");
+    if( selectbjets ){ if( njetsnbjets.second < 1 ) return std::make_tuple(7, "Fail number of (b-) jets"); }
     if( njetsnbjets.first < 2 ) return std::make_tuple(7, "Fail number of (b-) jets");
-    if(selectbjets){} // dummy to avoid unused parameter warning
     return std::make_tuple(8, "Pass");
 }
 
@@ -794,7 +704,7 @@ bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;
     if(not passAnyTrigger(event)) return false;
-    if(!passMllMassVeto(event)) return false;
+    if(!passMllMassVeto(event, 12.)) return false;
     if(!hasnFOLeptons(event,3,true)) return false;
     //if(not passTriLeptonPtThresholds(event)) return false;
     if(event.leptonCollection()[0].pt() < 25.
@@ -846,7 +756,7 @@ bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
     // Z candidate
     if( !(event.hasOSSFLightLeptonPair() && event.hasZTollCandidate(halfwindow)) ) return false;
     // invariant mass safety
-    if(not passMllMassVeto(event)) return false;
+    if(not passMllMassVeto(event, 30.)) return false;
     // sum of charges needs to 1 or -1
     if( !event.hasOSLeptonPair()) return false;
     if(variation=="dummy") return true; // dummy to avoid unused parameter warning
