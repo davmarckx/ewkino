@@ -137,18 +137,20 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
     std::string fitMethod = "iterativefit";
 
     // calibrate the reader
-    // note: this part can be commented out for quicker testing!
-    //	     in that case, make sure to also comment out the bTagSFReader->eval_auto_bounds call below
-    //	     and return a default value instead!
-    std::cout << "reading requested scale factors from csv file..." << std::endl;
-    bTagSFCalibration = std::shared_ptr< BTagCalibration >( 
-	new BTagCalibration( "", stringTools::formatDirectoryName(weightDirectory)+sfFilePath ) );
-    if( _flavor=="heavy" || _flavor=="all" ){
-	bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_B, fitMethod );
-	bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_C, fitMethod );
-    }
-    if( _flavor=="light" || _flavor=="all" ){
-	bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_UDSG, fitMethod );
+    // note: this part (which takes a long time) can be skipped by setting testmode to true,
+    //       but in that case the returned values are just dummy values.
+    testmode = false;
+    if( !testmode ){
+	std::cout << "reading requested scale factors from csv file..." << std::endl;
+	bTagSFCalibration = std::shared_ptr< BTagCalibration >( 
+	    new BTagCalibration( "", stringTools::formatDirectoryName(weightDirectory)+sfFilePath ) );
+	if( _flavor=="heavy" || _flavor=="all" ){
+	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_B, fitMethod );
+	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_C, fitMethod );
+	}
+	if( _flavor=="light" || _flavor=="all" ){
+	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_UDSG, fitMethod );
+	}
     }
 
     std::cout << "done creating the ReweighterBTagShape instance." << std::endl;
@@ -424,10 +426,14 @@ double ReweighterBTagShape::weight( const Jet& jet, const std::string& variation
     // note: https://twiki.cern.ch/twiki/bin/view/CMS/BTagCalibration#Using_b_tag_scale_factors_in_you
     // this page recommends to use absolute value of eta, but BTagCalibrationStandalone.cc
     // seems to handle negative values of eta more correctly (only taking abs when needed)
-    double scaleFactor = bTagSFReader->eval_auto_bounds( sys, jetFlavorEntry( jet ),
-    				                         jet.eta(), jet.pt(), bTagScore );
-    //double scaleFactor = 0.5;
-    //double scaleFactor = getDummyScaleFactor(jet);
+    double scaleFactor;
+    if( !testmode ){
+	scaleFactor = bTagSFReader->eval_auto_bounds( sys, jetFlavorEntry( jet ),
+						      jet.eta(), jet.pt(), bTagScore );
+    } else{
+	//double scaleFactor = 0.5;
+	scaleFactor = getDummyScaleFactor(jet);
+    }
 
     // printouts for testing
     /*if( scaleFactor==0 ){
@@ -457,8 +463,6 @@ double ReweighterBTagShape::weightDown( const Jet& jet, const std::string& syste
 
 double ReweighterBTagShape::weight( const Event& event, const std::string& variation ) const{
     // get the weight for an event by multiplying individual jet weights
-    // note: the nominal jet collection in the event is used;
-    //       for the JEC variations: see below
     double weight = 1.;
     // get the appropriate jet collection
     JetCollection jetCollection = event.jetCollection().goodJetCollection();

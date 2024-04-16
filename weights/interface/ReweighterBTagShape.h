@@ -57,7 +57,7 @@ class ReweighterBTagShape: public Reweighter{
 
     private:
 
-	//std::string _weightDirectory;
+	bool testmode = false;
 	std::shared_ptr<BTagCalibration> bTagSFCalibration;
 	std::shared_ptr<BTagCalibrationReader> bTagSFReader;
 	std::string _flavor;

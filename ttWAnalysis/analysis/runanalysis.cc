@@ -568,7 +568,7 @@ void fillSystematicsHistograms(
 	}
 	if( !treeReader.isData() ){
 	    // read b-tagging shape reweighting normalization factors from txt file
-	    std::string txtInputFile = "../btagging/output_20230630/";
+	    std::string txtInputFile = "../btagging/output_20240412/";
 	    // (hard-coded for now, maybe replace by argument later)
 	    txtInputFile += year + "/" + inputFileName;
 	    txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");
@@ -998,11 +998,18 @@ void fillSystematicsHistograms(
                                     bdt, year);
 		    double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 		    // for JEC: propagate into b-tag shape reweighting
-		    /*if( systematic=="JEC" && considerbtagshape ){
-			weight *= dynamic_cast<const ReweighterBTagShape*>( 
-				    reweighter["bTag_shape"] )->weightJecVar( event, "JECUp" )
+		    if( systematic=="JEC" && hasBTagShapeReweighter ){
+			std::string jesvar = "jes";
+                        if( dynamic_cast<const ReweighterBTagShape*>( 
+                                    reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
+			    weight *= dynamic_cast<const ReweighterBTagShape*>( 
+				    reweighter["bTag_shape"] )->weightUp( event, jesvar )
 				    / reweighter["bTag_shape"]->weight( event );
-		    }*/
+			} else{
+			    std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
+                            std::cerr << "reweighter not recognized" << std::endl;
+			}
+		    }
 		    // fill the variables
 		    fillHistograms( histMap, thisProcessName,
 			    event_selection, selection_type, upvar,
@@ -1020,11 +1027,18 @@ void fillSystematicsHistograms(
                                     bdt, year);
 		    double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 		    // for JEC: propagate into b-tag shape reweighting
-                    /*if( systematic=="JEC" && considerbtagshape ){
-                        weight *= dynamic_cast<const ReweighterBTagShape*>(
-                                    reweighter["bTag_shape"] )->weightJecVar( event, "JECDown" )
+                    if( systematic=="JEC" && hasBTagShapeReweighter ){
+                        std::string jesvar = "jes";
+                        if( dynamic_cast<const ReweighterBTagShape*>(
+                                    reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
+			    weight *= dynamic_cast<const ReweighterBTagShape*>(
+                                    reweighter["bTag_shape"] )->weightDown( event, jesvar )
                                     / reweighter["bTag_shape"]->weight( event );
-                    }*/
+			} else{
+                            std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
+                            std::cerr << "reweighter not recognized" << std::endl;
+                        }
+                    }
                     // fill the variables
 		    fillHistograms( histMap, thisProcessName,
                             event_selection, selection_type, downvar,
@@ -1054,18 +1068,19 @@ void fillSystematicsHistograms(
                                     bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
 			// for JEC: propagate into b-tag shape reweighting
-			/*if( considerbtagshape && jecvar!="RelativeSample" ){
+			if( hasBTagShapeReweighter && jecvar!="RelativeSample" ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
+			    if(jecvar=="Total") jesvar = "jes";
 			    if( dynamic_cast<const ReweighterBTagShape*>(
-                                reweighter["bTag_shape"] )->hasVariation( jesvar) ){
+                                reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
 				weight *= dynamic_cast<const ReweighterBTagShape*>(
-					reweighter["bTag_shape"] )->weightJecVar( event, thisupvar )
+					reweighter["bTag_shape"] )->weightUp( event, jesvar )
 					/reweighter["bTag_shape"]->weight( event );
 			    } else{
-				std::cerr << "WARNING: variation '"<<jecvar<<"' for bTag shape";
-				std::cerr << "reweighter but not recognized" << std::endl;
+				std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
+				std::cerr << "reweighter not recognized" << std::endl;
 			    }
-			}*/
+			}
 			// fill the variables
 			fillHistograms( histMap, thisProcessName,
                             event_selection, selection_type, systematic + "_" + thisupvar,
@@ -1084,18 +1099,19 @@ void fillSystematicsHistograms(
                                 bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
                         // for JEC: propagate into b-tag shape reweighting
-                        /*if( considerbtagshape && jecvar!="RelativeSample" ){
+                        if( hasBTagShapeReweighter && jecvar!="RelativeSample" ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
+			    if(jecvar=="Total") jesvar = "jes";
                             if( dynamic_cast<const ReweighterBTagShape*>(
-                                reweighter["bTag_shape"] )->hasVariation( jesvar) ){
+                                reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
                                 weight *= dynamic_cast<const ReweighterBTagShape*>(
-					reweighter["bTag_shape"] )->weightJecVar( event,thisdownvar )
+					reweighter["bTag_shape"] )->weightDown( event, jesvar )
                                         /reweighter["bTag_shape"]->weight( event );
                             } else{
                                 std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
-                                std::cerr << "reweighter but not recognized" << std::endl;
+                                std::cerr << "reweighter not recognized" << std::endl;
                             }
-                        }*/
+                        }
 			// fill the variables
 			fillHistograms( histMap, thisProcessName,
                             event_selection, selection_type, systematic + "_" + thisdownvar,
