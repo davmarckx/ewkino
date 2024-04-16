@@ -1,10 +1,10 @@
 [
 { "name":    "_nJets",
   "variable":   "_nJets",
-  "bins":   [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5],
+  "bins":   [2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5],
   "axtitle": "Number of jets",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["3", "4", "5", "6", "7", "8", "9"]
+  "xlabels": ["3", "4", "5", "6", "7", "8"]
 }
 ]

@@ -11,6 +11,17 @@
   "xlabels": ["0", "1", "2", "3"]
 },
 {
+  "name": "_nMuons2",
+  "variable": "_nMuons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of muons in event",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
+},
+{
   "name": "_nElectrons",
   "variable": "_nElectrons",
   "nbins": "4",
@@ -20,6 +31,17 @@
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_nElectrons2",
+  "variable": "_nElectrons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of electrons in event",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
 },
 {
   "name": "_nJets",
@@ -143,12 +165,12 @@
 {
   "name": "_nJetsNBJetsCat",
   "variable": "_nJetsNBJetsCat",
-  "nbins": "13",
-  "xlow": "-1.5",
-  "xhigh": "11.5",
-  "axtitle": "Number of (b-) jets category",
+  "nbins": "14",
+  "xlow": "-0.5",
+  "xhigh": "13.5",
+  "axtitle": "Number of (b-tagged) jets category",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["Other","0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", ">3j", ">1b2j", "3j", ">3j"]
+  "xlabels": ["0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
 }
 ]

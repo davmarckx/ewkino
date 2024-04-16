@@ -18,6 +18,15 @@
   "unit": "GeV"
 },
 {
+  "name": "_pTjj_max",
+  "variable": "_pTjj_max",
+  "nbins": "20",
+  "xlow": "0.0",
+  "xhigh": "500.0",
+  "axtitle": "p_{T}^{max}(jet+jet)",
+  "unit": "GeV"
+},
+{
   "name": "_lW_asymmetry",
   "variable": "_lW_asymmetry",
   "nbins": "20",
@@ -40,7 +49,7 @@
   "variable": "_lT",
   "nbins": "20",
   "xlow": "0.0",
-  "xhigh": "800.0",
+  "xhigh": "600.0",
   "axtitle": "L_{T}",
   "unit": "GeV"
 },
@@ -51,15 +60,6 @@
   "xlow": "0.0",
   "xhigh": "200.0",
   "axtitle": "Transverse W boson mass",
-  "unit": "GeV"
-},
-{
-  "name": "_pTjj_max",
-  "variable": "_pTjj_max",
-  "nbins": "20",
-  "xlow": "0.0",
-  "xhigh": "500.0",
-  "axtitle": "p_{T}^{max}(jet+jet)",
   "unit": "GeV"
 },
 {
@@ -76,7 +76,7 @@
   "variable": "_HT",
   "nbins": "20",
   "xlow": "0.0",
-  "xhigh": "800.0",
+  "xhigh": "1000.0",
   "axtitle": "H_{T}",
   "unit": "GeV"
 },
@@ -97,6 +97,15 @@
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["3", "4", "5", "6", "7", "8"]
+},
+{
+  "name": "_nJets3",
+  "variable": "_nJets",
+  "bins":   [2.5, 3.5, 4.5, 5.5, 6.5],
+  "axtitle": "Number of jets",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["3", "4", "5", "6"]
 },
 {
   "name": "_nBJets",
@@ -128,11 +137,11 @@
 {
   "name": "_nLooseBJets2",
   "variable": "_nLooseBJets",
-  "bins":   [-0.5, 0.5, 1.5, 2.5, 3.5],
+  "bins":   [1.5, 2.5, 3.5, 4.5],
   "axtitle": "Number of b-tagged jets",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["0", "1", "2", "3"]
+  "xlabels": ["2", "3", "4"]
 },
 {
   "name": "_abs_eta_max",
@@ -155,6 +164,17 @@
   "xlabels": ["0", "1", "2", "3"]
 },
 {
+  "name": "_nMuons2",
+  "variable": "_nMuons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of muons in event",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
+},
+{
   "name": "_nElectrons",
   "variable": "_nElectrons",
   "nbins": "4",
@@ -164,6 +184,17 @@
   "unit": "",
   "iscategorical": "true",
   "xlabels": ["0", "1", "2", "3"]
+},
+{
+  "name": "_nElectrons2",
+  "variable": "_nElectrons",
+  "nbins": "3",
+  "xlow": "-0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of electrons in event",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2"]
 },
 {
   "name": "_yield",
@@ -341,24 +372,24 @@
 {
   "name": "_nJetsNBJetsCat",
   "variable": "_nJetsNBJetsCat",
-  "nbins": "15",
-  "xlow": "-1.5",
+  "nbins": "14",
+  "xlow": "-0.5",
   "xhigh": "13.5",
   "axtitle": "Number of (b-tagged) jets category",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["Other","0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
+  "xlabels": ["0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
 },
 {
   "name": "_nJetsNLooseBJetsCat",
   "variable": "_nJetsNLooseBJetsCat",
-  "nbins": "15",
-  "xlow": "-1.5",
+  "nbins": "14",
+  "xlow": "-0.5",
   "xhigh": "13.5",
   "axtitle": "Number of (b-tagged) jets category",
   "unit": "",
   "iscategorical": "true",
-  "xlabels": ["Other","0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
+  "xlabels": ["0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
 },
 {
   "name": "_nJetsNZCat",

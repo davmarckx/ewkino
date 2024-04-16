@@ -2,6 +2,18 @@
 {
   "name": "_nMuons",
   "variable": "_nMuons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of muons in event",
+  "shorttitle": "N(#mu)",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"],
+  "bins": [-0.5, 0.5, 1.5, 2.5, 3.5]
+},
+{
+  "name": "_nMuons2",
+  "variable": "_nMuons",
   "nbins": "3",
   "xlow": "-0.5",
   "xhigh": "2.5",
@@ -13,6 +25,18 @@
 },
 {
   "name": "_nElectrons",
+  "variable": "_nElectrons",
+  "nbins": "4",
+  "xlow": "-0.5",
+  "xhigh": "3.5",
+  "axtitle": "Number of electrons in event",
+  "shorttitle": "N(e)",
+  "iscategorical": "true",
+  "xlabels": ["0", "1", "2", "3"],
+  "bins": [-0.5, 0.5, 1.5, 2.5, 3.5]
+},
+{
+  "name": "_nElectrons2",
   "variable": "_nElectrons",
   "nbins": "3",
   "xlow": "-0.5",
@@ -48,6 +72,18 @@
   "bins": [0.5, 1.5, 2.5, 3.5]
 },
 {
+  "name": "_nBJets2",
+  "variable": "_nBJets",
+  "nbins": "2",
+  "xlow": "0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of b-tagged jets",
+  "shorttitle": "N(b-jets)",
+  "iscategorical": "true",
+  "xlabels": ["1", "2"],
+  "bins": [0.5, 1.5, 2.5]
+},
+{
   "name": "_nLooseBJets",
   "variable": "_nLooseBJets",
   "nbins": "3",
@@ -58,6 +94,18 @@
   "iscategorical": "true",
   "xlabels": ["1", "2", "3"],
   "bins": [0.5, 1.5, 2.5, 3.5]
+},
+{
+  "name": "_nLooseBJets2",
+  "variable": "_nLooseBJets",
+  "nbins": "2",
+  "xlow": "0.5",
+  "xhigh": "2.5",
+  "axtitle": "Number of b-tagged jets",
+  "shorttitle": "N(b-jets)",
+  "iscategorical": "true",
+  "xlabels": ["1", "2"],
+  "bins": [0.5, 1.5, 2.5]
 },
 {
   "name": "_leptonPtLeading",
