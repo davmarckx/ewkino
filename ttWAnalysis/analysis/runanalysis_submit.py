@@ -67,7 +67,7 @@ splitprocess = None # do not split any process at particle level
 splitvariables = None
 #splitvariables = '../variables/variables_particlelevel_double_BINSTUDY.json'
 
-outputdir = 'output_20240228_3lcr_goftest_signal'
+outputdir = 'output_20240402_3lcr_goftest_fast_signal'
 
 nevents = 1e6
 runlocal = False

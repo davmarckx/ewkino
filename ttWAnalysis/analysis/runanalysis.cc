@@ -362,8 +362,33 @@ void fillHistogram(
 	hist->Fill( binNb, weight );
     }
     else{
-	std::string msg = "ERROR variable type " + variable->type() + " not recognized.";
+	std::string msg = "ERROR: variable type " + variable->type() + " not recognized.";
 	throw std::runtime_error(msg);
+    }
+}
+
+
+void fillHistogram(
+    std::shared_ptr<TH1D> hist,
+    const std::shared_ptr<Variable>& variable,
+    const std::map<std::string, double>& values,
+    double weight ){
+    // same as above, but providing a full value map instead of specific values
+    // (the specific values are extracted automatically).
+    // warning: no check is done in this function to make sure that the correct variable
+    //          is in the value map, this should be done outside this function!
+    if( variable->type()=="single" ){
+	double value = values.at(variable->variable());
+	fillHistogram(hist, variable, value, 0., weight);
+    }
+    else if( variable->type()=="double"){
+        double primaryValue = values.at(variable->primaryVariable());
+	double secondaryValue = values.at(variable->secondaryVariable());
+	fillHistogram(hist, variable, primaryValue, secondaryValue, weight);
+    }
+    else{
+        std::string msg = "ERROR: variable type " + variable->type() + " not recognized.";
+        throw std::runtime_error(msg);
     }
 }
 
@@ -874,7 +899,6 @@ void fillSystematicsHistograms(
           //std::cout << "result: " + std::to_string(nEntriesAndTrainingReweight) << std::endl;
         }
 
-
 	// calculate particle-level event variables
         bool passParticleLevel = false;
         if(doSplitParticleLevel){
@@ -920,7 +944,7 @@ void fillSystematicsHistograms(
 		    doSplitParticleLevel, splitParticleLevelVars,
 		    passParticleLevel, varmapParticleLevel );
 	}
-
+	
 	// fill data systematics histograms (for fakerate selection).
 	// (they are simply filled with nominal values
 	//  except for dedicated fakerate systematics)
@@ -954,7 +978,6 @@ void fillSystematicsHistograms(
 	    // default case for all other histograms: just use nominal values
 	    for(std::shared_ptr<Variable> histVar: histVars){
 		std::string variableName = histVar->name();
-		std::string variable = histVar->variable();
 		for(auto mapelement: histMap.at(thisProcessName).at(event_selection).at(selection_type).at(variableName) ){
 		    // exclude previously filled histograms
 		    bool needToFill = true;
@@ -965,8 +988,8 @@ void fillSystematicsHistograms(
 			}
 		    }
 		    if( !needToFill ) continue;
-		    // fill this remaining histograms
-		    histogram::fillValue( mapelement.second.get(), varmap.at(variable), nominalWeight ); 
+		    // fill this remaining histogram
+		    fillHistogram( mapelement.second, histVar, varmap, nominalWeight );
 		}
 	    }
 	} // end if block over data systematics

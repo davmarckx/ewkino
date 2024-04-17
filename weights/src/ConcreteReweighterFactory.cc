@@ -334,6 +334,8 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
     // step 2: set other parameters
     std::string flavor = "all";
     std::string bTagAlgo = "deepFlavor";
+    std::string bTagYear = year;
+    if( bTagYear=="2016PreVFP" || bTagYear=="2016PostVFP" ){ bTagYear = "2016"; }
     std::vector<std::string> variations = {
 	// systematics
 	"hf","lf","hfstats1","hfstats2",
@@ -341,12 +343,12 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
 	// JEC variations
 	"jes",
 	// grouped JEC variations
-	"jesAbsolute_"+year, "jesAbsolute",
-	"jesBBEC1_"+year, "jesBBEC1",
-        "jesEC2_"+year, "jesEC2",
+	"jesAbsolute_"+bTagYear, "jesAbsolute",
+	"jesBBEC1_"+bTagYear, "jesBBEC1",
+        "jesEC2_"+bTagYear, "jesEC2",
         "jesFlavorQCD",
-        "jesHF_"+year, "jesHF",
-	"jesRelativeBal", "jesRelativeSample_"+year };
+        "jesHF_"+bTagYear, "jesHF",
+	"jesRelativeBal", "jesRelativeSample_"+bTagYear };
     // step 3: make the reweighter
     std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
     	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );

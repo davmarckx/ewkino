@@ -71,8 +71,7 @@ for mtype in mtypes:
       #variables = '../variables/variables_main.json'
       variables = '../variables/variables_main_reduced.json'
     elif mtype=='double':
-      #variables = '../variables/variables_particlelevel_double.json'
-      variables = '../variables/variables_particlelevel_double_bintest.json'
+      variables = '../variables/variables_particlelevel_double.json'
 
     # define BDT file
     bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
@@ -98,7 +97,7 @@ for mtype in mtypes:
       inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
       inputdiryear = year
       if dtype=='sig':
-        inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
+        inputdir = '/pnfs/iihe/cms/store/user/llambrec/noskim_ttw_signal_nanoaodsettings'
         inputdiryear = ''
       if dtype=='data':
         inputdir = inputdir.replace('_v4','_v5')
