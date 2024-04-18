@@ -10,8 +10,8 @@ CMSSW_VERSION = '~/CMSSW_10_6_29'
 if __name__=='__main__':
 
 
-  topfolder = '../analysis/output_inclusive_main/'
-  outputdir = 'output_test'
+  topfolder = sys.argv[1]
+  outputdir = sys.argv[2]
   years = ['run2']
   regions = []
   regions.append('signalregion_dilepton_inclusive')
@@ -67,12 +67,12 @@ if __name__=='__main__':
                    'scales': 'rScale,fScale',
                    'qcdscales': 'qcdScales,rfScales',
                    'ps': 'isr,fsr',
-                   'pdf': 'pdf',
+                   'pdf': 'pdfNorm,pdfShapeRMS',
                    'other': 'pileup,prefire,trigger',
                    'bTag': 'bTag_shape'
                 })
   includeraw = True
-  runLocal = False
+  runmode = 'condor'
 
   cmds = []
   rawcmds = []
@@ -98,11 +98,11 @@ if __name__=='__main__':
             rawcmd += ' --outputdir ' + thisoutputdir+'_rawsystematics'
             rawcmds.append(rawcmd)
 
-  if runLocal:
+  if runmode=='local':
     for cmd in cmds+rawcmds:
       print(cmd)
-      #os.system(cmd)
-  else:
+      os.system(cmd)
+  elif runmode=='condor':
     ct.submitCommandsAsCondorCluster( 'cjob_plotsyst', cmds,
                                       cmssw_version=CMSSW_VERSION )
     ct.submitCommandsAsCondorCluster( 'cjob_plotsyst', rawcmds,

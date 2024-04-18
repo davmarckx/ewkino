@@ -4,7 +4,7 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20240412'
+  inputdir = 'output_20240416'
   ssdirbase = '../combine/datacards_20231031_double_'
   regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
              'signalregion_trilepton': ssdirbase + 'trilepton'}

@@ -56,12 +56,19 @@ if __name__=="__main__":
   parser.add_argument('--signals', default=None, nargs='+')
   parser.add_argument('--regroup_processes', default=False, action='store_true')
   parser.add_argument('--extracmstext', default='Preliminary')
-  parser.add_argument('--splitvariable',default=None)
-  parser.add_argument('--splitprocess',default=None)
+  parser.add_argument('--splitprocess', default=None)
+  # (note: use this argument to specify which process is split at particle level;
+  #        the titles for these histograms are assumed to be named <splitprocess><index><variable>,
+  #        e.g. TTW0 (for out of acceptance), TTW1eventBDTnMuons, TTW2eventBDTnMuons, ...)
+  parser.add_argument('--splitvariable', default=None)
+  # (note: use this argument to specify the variable in which the splitprocess has been split;
+  #        if it is None but splitprocess is not None, it is assumed the split variable is the same
+  #        as the plotting variable, as is the case for regular differential plots)
+  # (note: maybe need to revise the cases where it is not None, might not work as expected)
   parser.add_argument('--unblind', default=False, action='store_true')
   parser.add_argument('--blind', default=True, action='store_true')
   # (note: the --blind argument is not used anywhere, it is just here for syntax,
-  #        to allow jobs with blinded and unblinded plots in the same cluster)
+  #        to allow jobs with blinded and unblinded plots in the same condor cluster)
   parser.add_argument('--dolog', default=False, action='store_true')
   parser.add_argument('--rawsystematics', default=False, action='store_true',
                       help='Take the systematics from the input file without modifications'
@@ -138,12 +145,6 @@ if __name__=="__main__":
   if not doallprocesses: 
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
-  if args.splitvariable is not None and args.splitprocess is not None:
-    mustcontainone = ['{}1{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}2{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}3{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}4{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}5{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}0_'.format(args.splitprocess)]
-    maynotcontainone=[args.splitprocess]
-    histnames_sig = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
-    histnames_back = lt.subselect_strings(histnames, maynotcontainone=maynotcontainone)[1]
-    histnames = histnames_sig + histnames_back
   # select regions  
   mustcontainone = ['_{}_'.format(args.region)]
   histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
@@ -243,14 +244,17 @@ if __name__=="__main__":
     for process in PC.plist:
       simhists.append( PC.processes[process].hist )
 
-    # now we have to rename the split histograms back to TTW0,...,TTW3
-    if args.splitprocess is not None and args.splitvariable is not None:
+    # the split processes in the input file are named <process><index><variable>,
+    # for example TTW0 (for out of acceptance), TTW1eventBDTnMuons, TTW2eventBDTnMuons, ...
+    # here they are renamed to TTW0, TTW1, TTW2, ...
+    if( args.splitprocess is not None ):
       for hist in simhists:
         oldtitle = hist.GetTitle()
-        lastchar = oldtitle[-1]
-        if( lastchar.isdigit() ):
-          hist.SetName(args.splitprocess + lastchar)
-          hist.SetTitle(args.splitprocess + lastchar)
+        tag = variablename.strip('_')
+        if oldtitle.endswith(tag):
+          newtitle = oldtitle.replace(tag,'')
+          hist.SetName(newtitle)
+          hist.SetTitle(newtitle)
 
     # optionally re-group some nominal histograms
     regroup_processes_dict = None
@@ -296,17 +300,18 @@ if __name__=="__main__":
             +' will not write lumi header.')
     lumi = lumimap.get(args.year,None)
     colormap = colors.getcolormap(style=args.colormap)
-    if args.splitvariable is not None and args.splitprocess is not None and variablemode=='double':
-        for key, value in colormap.items():
-            if key[-1].isdigit():
-                if int(key[-1])>0:
-                    colormap[key+ args.splitvariable.replace('_','')] = value 
+    # extend the color map with entries for processes split on custom variables
+    # (they are named <process><index><variable>)
+    if( args.splitvariable is not None and args.splitprocess is not None and variablemode=='double' ):
+      for key, value in colormap.items():
+        if( key[-1].isdigit() and int(key[-1])>0 ):
+          colormap[key + args.splitvariable.replace('_','')] = value
  
     extrainfos = []
     extrainfos.append( args.year )
     extrainfos.append( regionname )
-    if args.splitvariable is not None and args.splitprocess is not None:
-        extrainfos.append( args.splitprocess + " split on PL " + args.splitvariable )
+    if( args.splitvariable is not None and args.splitprocess is not None ):
+      extrainfos.append( args.splitprocess + " split on PL " + args.splitvariable )
 
     # for double histogram variables,
     # make a labelmap for better legends
@@ -315,24 +320,15 @@ if __name__=="__main__":
       labelmap = {}
       # first 'regular' case where secondary variable is the split variable
       if args.splitvariable is None:
-          splitvariable = var.secondary.name.strip('_')
           sbl_short = var.secondary.getbinlabels()
           for hist in simhists:
 	      oldtitle = hist.GetTitle()
               newtitle = oldtitle[:]
               splitchar = ''
               # first case: names of the form TTW1
-              if( oldtitle[-1].isdigit() and not oldtitle.endswith(splitvariable) ):
+              if oldtitle[-1].isdigit():
                   splitchar = oldtitle[-1]
                   newtitle = newtitle[:-1]
-              # second case: names of the form TTW1nMuons
-              if oldtitle.endswith(splitvariable):
-                  newtitle = newtitle.replace(splitvariable,'')
-                  splitchar = newtitle[-1]
-                  newtitle = newtitle[:-1]
-                  # reset histogram title to correspond to first case (needed for correct colors)
-                  oldtitle = newtitle+splitchar
-                  hist.SetTitle(oldtitle)
 	      if( splitchar.isdigit() ):
 	          plbin = int(splitchar)
                   appendix = ''

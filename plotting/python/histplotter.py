@@ -317,7 +317,7 @@ def plotdatavsmc(outfile, datahist, mchistlist,
     legend.SetFillStyle(0)
     legend.AddEntry(datahist,datalabel,"pe1")
     for hist in mchistlist[::-1]:
-        legend.AddEntry(hist,labelmap.get(hist.GetTitle(), '-'),"f")
+        legend.AddEntry(hist,labelmap.get(hist.GetTitle(), hist.GetTitle()),"f")
     legend.AddEntry(mcerror,"Uncertainty","f")
 
     ### make legend for lower plot and add all histograms

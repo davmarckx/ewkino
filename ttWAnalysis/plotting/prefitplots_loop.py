@@ -52,16 +52,24 @@ excludetags = None
 signals = ['TTW']
 for i in range(1,10): signals.append('TTW{}'.format(i))
 
-# split variables can either be a list or a json file
-splitvariables = [''] # no splitting
-#splitvariables = '../variables/variables_particlelevel_single.json'
-#splitvariables = ['differential']
-splitprocess = 'TTW'
+# define how to handle the splitting of particle level processes
+# for plots without particle level splitting, use
+# - splitprocess = None
+# - splitvariables = None
+# for plots with particle level splitting using the same variable as the plotting variable, use
+# - splitprocess = <process> (i.e. usually 'TTW')
+# - splitvariables = None
+# for plots with particle level splitting using another variable than the plotting variable,
+# yet to test and document later.
+#splitprocess = None # no splitting
+splitprocess = 'TTW' # show this splitted process
+splitvariables = None # no splitting or automatic splitting
+#splitvariables = '../variables/variables_particlelevel_single.json' # to test
 
-
+# read split variable file if needed
 if( splitvariables is not None and isinstance(splitvariables,str) ):
-    with open(splitvariables) as json_file:
-        splitvariables = [d['variable'] for d in json.load(json_file)]
+  with open(splitvariables) as json_file:
+    splitvariables = [d['variable'] for d in json.load(json_file)]
 
 
 cmds = []
@@ -74,7 +82,8 @@ for year in years:
         for unblindmode in unblindmodes:
           unblind = False
           if unblindmode=='unblind': unblind = True
-          for splitvar in splitvariables:
+          if splitvariables is None: splitvariables = [None]
+          for splitvariable in splitvariables:
             regiondir = ''
             if filemode=='split': regiondir = region
             subdir = os.path.join(year, regiondir, 'merged_{}_{}'.format(npmode,cfmode))
@@ -98,9 +107,8 @@ for year in years:
             cmd += ' --colormap '+colormap
             if regroup_processes: cmd += ' --regroup_processes'
             if excludetags is not None: cmd += ' --excludetags ' +excludetags
-            if splitvar != '':
-              cmd += ' --splitvariable '+splitvar
-              cmd += ' --splitprocess '+splitprocess
+            if splitprocess is not None: cmd += ' --splitprocess '+splitprocess
+            if splitvariable is not None: cmd += ' --splitvariable '+splitvariable
             if unblind: cmd += ' --unblind'
             else: cmd += ' --blind'
             if rawsystematics: cmd += ' --rawsystematics'

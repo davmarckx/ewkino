@@ -15,7 +15,6 @@ outputdir = sys.argv[2]
   
 years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
 #years = ['run2']
-#years = ['2018']
 
 regions = ({
   'peryear': {
@@ -29,8 +28,8 @@ regions = ({
 
     #'signalregion_trilepton': '_eventBDT',
     
-    'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
-    'fourleptoncontrolregion': '_nJetsNZCat',
+    #'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
+    #'fourleptoncontrolregion': '_nJetsNZCat',
     #'npcontrolregion_dilepton_inclusive': '_eventBDT',
     #'cfjetscontrolregion': '_nJets'
   },
