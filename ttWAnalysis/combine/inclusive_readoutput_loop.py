@@ -11,6 +11,8 @@ if __name__=='__main__':
   print('Running on following directories:')
   print(datacarddirs)
 
+  method = 'multidimfit'
+
   commands = []
   for datacarddir in datacarddirs:
     dirtag = datacarddir.split('_')[-1].strip('/')
@@ -23,7 +25,7 @@ if __name__=='__main__':
       cmd1 += ' --outputfile ' + outtxtfile
       if obstag=='obs': cmd1 += ' --usedata'
       cmd1 += ' --usecombined'
-      cmd1 += ' --method fitdiagnostics'
+      cmd1 += ' --method ' + method
 
       cmd2 = 'python inclusive_plotoutput.py'
       cmd2 += ' --channelfile ' + outtxtfile
@@ -40,7 +42,7 @@ if __name__=='__main__':
       cmd1 += ' --outputfile ' + outtxtfile
       if obstag=='obs': cmd1 += ' --usedata'
       cmd1 += ' --useelementary'
-      cmd1 += ' --method fitdiagnostics'
+      cmd1 += ' --method ' + method
 
       cmd2 = 'python inclusive_plotoutput.py'
       cmd2 += ' --channelfile ' + outtxtfile

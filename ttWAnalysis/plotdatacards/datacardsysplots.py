@@ -35,6 +35,9 @@ if __name__=="__main__":
                       help='Comma-separated list of additional info to display on plot'
                           +' (e.g. simulation year or selection region).'
                           +' Use underscores for spaces.')
+  parser.add_argument('--includetags', default=None,
+                      help='Comma-separated list of systematics to include'
+                          +' (default: all)')
   parser.add_argument('--group', default=False, action='store_true',
                       help='Group systematics in categories before plotting.')
   parser.add_argument('--includetotal', default=False, action='store_true',
@@ -56,6 +59,10 @@ if __name__=="__main__":
   extratags = []
   if args.tags is not None: extratags = args.tags.split(',')
   extratags = [t.replace('_',' ') for t in extratags]
+
+  # parse include tags
+  includetags = None
+  if args.includetags is not None: includetags = args.includetags.split(',')
 
   # build a ProcessInfoCollection from the datacard
   PIC = ProcessInfoCollection.fromdatacard(args.datacard, adddata=True)
@@ -88,6 +95,11 @@ if __name__=="__main__":
   syshistlist = []
   # make a list of all systematics
   for systematic in sorted(PIC.slist):
+      if includetags is not None:
+          include = False
+          for tag in includetags:
+              if tag in systematic: include = True
+          if not include: continue
       uphist = PC.get_systematic_up(systematic)
       uphist.SetTitle(systematic+'Up')
       if uphist.GetName().endswith('Down'):

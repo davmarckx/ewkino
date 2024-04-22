@@ -9,8 +9,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_16_patch1' # temporary
-#CMSSW_VERSION = '~/CMSSW_11_3_4'
+CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 
@@ -18,7 +17,7 @@ if __name__=='__main__':
     
   # parse arguments
   parser = argparse.ArgumentParser(description='Calculate impacts')
-  parser.add_argument('--workspace', required=True, type=os.path.abspath)
+  parser.add_argument('-w', '--workspace', required=True, type=os.path.abspath)
   parser.add_argument('--usedata', default=False, action='store_true')
   parser.add_argument('--expectsignal', default=False, action='store_true')
   parser.add_argument('--pois', default=['auto'], nargs='+')

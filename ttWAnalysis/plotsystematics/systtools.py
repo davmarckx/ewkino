@@ -27,6 +27,8 @@ def category( systematic ):
     if( systematic.startswith('njets')
         or systematic.startswith('nbjets') ): return 'njets'
     if( systematic.startswith('Norm_') ): return 'norm'
+    if( systematic.startswith('efakerate') ): return 'fakerate (e)'
+    if( systematic.startswith('mfakerate') ): return 'fakerate (m)'
     return systematic
 
 

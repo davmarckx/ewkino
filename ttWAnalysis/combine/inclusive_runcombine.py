@@ -1,7 +1,12 @@
 ###############################################
 # Perform inclusive cross-section measurement #
 ###############################################
-#python inclusive_runcombine.py --datacarddir datacards_single_inclusive/ --method fitdiagnostics --includesignificance --runcombinations --runelementary --includedata --includestatonly --runmode condor
+# example usage:
+# python inclusive_runcombine.py
+# --datacarddir datacards_single_inclusive/
+# --method fitdiagnostics --includesignificance
+# --runcombinations --runelementary --includedata --includestatonly
+# --runmode condor
 
 import sys
 import os
@@ -9,8 +14,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_16_UL3' # temporary
-#CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
+CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -83,8 +87,8 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Inclusive combine measurement')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--method', default='multidimfit', 
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-m', '--method', default='multidimfit',
     choices=['multidimfit','fitdiagnostics','initimpacts'])
   parser.add_argument('--runelementary', default=False, action='store_true')
   parser.add_argument('--runcombinations', default=False, action='store_true')
@@ -115,8 +119,8 @@ if __name__=='__main__':
   # add elementary signal region cards if requested
   if args.runelementary:
     cards_all = [f for f in os.listdir(args.datacarddir) if f[-4:]=='.txt']
-    #cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
-    cards_sr = cards_all # for small tests with other naming convention
+    cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
+    #cards_sr = cards_all # for small tests with other naming convention
     for card in sorted(cards_sr): cardstorun.append(card)
 
   # add combined cards if requested

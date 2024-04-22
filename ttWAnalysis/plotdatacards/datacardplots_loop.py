@@ -13,10 +13,10 @@ if __name__=="__main__":
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Make datacard plots')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--outputdir', required=True, type=os.path.abspath)
-  parser.add_argument('--colormap', default='default')
-  parser.add_argument('--signals', default=None, nargs='+')
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-o', '--outputdir', required=True, type=os.path.abspath)
+  parser.add_argument('-c', '--colormap', default='default')
+  parser.add_argument('-s', '--signals', default=None, nargs='+')
   parser.add_argument('--extracmstext', default='Preliminary')
   parser.add_argument('--unblind', default=False, action='store_true')
   parser.add_argument('--dolog', default=False, action='store_true')

@@ -579,6 +579,7 @@ void fillSystematicsHistograms(
     // initialize the b-tagging shape reweighter if needed
     bool hasBTagShapeReweighter = reweighter.hasReweighter("bTag_shape");
     std::vector<std::string> bTagShapeSystematics;
+    std::vector<std::string> bTagShapeVariations;
     std::map< std::string, std::map< std::string, std::map< int, double >>> bTagWeightMap;
     if( hasBTagShapeReweighter ){
 	// find available b-tagging systematics
@@ -591,6 +592,10 @@ void fillSystematicsHistograms(
         for(std::string el: bTagShapeSystematics){
             std::cout << "  - " << el << std::endl;
 	}
+        // also find variations (which include systematics, but also JEC variations)
+	bTagShapeVariations = dynamic_cast<const ReweighterBTagShape*>(
+            reweighter["bTag_shape"] )->availableVariations();
+	// read normalization factors (only needed for simulation, not for data)
 	if( !treeReader.isData() ){
 	    // read b-tagging shape reweighting normalization factors from txt file
 	    std::string txtInputFile = "../btagging/output_20240412/";
@@ -603,10 +608,15 @@ void fillSystematicsHistograms(
 		throw std::runtime_error(msg);
 	    }
 	    std::vector<std::string> variationsToRead = {"central"};
-	    for( std::string var: bTagShapeSystematics ){
+	    for( std::string var: bTagShapeVariations ){
 		variationsToRead.push_back("up_"+var);
 		variationsToRead.push_back("down_"+var);
 	    }
+	    // (note: in the above, we read normalization factors for all b-tag variations.
+	    //  this is important if the JEC variations of b-tag scale factors are used
+	    //  when calculating the JEC systematics.
+	    //  in case the latter is disabled, i.e. when using nominal b-tagging for each JEC variation,
+	    //  it suffices to use bTagShapeSystematics instead of bTagShapeVariations in the loop above.)
 	    bTagWeightMap = bTaggingTools::textToMap( txtInputFile, event_selections, variationsToRead );
 	}
     }
