@@ -10,6 +10,7 @@
 #include "../../objects/interface/JetParticleLevel.h"
 #include "../../objects/interface/LeptonParticleLevel.h"
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../../TreeReader/interface/NanoGenTreeReader.h"
 #include "../interface/LeptonParticleLevelCollection.h"
 #include "PhysicsObjectCollection.h"
 
@@ -19,7 +20,10 @@ class LeptonParticleLevelCollection;
 class JetParticleLevelCollection : public PhysicsObjectCollection< JetParticleLevel > {
 
     public:
+	// constructor from TreeReader
         JetParticleLevelCollection( const TreeReader& );
+	// constructor from NanoGenTreeReader
+	JetParticleLevelCollection( const NanoGenTreeReader& );
 
         //make jet collection with b-tagged jets 
         JetParticleLevelCollection PLbJetCollection() const;

@@ -3,6 +3,7 @@
 //include c++ library classes
 #include <utility>
 #include <stdexcept>
+#include <cmath>
 
 
 LeptonParticleLevel::LeptonParticleLevel( 
@@ -17,6 +18,35 @@ LeptonParticleLevel::LeptonParticleLevel(
     _charge( treeReader._pl_lCharge[index] ),
     _flavor( treeReader._pl_lFlavor[index] )
     {}
+
+
+LeptonParticleLevel::LeptonParticleLevel(
+    const NanoGenTreeReader& treeReader, const unsigned index ) :
+    PhysicsObject( treeReader._GenDressedLepton_pt[index],
+		    treeReader._GenDressedLepton_eta[index],
+                    treeReader._GenDressedLepton_phi[index],
+		    (std::pow(treeReader._GenDressedLepton_pt[index],2)
+		    + std::pow(treeReader._GenDressedLepton_mass[index],2)),
+                    treeReader.is2016(),
+                    treeReader.is2016PreVFP(),
+                    treeReader.is2016PostVFP(),
+                    treeReader.is2017(),
+                    treeReader.is2018() )
+{
+    // set the charge based on the pdgId
+    _charge = (treeReader._GenDressedLepton_pdgId[index]>0) ? -1 : 1;
+    // set the flavour based on the pdgId
+    _flavor = -1;
+    if( std::abs(treeReader._GenDressedLepton_pdgId[index])==11 ){ _flavor = 0; }
+    else if( std::abs(treeReader._GenDressedLepton_pdgId[index])==13 ){ _flavor = 1; }
+    else if( std::abs(treeReader._GenDressedLepton_pdgId[index])==15 ){ _flavor = 2; }
+    else{
+	std::string msg = "ERROR in LeptonParticleLevel constructor:";
+        msg += " lepton pdgId is " + std::to_string( treeReader._GenDressedLepton_pdgId[index] );
+	msg += " while it should be 11, 13 or 15 (in absolute value).";
+        throw std::invalid_argument( msg );	
+    }
+}
 
 
 LeptonParticleLevel::LeptonParticleLevel( const LeptonParticleLevel& rhs ) :

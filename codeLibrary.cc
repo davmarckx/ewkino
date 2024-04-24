@@ -60,6 +60,7 @@
 //include TreeReader code 
 #include "TreeReader/src/TreeReader.cc"
 #include "TreeReader/src/TreeReaderErrors.cc"
+#include "TreeReader/src/NanoGenTreeReader.cc"
 
 //include plotting code 
 #include "plotting/src/drawLumi.cc"

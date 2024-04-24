@@ -19,6 +19,7 @@ class JetParticleLevel : public PhysicsObject{
 
     public:
         JetParticleLevel( const TreeReader&, const unsigned );
+	JetParticleLevel( const NanoGenTreeReader&, const unsigned );
 
         JetParticleLevel( const JetParticleLevel& );
         JetParticleLevel( JetParticleLevel&& ) noexcept;

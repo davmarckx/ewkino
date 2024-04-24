@@ -3,6 +3,7 @@
 
 //include other pars of framework
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../../TreeReader/interface/NanoGenTreeReader.h"
 #include "../../constants/particleMasses.h"
 
 
@@ -41,6 +42,18 @@ Event::Event( const TreeReader& treeReader,
     // since the former already includes cross-section and lumiosity scaling
     _weight( treeReader._scaledWeight ),
     _genWeight( treeReader._weight ),
+    _lumiScale( treeReader._lumiScale ),
+    _samplePtr( treeReader.currentSamplePtr() )
+    {}
+
+
+Event::Event( const NanoGenTreeReader& treeReader ) :
+    // make collections of particle level physics objects
+    _leptonParticleLevelCollectionPtr( new LeptonParticleLevelCollection( treeReader ) ),
+    _jetParticleLevelCollectionPtr( new JetParticleLevelCollection( treeReader ) ),
+    _metParticleLevelPtr( new MetParticleLevel( treeReader ) ),
+    _weight( treeReader._scaledWeight ),
+    _genWeight( treeReader._genWeight ),
     _lumiScale( treeReader._lumiScale ),
     _samplePtr( treeReader.currentSamplePtr() )
     {}

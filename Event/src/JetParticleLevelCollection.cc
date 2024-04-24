@@ -7,6 +7,13 @@ JetParticleLevelCollection::JetParticleLevelCollection( const TreeReader& treeRe
     }
 }
 
+// constructor
+JetParticleLevelCollection::JetParticleLevelCollection( const NanoGenTreeReader& treeReader ){
+    for( unsigned j = 0; j < treeReader._nGenJet; ++j ){
+        push_back( JetParticleLevel( treeReader, j ) );
+    }
+}
+
 // selection
 void JetParticleLevelCollection::selectGoodJets(){
     selectObjects( &JetParticleLevel::isGood );

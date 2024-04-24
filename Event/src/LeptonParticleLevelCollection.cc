@@ -11,6 +11,16 @@ LeptonParticleLevelCollection::LeptonParticleLevelCollection( const TreeReader& 
     }
 }
 
+LeptonParticleLevelCollection::LeptonParticleLevelCollection( const NanoGenTreeReader& treeReader ){
+    // constructor of a collection of LeptonParticleLevel objects from a NanoGenTreeReader entry
+
+    // loop over indices up to _nGenDressedLepton (number of particle level leptons)
+    for( unsigned l = 0; l < treeReader._nGenDressedLepton; ++l){
+        // create a LeptonParticleLevel object and add to the collection
+        push_back( LeptonParticleLevel( treeReader, l ) );
+    }
+}
+
 // cleaning
 void LeptonParticleLevelCollection::cleanLeptonsFromJets(
     const JetParticleLevelCollection& jetCollection,

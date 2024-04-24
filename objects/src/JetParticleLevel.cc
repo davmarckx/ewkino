@@ -29,6 +29,29 @@ JetParticleLevel::JetParticleLevel( const TreeReader& treeReader, const unsigned
 }
 
 
+JetParticleLevel::JetParticleLevel( const NanoGenTreeReader& treeReader, const unsigned index ):
+    PhysicsObject(
+        treeReader._GenJet_pt[index],
+        treeReader._GenJet_eta[index],
+        treeReader._GenJet_phi[index],
+        (std::pow(treeReader._GenJet_pt[index],2) + std::pow(treeReader._GenJet_mass[index],2)),
+        treeReader.is2016(),
+        treeReader.is2016PreVFP(),
+        treeReader.is2016PostVFP(),
+        treeReader.is2017(),
+        treeReader.is2018()
+    ),
+    _hadronFlavor( treeReader._GenJet_hadronFlavour[index] )
+{
+    // check that _hadronFlavor has a known value
+    if( ! ( ( _hadronFlavor == 0 ) || ( _hadronFlavor == 4 ) || ( _hadronFlavor == 5 ) ) ){
+        std::string msg = "ERROR in JetParticleLevel constructor:";
+        msg += " jet hadronFlavor is '" + std::to_string( _hadronFlavor ) + "' while it should be 0, 4 or 5.";
+        throw std::invalid_argument( msg );
+    }
+}
+
+
 JetParticleLevel::JetParticleLevel( const JetParticleLevel& rhs ) : 
     PhysicsObject( rhs ),
     _hadronFlavor( rhs._hadronFlavor )

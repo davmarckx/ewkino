@@ -21,6 +21,7 @@
 
 
 class TreeReader;
+class NanoGenTreeReader;
 class MuonCollection;
 class ElectronCollection;
 class TauCollection;
@@ -35,6 +36,7 @@ class Sample;
 class Event{
 
     public:
+	// constructor from TreeReader
         Event( const TreeReader&, 
 		const bool readIndividualTriggers = false, 
 		const bool readIndividualMetFilters = false,
@@ -42,6 +44,9 @@ class Event{
 		const bool readGroupedJECVariations = false,
                 const bool readParticleLevel = false,
                 const bool readEFTCoefficients = false );
+	// constructor from NanoGenTreeReader
+	Event( const NanoGenTreeReader& );
+	// other constructors
         Event( const Event& );
         Event( Event&& ) noexcept;
 

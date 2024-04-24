@@ -8,6 +8,7 @@
 #include "../../constants/particleMasses.h"
 #include "../../objects/interface/LeptonParticleLevel.h"
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../../TreeReader/interface/NanoGenTreeReader.h"
 #include "../interface/JetParticleLevelCollection.h"
 #include "PhysicsObjectCollection.h"
 
@@ -17,7 +18,10 @@ class JetParticleLevelCollection;
 class LeptonParticleLevelCollection : public PhysicsObjectCollection< LeptonParticleLevel > {
     
     public:
+	// constructor from TreeReader
         LeptonParticleLevelCollection( const TreeReader& );
+	// constructor from NanoGenTreeReader
+	LeptonParticleLevelCollection( const NanoGenTreeReader& );
 
         // cleaning
         void cleanLeptonsFromJets( const JetParticleLevelCollection&, const double coneSize = 0.4 );

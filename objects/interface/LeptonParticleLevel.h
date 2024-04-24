@@ -13,6 +13,7 @@ Definition of particle-level leptons
 //include other parts of code 
 #include "PhysicsObject.h"
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../../TreeReader/interface/NanoGenTreeReader.h"
 
 template< typename ObjectType > class PhysicsObjectCollection;
 
@@ -22,6 +23,7 @@ class LeptonParticleLevel : public PhysicsObject {
     
     public: 
         LeptonParticleLevel( const TreeReader&, unsigned int ); 
+	LeptonParticleLevel( const NanoGenTreeReader&, unsigned int );
 
 	LeptonParticleLevel( const LeptonParticleLevel& );
         LeptonParticleLevel( LeptonParticleLevel&& ) noexcept;
