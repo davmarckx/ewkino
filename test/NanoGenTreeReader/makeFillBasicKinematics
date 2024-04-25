@@ -1,0 +1,12 @@
+CC=g++ -Wall -Wextra -O3
+CFLAGS= -Wl,--no-as-needed,-lTMVA
+LDFLAGS=`root-config --glibs --cflags`
+SOURCES= fillBasicKinematics.cc ../../codeLibrary.o 
+OBJECTS=$(SOURCES:.cc=.o)
+EXECUTABLE=fillBasicKinematics
+
+all: 
+	$(CC) $(CFLAGS) $(SOURCES) $(LDFLAGS) -o $(EXECUTABLE)
+        
+clean:
+	rm -rf *o $(EXECUTABLE)
