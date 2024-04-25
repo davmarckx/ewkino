@@ -150,6 +150,7 @@ long unsigned NanoGenTreeReader::numberOfEntries() const{
 
 
 void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){ 
+    // set current Sample, File and Tree pointers
     _currentSamplePtr = std::make_shared< Sample >( samp );
     _currentFilePtr = samp.filePtr();
     // note: when initializing multiple samples in series,
@@ -159,7 +160,11 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
     // (which is again implicitly done when opening the new file).
     _currentTreePtr = (TTree*) _currentFilePtr->Get( "Events" );
     checkCurrentTree();
+    // initialize the input tree
     if( doInitTree ) initTree();
+    // printouts for testing
+    std::cout << "INFO: NanoGenTreeReader initialized with sample: " << std::endl;
+    std::cout << _currentSamplePtr << std::endl;
     if( !samp.isData() ){
         // get luminosity 
         double lumi;
@@ -181,20 +186,59 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
 	    std::string msg = "ERROR in NanoGenTreeReader::initSample:";
 	    msg += " tree with sum-of-gen-weight information requested";
 	    msg += " but does not seem to exist.";
+	    throw std::runtime_error(msg);
 	}
-	double genEventSumOfWeights = 0;
+	_sumGenWeights = 0;
+	_numGenEvents = 0;
 	Double_t genEventSumw = 0;
+	Long64_t genEventCount = 0;
 	runTreePtr->SetBranchAddress("genEventSumw", &genEventSumw);
+	runTreePtr->SetBranchAddress("genEventCount", &genEventCount);
 	for( long int entry=0; entry < runTreePtr->GetEntries(); entry++ ){
 	    runTreePtr->GetEntry(entry);
-	    genEventSumOfWeights += genEventSumw;
+	    _sumGenWeights += genEventSumw;
+	    _numGenEvents += genEventCount;
 	}
 	// calculate the scale
-        _lumiScale = xsection*lumi*1000 / genEventSumOfWeights;
+        _weightScale = xsection*lumi*1000 / _sumGenWeights;
 	// printouts for testing
-	std::cout << "lumi: " << lumi << std::endl;
-	std::cout << "xsec: " << xsection << std::endl;
-	std::cout << "sumweights: " << genEventSumOfWeights << std::endl;
+	std::cout << " - lumi: " << lumi << std::endl;
+	std::cout << " - xsec: " << xsection << std::endl;
+	std::cout << " - sumweights: " << _sumGenWeights << std::endl;
+	// get sum of scale and PDF varied weights
+	Double_t LHEScaleSumw[nLHEScaleWeight_max];
+	UInt_t nLHEScaleSumw;
+	Double_t LHEPdfSumw[nLHEPdfWeight_max];
+	UInt_t nLHEPdfSumw;
+	runTreePtr->SetBranchAddress("LHEScaleSumw", LHEScaleSumw);
+	runTreePtr->SetBranchAddress("nLHEScaleSumw", &nLHEScaleSumw);
+	runTreePtr->SetBranchAddress("LHEPdfSumw", LHEPdfSumw);
+	runTreePtr->SetBranchAddress("nLHEPdfSumw", &nLHEPdfSumw);
+	for( long int entry=0; entry < runTreePtr->GetEntries(); entry++ ){
+            runTreePtr->GetEntry(entry);
+	    if( entry==0 ){
+		_nSumLHEScaleWeights = nLHEScaleSumw;
+		_nSumLHEPdfWeights = nLHEPdfSumw;
+	    }
+	    // check consistency of counters (should be the same for all entries)
+            if( entry>0 && nLHEScaleSumw!=_nSumLHEScaleWeights){
+		std::string msg = "ERROR in NanoGenTreeReader::initSample:";
+		msg += " inconsistent number of LHE scale weights in Runs tree.";
+		throw std::runtime_error(msg);
+	    }
+            if( entry>0 && nLHEPdfSumw!=_nSumLHEPdfWeights){
+                std::string msg = "ERROR in NanoGenTreeReader::initSample:";
+                msg += " inconsistent number of LHE PDF weights in Runs tree.";
+                throw std::runtime_error(msg);
+            }
+	    // add this entry to the total
+	    for( unsigned int idx=0; idx<_nSumLHEScaleWeights; idx++ ){
+		_sumLHEScaleWeights[idx] += LHEScaleSumw[idx];
+	    }
+	    for( unsigned int idx=0; idx<_nSumLHEPdfWeights; idx++ ){
+                _sumLHEPdfWeights[idx] += LHEPdfSumw[idx];
+            }
+        }
     }
 }
 
@@ -257,7 +301,7 @@ void NanoGenTreeReader::initSampleFromFile( const std::string& pathToFile,
     initTree();
 
     // set scale to default so weights do not become 0 when building the event
-    _lumiScale = 1.;
+    _weightScale = 1.;
 }
 
 
@@ -293,7 +337,7 @@ void NanoGenTreeReader::GetEntry( const Sample& samp, long unsigned entry ){
         _nGenJet = nGenJet_max;
     }
     // set correctly scaled weight
-    if( !samp.isData() ) _scaledWeight = _genWeight*_lumiScale;
+    if( !samp.isData() ) _scaledWeight = _genWeight*_weightScale;
     else _scaledWeight = 1;
 }
 
@@ -329,6 +373,12 @@ void NanoGenTreeReader::initTree(){
 	std::cerr << msg << std::endl;
     } else{
 	_currentTreePtr->SetBranchAddress("genWeight", &_genWeight, &b__genWeight);
+	_currentTreePtr->SetBranchAddress("LHEScaleWeight", _LHEScaleWeight, &b__LHEScaleWeight);
+	_currentTreePtr->SetBranchAddress("nLHEScaleWeight", &_nLHEScaleWeight, &b__nLHEScaleWeight);
+	_currentTreePtr->SetBranchAddress("LHEPdfWeight", _LHEPdfWeight, &b__LHEPdfWeight);
+        _currentTreePtr->SetBranchAddress("nLHEPdfWeight", &_nLHEPdfWeight, &b__nLHEPdfWeight);
+	_currentTreePtr->SetBranchAddress("PSWeight", _PSWeight, &b__PSWeight);
+        _currentTreePtr->SetBranchAddress("nPSWeight", &_nPSWeight, &b__nPSWeight);
     }
     // GenDressedLeptons
     if( !containsGenDressedLeptons() ){

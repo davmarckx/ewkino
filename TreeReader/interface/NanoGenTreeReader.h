@@ -51,10 +51,19 @@ class NanoGenTreeReader {
 	// or potentially nonsensical values.
         static const unsigned nGenDressedLepton_max = 30;
         static const unsigned nGenJet_max = 30;
+	static const unsigned nLHEScaleWeight_max = 9;
+	static const unsigned nLHEPdfWeight_max = 103;
+	static const unsigned nPSWeight_max = 4;
 	// note: variable types can be found here:
 	// https://cms-nanoaod-integration.web.cern.ch/autoDoc/
-        // generator weight
+        // generator weight, scale, PDF and PS weights
 	Float_t	    _genWeight;
+	Float_t	    _LHEScaleWeight[nLHEScaleWeight_max];
+	UInt_t	    _nLHEScaleWeight;
+	Float_t	    _LHEPdfWeight[nLHEPdfWeight_max];
+	UInt_t	    _nLHEPdfWeight;
+	Float_t	    _PSWeight[nPSWeight_max];
+	UInt_t	    _nPSWeight;
 	// GenDressedLepton collection
 	Float_t	    _GenDressedLepton_eta[nGenDressedLepton_max];
 	Float_t     _GenDressedLepton_phi[nGenDressedLepton_max];
@@ -72,10 +81,27 @@ class NanoGenTreeReader {
 	// GenMET object
 	Float_t	    _GenMET_pt;
 	Float_t	    _GenMET_phi;
-	
-        // weight including cross section and lumi scaling 
-        double          _scaledWeight;
-        double		_lumiScale;
+
+        // normalized and non-normalized weights
+        double          _scaledWeight; // = genWeight * xsec * lumi / sumGenWeights
+        double		_weightScale; // = xsec * lumi / sumGenWeights
+	double		_sumGenWeights;
+	long		_numGenEvents;
+	// note: _sumGenWeights is not defined directly as a branch variable,
+	//       since the sum needs to be taken over all entries in the "Runs" tree.
+	double genWeight() const{ return _genWeight; }
+	double scaledWeight() const{ return _scaledWeight; }
+	double weightScale() const{ return _weightScale; }
+	double sumGenWeights() const{ return _sumGenWeights; }
+	long numGenEvents() const{ return _numGenEvents; }
+
+	// sums of scale and PDF weights
+        // note: these are not defined directly as branch variables,
+	//       since the sum needs to be taken over all entries in the "Runs" tree.
+        double _sumLHEScaleWeights[nLHEScaleWeight_max] = {};
+	unsigned int _nSumLHEScaleWeights;
+        double _sumLHEPdfWeights[nLHEPdfWeight_max] = {};
+	unsigned int _nSumLHEPdfWeights;
 
         // set up tree for reading and writing
         void initTree();
@@ -177,6 +203,12 @@ class NanoGenTreeReader {
         // list of branches
 	// generator weight
 	TBranch*    b__genWeight;
+	TBranch*    b__LHEScaleWeight;
+	TBranch*    b__nLHEScaleWeight;
+	TBranch*    b__LHEPdfWeight;
+        TBranch*    b__nLHEPdfWeight;
+	TBranch*    b__PSWeight;
+        TBranch*    b__nPSWeight;
 	// GenDressedLepton collection
 	TBranch*    b__GenDressedLepton_eta;
         TBranch*    b__GenDressedLepton_phi;

@@ -1,3 +1,13 @@
+/*
+Cross section variations for a sample
+*/
+
+// Note: use this one for custom ntuples;
+// for NanoGen/NanoAOD files, use NanoGenSampleCrossSections instead.
+// At some point, might consider merging them into a single class,
+// but for now it seems easier to keep them separate.
+
+
 #ifndef SampleCrossSections_H
 #define SampleCrossSections_H
 

@@ -49,12 +49,13 @@ Event::Event( const TreeReader& treeReader,
 
 Event::Event( const NanoGenTreeReader& treeReader ) :
     // make collections of particle level physics objects
+    _generatorInfoPtr( new GeneratorInfo( treeReader ) ),
     _leptonParticleLevelCollectionPtr( new LeptonParticleLevelCollection( treeReader ) ),
     _jetParticleLevelCollectionPtr( new JetParticleLevelCollection( treeReader ) ),
     _metParticleLevelPtr( new MetParticleLevel( treeReader ) ),
     _weight( treeReader._scaledWeight ),
     _genWeight( treeReader._genWeight ),
-    _lumiScale( treeReader._lumiScale ),
+    _lumiScale( treeReader._weightScale ),
     _samplePtr( treeReader.currentSamplePtr() )
     {}
 

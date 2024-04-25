@@ -49,6 +49,7 @@
 #include "Tools/src/ConstantFit.cc"
 #include "Tools/src/Prescale.cc"
 #include "Tools/src/SampleCrossSections.cc"
+#include "Tools/src/NanoGenSampleCrossSections.cc"
 #include "Tools/src/EFTCrossSections.cc"
 #include "Tools/src/QuantileBinner.cc"
 #include "Tools/src/mt2.cc"
