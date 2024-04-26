@@ -1,0 +1,7 @@
+# Samples located here:
+# /pnfs/iihe/cms/store/user/llambrec/nanoaod_ttw
+# Note: these samples are directly copied and merged from DAS,
+#       no other processing has been performed on them.
+
+TTW2018  TTWJetsToLNu_TuneCP5_13TeV-amcatnloFXFX-madspin-pythia8_Autumn18.root  0.2316
+TTWEWK2018  ttWJetsToLNu_5f_EWK_TuneCP5_13TeV_amcatnlo-pythia8_Autumn18.root  0.01127

@@ -163,8 +163,8 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
     // initialize the input tree
     if( doInitTree ) initTree();
     // printouts for testing
-    std::cout << "INFO: NanoGenTreeReader initialized with sample: " << std::endl;
-    std::cout << _currentSamplePtr << std::endl;
+    std::cout << "INFO: NanoGenTreeReader initialized with sample: ";
+    std::cout << _currentSamplePtr.get() << std::endl;
     if( !samp.isData() ){
         // get luminosity 
         double lumi;
@@ -181,6 +181,9 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
 	// get cross-section
 	double xsection = samp.xSec();
 	// get sum of gen weights
+	// note: the sum of gen weights is stored in a branch called genEventSumw.
+	//       this branch may contain multiple entries, e.g. when files are merged,
+	//	 so we need to take the sum over all entries in this branch!
 	TTree* runTreePtr = (TTree*) _currentFilePtr->Get( "Runs" );
 	if( !runTreePtr ){
 	    std::string msg = "ERROR in NanoGenTreeReader::initSample:";
@@ -202,10 +205,18 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
 	// calculate the scale
         _weightScale = xsection*lumi*1000 / _sumGenWeights;
 	// printouts for testing
+	std::cout << "INFO NanoGenTreeReader found following sample paramters:" << std::endl;
 	std::cout << " - lumi: " << lumi << std::endl;
 	std::cout << " - xsec: " << xsection << std::endl;
 	std::cout << " - sumweights: " << _sumGenWeights << std::endl;
 	// get sum of scale and PDF varied weights
+	// note: the branch LHEScaleSumw contains, for each index i,
+	//       the sum of genEventWeight * LHEScaleWeight[i], divided by genEventSumw
+	//       (see https://cms-nanoaod-integration.web.cern.ch/autoDoc/).
+	//       to correctly handle the case of multiple entries in this branch,
+	//	 we need to multiply each entry by its genEventSumw, and divide by the total
+	//       after adding all entries!
+	//	 the same holds for LHEPdfSumw
 	Double_t LHEScaleSumw[nLHEScaleWeight_max];
 	UInt_t nLHEScaleSumw;
 	Double_t LHEPdfSumw[nLHEPdfWeight_max];
@@ -233,11 +244,18 @@ void NanoGenTreeReader::initSample( const Sample& samp, const bool doInitTree ){
             }
 	    // add this entry to the total
 	    for( unsigned int idx=0; idx<_nSumLHEScaleWeights; idx++ ){
-		_sumLHEScaleWeights[idx] += LHEScaleSumw[idx];
+		_sumLHEScaleWeights[idx] += LHEScaleSumw[idx] * genEventSumw;
 	    }
 	    for( unsigned int idx=0; idx<_nSumLHEPdfWeights; idx++ ){
-                _sumLHEPdfWeights[idx] += LHEPdfSumw[idx];
+                _sumLHEPdfWeights[idx] += LHEPdfSumw[idx] * genEventSumw;
             }
+        }
+	// divide by the total sum of nominal gen weights
+	for( unsigned int idx=0; idx<_nSumLHEScaleWeights; idx++ ){
+            _sumLHEScaleWeights[idx] /= _sumGenWeights;
+        }
+        for( unsigned int idx=0; idx<_nSumLHEPdfWeights; idx++ ){
+            _sumLHEPdfWeights[idx] /= _sumGenWeights;
         }
     }
 }
