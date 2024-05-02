@@ -226,7 +226,7 @@ bool eventSelectionsParticleLevel::pass_signalregion_trilepton(Event& event){
     // number of jets and b-jets
     std::pair<int,int> njetsnbjets = nJetsNBJets(event);
     if( njetsnbjets.second < 1 ) return false;
-    if( njetsnbjets.first < 3 ) return false;
+    if( njetsnbjets.first < 2 ) return false;
     return true; 
 }
 
