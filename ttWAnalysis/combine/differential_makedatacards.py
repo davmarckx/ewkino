@@ -13,26 +13,30 @@ from variabletools import read_variables
 # settings
 
 controlregions = ({
-    'topdir': '../analysis/output_sbv2',
+    'topdir': '../analysis/output_20240424_single',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
     'regions': {
-        'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
+        'trileptoncontrolregion': '_nJetsNBJetsCat',
         'fourleptoncontrolregion': '_nJetsNZCat',
         'npcontrolregion_dilepton_inclusive': '_eventBDT',
-        'cfjetscontrolregion': '_nJets'
+        'cfjetscontrolregion': '_nJets3'
     }
 })
 
 signalregion = ({
-    'topdir': '../analysis/output_dbv2',
+    'topdir': '../analysis/output_20240424_double',
     'years': ['run2'],
     'inputfiletag': 'merged_npfromdatasplit_cffromdata/merged.root',
-    'region': 'signalregion_dilepton_inclusive',
-    'variables': '../variables/variables_particlelevel_double_BINSTUDY.json'
+    #'region': 'signalregion_dilepton_inclusive',
+    'region': 'signalregion_trilepton',
+    'variables': '../variables/variables_particlelevel_double.json'
 })
 
-outputdir = 'datacards_binstudyv1'
+#rateparams = None
+rateparams = ['WZ', 'ZZ', 'TTZ']
+
+outputdir = 'datacards_20240507_double_trilepton'
 
 runmode = 'condor'
 
@@ -43,6 +47,7 @@ if not os.path.exists(outputdir):
 # initialize empty list of commands to run
 cmds = []
 cmds2 = []
+
 # read variables
 variables = read_variables( signalregion['variables'] )
 varnames = [str(var.name) for var in variables]
@@ -63,7 +68,7 @@ for year in signalregion['years']:
     outputfiletag = os.path.join(outputdir, outputfiletag)
     # define signals
     signals = []
-    for i in [1,2,3,4,5,6]: signals.append('TTW{}{}'.format(i,secondaryvarname.strip('_')))
+    for i in [1,2,3,4,5,6]: signals.append('TTW{}{}'.format(i,varname.strip('_')))
     signals = ','.join(signals)
     # make command
     cmd = 'python makedatacard.py'
@@ -75,6 +80,7 @@ for year in signalregion['years']:
     cmd += ' --processes all'
     cmd += ' --signals {}'.format(signals)
     cmd += ' --datatag Data'
+    if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
     cmds.append(cmd)
 
 # write control region datacards
@@ -97,6 +103,7 @@ for year in controlregions['years']:
     cmd += ' --processes all'
     cmd += ' --signals {}'.format(['TTW'])
     cmd += ' --datatag Data'
+    if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
     cmds2.append(cmd)
 
 # run commands
@@ -106,5 +113,5 @@ if runmode=='local':
 elif runmode=='condor':
   ct.submitCommandsAsCondorJob( 'cjob_makedatacard', cmds,
              cmssw_version=CMSSW_VERSION )
-  ct.submitCommandsAsCondorJob( 'cjob_CRmakedatacard', cmds2,
+  ct.submitCommandsAsCondorJob( 'cjob_makedatacard', cmds2,
              cmssw_version=CMSSW_VERSION )

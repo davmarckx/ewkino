@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
 #CMSSW_VERSION = '~/CMSSW_10_2_16_patch1' # temporary
-CMSSW_VERSION = '~/CMSSW_11_3_4' # temporary
+CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -62,8 +62,8 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Differential combine measurement')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--method', default='multidimfit', choices=['multidimfit'])
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-m', '--method', default='multidimfit', choices=['multidimfit'])
   parser.add_argument('--runelementary', default=False, action='store_true')
   parser.add_argument('--runcombinations', default=False, action='store_true')
   parser.add_argument('--includestatonly', default=False, action='store_true')

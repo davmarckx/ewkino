@@ -4,8 +4,9 @@ import os
 if __name__=='__main__':
 
   # arguments
-  inputdir = 'output_20240416'
-  ssdirbase = '../combine/datacards_20231031_double_'
+  inputdir = sys.argv[1]
+  ssdirbase = sys.argv[2]
+
   regions = {'signalregion_dilepton_inclusive': ssdirbase + 'dilepton', 
              'signalregion_trilepton': ssdirbase + 'trilepton'}
   variables = '../variables/variables_particlelevel_single.json'

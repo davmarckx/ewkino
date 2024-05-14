@@ -10,8 +10,9 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Parse combine output')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--variables', required=True, type=os.path.abspath)
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath)
+  parser.add_argument('--plotsignalstrengths', default=False, action='store_true')
   parser.add_argument('--plotcorrelations', default=False, action='store_true')
   args = parser.parse_args()
 
@@ -43,6 +44,12 @@ if __name__=='__main__':
       if rtype=='withcr': cmd += ' --usecr'
       # run the command
       os.system(cmd)
+      # optionally plot the signal strengths
+      if args.plotsignalstrengths:
+        cmd = 'python differential_plotoutput.py'
+        cmd += ' --signalstrengths {}'.format(outputfile)
+        cmd += ' --outputfile {}'.format(outputfile.replace('.json', '.png'))
+        os.system(cmd)
       # optionally plot correlations
       if args.plotcorrelations:
         outputdir = outputfile.replace('.json','_correlations')

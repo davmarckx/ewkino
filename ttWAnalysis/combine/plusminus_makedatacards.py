@@ -17,28 +17,28 @@ from jobSettings import CMSSW_VERSION
 
 # settings
 
-
-topdir = '../analysis/output_inclusive_mainv2'
+topdir = sys.argv[1]
+outputdir = sys.argv[2]
 
   
-#years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
-years = ['run2']
+years = ['2016PreVFP', '2016PostVFP', '2017', '2018']
+#years = ['run2']
 
 regions = ({
     'signalregion_dilepton_plus': '_eventBDT',
     'signalregion_dilepton_minus': '_eventBDT',
-    'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
+    'trileptoncontrolregion': '_nJetsNBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
-    'cfjetscontrolregion': '_nJets'
+    'cfjetscontrolregion': '_nJets3'
 })
 
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-outputdir = 'datacards_plusminus'
+#rateparams = None
+rateparams = ['WZ', 'ZZ', 'TTZ']
 
-
-runmode = 'local'
+runmode = 'condor'
 
 # make output directory
 if not os.path.exists(outputdir):
@@ -74,6 +74,7 @@ for year in years:
     if renamesignals is not None:
       cmd += ' --renamesignals {}'.format(renamesignals)
     cmd += ' --datatag Data'
+    if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
     cmds.append(cmd)
 
 # run commands

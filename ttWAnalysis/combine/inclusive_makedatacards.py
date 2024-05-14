@@ -25,31 +25,31 @@ regions = ({
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
     'cfjetscontrolregion': '_nJets3'
   },
-  #'perchannel': {
-  #  'signalregion_dilepton_ee': '_eventBDT',
-  #  'signalregion_dilepton_em': '_eventBDT',
-  #  'signalregion_dilepton_me': '_eventBDT',
-  #  'signalregion_dilepton_mm': '_eventBDT',
-  #  'signalregion_trilepton': '_eventBDT',
-  #  'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
-  #  'fourleptoncontrolregion': '_nJetsNZCat',
-  #  'npcontrolregion_dilepton_inclusive': '_eventBDT',
-  #  'cfjetscontrolregion': '_nJets' 
-  #},
-  #'persign': {
-  #  'signalregion_dilepton_plus': '_eventBDT',
-  #  'signalregion_dilepton_minus': '_eventBDT',
-  #  'signalregion_trilepton': '_eventBDT',
-  #  'trileptoncontrolregion': '_nJetsNLooseBJetsCat',
-  #  'fourleptoncontrolregion': '_nJetsNZCat',
-  #  'npcontrolregion_dilepton_inclusive': '_eventBDT',
-  #  'cfjetscontrolregion': '_nJets'
-  #}
+  'perchannel': {
+    'signalregion_dilepton_ee': '_eventBDT',
+    'signalregion_dilepton_em': '_eventBDT',
+    'signalregion_dilepton_me': '_eventBDT',
+    'signalregion_dilepton_mm': '_eventBDT',
+    'signalregion_trilepton': '_eventBDT',
+    'trileptoncontrolregion': '_nJetsNBJetsCat',
+    'fourleptoncontrolregion': '_nJetsNZCat',
+    'npcontrolregion_dilepton_inclusive': '_eventBDT',
+    'cfjetscontrolregion': '_nJets3' 
+  },
+  'persign': {
+    'signalregion_dilepton_plus': '_eventBDT',
+    'signalregion_dilepton_minus': '_eventBDT',
+    'signalregion_trilepton': '_eventBDT',
+    'trileptoncontrolregion': '_nJetsNBJetsCat',
+    'fourleptoncontrolregion': '_nJetsNZCat',
+    'npcontrolregion_dilepton_inclusive': '_eventBDT',
+    'cfjetscontrolregion': '_nJets3'
+  }
 })
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-#rateparams = None
+rateparams = None
 rateparams = ['WZ', 'ZZ', 'TTZ']
 
 runmode = 'condor'

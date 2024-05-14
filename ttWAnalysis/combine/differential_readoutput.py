@@ -59,7 +59,7 @@ if __name__=='__main__':
     starttag = 'datacard'
     if args.usecr: starttag = 'dc_combined'
     wspaces = ([ f for f in os.listdir(args.datacarddir)
-                 if (f.startswith(starttag) and varname in f and f.endswith('.root')) ])
+                 if (f.startswith(starttag) and f.endswith('{}.root'.format(varname))) ])
     if len(wspaces)!=1:
       print('ERROR: wrong number of workspaces, skipping variable {}.'.format(varname))
       continue
@@ -73,6 +73,7 @@ if __name__=='__main__':
     pois = sorted(dummy.keys())
     npois = len(pois)
     print('  Found pois: {}'.format(pois))
+    
     # read stat-only correlation
     try:
       statresults = opt.read_multidimfit(args.datacarddir, card,
@@ -105,20 +106,36 @@ if __name__=='__main__':
       msg += ' please check combine output files for unexpected format or failed fits.'
       print(msg)
 
+    # remove the 'eventBDT' tag from all keys,
+    # as this gives a more natural synchronization with the next steps
+    # (i.e. making differential result plots),
+    # maybe find a cleaner way to obtain the same result later...
+    keyname = varname.replace('eventBDT','')
+    for poi in pois:
+        poiname = poi.replace('eventBDT','')
+        statss[poiname] = statss.pop(poi)
+        totss[poiname] = totss.pop(poi)
+        for poi2 in pois:
+            poi2name = poi2.replace('eventBDT','')
+            statcorr[poi][poi2name] = statcorr[poi].pop(poi2)
+            totcorr[poi][poi2name] = totcorr[poi].pop(poi2)
+        statcorr[poiname] = statcorr.pop(poi)
+        totcorr[poiname] = totcorr.pop(poi)
+
     # make covariance matrices
     (statcovdown, statcovup) = make_updown_cov_from_corr(statcorr, statss)
     (totcovdown, totcovup) = make_updown_cov_from_corr(totcorr, totss)
     syscovdown = copy.deepcopy(totcovdown)
     syscovup = copy.deepcopy(totcovup)
-    for key1 in pois:
-      for key2 in pois:
+    for key1 in syscovdown.keys():
+      for key2 in syscovdown[key1].keys():
         syscovdown[key1][key2] = totcovdown[key1][key2] - statcovdown[key1][key2]
         syscovup[key1][key2] = totcovup[key1][key2] - statcovup[key1][key2]
 
-    # format
+    # format output dict
     thisinfo = {}
     thisinfo['pois'] = {}
-    for poi in pois:
+    for poi in totss.keys():
       (r,down,up) = totss[poi]
       (_, statdown, statup) = statss[poi]
       thisinfo['pois'][poi] = [r,statdown,statup,down,up]
@@ -128,7 +145,6 @@ if __name__=='__main__':
     thisinfo['syscovup'] = syscovup
     thisinfo['statcovdown'] = statcovdown
     thisinfo['statcovup'] = statcovup
-    keyname = varname.replace('eventBDT','') # find cleaner way later
     info[keyname] = thisinfo
 
   # write file

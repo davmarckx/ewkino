@@ -90,7 +90,7 @@ def sstoxsec(ss, pred):
     # dict with same structure as ss but everything in absolute values
     # rather than signal strengths
     pois = ss['pois'].keys()
-    if pois!=pred.keys():
+    if sorted(pois)!=sorted(pred.keys()):
         print(pois)
         print(pred.keys())
         raise Exception('ERROR in uncertaintyprop.py / sstoxsec:'

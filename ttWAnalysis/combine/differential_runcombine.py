@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
 #CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_16_patch1' # temporary
-CMSSW_VERSION = '~/CMSSW_10_2_16_UL3'
+CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -23,8 +23,8 @@ def getcardcombinations(datacarddir, varname, verbose=False):
   combineddict = {}
   cards_all = [f for f in os.listdir(datacarddir) if f[-4:]=='.txt']
   cards_all = lt.subselect_strings(cards_all,maynotcontainone=['_out_'])[1]
-  cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion',varname])[1]
-  cards_cr = lt.subselect_strings(cards_all,mustcontainone=['controlregion'])[1]
+  cards_sr = [f for f in cards_all if ('signalregion' in f and f.endswith(varname+'.txt'))]
+  cards_cr = [f for f in cards_all if 'controlregion' in f]
   # total combination  
   combineddict['dc_combined_{}.txt'.format(varname)] = cards_cr + cards_sr
   # convert list of cards to dictionary of cards to channel names
@@ -61,10 +61,10 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Differential combine measurement')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
-  parser.add_argument('--variables', required=True, type=os.path.abspath)
-  parser.add_argument('--method', default='multidimfit', choices=['multidimfit'])
-  parser.add_argument('--signals', default='auto')
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath)
+  parser.add_argument('-m', '--method', default='multidimfit', choices=['multidimfit'])
+  parser.add_argument('-s', '--signals', default='auto')
   parser.add_argument('--runelementary', default=False, action='store_true')
   parser.add_argument('--runcombinations', default=False, action='store_true')
   parser.add_argument('--includestatonly', default=False, action='store_true')
@@ -104,8 +104,13 @@ if __name__=='__main__':
       if args.signals=='auto':
         # read signals from one of the datacards
         card = ([f for f in os.listdir(args.datacarddir) 
-                 if (f[-4:]=='.txt' and 'signalregion' in f and varname in f)])
-        if len(card)==0: raise Exception('ERROR: could not find suitable card for signals=auto.')
+                 if ('signalregion' in f and f.endswith('{}.txt'.format(varname)))])
+        if len(card)!=1:
+            msg = 'ERROR: could not extract POIs from datacards,'
+            msg += ' as an unexpected number of datacards was found: {}'.format(len(card))
+            msg += ' (while expecting 1);'
+            msg += ' skipping this variable...'
+            print(msg)
         card = card[0]
         card = os.path.join(args.datacarddir,card)
         with open(card,'r') as f:
@@ -131,7 +136,7 @@ if __name__=='__main__':
     # add elementary signal region cards if requested
     if args.runelementary:
       cards_all = [f for f in os.listdir(args.datacarddir) if f[-4:]=='.txt']
-      cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion',varname])[1]
+      cards_sr = [f for f in cards_all if ('signalregion' in f and f.endswith(varname+'.txt'))]
       for card in sorted(cards_sr): cardstorun.append(card)
 
     # add combined cards if requested

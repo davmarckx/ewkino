@@ -15,7 +15,7 @@ if __name__=='__main__':
 
   # parse arguments
   parser = argparse.ArgumentParser(description='Plot combine output')
-  parser.add_argument('--datacarddir', required=True, type=os.path.abspath)
+  parser.add_argument('-d', '--datacarddir', required=True, type=os.path.abspath)
   args = parser.parse_args()
 
   # fixed arguments
