@@ -79,7 +79,7 @@ void writeBTagNorms(
 
     // determine number of entries to run over
     long unsigned numberOfEntries = treeReader.numberOfEntries();
-    if( nEvents!=0 && nEvents<numberOfEntries ){
+    if( nEvents>0 && nEvents<numberOfEntries ){
 	if( !treeReader.isData() ){
 	    // loop over a smaller number of entries
 	    std::cout << "limiting number of entries to " << nEvents << std::endl;
@@ -102,36 +102,39 @@ void writeBTagNorms(
 	    // add nominal b-tag reweighting factors
 	    double btagreweight = reweighterBTagShape->weight( event );
 	    int njets = reweighterBTagShape->getNJets( event );
+	    if( btagreweight > 1e-12 ){
 	    if( nEntries.at(es).at("central").find(njets)==nEntries.at(es).at("central").end() ){
 		averageOfWeights.at(es).at("central")[njets] = btagreweight;
 		nEntries.at(es).at("central")[njets] = 1;
 	    } else{
 		averageOfWeights.at(es).at("central").at(njets) += btagreweight;
 		nEntries.at(es).at("central").at(njets) += 1;
-	    }
+	    }}
 
 	    // add varied b-tag reweighting factors
 	    for( std::string var: variations ){ 
 		// get up weight
 		double btagup = reweighterBTagShape->weightUp(event, var);
 		int njetsup = reweighterBTagShape->getNJets(event, "up_"+var);
+		if( btagup > 1e-12 ){
 		if( nEntries.at(es).at("up_"+var).find(njetsup)==nEntries.at(es).at("up_"+var).end() ){
 		    averageOfWeights.at(es).at("up_"+var)[njetsup] = btagup;
 		    nEntries.at(es).at("up_"+var)[njetsup] = 1;
 		} else{
 		    averageOfWeights.at(es).at("up_"+var).at(njetsup) += btagup;
 		    nEntries.at(es).at("up_"+var).at(njetsup) += 1;
-		}
+		}}
 		// get down weight
 		double btagdown = reweighterBTagShape->weightDown(event, var);
 		int njetsdown = reweighterBTagShape->getNJets(event, "down_"+var);
+		if( btagdown > 1e-12 ){
 		if( nEntries.at(es).at("down_"+var).find(njetsdown)==nEntries.at(es).at("down_"+var).end() ){
 		    averageOfWeights.at(es).at("down_"+var)[njetsdown] = btagdown;
 		    nEntries.at(es).at("down_"+var)[njetsdown] = 1;
 		} else{
 		    averageOfWeights.at(es).at("down_"+var).at(njetsdown) += btagdown;
 		    nEntries.at(es).at("down_"+var).at(njetsdown) += 1;
-		}
+		}}
 	    } // end loop over variations
 	} // end loop over event selections
     } // end loop over events

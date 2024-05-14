@@ -32,7 +32,7 @@ loc = {
   }
 }
 
-nevents = 1e6
+nevents = -1
 
 runmode = 'condor'
 
