@@ -40,6 +40,7 @@ class TreeReader {
         static const unsigned nL_max = 20;
         static const unsigned nJets_max = 100;
         static const unsigned gen_nL_max = 20;
+	static const unsigned gen_n_max = 1000;
         static const unsigned pl_nL_max = 10;
 	static const unsigned pl_nJet_max = 10;
 	static const unsigned nLheWeights_max = 148;
@@ -69,7 +70,7 @@ class TreeReader {
         Double_t        _lheHTIncoming;
 	UInt_t          _ttgEventType;
         UInt_t          _zgEventType;
-	// gen particles
+	// gen leptons
         Double_t        _gen_met;
         Double_t        _gen_metPhi;
         UInt_t          _gen_nL;
@@ -80,7 +81,23 @@ class TreeReader {
         UInt_t          _gen_lFlavor[gen_nL_max];   
         Int_t           _gen_lCharge[gen_nL_max];   
         Int_t           _gen_lMomPdg[gen_nL_max];   
-        Bool_t          _gen_lIsPrompt[gen_nL_max];   
+        Bool_t          _gen_lIsPrompt[gen_nL_max];
+        // other gen particles
+        UInt_t		_gen_n;
+	Double_t        _gen_pt[gen_n_max];
+        Double_t        _gen_eta[gen_n_max];
+        Double_t        _gen_phi[gen_n_max];
+        Double_t	_gen_E[gen_n_max];
+	Int_t		_gen_pdgId[gen_n_max];
+	Int_t		_gen_charge[gen_n_max];
+	Int_t		_gen_status[gen_n_max];
+	Bool_t		_gen_isPromptFinalState[gen_n_max];
+	Bool_t		_gen_isDirectPromptTauDecayProductFinalState[gen_n_max];
+	Bool_t		_gen_isLastCopy[gen_n_max];
+	Int_t		_gen_index[gen_n_max];
+	Int_t		_gen_motherIndex[gen_n_max];
+	Int_t		_gen_daughter_n[gen_n_max];
+	Int_t		_gen_daughterIndex[gen_n_max][10];
         // particle level particles
 	Double_t	_pl_met;
 	Double_t	_pl_metPhi;
@@ -301,6 +318,7 @@ class TreeReader {
 			    bool includeJECGrouped = true, 
 			    bool includeTauInfo = true,
 			    bool includeGeneratorInfo = true,
+                            bool includeGenLeptons = true,
 			    bool includeGenParticles = true,
 			    bool includePrefire = true,
 			    bool includePrefireComponents = true,
@@ -359,6 +377,7 @@ class TreeReader {
         //check whether specific info is present in current tree
         bool containsTauInfo() const;
 	bool containsGeneratorInfo() const;
+        bool containsGenLeptons() const;
 	bool containsGenParticles() const;
 	bool containsParticleLevel() const;
 	bool containsPrefire() const;
@@ -486,7 +505,22 @@ class TreeReader {
         TBranch        *b__gen_lFlavor;   
         TBranch        *b__gen_lCharge;   
         TBranch        *b__gen_lMomPdg;   
-        TBranch        *b__gen_lIsPrompt;   
+        TBranch        *b__gen_lIsPrompt;
+	TBranch		*b__gen_n = 0;
+	TBranch		*b__gen_pt;
+	TBranch		*b__gen_eta;
+	TBranch		*b__gen_phi;
+	TBranch		*b__gen_E;
+	TBranch		*b__gen_pdgId;
+	TBranch		*b__gen_charge;
+	TBranch		*b__gen_status;
+	TBranch		*b__gen_isPromptFinalState;
+	TBranch		*b__gen_isDirectPromptTauDecayProductFinalState;
+	TBranch		*b__gen_isLastCopy;
+	TBranch		*b__gen_index;
+	TBranch		*b__gen_motherIndex;
+	TBranch		*b__gen_daughter_n;
+	TBranch		*b__gen_daughterIndex; 
         TBranch        *b__ttgEventType;
         TBranch        *b__zgEventType;
 	TBranch        *b__pl_met;

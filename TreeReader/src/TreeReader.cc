@@ -233,8 +233,13 @@ bool TreeReader::containsGeneratorInfo() const{
 }
 
 
+bool TreeReader::containsGenLeptons() const{
+    return treeHasBranchWithName( _currentTreePtr, "_gen_lPt" );
+}
+
+
 bool TreeReader::containsGenParticles() const{
-    return treeHasBranchWithName( _currentTreePtr, "_gen_" );
+    return treeHasBranchWithName( _currentTreePtr, "_gen_pt" );
 }
 
 
@@ -792,9 +797,9 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
 	    _currentTreePtr->SetBranchAddress("_zgEventType", &_zgEventType, &b__zgEventType);
 	}
 
-	if( !containsGenParticles() ){
-	    std::string msg = "WARNING: input tree does not seem to contain gen particle info;";
-	    msg.append( " will not read gen particle branches!" );
+	if( !containsGenLeptons() ){
+	    std::string msg = "WARNING: input tree does not seem to contain gen lepton info;";
+	    msg.append( " will not read gen lepton branches!" );
 	    std::cerr << msg << std::endl;
 	} else{
 	    _currentTreePtr->SetBranchAddress("_gen_met", &_gen_met, &b__gen_met);
@@ -808,6 +813,28 @@ void TreeReader::initTree( const bool resetTriggersAndFilters ){
 	    _currentTreePtr->SetBranchAddress("_gen_lCharge", _gen_lCharge, &b__gen_lCharge);
 	    _currentTreePtr->SetBranchAddress("_gen_lMomPdg", _gen_lMomPdg, &b__gen_lMomPdg);
 	    _currentTreePtr->SetBranchAddress("_gen_lIsPrompt", _gen_lIsPrompt, &b__gen_lIsPrompt);
+	}
+
+        if( !containsGenParticles() ){
+            std::string msg = "WARNING: input tree does not seem to contain gen particle info;";
+            msg.append( " will not read gen particle branches!" );
+            std::cerr << msg << std::endl;
+        } else{
+	    _currentTreePtr->SetBranchAddress("_gen_n", &_gen_n, &b__gen_n);
+	    _currentTreePtr->SetBranchAddress("_gen_pt", _gen_pt, &b__gen_pt);
+	    _currentTreePtr->SetBranchAddress("_gen_eta", _gen_eta, &b__gen_eta);
+	    _currentTreePtr->SetBranchAddress("_gen_phi", _gen_phi, &b__gen_phi);
+	    _currentTreePtr->SetBranchAddress("_gen_E", _gen_E, &b__gen_E);
+	    _currentTreePtr->SetBranchAddress("_gen_pdgId", _gen_pdgId, &b__gen_pdgId);
+	    _currentTreePtr->SetBranchAddress("_gen_charge", _gen_charge, &b__gen_charge);
+	    _currentTreePtr->SetBranchAddress("_gen_status", _gen_status, &b__gen_status);
+	    _currentTreePtr->SetBranchAddress("_gen_isPromptFinalState", _gen_isPromptFinalState, &b__gen_isPromptFinalState);
+	    _currentTreePtr->SetBranchAddress("_gen_isDirectPromptTauDecayProductFinalState", _gen_isDirectPromptTauDecayProductFinalState, &b__gen_isDirectPromptTauDecayProductFinalState);
+	    _currentTreePtr->SetBranchAddress("_gen_isLastCopy", _gen_isLastCopy, &b__gen_isLastCopy);
+	    _currentTreePtr->SetBranchAddress("_gen_index", _gen_index, &b__gen_index);
+	    _currentTreePtr->SetBranchAddress("_gen_motherIndex", _gen_motherIndex, &b__gen_motherIndex);
+	    _currentTreePtr->SetBranchAddress("_gen_daughter_n", _gen_daughter_n, &b__gen_daughter_n);
+	    _currentTreePtr->SetBranchAddress("_gen_daughterIndex", _gen_daughterIndex, &b__gen_daughterIndex);
 	}
 
 	if( !containsParticleLevel() ){
@@ -908,6 +935,7 @@ void TreeReader::setOutputTree( TTree* outputTree,
 				bool includeJECGrouped,
 				bool includeTauInfo,
 				bool includeGeneratorInfo,
+                                bool includeGenLeptons,
 				bool includeGenParticles,
 				bool includePrefire,
 				bool includePrefireComponents,
@@ -1115,12 +1143,12 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	}
     }
 
-    if( isMC() && includeGenParticles){
-	if( !containsGenParticles() ){
+    if( isMC() && includeGenLeptons){
+	if( !containsGenLeptons() ){
             std::string msg = "WARNING in TreeReader.setOutputTree:";
-            msg.append(" requested to include gen particles in output tree,");
-            msg.append(" but there appear to be no gen particle branches in the input tree;");
-            msg.append(" will skip writing gen particles to output tree!");
+            msg.append(" requested to include gen leptons in output tree,");
+            msg.append(" but there appear to be no gen lepton branches in the input tree;");
+            msg.append(" will skip writing gen leptons to output tree!");
             std::cerr << msg << std::endl;
         }
 	else{
@@ -1136,6 +1164,33 @@ void TreeReader::setOutputTree( TTree* outputTree,
 	    outputTree->Branch("_gen_lMomPdg",               &_gen_lMomPdg,               "_gen_lMomPdg[_gen_nL]/I");
 	    outputTree->Branch("_gen_lIsPrompt",             &_gen_lIsPrompt,             "_gen_lIsPrompt[_gen_nL]/O");
 	}
+    }
+
+    if( isMC() && includeGenParticles){
+        if( !containsGenParticles() ){
+            std::string msg = "WARNING in TreeReader.setOutputTree:";
+            msg.append(" requested to include gen particles in output tree,");
+            msg.append(" but there appear to be no gen particle branches in the input tree;");
+            msg.append(" will skip writing gen particles to output tree!");
+            std::cerr << msg << std::endl;
+        }
+        else{
+	    outputTree->Branch("_gen_n", &_gen_n, "_gen_n/I");
+	    outputTree->Branch("_gen_pt", &_gen_pt, "_gen_pt[_gen_n]/D");
+	    outputTree->Branch("_gen_eta", &_gen_eta, "_gen_eta[_gen_n]/D");
+	    outputTree->Branch("_gen_phi", &_gen_phi, "_gen_phi[_gen_n]/D");
+	    outputTree->Branch("_gen_E", &_gen_E, "_gen_E[_gen_n]/D");
+	    outputTree->Branch("_gen_pdgId", &_gen_pdgId, "_gen_pdgId[_gen_n]/I");
+	    outputTree->Branch("_gen_charge", &_gen_charge, "_gen_charge[_gen_n]/I");
+	    outputTree->Branch("_gen_status", &_gen_status, "_gen_status[_gen_n]/I");
+	    outputTree->Branch("_gen_isPromptFinalState", &_gen_isPromptFinalState, "_gen_isPromptFinalState[_gen_n]/O");
+	    outputTree->Branch("_gen_isDirectPromptTauDecayProductFinalState", &_gen_isDirectPromptTauDecayProductFinalState, "_gen_isDirectPromptTauDecayProductFinalState[_gen_n]/O");
+	    outputTree->Branch("_gen_isLastCopy", &_gen_isLastCopy, "_gen_isLastCopy[_gen_n]/O");
+	    outputTree->Branch("_gen_index", &_gen_index, "_gen_index[_gen_n]/I");
+	    outputTree->Branch("_gen_motherIndex", &_gen_motherIndex, "_gen_motherIndex[_gen_n]/I");
+	    outputTree->Branch("_gen_daughter_n", &_gen_daughter_n, "_gen_daughter_n[_gen_n]/I");
+	    outputTree->Branch("_gen_daughterIndex", &_gen_daughterIndex, "_gen_daughterIndex[_gen_n][10]/I");
+        }
     }
 
     if( isMC() && includeParticleLevel ){
