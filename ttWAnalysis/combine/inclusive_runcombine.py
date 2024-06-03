@@ -14,7 +14,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '~/CMSSW_11_3_X_combine/CMSSW_11_3_4/'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -110,8 +110,8 @@ if __name__=='__main__':
     raise Exception('ERROR: input directory {} does not exist.'.format(args.datacarddir))
   
   # clean the data card dir
-  cleansucces = cbt.cleandatacarddir( args.datacarddir )
-  if not cleansucces: sys.exit()
+  #cleansucces = cbt.cleandatacarddir( args.datacarddir )
+  #if not cleansucces: sys.exit()
 
   # initialize all cards to run as empty list
   cardstorun = []
@@ -119,8 +119,8 @@ if __name__=='__main__':
   # add elementary signal region cards if requested
   if args.runelementary:
     cards_all = [f for f in os.listdir(args.datacarddir) if f[-4:]=='.txt']
-    cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
-    #cards_sr = cards_all # for small tests with other naming convention
+    #cards_sr = lt.subselect_strings(cards_all,mustcontainall=['signalregion'])[1]
+    cards_sr = cards_all # for small tests with other naming convention
     for card in sorted(cards_sr): cardstorun.append(card)
 
   # add combined cards if requested

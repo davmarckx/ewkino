@@ -10,9 +10,7 @@ import combinetools as cbt
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-#CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
-
+CMSSW_VERSION = '~/CMSSW_11_3_X_combine/CMSSW_11_3_4/'
 
 if __name__=='__main__':
 

@@ -696,6 +696,7 @@ class ProcessInfoCollection(object):
             else:
                 msg = 'ERROR: could not interpret systematic {}'.format(systematic)
                 msg += ' for process {}'.format(p)
+                print(msg)
     # make a ProcessInfoCollection
     PIC = ProcessInfoCollection()
     for i,p in enumerate(processes):
