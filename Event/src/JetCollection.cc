@@ -111,6 +111,43 @@ JetCollection JetCollection::buildVariedCollection( Jet (Jet::*variedJet)(std::s
     return JetCollection( jetVector );
 }
 
+//add flavor split JES variations
+JetCollection JetCollection::JECGroupedFlavorQCDCollection(unsigned flavor,std::string source, bool up) const {
+    std::string source_cat = source;
+    if(source.find("_flavor") != std::string::npos){
+      source_cat = source.substr(0,source.length()-8);
+    }
+    if (up) {
+        return buildVariedCollection_FlavorSet(&Jet::JetJECUp, source_cat, flavor).goodJetCollection();
+    } else {    
+        return buildVariedCollection_FlavorSet(&Jet::JetJECDown, source_cat, flavor).goodJetCollection();
+    }
+}
+
+/*JetCollection JetCollection::JECGroupedFlavorQCDUpCollection(unsigned flavor) const {
+    return buildVariedCollection_FlavorSet(&Jet::JetJECUp, "FlavorQCD", flavor).goodJetCollection();
+}
+
+JetCollection JetCollection::JECGroupedFlavorQCDDownCollection(unsigned flavor) const {
+    return buildVariedCollection_FlavorSet(&Jet::JetJECDown, "FlavorQCD", flavor).goodJetCollection();
+}*/
+
+JetCollection JetCollection::buildVariedCollection_FlavorSet( Jet (Jet::*variedJet)(std::string) const, std::string variationArg, unsigned flavor ) const{
+    // from Schnils https://github.com/NielsVdBossche/ewkino/blob/8ea9c97efd54bc22635bd86f6d68b923dc3c8de3/Event/src/JetCollection.cc#L140-L152 
+    std::vector< std::shared_ptr< Jet > > jetVector;
+    for( const auto& jetPtr : *this ){
+        //jets are NOT shared between collections!
+        if (jetPtr->hadronFlavor() == flavor) {
+            jetVector.push_back( std::make_shared< Jet >( (*jetPtr.*variedJet)( variationArg ) ) );
+        } else {
+            jetVector.push_back( std::make_shared< Jet >( *jetPtr ) );
+        }
+    }
+    return JetCollection( jetVector );
+}
+
+
+
 JetCollection JetCollection::JECDownCollection() const{
     return buildVariedCollection( &Jet::JetJECDown );
 }
@@ -165,13 +202,24 @@ JetCollection JetCollection::getVariedJetCollection( const std::string& variatio
 	return this->HEM1516UpCollection().goodJetCollection();
     } else if( variation == "HEM1516Down" ){
 	return this->HEM1516DownCollection().goodJetCollection();
-    } else if( stringTools::stringEndsWith(variation,"Up") ){
+    } 
+
+    //grouped JEC variations that can be split in flavor if it is in the name
+    else if( stringTools::stringEndsWith(variation,"Up") ){
         std::string jecvar = variation.substr(0, variation.size()-2);
-        return this->JECUpCollection( jecvar ).goodJetCollection();
-    } else if( stringTools::stringEndsWith(variation,"Down") ){
+        if(jecvar.find("_flavor") == std::string::npos){
+             return this->JECUpCollection( jecvar ).goodJetCollection();}
+        else{
+            return this->JECGroupedFlavorQCDCollection(std::stoul(&jecvar.back()),jecvar, true);}
+    } 
+    else if( stringTools::stringEndsWith(variation,"Down") ){
         std::string jecvar = variation.substr(0, variation.size()-4);
-        return this->JECDownCollection( jecvar ).goodJetCollection();
-    } else {
+        if(jecvar.find("_flavor") == std::string::npos){return this->JECDownCollection( jecvar ).goodJetCollection();}
+        else{
+            return this->JECGroupedFlavorQCDCollection(std::stoul(&jecvar.back()),jecvar, false);}
+    }
+    //all other cases are not yet implemented
+    else {
         throw std::invalid_argument( std::string("ERROR in getVariedJetCollection: ")
 	+ "jet variation " + variation + " is unknown." );
     }

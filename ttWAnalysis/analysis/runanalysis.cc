@@ -151,6 +151,7 @@ std::map< std::string,     // process
     unsigned numberOfQcdScaleVariations=6,
     const std::vector<std::string>& allJecVariations={},
     const std::vector<std::string>& groupedJecVariations={},
+    const std::vector<std::string>& groupedJECFlavorVariations={},
     const std::vector<std::string>& bTagShapeSystematics={},
     const std::vector<std::string>& eftVariations={} ){
     // make map of histograms
@@ -241,9 +242,10 @@ std::map< std::string,     // process
 			    }
 			}
 			// special case for split JEC variations: store all variations
-			else if(systematic=="JECAll" || systematic=="JECGrouped"){
+			else if(systematic=="JECAll" || systematic=="JECGrouped" || systematic=="JECFlavor"){
 			    std::vector<std::string> variations = allJecVariations;
 			    if( systematic=="JECGrouped" ) variations = groupedJecVariations;
+                            if( systematic=="JECFlavor" ) variations = groupedJECFlavorVariations;
 			    for(std::string jecvar: variations){
 				std::string temp = systematic + "_" + jecvar + "Up";
 				histMap[thisProcessName][eventSelection][selectionType][variableName][temp] = histVar->initializeHistogram( baseName+"_"+temp );
@@ -598,7 +600,7 @@ void fillSystematicsHistograms(
 	// read normalization factors (only needed for simulation, not for data)
 	if( !treeReader.isData() ){
 	    // read b-tagging shape reweighting normalization factors from txt file
-	    std::string txtInputFile = "../btagging/output_20240412/";
+	    std::string txtInputFile = "../btagging/output_JECFlavorSplit/";
 	    // (hard-coded for now, maybe replace by argument later)
 	    txtInputFile += year + "/" + inputFileName;
 	    txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");
@@ -708,15 +710,19 @@ void fillSystematicsHistograms(
     // determine global sample properties related to split JEC variations
     std::vector<std::string> allJECVariations;
     std::vector<std::string> groupedJECVariations;
+    std::vector<std::string> groupedJECFlavorVariations;
     // check which jec variations are needed
     bool considerjecall = false;
     bool considerjecgrouped = false;
+    bool considerjecflavor = false;
     for( std::string systematic: systematics ){
 	if( systematic=="JECAll") considerjecall = true;
 	else if( systematic=="JECGrouped" ) considerjecgrouped = true;
+        else if( systematic.find("JECFlavor") != std::string::npos ){ considerjecflavor = true;
+            considerjecgrouped = true;}
     }
     if( treeReader.numberOfEntries()>0
-	&& (considerjecall || considerjecgrouped) ){
+	&& (considerjecall || considerjecgrouped || considerjecflavor) ){
 	// find available jec variations
 	// note: also need to do this for data (to correctly create copies of nominal),
 	//       but variations are not stored in data files, so hard-coded for now.
@@ -734,8 +740,15 @@ void fillSystematicsHistograms(
 	    groupedJECVariations = {"Absolute_" + year.substr(0, 4),
 		"Absolute", "BBEC1_"+year.substr(0, 4), "BBEC1", "EC2_"+year.substr(0, 4),
 		"EC2", "FlavorQCD", "HF_"+year.substr(0, 4), "HF", "RelativeBal",
-		"RelativeSample_"+year.substr(0, 4), "Total"};
+		"RelativeSample_"+year.substr(0, 4), "Total"}; 
 	}
+        // make flavorsplit from groupedJECVariations
+        for (auto &x: groupedJECVariations) {
+          groupedJECFlavorVariations.push_back(x+"_flavor0");
+          groupedJECFlavorVariations.push_back(x+"_flavor4");
+          groupedJECFlavorVariations.push_back(x+"_flavor5");
+        }
+        
     }
 
     // determine global sample properties related to EFT coefficients
@@ -834,7 +847,7 @@ void fillSystematicsHistograms(
 	doSplitParticleLevel, splitParticleLevelVars,
 	event_selections, selection_types, histVars, systematics,
 	numberOfPdfVariations, 6, 
-	allJECVariations, groupedJECVariations,
+	allJECVariations, groupedJECVariations,groupedJECFlavorVariations,
 	bTagShapeSystematics,
 	eftVariations );
 
@@ -1007,6 +1020,7 @@ void fillSystematicsHistograms(
 	// stop further event processing in case of data
 	if(event.isData()) continue;
 
+
         // also stop further event processing for MC in case of charge flip selection
         if(selection_type=="chargeflips") continue;
 
@@ -1017,7 +1031,6 @@ void fillSystematicsHistograms(
 	    if(sysType=="ignore" || sysType=="ERROR") continue;
 	    std::string upvar = systematic + "Up";
 	    std::string downvar = systematic + "Down";
-	    
 	    // IF type is acceptance, special event selections are needed.
 	    if(sysType=="acceptance"){
 		
@@ -1087,9 +1100,12 @@ void fillSystematicsHistograms(
 		std::vector<std::string> varvector;
 		if(systematic=="JECAll") varvector = allJECVariations;
 		else if(systematic=="JECGrouped") varvector = groupedJECVariations;
+                else if(systematic=="JECFlavor") varvector = groupedJECFlavorVariations;
 		for(std::string jecvar: varvector){
 		    std::string thisupvar = jecvar+"Up";
 		    std::string thisdownvar = jecvar+"Down";
+                    std::string source; // needed for JEC split
+                    unsigned flavor; // needed for JEC split
 		    // do event selection and flattening with up variation
 		    bool passup = true;
 		    if(!passES(event, event_selection, selection_type, thisupvar)) passup = false;
@@ -1100,16 +1116,28 @@ void fillSystematicsHistograms(
 				    cfmap_electron, thisupvar,
                                     bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
+                        
 			// for JEC: propagate into b-tag shape reweighting
-			if( hasBTagShapeReweighter && jecvar!="RelativeSample" ){
+			if( hasBTagShapeReweighter && jecvar.find("RelativeSample") == std::string::npos ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
 			    if(jecvar=="Total") jesvar = "jes";
+                            // first case: it is a normal split in JEC that is stored
 			    if( dynamic_cast<const ReweighterBTagShape*>(
                                 reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
 				weight *= dynamic_cast<const ReweighterBTagShape*>(
 					reweighter["bTag_shape"] )->weightUp( event, jesvar )
 					/reweighter["bTag_shape"]->weight( event );
-			    } else{
+			    }
+                            // second case: it is a split in JEC and flavor 
+                            else if(jecvar.find("_flavor") != std::string::npos){
+                                flavor = std::strtoul(&jecvar.back(), NULL, 0);
+                                source = jecvar.substr(0, jecvar.size()-8)+"Up";
+                                // IMPLEMENTATION
+                                weight *= dynamic_cast<const ReweighterBTagShape*>(reweighter["bTag_shape"] )->weightJecVar_FlavorFilter( event, source, flavor)
+                                                / reweighter["bTag_shape"]->weight( event ); 
+                            }
+                            // else not recognized
+                            else{
 				std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
 				std::cerr << "reweighter not recognized" << std::endl;
 			    }
@@ -1122,6 +1150,7 @@ void fillSystematicsHistograms(
                             passParticleLevel, varmapParticleLevel );
 		    }
 		    // and with down variation
+		
 		    bool passdown = true;
 		    if(!passES(event, event_selection, selection_type, thisdownvar)) passdown=false;
 		    if(passdown){
@@ -1132,15 +1161,26 @@ void fillSystematicsHistograms(
                                 bdt, year);
 			double weight = accvarmap["_normweight"]*nEntriesAndTrainingReweight;
                         // for JEC: propagate into b-tag shape reweighting
-                        if( hasBTagShapeReweighter && jecvar!="RelativeSample" ){
+                        if( hasBTagShapeReweighter && jecvar.find("RelativeSample") == std::string::npos ){
 			    std::string jesvar = "jes"+jecvar; // for checking if valid
 			    if(jecvar=="Total") jesvar = "jes";
+                            // first case: it is a normal split in JEC that is stored
                             if( dynamic_cast<const ReweighterBTagShape*>(
                                 reweighter["bTag_shape"] )->hasVariation( jesvar ) ){
                                 weight *= dynamic_cast<const ReweighterBTagShape*>(
 					reweighter["bTag_shape"] )->weightDown( event, jesvar )
                                         /reweighter["bTag_shape"]->weight( event );
-                            } else{
+                            }
+                            // second case: it is a split in JEC and flavor  
+                            else if(jecvar.find("_flavor") != std::string::npos){
+                                flavor = std::strtoul(&jecvar.back(), NULL, 0);
+                                source = jecvar.substr(0, jecvar.size()-8)+"Down";
+                                // IMPLEMENTATION
+                                weight *= dynamic_cast<const ReweighterBTagShape*>(reweighter["bTag_shape"] )->weightJecVar_FlavorFilter( event,source , flavor)
+                                                / reweighter["bTag_shape"]->weight( event );
+                            }
+                            // else not recognized 
+                            else{
                                 std::cerr << "WARNING: variation '"<<jesvar<<"' for bTag shape";
                                 std::cerr << "reweighter not recognized" << std::endl;
                             }

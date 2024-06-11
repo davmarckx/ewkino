@@ -377,7 +377,7 @@ bool pass_signalregion_dilepton_inclusive(Event& event, const std::string& selec
         && event.hasZTollCandidate(10., true) ) return false;
     // MET cut
     if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return false; } 
-    else{ if(event.getMet(variation).pt()<30.) return false; }
+    else{ if(event.getMet(variation,event.jetCollection()).pt()<30.) return false; }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     if( selectbjets ){ if( njetsnloosebjets.second < 2 ) return false; }
@@ -414,7 +414,7 @@ std::tuple<int,std::string> eventSelections::pass_signalregion_dilepton_inclusiv
         && event.hasZTollCandidate(10., true) ) return std::make_tuple(7, "Fail electron Z veto");
     // MET cut
     if( variation=="all" ){ if(event.met().maxPtAnyVariation()<30) return std::make_tuple(8, "Fail MET"); }
-    else{ if(event.getMet(variation).pt()<30.) return std::make_tuple(8, "Fail MET"); }
+    else{ if(event.getMet(variation,event.jetCollection()).pt()<30.) return std::make_tuple(8, "Fail MET"); }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     if( selectbjets){ if( njetsnloosebjets.second < 2 ) return std::make_tuple(9, "Fail number of (b-) jets"); }
@@ -653,7 +653,7 @@ bool pass_wzcontrolregion(Event& event, const std::string& selectiontype,
     } else{
 	if(selectbjets 
 	    && event.getJetCollection(variation).numberOfMediumBTaggedJets()>0) return false;
-	if(event.getMet(variation).pt()<50.) return false;
+	if(event.getMet(variation,event.jetCollection()).pt()<50.) return false;
     }
     // calculate mass of 3-lepton system and veto mass close to Z mass
     if(fabs(event.leptonSystem().mass()-particle::mZ)<halfwindow) return false;
@@ -817,7 +817,7 @@ bool pass_npcontrolregion_dilepton_inclusive(
     if( event.leptonSystem().mass()<30. ) return false;
     // MET
     if( variation=="all" ){ if(event.met().maxPtAnyVariation()>30.) return false; }
-    else{ if(event.getMet(variation).pt()>30.) return false; }
+    else{ if(event.getMet(variation,event.jetCollection()).pt()>30.) return false; }
     // number of jets and b-jets
     std::pair<int,int> njetsnloosebjets = nJetsNLooseBJets(event, variation);
     if(selectbjets){ if( njetsnloosebjets.second < 2 ) return false; }

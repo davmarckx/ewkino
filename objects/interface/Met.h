@@ -7,6 +7,7 @@
 //include other parts of code 
 #include "PhysicsObject.h"
 #include "../../TreeReader/interface/TreeReader.h"
+#include "../../Event/interface/JetCollection.h"
 
 class Met : public PhysicsObject {
 
@@ -28,7 +29,10 @@ class Met : public PhysicsObject {
 	Met MetJECDown( const std::string source ) const;
 	Met MetJECUp( const std::string source) const;
 
-	Met getVariedMet( const std::string& variation ) const;
+        Met MetJECDown( const std::string source, unsigned flavor, JetCollection nomJets ) const;
+        Met MetJECUp( const std::string source, unsigned flavor, JetCollection nomJets ) const;
+
+	Met getVariedMet( const std::string& variation, JetCollection nomJets ) const;
 
         //maximum variations of met pT
         double maxPtAnyVariation() const;

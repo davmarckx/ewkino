@@ -50,9 +50,11 @@ if __name__=='__main__':
   # read all histograms
   histlist = ht.loadallhistograms(args.inputfile)
 
+  masses = ['low','high']
+
   # loop over variables
   for var in variables:
-    
+   for mass in masses: 
     # check variable type
     if isinstance(var, DoubleHistogramVariable):
       msg = 'ERROR: variable {} is of type DoubleHistogramVariable'.format(var.name)
@@ -81,7 +83,7 @@ if __name__=='__main__':
       selection_tag = event_selection + '_' + varname
 
       # select histograms
-      thishists = ht.selecthistograms(histlist, mustcontainall=[selection_tag])[1]
+      thishists = ht.selecthistograms(histlist, mustcontainall=[selection_tag, mass])[1]
       # additional selections for overlapping histogram names
       thishists = ([hist for hist in thishists if
                     (hist.GetName().endswith(varname) or varname+'_' in hist.GetName())])
@@ -125,7 +127,7 @@ if __name__=='__main__':
       if args.dogeneric:
 
         # make raw plot, against common approach but useful for statistics
-        outfile = os.path.join(args.outputdir, varname+'_absolute')
+        outfile = os.path.join(args.outputdir, varname+'_absolute'+mass)
         histtitle = 'Resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
         h2dp.plot2dhistogram( hist, outfile, outfmts=['.png'],
             histtitle=histtitle,
@@ -137,7 +139,7 @@ if __name__=='__main__':
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
         # make column-normalized plot
-        outfile = os.path.join(args.outputdir, varname+'_colnorm')
+        outfile = os.path.join(args.outputdir, varname+'_colnorm'+mass)
         histtitle = 'Column normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
         h2dp.plot2dhistogram( colnormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
@@ -149,7 +151,7 @@ if __name__=='__main__':
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
         # make row-normalized plot
-        outfile = os.path.join(args.outputdir, varname+'_rownorm')
+        outfile = os.path.join(args.outputdir, varname+'_rownorm'+mass)
         histtitle = 'Row normalized resolution matrix for '+axtitle[:1].lower()+axtitle[1:]
         h2dp.plot2dhistogram( rownormhist, outfile, outfmts=['.png'],
             histtitle=histtitle,
@@ -166,7 +168,7 @@ if __name__=='__main__':
         yaxtitle = 'Detector level '+axtitle[:1].lower()+axtitle[1:]
       
         # do response matrix
-        outfile = os.path.join(args.outputdir, varname+'_response')
+        outfile = os.path.join(args.outputdir, varname+'_response'+mass)
         # we also need to make the underflow bin part of the new histo but at the top.
         # ugly fix is to make a new one and fill by hand.
         # update: not needed since this information is already shown in efficiency,
@@ -180,7 +182,7 @@ if __name__=='__main__':
             extrainfos=extrainfos, infosize=None, infoleft=None, infotop=None )
 
         # do resolution matrix
-        outfile = os.path.join(args.outputdir, varname+'_resolution')
+        outfile = os.path.join(args.outputdir, varname+'_resolution'+mass)
         rmp.plotresponsematrix( colnormhist, efficiency, 
             stability, purity, outfile, outfmts=['.png'],
             xtitle=xaxtitle, ytitle=yaxtitle, ztitle='Number of events (normalized)',

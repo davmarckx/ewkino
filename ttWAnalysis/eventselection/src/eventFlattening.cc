@@ -450,8 +450,8 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     varmap["_numberOfVertices"] = event.numberOfVertices();
 
     // MET
-    varmap["_MET_pt"] = event.getMet("nominal").pt();
-    varmap["_MET_phi"] = event.getMet("nominal").phi();
+    varmap["_MET_pt"] = event.getMet("nominal",event.jetCollection()).pt();
+    varmap["_MET_phi"] = event.getMet("nominal",event.jetCollection()).phi();
 
     // event weight
     varmap["_weight"] = event.weight();
@@ -488,7 +488,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     JetCollection jetcollection = event.getJetCollection(variation);
     JetCollection bjetcollection = jetcollection.mediumBTagCollection();
     JetCollection loosebjetcollection = jetcollection.looseBTagCollection();
-    Met met = event.getMet(variation);
+    Met met = event.getMet(variation, event.jetCollection());
     // get lepton collection as well
     // (warning: a lot of event methods work on this collection implicitly,
     //  so changing the definition here is not enough to consistently use 
@@ -641,7 +641,7 @@ std::map< std::string, double > eventFlattening::eventToEntry(Event& event,
     // top reconstruction
     std::pair< double, double > pmz = pmzcandidates(lW, met);
     std::pair< double, int > topresults = besttopcandidate(jetcollection,
-					    lW, met, pmz.first, pmz.second);
+				    lW, met, pmz.first, pmz.second);
     int taggedbindex = topresults.second;
     if(jetcollection.numberOfMediumBTaggedJets()==0) taggedbindex = 0;
 

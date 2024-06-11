@@ -25,6 +25,7 @@ default_systematics = ([
   "Uncl",
   #"JECAll" # not in current samples
   "JECGrouped",
+  "JECFlavor",
   # via standard reweighting
   "muonReco",
   "electronReco",

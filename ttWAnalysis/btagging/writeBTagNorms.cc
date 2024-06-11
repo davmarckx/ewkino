@@ -1,5 +1,6 @@
 /*
 Calculate and store b-tagging scale factor normalization factors
+Update: normalization factors are capped off at 10 (11/05/24)
 */
 
 // inlcude c++ library classes
@@ -36,7 +37,7 @@ void writeBTagNorms(
 	unsigned long nEvents,
 	const std::string& outputDirectory,
 	const std::vector<std::string>& event_selections,
-	const std::vector<std::string>& variations ){
+	const std::vector<std::string>& variations_all ){
     
     // initialize TreeReader from input file
     std::cout<<"initializing TreeReader and setting to sample n. "<<sampleIndex<<std::endl;
@@ -51,6 +52,19 @@ void writeBTagNorms(
     std::vector<Sample> samples;
     samples.push_back(sample);
 
+    // clean the variations if they contain flavor splits
+    std::vector<std::string> flavorvariations = {};
+    std::vector<std::string> variations = {};
+    bool hasJECFlavor = false;
+    for( std::string var: variations_all ){
+        if(var.find("_flavor")!= std::string::npos){ 
+            hasJECFlavor = true;
+            flavorvariations.push_back(var);
+        }
+        else{variations.push_back(var);}
+    } 
+
+
     // make the b-tag shape reweighter
     // step 1: set correct csv file
     std::string bTagSFFileName = "bTagReshaping_unc_"+year+".csv";
@@ -63,13 +77,13 @@ void writeBTagNorms(
     std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
         weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
 
-    // initialize the output maps
+    // initialize the output maps (this is done for all variations)
     std::map< std::string, std::map< std::string, std::map< int, double >>> averageOfWeights;
     std::map< std::string, std::map<std::string, std::map< int, int >>> nEntries;
     for( std::string es: event_selections ){
 	averageOfWeights[es]["central"][0] = 0.;
 	nEntries[es]["central"][0] = 0;
-	for( std::string var: variations ){
+	for( std::string var: variations_all ){
 	    averageOfWeights[es]["up_"+var][0] = 0.;
 	    averageOfWeights[es]["down_"+var][0] = 0.;
 	    nEntries[es]["up_"+var][0] = 0;
@@ -102,6 +116,7 @@ void writeBTagNorms(
 	    // add nominal b-tag reweighting factors
 	    double btagreweight = reweighterBTagShape->weight( event );
 	    int njets = reweighterBTagShape->getNJets( event );
+            if(njets>10){njets=10;}
 	    if( btagreweight > 1e-12 ){
 	    if( nEntries.at(es).at("central").find(njets)==nEntries.at(es).at("central").end() ){
 		averageOfWeights.at(es).at("central")[njets] = btagreweight;
@@ -111,11 +126,12 @@ void writeBTagNorms(
 		nEntries.at(es).at("central").at(njets) += 1;
 	    }}
 
-	    // add varied b-tag reweighting factors
+	    // add varied b-tag reweighting factors (flavor split variations are treated differently)
 	    for( std::string var: variations ){ 
 		// get up weight
 		double btagup = reweighterBTagShape->weightUp(event, var);
 		int njetsup = reweighterBTagShape->getNJets(event, "up_"+var);
+                if(njetsup>10){njetsup=10;}
 		if( btagup > 1e-12 ){
 		if( nEntries.at(es).at("up_"+var).find(njetsup)==nEntries.at(es).at("up_"+var).end() ){
 		    averageOfWeights.at(es).at("up_"+var)[njetsup] = btagup;
@@ -127,6 +143,7 @@ void writeBTagNorms(
 		// get down weight
 		double btagdown = reweighterBTagShape->weightDown(event, var);
 		int njetsdown = reweighterBTagShape->getNJets(event, "down_"+var);
+                if(njetsdown>10){njetsdown=10;}
 		if( btagdown > 1e-12 ){
 		if( nEntries.at(es).at("down_"+var).find(njetsdown)==nEntries.at(es).at("down_"+var).end() ){
 		    averageOfWeights.at(es).at("down_"+var)[njetsdown] = btagdown;
@@ -136,6 +153,41 @@ void writeBTagNorms(
 		    nEntries.at(es).at("down_"+var).at(njetsdown) += 1;
 		}}
 	    } // end loop over variations
+            for( std::string var: flavorvariations ){
+               // get some info of split JEC
+               std::string modvar = stringTools::removeOccurencesOf(var,"jes");
+               unsigned flav = std::strtoul(&modvar.back(), NULL, 0);
+
+               // get up weight
+               modvar = modvar.substr(0, modvar.size()-8)+"Up";
+               double btagup = reweighterBTagShape->weightJecVar_FlavorFilter(event, modvar ,flav);
+               
+               int njetsup = reweighterBTagShape->getNJets(event, "up_"+var);
+               if(njetsup>10){njetsup=10;}
+               if( btagup > 1e-12 ){
+               if( nEntries.at(es).at("up_"+var).find(njetsup)==nEntries.at(es).at("up_"+var).end() ){
+                    averageOfWeights.at(es).at("up_"+var)[njetsup] = btagup;
+                    nEntries.at(es).at("up_"+var)[njetsup] = 1;
+               } else{
+                    averageOfWeights.at(es).at("up_"+var).at(njetsup) += btagup;
+                    nEntries.at(es).at("up_"+var).at(njetsup) += 1;
+               }}
+               // get down weight
+               modvar = modvar.substr(0, modvar.size()-2)+"Down";
+               double btagdown = reweighterBTagShape->weightJecVar_FlavorFilter(event, modvar ,flav);
+         
+               int njetsdown = reweighterBTagShape->getNJets(event, "down_"+var);
+               if(njetsdown>10){njetsdown=10;}
+               if( btagdown > 1e-12 ){
+               if( nEntries.at(es).at("down_"+var).find(njetsdown)==nEntries.at(es).at("down_"+var).end() ){
+                    averageOfWeights.at(es).at("down_"+var)[njetsdown] = btagdown;
+                    nEntries.at(es).at("down_"+var)[njetsdown] = 1;
+               } else{
+                    averageOfWeights.at(es).at("down_"+var).at(njetsdown) += btagdown;
+                    nEntries.at(es).at("down_"+var).at(njetsdown) += 1;
+               }}
+               
+            }
 	} // end loop over event selections
     } // end loop over events
 
@@ -146,7 +198,7 @@ void writeBTagNorms(
 	    averageOfWeights.at(es).at("central").at(it->first) /= it->second;
 	    if( it->second==0 ){ averageOfWeights.at(es).at("central").at(it->first) = 1; }
 	}
-	for( std::string var: variations ){
+	for( std::string var: variations_all ){
 	    for( std::map<int,int>::iterator it = nEntries.at(es).at("up_"+var).begin(); 
 		it != nEntries.at(es).at("up_"+var).end(); ++it ){
 		averageOfWeights.at(es).at("up_"+var).at(it->first) /= it->second;

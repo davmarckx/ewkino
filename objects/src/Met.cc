@@ -1,6 +1,5 @@
 #include "../interface/Met.h"
 
-
 Met::Met( const TreeReader& treeReader,
 	    const bool readAllJECVariations, const bool readGroupedJECVariations ):
     PhysicsObject( treeReader._met, 0., treeReader._metPhi, treeReader._met,
@@ -93,6 +92,50 @@ Met Met::MetJECDown( const std::string source ) const{
     return variedMetPxPy( newpxy.first, newpxy.second );
 }
 
+Met Met::MetJECDown( const std::string source, unsigned flavor, JetCollection nomJets ) const{
+    // rough approach
+    // generate lorentzvector corresponding to met
+    LorentzVector ret = LorentzVector(pt(), eta(), phi(), energy());
+
+    for (const auto& jetPtr : nomJets) {
+        double ptNom = jetPtr->pt();
+        if (jetPtr->hadronFlavor() != flavor) continue;
+        
+        std::shared_ptr<Jet> varJet;
+        varJet = std::make_shared< Jet >(jetPtr->JetJECDown( source ));
+
+        double ptdiff = ptNom - varJet->pt();
+
+        ret += LorentzVector(ptdiff, 0., jetPtr->phi(), ptdiff);
+    }
+
+    Met variedMet( *this );
+    variedMet.setLorentzVector(ret.pt(), eta(), ret.phi(), ret.pt() );
+    return variedMet; 
+}
+
+Met Met::MetJECUp( const std::string source, unsigned flavor, JetCollection nomJets ) const{
+    // rough approach
+    // generate lorentzvector corresponding to met
+    LorentzVector ret = LorentzVector(pt(), eta(), phi(), energy());
+
+    for (const auto& jetPtr : nomJets) {
+        double ptNom = jetPtr->pt();
+        if (jetPtr->hadronFlavor() != flavor) continue;
+        
+        std::shared_ptr<Jet> varJet;
+        varJet = std::make_shared< Jet >(jetPtr->JetJECUp( source ));
+
+        double ptdiff = ptNom - varJet->pt();
+
+        ret += LorentzVector(ptdiff, 0., jetPtr->phi(), ptdiff);
+    }
+
+    Met variedMet( *this );
+    variedMet.setLorentzVector(ret.pt(), eta(), ret.phi(), ret.pt() );
+    return variedMet;
+}
+
 Met Met::MetJECUp( const std::string source ) const{
     // note: this function checks both all and grouped variations,
     // need to check if there is no overlap in names between them!
@@ -114,7 +157,7 @@ Met Met::MetHEM1516Down() const{
     return variedMetPxPy( this->px(), this->py() );
 }
 
-Met Met::getVariedMet( const std::string& variation ) const{
+Met Met::getVariedMet( const std::string& variation, JetCollection jets ) const{
     if( variation == "nominal" ){
         return *this;
     } else if( variation == "JECDown" ){
@@ -133,6 +176,21 @@ Met Met::getVariedMet( const std::string& variation ) const{
 	return this->MetHEM1516Up();
     } else if( variation == "HEM1516Down" ){
 	return this->MetHEM1516Down();
+    } else if( variation.find("_flavor") != std::string::npos){
+        
+        if(stringTools::stringEndsWith(variation,"Up")){
+            std::string jecvar = variation.substr(0, variation.size()-2);
+            unsigned flavor = std::stoul(&jecvar.back());
+            jecvar = jecvar.substr(0, jecvar.size()-8);
+            return this->MetJECUp( jecvar, flavor,jets );
+        }
+        else{
+            std::string jecvar = variation.substr(0, variation.size()-4);
+            unsigned flavor = std::stoul(&jecvar.back());
+            jecvar = jecvar.substr(0, jecvar.size()-8);
+            return this->MetJECDown( jecvar, flavor, jets );
+        }
+
     } else if( stringTools::stringEndsWith(variation,"Up") ){
         std::string jecvar = variation.substr(0, variation.size()-2);
         return this->MetJECUp( jecvar );

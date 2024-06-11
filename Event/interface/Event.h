@@ -72,8 +72,8 @@ class Event{
 	// return jet collection and met with varied JEC/JER/Uncl uncertainties
 	JetCollection getJetCollection( const std::string& variation ) const{ 
 	    return (*_jetCollectionPtr).getVariedJetCollection( variation); }
-	Met getMet( const std::string& variation ) const{
-	    return (*_metPtr).getVariedMet( variation); }
+	Met getMet( const std::string& variation, JetCollection jets ) const{
+	    return (*_metPtr).getVariedMet( variation, jets); }
 
         Lepton& lepton( const LeptonCollection::size_type leptonIndex ) const{ 
 	    return (*_leptonCollectionPtr)[ leptonIndex ]; }

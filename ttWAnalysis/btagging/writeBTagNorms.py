@@ -31,7 +31,16 @@ def get_variations(btagyear):
         "jesFlavorQCD",
 	"jesHF_"+btagyear, "jesHF",
 	"jesRelativeBal", "jesRelativeSample_"+btagyear
-  ])
+        ])
+  for flav in ["flavor0","flavor4","flavor5"]:
+    variations.extend(
+        ["jesAbsolute_"+btagyear+"_"+flav, "jesAbsolute"+"_"+flav,
+        "jesBBEC1_"+btagyear+"_"+flav, "jesBBEC1"+"_"+flav,
+        "jesEC2_"+btagyear+"_"+flav, "jesEC2"+"_"+flav,
+        "jesFlavorQCD"+"_"+flav,
+        "jesHF_"+btagyear+"_"+flav, "jesHF"+"_"+flav,
+        "jesRelativeBal"+"_"+flav, "jesRelativeSample_"+btagyear+"_"+flav])
+  
   return variations
 
 

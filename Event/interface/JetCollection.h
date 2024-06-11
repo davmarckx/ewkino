@@ -37,6 +37,12 @@ class JetCollection : public PhysicsObjectCollection< Jet > {
 	JetCollection JECDownCollection( std::string source ) const;
 	JetCollection HEM1516UpCollection() const;
 	JetCollection HEM1516DownCollection() const;
+
+        //add flavor split JES variations
+        JetCollection JECGroupedFlavorQCDCollection(unsigned flavor,std::string source, bool up) const;
+        //JetCollection JECGroupedFlavorQCDDownCollection()(unsigned flavor) const;
+        //JetCollection JECGroupedFlavorQCDUpCollection()(unsigned flavor) const;
+
 	JetCollection getVariedJetCollection( const std::string& variation ) const;
 
         //select jets
@@ -76,8 +82,11 @@ class JetCollection : public PhysicsObjectCollection< Jet > {
     
         //build JetCollection of varied Jets
         JetCollection buildVariedCollection( Jet (Jet::*variedJet)() const ) const;
-	JetCollection buildVariedCollection( Jet (Jet::*variedJet)(std::string) const, 
-	    std::string ) const;
+	JetCollection buildVariedCollection( Jet (Jet::*variedJet)(std::string) const, std::string ) const;
+
+        //add flavor split JES variations
+        JetCollection buildVariedCollection_FlavorSet( Jet (Jet::*variedJet)(const unsigned) const, unsigned, unsigned ) const;
+        JetCollection buildVariedCollection_FlavorSet( Jet (Jet::*variedJet)(std::string) const, std::string, unsigned ) const;
 
         //number of b-taged jets with variation
         std::vector< size_type > countsAnyVariation( bool ( Jet::*passSelection )() const ) const;

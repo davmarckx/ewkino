@@ -32,11 +32,11 @@ loc = {
   }
 }
 
-nevents = -1
+nevents = 1000000
 
 runmode = 'condor'
 
-outputdir = 'output_test'
+outputdir = 'output_JECFlavorSplit'
 
 for year in years:
   for sampletype, sampleloc in loc.items():

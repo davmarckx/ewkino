@@ -17,7 +17,7 @@ std::string systematicTools::systematicType( const std::string systematic ){
 	return std::string("acceptance");
     }
     // split JEC
-    if(systematic=="JECAll" or systematic=="JECGrouped"){
+    if(systematic=="JECAll" or systematic=="JECGrouped" or systematic=="JECFlavor"){
         return std::string("jecsplit");
     }
     // reweighting uncertainties 

@@ -154,10 +154,10 @@ void fillHistograms(
 	    // if both selections failed, skip event
 	    if( !passDL && !passPL ) continue;
 
-            // check the top masses
+            // check the top masses, both have to be below or above to fill
             // just double going to this entry to be sure
             bool lowmass = false;
-            double mass = 0;
+            std::vector<double> masses;
             int amnt = 0;
             treeReader.GetEntry(entry);
             for( unsigned j = 0; j < treeReader._gen_n; ++j ){
@@ -165,10 +165,12 @@ void fillHistograms(
               if(not treeReader._gen_isLastCopy[j])continue;
               amnt +=1 ;
               ROOT::Math::PtEtaPhiEVector vec(treeReader._gen_pt[j],treeReader._gen_eta[j],treeReader._gen_phi[j],treeReader._gen_E[j]);
-              mass += vec.M();
+              masses.push_back(vec.M());
             }
-            std::cout<<mass;
-            if(mass<345) lowmass = true;
+            if(amnt !=2){std::cout<<"we have " << amnt <<"tops while we expected 2." ;}
+            if(masses.at(0) < 172.2 and masses.at(1) < 172.2){lowmass = true;}
+            else if(masses.at(0) > 172.8 and masses.at(1) > 172.8){lowmass = false;}
+            else{continue;}
 
 	    // loop over variables
 	    for(HistogramVariable histVar: histvars){
