@@ -348,7 +348,26 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
         "jesEC2_"+bTagYear, "jesEC2",
         "jesFlavorQCD",
         "jesHF_"+bTagYear, "jesHF",
-	"jesRelativeBal", "jesRelativeSample_"+bTagYear };
+	"jesRelativeBal", "jesRelativeSample_"+bTagYear,
+        // grouped JEC (split in flavor)
+        "jesAbsolute_"+bTagYear+std::string("_flavor0"), std::string("jesAbsolute")+"_flavor0",
+        "jesBBEC1_"+bTagYear+"_flavor0", std::string("jesBBEC1")+std::string("_flavor0"),
+        "jesEC2_"+bTagYear+"_flavor0", std::string("jesEC2")+"_flavor0",
+        std::string("jesFlavorQCD")+"_flavor0",
+        "jesHF_"+bTagYear+"_flavor0", std::string("jesHF")+"_flavor0",
+        std::string("jesRelativeBal")+"_flavor0", "jesRelativeSample_"+bTagYear+"_flavor0",
+        "jesAbsolute_"+bTagYear+"_flavor4", std::string("jesAbsolute")+"_flavor4",
+        "jesBBEC1_"+bTagYear+"_flavor4", std::string("jesBBEC1")+"_flavor4",
+        "jesEC2_"+bTagYear+"_flavor4", std::string("jesEC2")+"_flavor4",
+         std::string("jesFlavorQCD")+"_flavor4",
+         "jesHF_"+bTagYear+"_flavor4", std::string("jesHF")+"_flavor4",
+         std::string("jesRelativeBal")+"_flavor4", "jesRelativeSample_"+bTagYear+"_flavor4",
+         "jesAbsolute_"+bTagYear+"_flavor5", std::string("jesAbsolute")+"_flavor5",
+         "jesBBEC1_"+bTagYear+"_flavor5", std::string("jesBBEC1")+"_flavor5",
+         "jesEC2_"+bTagYear+"_flavor5", std::string("jesEC2")+"_flavor5",
+         std::string("jesFlavorQCD")+"_flavor5",
+         "jesHF_"+bTagYear+"_flavor5", std::string("jesHF")+"_flavor5",
+         std::string("jesRelativeBal")+"_flavor5", "jesRelativeSample_"+bTagYear+"_flavor5" };
     // step 3: make the reweighter
     std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
     	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );

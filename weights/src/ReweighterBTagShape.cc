@@ -118,8 +118,9 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
 	if( std::find(allowedvar.begin(),allowedvar.end(),std::string(variation))==allowedvar.end() ){
 	    throw std::invalid_argument( std::string("ERROR in ReweighterBTagShape: ")
                 + "argument 'variations' contains '" + variation + "' "
-                + "which is not recognized." );
+                + "which is not recognized..." );
 	}
+        std::cout<<"";
 	_variations.push_back( variation );
 	// check if it is also a systematic
 	if( std::find(allowedsys.begin(),allowedsys.end(),variation)!=allowedsys.end() ){
@@ -337,29 +338,33 @@ int ReweighterBTagShape::getNJets( const Event& event ) const{
     return this->getNJets( event, "central" );
 }
 
-double ReweighterBTagShape::getNormFactor_FlavorFilter(const Event &event, unsigned flavor, const std::string &jecVariation, const std::string& systematic) const
+double ReweighterBTagShape::getNormFactor_FlavorFilter(const Event &event, unsigned flavor, const std::string &jecVariation, const std::string& systematic_orig) const
 {
     // get the normalization factor for an event
     // note: the normalization factor depends on the sample to which the event belongs
     //       and on the jet multiplicity of the event.
     // note: jecVariation has a default value: 'nominal', i.e. no variation of JEC
     std::string sampleName = event.sample().fileName();
+    // modify the systematic name to be recognized in the map
+    std::string flavstring = &systematic_orig.back();
+    std::string systematic = systematic_orig.substr(0,systematic_orig.length()-1);
+    systematic = systematic.append("flavor");
+    systematic = systematic.append(flavstring);
+    
+    std::cout<<"renamed systematic to: " << systematic<<std::endl;
     // check validity of sample to which event belongs
     if (_normFactors.find(sampleName) == _normFactors.end())
     {
         throw std::invalid_argument(std::string("ERROR: ") + "ReweighterBTagShape was not initialized for this sample! " + sampleName);
     }
     if (_normFactors.at(sampleName).find(systematic) == _normFactors.at(sampleName).end())
-    {
-        throw std::invalid_argument(std::string("ERROR: ") + "ReweighterBTagShape was not initialized for this systematic! " + systematic);
+    { 
+        throw std::invalid_argument(std::string("ERROR: ") + "ReweighterBTagShape was not initialized for this systematic (in JEC flavorsplit)! " + systematic);
     }
     //std::cout << "normfactor" << std::endl;
     // determine number of jets
     int njets = 0;
-    int nLeptons = event.numberOfFOLeptons();
-    //std::cout << "nelps" << nLeptons << std::endl;
 
-    if (nLeptons > 4) nLeptons=4;
     if (stringTools::stringContains(jecVariation, "Up")) {
         njets = event.jetCollection().JECGroupedFlavorQCDCollection(flavor,jecVariation.substr(0,jecVariation.length()-2),true).size();
     } else {
@@ -616,7 +621,7 @@ double ReweighterBTagShape::weightJecVar_FlavorFilter(const Event &event,
             weight *= this->weight(*jetPtr);
         }
     }
-    return weight  ;// getNormFactor_FlavorFilter(event, flavor, jecVariation, jesVarName);
+    return weight / getNormFactor_FlavorFilter(event, flavor, jecVariation, jesVarName);
 }
 
 

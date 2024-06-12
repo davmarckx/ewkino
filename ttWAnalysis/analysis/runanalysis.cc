@@ -614,6 +614,8 @@ void fillSystematicsHistograms(
 		variationsToRead.push_back("up_"+var);
 		variationsToRead.push_back("down_"+var);
 	    }
+            std::cout << "variations to consider:" << std::endl;
+            for (auto i: variationsToRead) std::cout << i << std::endl;
 	    // (note: in the above, we read normalization factors for all b-tag variations.
 	    //  this is important if the JEC variations of b-tag scale factors are used
 	    //  when calculating the JEC systematics.
@@ -933,6 +935,14 @@ void fillSystematicsHistograms(
 
         // set  the correct normalization factors for b-tag reweighting
         if( hasBTagShapeReweighter && !treeReader.isData() ){
+            std::cout<<"map is here:"<<std::endl;
+            for(auto it = bTagWeightMap.cbegin(); it != bTagWeightMap.cend(); ++it)
+            {
+              for(auto itt = it->second.cbegin(); itt != it->second.cend(); ++itt)
+              {
+                std::cout << itt->first << " " << "\n";
+              }
+            } 
             dynamic_cast<ReweighterBTagShape*>(
                 reweighter.getReweighter("bTag_shape") )->setNormFactors( treeReader.currentSample(),
                 bTagWeightMap[event_selection] );

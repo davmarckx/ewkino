@@ -8,32 +8,32 @@ import sys
 
 regions = []
 
-#for r in ['signalregion_dilepton_inclusive']: regions.append(r)
+for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['plus','minus']: regions.append('signalregion_dilepton_{}'.format(r))
 #for r in ['signalregion_trilepton']: regions.append(r)
 #for r in ['wzcontrolregion','zzcontrolregion','zgcontrolregion']: regions.append(r)
-for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
-for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
+#for r in ['trileptoncontrolregion','fourleptoncontrolregion']: regions.append(r)
+#for r in ['npcontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['ee','em','me','mm']: regions.append('npcontrolregion_dilepton_{}'.format(r))
 #for r in ['nplownjetscontrolregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
-for r in ['cfjetscontrolregion']: regions.append(r)
+#for r in ['cfjetscontrolregion']: regions.append(r)
 
-years = ['2016PreVFP','2016PostVFP','2017','2018']
-#years = ['2018']
+#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP']
 
-dtypes = ['sim','data']
-#dtypes = ['sim']
+#dtypes = ['sim','data']
+dtypes = ['sim']
 #dtypes = ['data']
 
 selection_types = []
-selection_types.append('tight')
+#selection_types.append('tight')
 #selection_types.append('prompt')
 #selection_types.append('fakerate')
-selection_types.append('efakerate')
-selection_types.append('mfakerate')
-selection_types.append('chargeflips')
+#selection_types.append('efakerate')
+#selection_types.append('mfakerate')
+#selection_types.append('chargeflips')
 #selection_types.append('chargegood')
 selection_types.append('irreducible')
 
@@ -42,20 +42,20 @@ cfdir = '../chargefliprates/chargeFlipMaps_v20221109'
 
 #samplelistdir = '../samplelists/fourtops_notused' # can be used for quick single hist plotting
 #samplelistbase = 'samples_tttt_{}_{}.txt' # can be used for quick single hist plotting
-samplelistdir = '../samplelists/backgrounds' # main sample lists
-samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
+#samplelistdir = '../samplelists/backgrounds' # main sample lists
+#samplelistbase = 'samples_tttt_{}_{}.txt' # main sample lists
 #samplelistdir = 'samplelists' # sample lists for testing
 #samplelistbase = 'samplelist_test_{}_WZ.txt' # sample lists for testing
-#samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
-#samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
+samplelistdir = '../samplelists/particlelevel' # sample lists for TTW signal samples
+samplelistbase = 'samplelist_{}_TTW_particlelevel.txt' # sample lists for TTW signal samples
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_main_reduced.json'
 #variables = '../variables/variables_inputfeatures.json' # bdt input variables
 #variables = '../variables/variables_eventbdt.json' # bdt variable
 #variables = '../variables/variables_crfit.json' # reduced set of variables for CRs in fit
-#variables = '../variables/variables_particlelevel_double.json' # double variables
-variables = '../variables/variables_fitcr.json'
+variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_fitcr.json'
 
 #bdtfile = None
 #bdtfile = '../bdtweights/v20230601/XGBrobustnessv3_all.root'
@@ -68,10 +68,10 @@ splitprocess = 'TTW' # split TTW process at particle level
 #splitvariables = None
 splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_JECflavorsplit_CR'
+outputdir = 'output_test'
 
-nevents = -1
-runlocal = False
+nevents = 1000
+runlocal = True
 
 submit_selection_types_combined = True
 submit_event_selections_combined = True
@@ -84,12 +84,12 @@ trainingreweight = False
 for year in years:
   for dtype in dtypes:
     # set correct input directory
-    inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
+    #inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v4'
     #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples/particlelevel'
     #inputdir = '/pnfs/iihe/cms/store/user/dmarckx/ttWsamples'
-    inputdiryear = year
-    #inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
-    #inputdiryear = ''
+    #inputdiryear = year
+    inputdir = '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
+    inputdiryear = ''
     if dtype=='data':
       inputdir = '/pnfs/iihe/cms/store/user/nivanden/skims_v5'
       if( year=='2016PreVFP' or year=='2016PostVFP' ):
