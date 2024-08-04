@@ -14,6 +14,7 @@ import os
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION="/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13/"
 
 # settings
 
@@ -30,7 +31,7 @@ regions = ({
     'trileptoncontrolregion': '_nJetsNBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
-    'cfjetscontrolregion': '_nJets3'
+    'cfjetscontrolregion': '_nJets'
 })
 
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'

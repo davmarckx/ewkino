@@ -220,6 +220,8 @@ def getcolormap_systematics_grouped():
     cmap['fakerate (e)'] = ROOT.kCyan+2
     cmap['fakerate (m)'] = ROOT.kBlue+2
     cmap['total'] = ROOT.kGray
+    cmap['low mass'] = ROOT.kRed
+    cmap['high mass'] = ROOT.kGreen
     return cmap
 
 def getcolormap_eft():

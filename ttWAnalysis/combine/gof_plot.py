@@ -96,7 +96,7 @@ if __name__=='__main__':
             raise Exception('ERROR: expected file {} does not exist.'.format(datafile))
         # find toy file
         toyfile = os.path.join(datacarddir,
-            'higgsCombine{}.GoodnessOfFit.mH120.mergedtoys.root'.format(name))
+            'higgsCombine{}.GoodnessOfFit.mH120.1.root'.format(name))#changed here to first file instead of mergedtoys
         if not os.path.exists(toyfile):
             raise Exception('ERROR: expected file {} does not exist.'.format(toyfile))
         goffiles[name] = (datafile,toyfile)
@@ -106,7 +106,7 @@ if __name__=='__main__':
         datafiles = sorted([f for f in os.listdir(args.workspace)
                       if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.root'))])
         toyfiles = sorted([f for f in os.listdir(args.workspace)
-                      if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.mergedtoys.root'))])
+                      if (f.startswith('higgsCombine') and f.endswith('GoodnessOfFit.mH120.mergedtoys.root'))])#changed here to first file instead of mergedtoys
         if len(datafiles)!=len(toyfiles):
             print(datafiles)
             print(toyfiles)
@@ -185,7 +185,7 @@ if __name__=='__main__':
             names = sorted(info.keys())
             # determine size of figure
             figsize = None
-            if len(names)>8: figsize = (6.4, 4.8 + 0.4*(len(names)-8))
+            if len(names)>8: figsize = (8.4, 6.8 + 0.4*(len(names)-8))
             fig,axs = plt.subplots(nrows=len(names), ncols=1, figsize=figsize)
             if len(names)>8: fig.subplots_adjust(bottom=0.11-0.003*(len(names)-8), top=0.88+0.005*(len(names)-8))
             # fill individual axes

@@ -14,7 +14,9 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13'
+#CMSSW_VERSION = '/user/llambrec/CMSSW_11_3_X_combine/CMSSW_11_3_4/'
+
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt

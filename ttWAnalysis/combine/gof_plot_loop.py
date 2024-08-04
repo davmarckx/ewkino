@@ -5,11 +5,11 @@ if __name__=='__main__':
 
   datacarddirs = sys.argv[1:]
   
-  for datacarddir in datacarddirs:
+  for i,datacarddir in enumerate(datacarddirs):
     # run on elementary datacards
     cmd = 'python gof_plot.py' 
     cmd += ' --workspace {}'.format(datacarddir)
-    cmd += ' --outputfile {}'.format(os.path.join(datacarddir, 'summary_gof_elementary.png'))
+    cmd += ' --outputfile {}'.format(os.path.join(datacarddir, 'summary_gof_elementary{}.png'.format(i)))
     cmd += ' --includetags datacard'
     os.system(cmd)
     # run on combined datacards

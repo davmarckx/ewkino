@@ -156,7 +156,7 @@ void writeBTagNorms(
             for( std::string var: flavorvariations ){
                // get some info of split JEC
                std::string modvar = stringTools::removeOccurencesOf(var,"jes");
-               unsigned flav = std::strtoul(&modvar.back(), NULL, 0);
+               unsigned long flav = std::strtoul(&modvar.back(), NULL, 0);
 
                // get up weight
                modvar = modvar.substr(0, modvar.size()-8)+"Up";

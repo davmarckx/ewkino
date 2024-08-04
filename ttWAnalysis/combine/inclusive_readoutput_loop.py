@@ -11,7 +11,7 @@ if __name__=='__main__':
   print('Running on following directories:')
   print(datacarddirs)
 
-  method = 'multidimfit'
+  method = 'fitdiagnostics'#'multidimfit'
 
   commands = []
   for datacarddir in datacarddirs:

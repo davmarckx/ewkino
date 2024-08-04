@@ -9,7 +9,7 @@ sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
 #CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_16_patch1' # temporary
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13/'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 import listtools as lt
@@ -24,7 +24,7 @@ def getcardcombinations(datacarddir, varname, verbose=False):
   cards_all = [f for f in os.listdir(datacarddir) if f[-4:]=='.txt']
   cards_all = lt.subselect_strings(cards_all,maynotcontainone=['_out_'])[1]
   cards_sr = [f for f in cards_all if ('signalregion' in f and f.endswith(varname+'.txt'))]
-  cards_cr = [f for f in cards_all if 'controlregion' in f]
+  cards_cr = [f for f in cards_all if ('controlregion' in f and f.endswith(varname+'.txt'))]
   # total combination  
   combineddict['dc_combined_{}.txt'.format(varname)] = cards_cr + cards_sr
   # convert list of cards to dictionary of cards to channel names
@@ -103,6 +103,7 @@ if __name__=='__main__':
     if args.signals is not None:
       if args.signals=='auto':
         # read signals from one of the datacards
+        print(os.listdir(args.datacarddir))
         card = ([f for f in os.listdir(args.datacarddir) 
                  if ('signalregion' in f and f.endswith('{}.txt'.format(varname)))])
         if len(card)!=1:
@@ -111,6 +112,7 @@ if __name__=='__main__':
             msg += ' (while expecting 1);'
             msg += ' skipping this variable...'
             print(msg)
+            continue
         card = card[0]
         card = os.path.join(args.datacarddir,card)
         with open(card,'r') as f:

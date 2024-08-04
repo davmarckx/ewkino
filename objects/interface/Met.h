@@ -29,8 +29,8 @@ class Met : public PhysicsObject {
 	Met MetJECDown( const std::string source ) const;
 	Met MetJECUp( const std::string source) const;
 
-        Met MetJECDown( const std::string source, unsigned flavor, JetCollection nomJets ) const;
-        Met MetJECUp( const std::string source, unsigned flavor, JetCollection nomJets ) const;
+        Met MetJECDown( const std::string source, unsigned long flavor, JetCollection nomJets ) const;
+        Met MetJECUp( const std::string source, unsigned long flavor, JetCollection nomJets ) const;
 
 	Met getVariedMet( const std::string& variation, JetCollection nomJets ) const;
 

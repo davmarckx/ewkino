@@ -8,7 +8,7 @@ import os
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-
+CMSSW_VERSION='~/CMSSW_10_6_28'
 
 if __name__=='__main__':
 
@@ -19,6 +19,6 @@ if __name__=='__main__':
   cmd = 'python ../eventselection/mergeyears.py'
   cmd += ' --directory {}'.format(inputdir)
   cmd += ' --filemode split'
-  #os.system(cmd)
-  ct.submitCommandAsCondorJob( 'cjob_mergeyears', cmd,
-                               cmssw_version=CMSSW_VERSION )
+  os.system(cmd)
+  #ct.submitCommandAsCondorJob( 'cjob_mergeyears', cmd,
+  #                             cmssw_version=CMSSW_VERSION )

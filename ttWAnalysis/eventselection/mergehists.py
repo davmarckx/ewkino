@@ -93,7 +93,7 @@ def decorrelate_systematics_in_file(renamedict, rfile,
     f = ROOT.TFile.Open(rfile,'update')
     keylist = f.GetListOfKeys()
     keynamelist = [str(key.GetName()) for key in keylist]
-    def write_other_years(nomkeyname, keyname):
+    def write_other_years(nomkeyname, newkeyname,combine2016):
       ### inline help function to write nominal other years
       if nomkeyname not in keynamelist:
         raise Exception('ERROR in decorrelate_systematics_in_file:'
@@ -102,9 +102,16 @@ def decorrelate_systematics_in_file(renamedict, rfile,
                         +' in file {})'.format(rfile))
       hist = f.Get(str(nomkeyname))
       hist = hist.Clone()
-      for otheryear in allyears:
-        if otheryear==year: continue
-        hist.Write(newkeyname.replace(year,otheryear))
+      for allyear in allyears:
+        otheryear = allyear
+        if otheryear==year: continue # same year doesn't need to be overwritten
+        if combine2016 and '2016' in otheryear and '2016' in year: continue # if syst is 2016, dont overwrite the other year with its nominal, just combine them in mergeyears
+        if '2016PreVFP' ==otheryear and combine2016: otheryear = '2016' # if syst is 2016, only write nominal hist for 2017/2018 for 1 of the 2016s
+        if '2016PostVFP'==otheryear and combine2016: continue
+        if '2016' in year and combine2016:
+          hist.Write(newkeyname.replace('2016',otheryear))
+        else:
+           hist.Write(newkeyname.replace(year,otheryear))
     # loop over all histogram keys
     for key, keyname in zip(keylist, keynamelist):
       newkeyname = keyname
@@ -113,6 +120,22 @@ def decorrelate_systematics_in_file(renamedict, rfile,
       # find if histogram key belongs to up, down or other
       if tag.endswith('Up'): tag = tag[:-2]
       elif tag.endswith('Down'): tag = tag[:-4]
+      #else check if it has pdf or qcd in name (then it is onesided and we put up and don in manually)
+      elif "qcdScalesShapeVar" in tag or "pdfShapeVar" in tag:
+       if "qcdScalesShapeVar" in tag:
+        nomkeyname = tag.replace("_qcdScalesShapeVar", '_nominal').rstrip('0123456789')
+        newkeyname = keyname+pname+"Up"
+       else:
+        nomkeyname = tag.replace("_pdfShapeVar", '_nominal').rstrip('0123456789')
+        newkeyname = keyname+"Up"
+
+       print(nomkeyname)
+       nomhist = f.Get(str(nomkeyname))
+       hist = nomhist.Clone()
+       key.SetName(newkeyname)
+       keyname = newkeyname
+       hist.Write(newkeyname.replace("Up","Down"))
+
       else: continue
       # decorrelate by year
       # (change the key name to include the process,
@@ -120,30 +143,66 @@ def decorrelate_systematics_in_file(renamedict, rfile,
       # in order to merge several years correctly)
       if( year is not None and allyears is not None ):
         for s in renamedict['decorrelate_years']:
-          if tag.endswith(s):
+          if s in tag:
             newkeyname = keyname.replace(s, s+year)
             key.SetName(newkeyname)
             nomkeyname = tag.replace(s, '_nominal')
-            write_other_years(nomkeyname, keyname)
+            print("tag is found")
+            print(nomkeyname)
+            print(keyname)
+            write_other_years(nomkeyname, newkeyname,False)
       # special case: decorrelate JEC sources by year
       # (some JEC sources are already decorrelated per year in the input ntuples,
       # and not listed in renamedict so they are skipped above.)
       # (as an additional complication, the split JEC sources are combined for 2016
       # instead of being split in 2016PreVFP and 2016PostVFP.)
       if( 'JECGrouped' in tag and year is not None and allyears is not None ):
-        if tag.endswith('2016'):
-          newkeyname = keyname.replace('2016', year)
+        if '2016' in tag:
+          newkeyname = keyname.replace('2016PreVFP', '2016')
+          newkeyname = newkeyname.replace('2016PostVFP', '2016')
           key.SetName(newkeyname)
-          tag = tag.replace('2016', year)
+
+          if tag.endswith('2016'):
+            tag = tag.replace('2016', year)
+
         if tag.endswith(year):
           # extract the full name of the systematic, e.g. JECGroupd_HF_2017
           systematic = 'JECGrouped' + tag.split('JECGrouped')[1]
           nomkeyname = tag.replace(systematic, 'nominal')
-          write_other_years(nomkeyname, keyname)
+          write_other_years(nomkeyname, keyname,True)
+
+      # special case: decorrelate JEC sources split in flavor by year
+      # (some JEC sources are already decorrelated per year (50% correlated, 50% decorrelated) in the input ntuples,
+      # and not listed in renamedict so they are skipped above.)
+      # (as an additional complication, the split JEC sources are combined for 2016
+      # instead of being split in 2016PreVFP and 2016PostVFP.)
+      if( 'JECFlavor' in tag and year is not None and allyears is not None ):
+        print(tag)
+        if '2016' in tag: 
+          newkeyname = keyname.replace('2016PreVFP', '2016')
+          newkeyname = newkeyname.replace('2016PostVFP', '2016')
+          key.SetName(newkeyname)
+
+        if '2016' in tag:
+            tag = tag.replace('2016', year)
+        print('\n start \n')
+        print(year)
+        print(tag)
+        if year in tag:
+          if '2016' in tag:
+            tag = tag.replace(year,'2016')
+            print(tag)
+          # extract the full name of the systematic, e.g. JECGroupd_HF_2017
+          systematic = 'JECFlavor' + tag.split('JECFlavor')[1]
+          nomkeyname = tag.replace(systematic, 'nominal')
+          print(nomkeyname)
+          print("writing others")
+          write_other_years(nomkeyname, keyname,True)
+
       # decorrelate by process
       # (simply change the key name to include the process)
       for s in renamedict['decorrelate_processes']:
-        if tag.endswith(s): newkeyname = keyname.replace(s, s+pname)
+        if s in tag: newkeyname = keyname.replace(s, s+pname)
       key.SetName(newkeyname)
     f.Close()
   else:

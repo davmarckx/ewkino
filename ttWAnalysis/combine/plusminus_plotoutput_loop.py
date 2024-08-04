@@ -36,5 +36,8 @@ if __name__=='__main__':
     cmd += ' --outputfile {}'.format(outputfile)
     cmd += ' --xaxbins {}'.format(xaxbins)
     cmd += ' --yaxbins {}'.format(yaxbins)
+
+    cmd += ' --addinclusiveresult'
+    cmd += ' --datacarddir {}'.format(args.datacarddir)
     # run the command
     os.system(cmd)

@@ -92,7 +92,7 @@ Met Met::MetJECDown( const std::string source ) const{
     return variedMetPxPy( newpxy.first, newpxy.second );
 }
 
-Met Met::MetJECDown( const std::string source, unsigned flavor, JetCollection nomJets ) const{
+Met Met::MetJECDown( const std::string source, unsigned long flavor, JetCollection nomJets ) const{
     // rough approach
     // generate lorentzvector corresponding to met
     LorentzVector ret = LorentzVector(pt(), eta(), phi(), energy());
@@ -114,7 +114,7 @@ Met Met::MetJECDown( const std::string source, unsigned flavor, JetCollection no
     return variedMet; 
 }
 
-Met Met::MetJECUp( const std::string source, unsigned flavor, JetCollection nomJets ) const{
+Met Met::MetJECUp( const std::string source, unsigned long flavor, JetCollection nomJets ) const{
     // rough approach
     // generate lorentzvector corresponding to met
     LorentzVector ret = LorentzVector(pt(), eta(), phi(), energy());
@@ -180,13 +180,13 @@ Met Met::getVariedMet( const std::string& variation, JetCollection jets ) const{
         
         if(stringTools::stringEndsWith(variation,"Up")){
             std::string jecvar = variation.substr(0, variation.size()-2);
-            unsigned flavor = std::stoul(&jecvar.back());
+            unsigned long flavor = std::stoul(&jecvar.back());
             jecvar = jecvar.substr(0, jecvar.size()-8);
             return this->MetJECUp( jecvar, flavor,jets );
         }
         else{
             std::string jecvar = variation.substr(0, variation.size()-4);
-            unsigned flavor = std::stoul(&jecvar.back());
+            unsigned long flavor = std::stoul(&jecvar.back());
             jecvar = jecvar.substr(0, jecvar.size()-8);
             return this->MetJECDown( jecvar, flavor, jets );
         }

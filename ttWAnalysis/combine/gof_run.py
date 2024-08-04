@@ -11,7 +11,7 @@ sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
 #CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13'
 
 
 if __name__=='__main__':
@@ -34,12 +34,22 @@ if __name__=='__main__':
         if not os.path.exists(workspace):
             raise Exception('ERROR: workspace {} does not exist.'.format(workspace))
 
-    # loop over workspaces
-    for workspace in args.workspaces:
+    # get workspaces from directory
+    workspaces = args.workspaces
+    print(workspaces)
+    print(os.path.isdir(args.workspaces[0]))
+    if len(workspaces) == 1 and os.path.isdir(args.workspaces[0]):
+      workspaces = [os.path.join(args.workspaces[0],x) for x in os.listdir(args.workspaces[0]) if (x.endswith('.txt'))]
+      print(workspaces)
 
+    # loop over workspaces
+    for workspace in workspaces:
         # get directory and datacard from provided workspace
         card = os.path.splitext(workspace)[0] + '.txt'
+        print(card)
         (datacarddir, card) = os.path.split(card)
+        print(card)
+        print(datacarddir)
 
         # check if provided workspace is actually a workspace or rather a datacard
         if workspace.endswith('.root'): pass
@@ -59,13 +69,16 @@ if __name__=='__main__':
                 script_name = 'local_gof_run_temp.sh'
                 ct.initJobScript(script_name, cmssw_version=CMSSW_VERSION)
                 with open( script_name, 'a' ) as script:
-                    for c in cbt.get_workspace_commands( datacarddir, card ): script.write(c+'\n')
+                    for c in cbt.get_workspace_commands( datacarddir, card ): 
+                        script.write(c+'\n')
+                        print(c)
+                
                 os.system('bash {}'.format(script_name))
                 os.system('rm {}'.format(script_name))
 
         # loop over number of jobs
         for randomseed in range(args.ntoyjobs+1):
-            do_data = False
+            do_data = True
             do_toys = True
             # first job is for data
             if randomseed==0: 

@@ -7,24 +7,25 @@ import os
 sys.path.append('../../jobSubmission')
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION = "~/CMSSW_10_6_28/"
 import json
 
 # input directory
 inputdir = sys.argv[1]
-runmode = 'condor'
+runmode = 'local'
 
 # choose what to run on
-regions = ['auto']
+regions = ['fourleptoncontrolregion']
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
-years.append('run2')
+years = ['2016PreVFP']#,'2016PostVFP','2017','2018']
+#years.append('run2')
 
 npmodes = ['npfromdatasplit']
 cfmodes = ['cffromdata']
 
 unblindmodes = []
-unblindmodes.append('blind')
+#unblindmodes.append('blind')
 unblindmodes.append('unblind')
 
 # choose systematics
@@ -38,9 +39,10 @@ dolog = True
 
 #variables = '../variables/variables_main.json' # single variables
 #variables = '../variables/variables_main_reduced.json' # single variables, slightly reduced set
-#variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
+variables = '../variables/variables_eventbdt.json' # single variable (bdt only)
 #variables = '../variables/variables_inputfeatures.json'
-variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_particlelevel_double.json' # double variables
+#variables = '../variables/variables_fitcr.json'
 
 # other settings
 
@@ -61,8 +63,8 @@ for i in range(1,10): signals.append('TTW{}'.format(i))
 # - splitvariables = None
 # for plots with particle level splitting using another variable than the plotting variable,
 # yet to test and document later.
-#splitprocess = None # no splitting
-splitprocess = 'TTW' # show this splitted process
+splitprocess = None # no splitting
+#splitprocess = 'TTW' # show this splitted process
 splitvariables = None # no splitting or automatic splitting
 #splitvariables = '../variables/variables_particlelevel_single.json' # to test
 

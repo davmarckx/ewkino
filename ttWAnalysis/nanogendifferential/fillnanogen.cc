@@ -263,7 +263,7 @@ void fillTheoryHistograms(
         // the vectors contain the ratio of the varied cross-section to the nominal one
 	// (not used here but called later in event loop!)
         xsecs = std::make_shared<NanoGenSampleCrossSections>( treeReader );
-        if(numberOfPSVariations==4){ hasValidPSs = true; }
+        if(numberOfPSVariations==44){ hasValidPSs = true; }
         std::cout << "- hasValidPSs: " << hasValidPSs << std::endl;
     }
 

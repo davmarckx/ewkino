@@ -60,7 +60,9 @@ if __name__=='__main__':
   # parse variations
   btagyear = year_from_samplelist(args.samplelist)
   if( btagyear=='2016PreVFP' or btagyear=='2016PostVFP' ): btagyear = '2016'
-  variations = ','.join(get_variations(btagyear))
+  variations = get_variations(btagyear)
+
+  variations = [var for var in variations if not "flavor" in var]
 
   # loop over input files and submit jobs
   commands = []
@@ -68,7 +70,7 @@ if __name__=='__main__':
     # make the command
     command = exe + ' {} {} {} {} {} {} {}'.format(
                     args.inputdir, args.samplelist, i, args.txtinputdir,
-                    event_selections, variations,
+                    event_selections, ','.join(variations),
                     args.nevents )
     print(command)
     commands.append(command)

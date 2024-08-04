@@ -348,9 +348,9 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
         "jesEC2_"+bTagYear, "jesEC2",
         "jesFlavorQCD",
         "jesHF_"+bTagYear, "jesHF",
-	"jesRelativeBal", "jesRelativeSample_"+bTagYear,
-        // grouped JEC (split in flavor)
-        "jesAbsolute_"+bTagYear+std::string("_flavor0"), std::string("jesAbsolute")+"_flavor0",
+	"jesRelativeBal", "jesRelativeSample_"+bTagYear};//,
+        // grouped JEC (split in flavor) maybe not needed for this part?
+        /*"jesAbsolute_"+bTagYear+std::string("_flavor0"), std::string("jesAbsolute")+"_flavor0",
         "jesBBEC1_"+bTagYear+"_flavor0", std::string("jesBBEC1")+std::string("_flavor0"),
         "jesEC2_"+bTagYear+"_flavor0", std::string("jesEC2")+"_flavor0",
         std::string("jesFlavorQCD")+"_flavor0",
@@ -367,14 +367,21 @@ CombinedReweighter Run2ULReweighterFactory::buildReweighter(
          "jesEC2_"+bTagYear+"_flavor5", std::string("jesEC2")+"_flavor5",
          std::string("jesFlavorQCD")+"_flavor5",
          "jesHF_"+bTagYear+"_flavor5", std::string("jesHF")+"_flavor5",
-         std::string("jesRelativeBal")+"_flavor5", "jesRelativeSample_"+bTagYear+"_flavor5" };
+         std::string("jesRelativeBal")+"_flavor5", "jesRelativeSample_"+bTagYear+"_flavor5" };*/
     // step 3: make the reweighter
+    std::cout<<weightDirectory<<std::endl;
+    std::cout<<sfFilePath<<std::endl;
+    std::cout<<flavor<<std::endl;
+    for (auto i: variations)
+      std::cout << i << ' ';
+    for (auto i: samples)
+      std::cout << i << ' ';
     std::shared_ptr<ReweighterBTagShape> reweighterBTagShape = std::make_shared<ReweighterBTagShape>(
     	weightDirectory, sfFilePath, flavor, bTagAlgo, variations, samples );
     //reweighterBTagShape->initialize(samples, 0);
     // (above line is commented out -> do not initialize, do it manually in calling)
     combinedReweighter.addReweighter( "bTag_shape", reweighterBTagShape );
-
+    
     // make pileup reweighter
     std::string pileupWeightPath = stringTools::formatDirectoryName( weightDirectory )
 	    + "weightFilesUL/pileupWeights/"

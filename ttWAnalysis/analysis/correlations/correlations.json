@@ -21,6 +21,7 @@
   "decorrelate_processes": [
     "_qcdScalesNorm",
     "_qcdScalesShapeEnv",
+    "_NOTqcdScalesShapeVar",
     "_rScale",
     "_rScaleNorm",
     "_fScale",
@@ -30,8 +31,8 @@
     "_isrScale",
     "_isrShape",
     "_isrNorm",
-    "_njets",
-    "_nbjets",
+    "NOT_njets",
+    "NOT_nbjets",
     "_njetscf"
   ]
 }

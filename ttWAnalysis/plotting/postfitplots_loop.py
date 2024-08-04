@@ -8,10 +8,10 @@ import json
 sys.path.append('../../jobSubmission')
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13'
 
 inputdir = os.path.abspath(sys.argv[1])
-runmode = 'local'
+runmode = 'condor'
 
 regions = []
 for r in ['signalregion_dilepton_inclusive']: regions.append(r)
@@ -23,15 +23,15 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 
 years = []
 #years = ['2016PreVFP','2016PostVFP','2017','2018']
-years = ['2016PreVFP']
-#years.append('run2')
+#years = ['2016PreVFP']
+years.append('run2')
 
 npmode = 'npfromdatasplit'
 cfmode = 'cffromdata'
 
 dolog = True
 
-variables = '../variables/variables_eventbdt.json'
+variables = '../variables/variables_particlelevel_double.json'
 
 colormap = 'ttw'
 
@@ -54,8 +54,8 @@ if not os.path.exists(confdir): os.makedirs(confdir)
 
 # make all elementary configurations
 configurations = {}
-if 'run2' in years: allyears = ['2016PreVFP','2016PostVFP','2017','2018']
-else: allyears = years
+#if 'run2' in years: allyears = ['2016PreVFP','2016PostVFP','2017','2018']
+#else: allyears = years
 for year in allyears:
   for region in regions:
     # find the input file
@@ -120,7 +120,7 @@ for year in years:
         wcmd += ' -v {}'.format(variables)
         wcmd += ' -o {}'.format(thisoutputdir)
         wcmd += ' --datatag {}'.format(datatag)
-        wcmd += ' --dummysystematics' # only for testing!
+        #wcmd += ' --dummysystematics' # only for testing!
         # make the plot commands
         pcmds = []
         for varname in varnames:

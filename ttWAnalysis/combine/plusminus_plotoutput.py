@@ -10,6 +10,7 @@ import ROOT
 from array import array
 sys.path.append('../../plotting/python')
 import plottools as pt
+import pandas as pd
 
 if __name__=='__main__':
 
@@ -19,6 +20,8 @@ if __name__=='__main__':
   parser.add_argument('--outputfile', required=True)
   parser.add_argument('--xaxbins', default=None)
   parser.add_argument('--yaxbins', default=None)
+  parser.add_argument('--addinclusiveresult',
+                    action='store_true')
   args = parser.parse_args()
 
   # print arguments
@@ -84,14 +87,51 @@ if __name__=='__main__':
   cont1.append(2.30)
   cont1hist.SetContour(1,cont1)
   cont1hist.SetLineWidth(2)
-  cont1hist.SetLineColor(ROOT.kRed)
+  cont1hist.SetLineColor(ROOT.kRed+2)
   cont4hist = hist.Clone()
   cont4 = array('d')
   cont4.append(5.99)
   cont4hist.SetContour(1,cont4)
   cont4hist.SetLineWidth(2)
-  cont4hist.SetLineColor(ROOT.kGreen)
+  cont4hist.SetLineColor(ROOT.kGreen+3)
 
+  if args.addinclusiveresult:
+    df = pd.read_csv('inclusiveResult/inclusive_SCAN.csv')
+    print(df.keys())
+    npoints_incl = len(df)
+    
+    # init all the arrays
+    rx_incl = df["ttW+"] / 497.5
+    ry_incl = df["ttW-"] / 247.9
+    dnll_incl = df["Delta"]
+
+    hist_incl = ROOT.TH2D("hist_incl", "hist_incl", len(rx_incl.unique())/5, rx_incl.min(), rx_incl.max(),
+                                                    len(ry_incl.unique())/5, ry_incl.min(), ry_incl.max())
+
+    rx_incl = list(rx_incl)
+    ry_incl = list(ry_incl)
+    dnll_incl = list(dnll_incl)
+    for i in range(npoints_incl-1):
+      binnb = hist_incl.FindBin(rx_incl[i], ry_incl[i])
+      value = dnll_incl[i]
+      if value > 10: value = 10
+      hist_incl.SetBinContent(binnb, value)
+
+    cont1hist_incl = hist_incl.Clone()
+    cont1 = array('d')
+    cont1.append(2.30)
+    cont1hist_incl.SetContour(1,cont1)
+    cont1hist_incl.SetLineWidth(2)
+    cont1hist_incl.SetLineColor(ROOT.kRed-7)
+    cont1hist_incl.SetLineStyle(9)
+
+    cont4hist_incl = hist_incl.Clone()
+    cont4 = array('d')
+    cont4.append(5.99)
+    cont4hist_incl.SetContour(1,cont4)
+    cont4hist_incl.SetLineWidth(2)
+    cont4hist_incl.SetLineColor(ROOT.kGreen-9)
+    cont4hist_incl.SetLineStyle(9)
   ### make a plot ###
   pt.setTDRstyle()
   ROOT.gROOT.SetBatch(ROOT.kTRUE)
@@ -163,12 +203,25 @@ if __name__=='__main__':
   cont1hist.Draw('cont3 same')
   cont4hist.Draw('cont3 same')
 
+  if args.addinclusiveresult:
+    atlas = ROOT.TEllipse(583 / 497.5,296 / 247.9 ,.005,.005)
+    atlas.SetLineWidth(3)
+    cont1hist_incl.Draw('cont2 same')
+    cont4hist_incl.Draw('cont2 same')
+    atlas.Draw()
+
   # make and draw legend
   legend = ROOT.TLegend(leftmargin+0.02,1-topmargin-0.25,leftmargin+0.2,1-topmargin-0.1)
   legend.SetNColumns(1)
   legend.SetFillStyle(0)
   legend.AddEntry(cont1hist, '68% CL', "l")
   legend.AddEntry(cont4hist, '95% CL', "l")
+
+  if args.addinclusiveresult:
+    legend.AddEntry(cont1hist_incl, '68% CL TOP-21-011', "l")
+    legend.AddEntry(cont4hist_incl, '95% CL TOP-21-011', "l")
+    legend.AddEntry(atlas, 'ATLAS best fit' , "l")  
+
   legend.Draw('same')
 
   # draw extra info

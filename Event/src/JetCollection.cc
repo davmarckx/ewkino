@@ -112,7 +112,7 @@ JetCollection JetCollection::buildVariedCollection( Jet (Jet::*variedJet)(std::s
 }
 
 //add flavor split JES variations
-JetCollection JetCollection::JECGroupedFlavorQCDCollection(unsigned flavor,std::string source, bool up) const {
+JetCollection JetCollection::JECGroupedFlavorQCDCollection(unsigned long flavor,std::string source, bool up) const {
     std::string source_cat = source;
     if(source.find("_flavor") != std::string::npos){
       source_cat = source.substr(0,source.length()-8);
@@ -132,7 +132,7 @@ JetCollection JetCollection::JECGroupedFlavorQCDDownCollection(unsigned flavor) 
     return buildVariedCollection_FlavorSet(&Jet::JetJECDown, "FlavorQCD", flavor).goodJetCollection();
 }*/
 
-JetCollection JetCollection::buildVariedCollection_FlavorSet( Jet (Jet::*variedJet)(std::string) const, std::string variationArg, unsigned flavor ) const{
+JetCollection JetCollection::buildVariedCollection_FlavorSet( Jet (Jet::*variedJet)(std::string) const, std::string variationArg, unsigned long flavor ) const{
     // from Schnils https://github.com/NielsVdBossche/ewkino/blob/8ea9c97efd54bc22635bd86f6d68b923dc3c8de3/Event/src/JetCollection.cc#L140-L152 
     std::vector< std::shared_ptr< Jet > > jetVector;
     for( const auto& jetPtr : *this ){

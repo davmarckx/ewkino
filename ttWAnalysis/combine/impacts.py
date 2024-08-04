@@ -9,7 +9,8 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '~/CMSSW_10_2_13_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '~/CMSSW_11_3_4'#'/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13/'
+CMSSW_VERSION = '/user/llambrec/CMSSW_11_3_X_combine/CMSSW_11_3_4/'
 sys.path.append(os.path.abspath('../../Tools/python'))
 import combinetools as cbt
 
@@ -37,11 +38,11 @@ if __name__=='__main__':
     print('Will submit impact plot generation for the following workspaces ({}):'.format(len(workspaces)))
     for w in workspaces: print('  - {}'.format(w))
     print('Continue? (y/n)')
-    go = raw_input()
+    go = input()#raw_input
     if go!='y': sys.exit()
 
     for w in workspaces:
-      cmd = 'python impacts.py'
+      cmd = 'python3 impacts.py'
       cmd += ' --workspace {}'.format(os.path.join(args.workspace,w))
       if args.usedata: cmd += ' --usedata'
       if args.expectsignal: cmd += ' --expectsignal'

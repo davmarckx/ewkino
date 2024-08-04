@@ -52,7 +52,8 @@ void closureTest(
 
     // read txt file with normalization factors
     std::string txtInputFile = stringTools::formatDirectoryName( txtInputDirectory );
-    txtInputFile += inputFileName;
+    txtInputFile += stringTools::replace(inputFileName, ".root", ".txt");
+    std::cout<<txtInputFile<<std::endl;
     std::map< std::string, std::map< std::string, std::map< int, double >>> weightMap;
     std::vector<std::string> variationsToRead = {"central"};
     for( std::string var: variations ){ 

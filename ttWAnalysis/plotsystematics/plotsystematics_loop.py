@@ -4,7 +4,7 @@ sys.path.append(os.path.abspath('../../Tools/python'))
 from variabletools import read_variables
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
-CMSSW_VERSION = '~/CMSSW_10_6_29'
+CMSSW_VERSION = '~/CMSSW_10_6_28'
 
 
 if __name__=='__main__':
@@ -12,9 +12,9 @@ if __name__=='__main__':
 
   topfolder = sys.argv[1]
   outputdir = sys.argv[2]
-  years = ['run2']
+  years = ['2017']
   regions = []
-  regions.append('signalregion_dilepton_inclusive')
+  #regions.append('signalregion_dilepton_inclusive')
   #regions.append('signalregion_dilepton_mm')
   #regions.append('signalregion_dilepton_me')
   #regions.append('signalregion_dilepton_em')
@@ -22,7 +22,7 @@ if __name__=='__main__':
   #regions.append('signalregion_dilepton_plus')
   #regions.append('signalregion_dilepton_minus')
   #regions.append('cfcontrolregion')
-  #regions.append('fourleptoncontrolregion')
+  regions.append('fourleptoncontrolregion')
   #regions.append('trileptoncontrolregion')
   #regions.append('npcontrolregion_dilepton_inclusive')
   #regions.append('npcontrolregion_dilepton_mm')
@@ -36,7 +36,8 @@ if __name__=='__main__':
                  'allprocesses': 'all',
 		 #'ttwprocess': 'TTW',
                  #'ttbar': 'TT',
-                 #'ttz': 'TTZ',
+                 'ttz': 'TTZ',
+                 'zz': 'ZZ'
                  #'ttx': 'TTX',
                  #'ttg': 'TTG',
                  #'np_m':"Nonprompt(m)",
@@ -55,24 +56,26 @@ if __name__=='__main__':
   print(processes)'''
   
   
-  #variables = '../variables/variables_main.json'
+  #variables = '../variables/variables_particlelevel_double.json'
   variables = '../variables/variables_eventbdt.json'
   
   datatag = 'Data'
   includetags = ({ 
-                   'allsys': 'none',
-                   'jets': 'JEC,JER,Uncl',
-                   'grouped':'JECGrouped', 
-                   'leptons': 'electron,muon',
-                   'scales': 'rScale,fScale',
-                   'qcdscales': 'qcdScales,rfScales',
-                   'ps': 'isr,fsr',
-                   'pdf': 'pdfNorm,pdfShapeRMS',
-                   'other': 'pileup,prefire,trigger',
-                   'bTag': 'bTag_shape'
+                   #'allsys': 'none',
+                   #'jets': 'JEC,JER,Uncl',
+                   #'grouped':'JECGrouped', 
+                   #'leptons': 'electron,muon',
+                   #'scales': 'rScale,fScale',
+                   #'qcdscales': 'qcdScales,rfScales',
+                   #'ps': 'isr,fsr',
+                   #'pdf': 'pdfNorm,pdfShapeRMS,pdfShapeVar',
+                   'pdf':'pdfShapeVar',
+                   'qcd': 'qcdScalesShapeVar',
+                   #'other': 'pileup,prefire,trigger',
+                   #'bTag': 'bTag_shape'
                 })
   includeraw = True
-  runmode = 'condor'
+  runmode = 'local'
 
   cmds = []
   rawcmds = []

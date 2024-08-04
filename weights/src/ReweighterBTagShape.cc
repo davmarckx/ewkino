@@ -120,7 +120,7 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
                 + "argument 'variations' contains '" + variation + "' "
                 + "which is not recognized..." );
 	}
-        std::cout<<"";
+        //std::cout<<"added "<<variation<<" to be considered in the btag reweighter."<<std::endl;
 	_variations.push_back( variation );
 	// check if it is also a systematic
 	if( std::find(allowedsys.begin(),allowedsys.end(),variation)!=allowedsys.end() ){
@@ -137,7 +137,16 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
 	for( std::string var: _variations ){
 	    _normFactors[sampleName]["up_"+var][0] = 1.;
 	    _normFactors[sampleName]["down_"+var][0] = 1.;
-	    // same as above but also normalize systematics
+	    // same as above but also normalize systematic
+	    if((var.find("jes") != std::string::npos) and (var.size()>3)) {
+              _normFactors[sampleName]["up_"+var+"_flavor0"][0] = 1.;
+              _normFactors[sampleName]["up_"+var+"_flavor4"][0] = 1.;
+              _normFactors[sampleName]["up_"+var+"_flavor5"][0] = 1.;
+
+              _normFactors[sampleName]["down_"+var+"_flavor0"][0] = 1.;
+              _normFactors[sampleName]["down_"+var+"_flavor4"][0] = 1.;
+              _normFactors[sampleName]["down_"+var+"_flavor5"][0] = 1.;
+            }
 	}
     }
  
@@ -162,13 +171,17 @@ ReweighterBTagShape::ReweighterBTagShape(   const std::string& weightDirectory,
     testmode = false;
     if( !testmode ){
 	std::cout << "reading requested scale factors from csv file..." << std::endl;
+        std::cout << stringTools::formatDirectoryName(weightDirectory)+sfFilePath << std::endl;
 	bTagSFCalibration = std::shared_ptr< BTagCalibration >( 
 	    new BTagCalibration( "", stringTools::formatDirectoryName(weightDirectory)+sfFilePath ) );
 	if( _flavor=="heavy" || _flavor=="all" ){
+            std::cout<<"heavy1 loaded"<<std::endl;
 	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_B, fitMethod );
+            std::cout<<"heavy2 loaded"<<std::endl;
 	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_C, fitMethod );
 	}
 	if( _flavor=="light" || _flavor=="all" ){
+            std::cout<<"light loaded"<<std::endl;
 	    bTagSFReader->load( *bTagSFCalibration, BTagEntry::FLAV_UDSG, fitMethod );
 	}
     }
@@ -283,10 +296,15 @@ bool ReweighterBTagShape::considerVariation( const Jet& jet,
                                 "jesPileUpDataMC", "jesPileUpPtBB", "jesPileUpPtEC1",
                                 "jesPileUpPtEC2", "jesPileUpPtHF", "jesPileUpPtRef",
                                 "jesFlavorQCD", "jesFragmentation", "jesSinglePionECAL",
-                                "jesSinglePionHCAL", "jesTimePtEta"};
+                                "jesSinglePionHCAL", "jesTimePtEta", 
+                                "jesAbsolute", "jesAbsolute_2016", "jesAbsolute_2017", "jesAbsolute_2018",
+                                "jesBBEC1","jesBBEC1_2016","jesBBEC1_2017","jesBBEC1_2018",
+                                "jesEC2","jesEC2_2016","jesEC2_2017","jesEC2_2018",
+                                "jesHF","jesHF_2016","jesHF_2017","jesHF_2018"
+                                };
     }
     for( std::string var: forbidden_variations ){
-        if( varNameClip(variation)==var ) return false;
+        if( varNameClip(variation).find(var) != std::string::npos ) return false;
     }
     return true;
 }
@@ -351,7 +369,7 @@ double ReweighterBTagShape::getNormFactor_FlavorFilter(const Event &event, unsig
     systematic = systematic.append("flavor");
     systematic = systematic.append(flavstring);
     
-    std::cout<<"renamed systematic to: " << systematic<<std::endl;
+    //std::cout<<"renamed systematic to: " << systematic<<std::endl;
     // check validity of sample to which event belongs
     if (_normFactors.find(sampleName) == _normFactors.end())
     {
@@ -571,7 +589,7 @@ double ReweighterBTagShape::weightDown( const Event& event,
 }
 
 double ReweighterBTagShape::weightJecVar_FlavorFilter(const Event &event,
-                                         const std::string &jecVariation, unsigned flavor) const
+                                         const std::string &jecVariation, unsigned long flavor) const
 {
     // same as weight but with propagation of jec variations
     // jecvar is expected to be of the form e.g. AbsoluteScaleUp or AbsoluteScaleDown

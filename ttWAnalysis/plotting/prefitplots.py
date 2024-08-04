@@ -145,6 +145,13 @@ if __name__=="__main__":
   if not doallprocesses: 
     mustcontainone = ['{}_'.format(p) for p in processes]
     histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
+  if args.splitvariable is not None and args.splitprocess is not None:
+    mustcontainone = ['{}1{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}2{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}3{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}4{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}5{}'.format(args.splitprocess,args.splitvariable.replace("_","")),'{}0_'.format(args.splitprocess)]
+    maynotcontainone=[args.splitprocess]
+    histnames_sig = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
+    histnames_back = lt.subselect_strings(histnames, maynotcontainone=maynotcontainone)[1]
+    histnames = histnames_sig + histnames_back
+  
   # select regions  
   mustcontainone = ['_{}_'.format(args.region)]
   histnames = lt.subselect_strings(histnames, mustcontainone=mustcontainone)[1]
@@ -302,7 +309,7 @@ if __name__=="__main__":
     colormap = colors.getcolormap(style=args.colormap)
     # extend the color map with entries for processes split on custom variables
     # (they are named <process><index><variable>)
-    if( args.splitvariable is not None and args.splitprocess is not None and variablemode=='double' ):
+    if( args.splitvariable is not None and args.splitprocess is not None):
       for key, value in colormap.items():
         if( key[-1].isdigit() and int(key[-1])>0 ):
           colormap[key + args.splitvariable.replace('_','')] = value
@@ -348,6 +355,7 @@ if __name__=="__main__":
           signals = [x + args.splitvariable.replace('_','') for x in args.signals]
           signals.append(args.splitprocess+"0")
           signals.append(args.splitprocess+"1")
+
     
     # modify output file name as needed
     if( args.splitvariable is not None and args.splitprocess is not None ):

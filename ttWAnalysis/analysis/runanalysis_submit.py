@@ -21,19 +21,19 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfjetscontrolregion']: regions.append(r)
 
 #years = ['2016PreVFP','2016PostVFP','2017','2018']
-years = ['2016PreVFP']
+years = ['2017']
 
-#dtypes = ['sim','data']
-dtypes = ['sim']
+dtypes = ['sim','data']
+#dtypes = ['sim']
 #dtypes = ['data']
 
 selection_types = []
-#selection_types.append('tight')
+selection_types.append('tight')
 #selection_types.append('prompt')
 #selection_types.append('fakerate')
-#selection_types.append('efakerate')
-#selection_types.append('mfakerate')
-#selection_types.append('chargeflips')
+selection_types.append('efakerate')
+selection_types.append('mfakerate')
+selection_types.append('chargeflips')
 #selection_types.append('chargegood')
 selection_types.append('irreducible')
 
@@ -65,13 +65,13 @@ bdtcut = None
 
 #splitprocess = None # do not split any process at particle level
 splitprocess = 'TTW' # split TTW process at particle level
-#splitvariables = None
-splitvariables = '../variables/variables_particlelevel_single.json'
+splitvariables = None
+#splitvariables = '../variables/variables_particlelevel_single.json'
 
-outputdir = 'output_test'
+outputdir = 'output_20240714_only17'
 
-nevents = 1000
-runlocal = True
+nevents = 1000000
+runlocal = False
 
 submit_selection_types_combined = True
 submit_event_selections_combined = True

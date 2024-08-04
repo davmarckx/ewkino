@@ -743,7 +743,7 @@ bool pass_zgcontrolregion(Event& event, const std::string& selectiontype,
 
 bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
                                 const std::string& variation, const bool selectbjets){
-    // same as trilepton signal region but with inverted Z veto and no jet requirements
+    // same as trilepton signal region but with inverted Z veto and no jet requirements (now we require 1 jet to exclude the first bin)
     cleanLeptonsAndJets(event);
     // apply trigger and pt thresholds
     if(not event.passMetFilters()) return false;
@@ -759,6 +759,11 @@ bool pass_trileptoncontrolregion(Event& event, const std::string& selectiontype,
     if(not passMllMassVeto(event, 30.)) return false;
     // sum of charges needs to 1 or -1
     if( !event.hasOSLeptonPair()) return false;
+    
+    // number of jets and b-jets
+    std::pair<int,int> njetsnbjets = nJetsNBJets(event, variation);
+    if( njetsnbjets.first < 1 ) return false;   
+
     if(variation=="dummy") return true; // dummy to avoid unused parameter warning
     if(selectbjets){} // dummy to avoid unused parameter warning
     return true;

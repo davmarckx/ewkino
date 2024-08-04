@@ -7,12 +7,13 @@ import os
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
+CMSSW_VERSION="~/CMSSW_10_6_28"
 
 topdir = sys.argv[1]
 
 regions = ['auto']
 
-years = ['auto']
+years = ['2017']#'2016PreVFP',"2016PostVFP","2017","2018"]
 
 npmodes = []
 #npmodes.append( 'npfromsim' )

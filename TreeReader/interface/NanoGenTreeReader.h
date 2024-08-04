@@ -53,7 +53,7 @@ class NanoGenTreeReader {
         static const unsigned nGenJet_max = 30;
 	static const unsigned nLHEScaleWeight_max = 9;
 	static const unsigned nLHEPdfWeight_max = 103;
-	static const unsigned nPSWeight_max = 4;
+	static const unsigned nPSWeight_max = 44;
 	// note: variable types can be found here:
 	// https://cms-nanoaod-integration.web.cern.ch/autoDoc/
         // generator weight, scale, PDF and PS weights

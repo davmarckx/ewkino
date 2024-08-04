@@ -567,7 +567,7 @@ void fillSystematicsHistograms(
     }
 
     // make reweighter
-    std::cout << "initializing Reweighter..." << std::endl;;
+    std::cout << "initializing Reweighter..." << std::endl;
     std::shared_ptr< ReweighterFactory> reweighterFactory;
     // FOR TESTING //
     //reweighterFactory = std::shared_ptr<ReweighterFactory>( new EmptyReweighterFactory() );
@@ -575,13 +575,15 @@ void fillSystematicsHistograms(
     reweighterFactory = std::shared_ptr<ReweighterFactory>( new Run2ULReweighterFactory() );
     std::vector<Sample> thissample;
     thissample.push_back(treeReader.currentSample());
+    std::cout << "making reweighter from the factory..." << std::endl;
     CombinedReweighter reweighter = reweighterFactory->buildReweighter( 
 					"../../weights/", year, thissample );
-    
+    std::cout << "done"<< std::endl;    
     // initialize the b-tagging shape reweighter if needed
     bool hasBTagShapeReweighter = reweighter.hasReweighter("bTag_shape");
     std::vector<std::string> bTagShapeSystematics;
     std::vector<std::string> bTagShapeVariations;
+    std::vector<std::string> yearBTagShapeVariations;
     std::map< std::string, std::map< std::string, std::map< int, double >>> bTagWeightMap;
     if( hasBTagShapeReweighter ){
 	// find available b-tagging systematics
@@ -594,13 +596,21 @@ void fillSystematicsHistograms(
         for(std::string el: bTagShapeSystematics){
             std::cout << "  - " << el << std::endl;
 	}
-        // also find variations (which include systematics, but also JEC variations)
-	bTagShapeVariations = dynamic_cast<const ReweighterBTagShape*>(
+        // also find variations (which include systematics, but also JEC variations, excluding year splits for JEC variations as these are only made in the mergehistograms script)
+	yearBTagShapeVariations = dynamic_cast<const ReweighterBTagShape*>(
             reweighter["bTag_shape"] )->availableVariations();
+        for(std::string shapevar: yearBTagShapeVariations){
+          for(std::string year: {"2016","2017","2018"}){
+            if (shapevar.find(year) == std::string::npos){
+              bTagShapeVariations.push_back(shapevar);
+            }
+          }
+        }
+
 	// read normalization factors (only needed for simulation, not for data)
 	if( !treeReader.isData() ){
 	    // read b-tagging shape reweighting normalization factors from txt file
-	    std::string txtInputFile = "../btagging/output_JECFlavorSplit/";
+	    std::string txtInputFile = "../btagging/output_JECFlavorSplitv3/";
 	    // (hard-coded for now, maybe replace by argument later)
 	    txtInputFile += year + "/" + inputFileName;
 	    txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");
@@ -613,7 +623,39 @@ void fillSystematicsHistograms(
 	    for( std::string var: bTagShapeVariations ){
 		variationsToRead.push_back("up_"+var);
 		variationsToRead.push_back("down_"+var);
+                if((var.find("jes") != std::string::npos) and (var.size()>3)) {
+                    variationsToRead.push_back("up_"+var+"_flavor0");
+                    variationsToRead.push_back("up_"+var+"_flavor4");
+                    variationsToRead.push_back("up_"+var+"_flavor5");
+                    variationsToRead.push_back("down_"+var+"_flavor0");
+                    variationsToRead.push_back("down_"+var+"_flavor4");
+                    variationsToRead.push_back("down_"+var+"_flavor5");
+                }
 	    }
+            /*std::vector<std::string> JECsplit_variationsToRead = {"jesAbsolute_"+bTagYear+std::string("_flavor0"), std::string("jesAbsolute")+"_flavor0",
+                "jesBBEC1_"+bTagYear+"_flavor0", std::string("jesBBEC1")+std::string("_flavor0"),
+                "jesEC2_"+bTagYear+"_flavor0", std::string("jesEC2")+"_flavor0",
+                std::string("jesFlavorQCD")+"_flavor0",
+                "jesHF_"+bTagYear+"_flavor0", std::string("jesHF")+"_flavor0",
+                std::string("jesRelativeBal")+"_flavor0", "jesRelativeSample_"+bTagYear+"_flavor0",
+                "jesAbsolute_"+bTagYear+"_flavor4", std::string("jesAbsolute")+"_flavor4",
+                "jesBBEC1_"+bTagYear+"_flavor4", std::string("jesBBEC1")+"_flavor4",
+                "jesEC2_"+bTagYear+"_flavor4", std::string("jesEC2")+"_flavor4",
+                std::string("jesFlavorQCD")+"_flavor4",
+                "jesHF_"+bTagYear+"_flavor4", std::string("jesHF")+"_flavor4",
+                std::string("jesRelativeBal")+"_flavor4", "jesRelativeSample_"+bTagYear+"_flavor4",
+                "jesAbsolute_"+bTagYear+"_flavor5", std::string("jesAbsolute")+"_flavor5",
+                "jesBBEC1_"+bTagYear+"_flavor5", std::string("jesBBEC1")+"_flavor5",
+                "jesEC2_"+bTagYear+"_flavor5", std::string("jesEC2")+"_flavor5",
+                std::string("jesFlavorQCD")+"_flavor5",
+                "jesHF_"+bTagYear+"_flavor5", std::string("jesHF")+"_flavor5",
+                std::string("jesRelativeBal")+"_flavor5", "jesRelativeSample_"+bTagYear+"_flavor5" }; 
+
+            for( std::string var: JECsplit_variationsToRead ){
+                variationsToRead.push_back("up_"+var);
+                variationsToRead.push_back("down_"+var);
+            }*/
+
             std::cout << "variations to consider:" << std::endl;
             for (auto i: variationsToRead) std::cout << i << std::endl;
 	    // (note: in the above, we read normalization factors for all b-tag variations.
@@ -927,22 +969,30 @@ void fillSystematicsHistograms(
 	// calculate particle-level event variables
         bool passParticleLevel = false;
         if(doSplitParticleLevel){
+            if(event_selection.find("signalregion") != std::string::npos){
             if( eventSelectionsParticleLevel::passES(event, event_selection) ){
                 passParticleLevel = true;
                 varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
+            }
+            }
+            else{
+                if( eventSelectionsParticleLevel::passES(event, "signalregion_dilepton_inclusive") ){
+                passParticleLevel = true;
+                varmapParticleLevel = eventFlatteningParticleLevel::eventToEntry(event);
+                }
             }
         }
 
         // set  the correct normalization factors for b-tag reweighting
         if( hasBTagShapeReweighter && !treeReader.isData() ){
-            std::cout<<"map is here:"<<std::endl;
+            /*std::cout<<"map is here:"<<std::endl;
             for(auto it = bTagWeightMap.cbegin(); it != bTagWeightMap.cend(); ++it)
             {
               for(auto itt = it->second.cbegin(); itt != it->second.cend(); ++itt)
               {
                 std::cout << itt->first << " " << "\n";
               }
-            } 
+            }*/ 
             dynamic_cast<ReweighterBTagShape*>(
                 reweighter.getReweighter("bTag_shape") )->setNormFactors( treeReader.currentSample(),
                 bTagWeightMap[event_selection] );
@@ -1115,7 +1165,7 @@ void fillSystematicsHistograms(
 		    std::string thisupvar = jecvar+"Up";
 		    std::string thisdownvar = jecvar+"Down";
                     std::string source; // needed for JEC split
-                    unsigned flavor; // needed for JEC split
+                    unsigned long flavor; // needed for JEC split
 		    // do event selection and flattening with up variation
 		    bool passup = true;
 		    if(!passES(event, event_selection, selection_type, thisupvar)) passup = false;
@@ -1762,11 +1812,11 @@ void fillSystematicsHistograms(
 		if( stringTools::stringContains(mapelement.first,"nominal")) continue;
 		std::shared_ptr<TH1D> hist = mapelement.second;
 		// selection: do not store all individual pdf variations
-		if(stringTools::stringContains(hist->GetName(),"pdfShapeVar") 
-		   && !storeLheVars) continue;
+		//if(stringTools::stringContains(hist->GetName(),"pdfShapeVar") 
+		//   && !storeLheVars) continue;
 		// selection: do not store all individual qcd scale variations
-		if(stringTools::stringContains(hist->GetName(),"qcdScalesShapeVar")
-		   && !storeLheVars) continue;
+		//if(stringTools::stringContains(hist->GetName(),"qcdScalesShapeVar")
+		//   && !storeLheVars) continue;
 		// below are special treatments of empty histograms,
 		// but the case where the nominal histogram was empty was already handled above,
 		// and need not be considered here again.

@@ -9,7 +9,9 @@
 import sys
 import os
 import argparse
-
+sys.path.append(os.path.abspath('../../jobSubmission'))
+import condorTools as ct
+CMSSW_VERSION = "~/CMSSW_10_6_28/"
 if __name__=='__main__':
 
   # parse arguments
@@ -56,4 +58,6 @@ if __name__=='__main__':
         # do hadd
         cmd = 'hadd -f {}'.format(outf)
         for f in hfiles: cmd += ' {}'.format(f)
-        os.system(cmd)
+        #os.system(cmd)
+        ct.submitCommandAsCondorJob( 'cjob_mergeyears', cmd,
+                             cmssw_version=CMSSW_VERSION )

@@ -29,7 +29,7 @@ class Jet : public PhysicsObject{
 
         double deepCSV() const{ return _deepCSV; }
         double deepFlavor() const{ return _deepFlavor; }
-        unsigned hadronFlavor() const{ return _hadronFlavor; }
+        unsigned long hadronFlavor() const{ return _hadronFlavor; }
         bool isLoose() const{ return _isLoose; }
         bool isTight() const{ return _isTight; }
         bool isTightLeptonVeto() const{ return _isTightLeptonVeto; }
@@ -68,7 +68,7 @@ class Jet : public PhysicsObject{
         bool _isLoose = false;
         bool _isTight = false;
         bool _isTightLeptonVeto = false;
-        unsigned _hadronFlavor = 0;
+        unsigned long _hadronFlavor = 0;
         
         //JEC uncertainties 
         double _pt_JECDown = 0;
