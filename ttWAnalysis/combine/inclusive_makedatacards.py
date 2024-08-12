@@ -55,12 +55,16 @@ regions = ({
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
     'cfjetscontrolregion': '_nJets'
   }
+
 })
   
 inputfiletag = 'merged_npfromdatasplit_cffromdata/merged.root'
 
-rateparams = None
+signals = ['TTW']
+
+#rateparams = None
 rateparams = ['WZ', 'ZZ', 'TTZ']
+#rateparams = ['WZ','ZZ','TTW']
 
 runmode = 'condor'
 
@@ -98,7 +102,7 @@ for year in years:
       cmd += ' --outputfile {}'.format(outputfiletag)
       #cmd += ' --excludetags {}'.format("Nonprompt")
       cmd += ' --processes all'
-      cmd += ' --signals TTW'
+      cmd += ' --signals {}'.format(','.join(signals))
       cmd += ' --datatag Data'
       if rateparams is not None: cmd += ' --rateparams {}'.format(','.join(rateparams))
       thiscmds.append(cmd)

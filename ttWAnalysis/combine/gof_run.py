@@ -13,7 +13,6 @@ from jobSettings import CMSSW_VERSION
 #CMSSW_VERSION = '~/CMSSW_10_2_16_patch1'
 CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13'
 
-
 if __name__=='__main__':
 
     # parse arguments

@@ -32,8 +32,8 @@ def make_cumulative_absolute( hist ):
     chist.GetXaxis().SetBinLabel(1, 'Full sample')
     chist.SetBinContent(2, hist.GetBinContent(2))
     chist.SetBinError(2,0)
-    #chist.GetXaxis().SetBinLabel(2, 'Pass 2 loose leptons') # hardcoded label
-    chist.GetXaxis().SetBinLabel(2, 'Particle level selection') # hardcoded label
+    chist.GetXaxis().SetBinLabel(2, 'Pass 2 loose leptons') # hardcoded label
+    #chist.GetXaxis().SetBinLabel(2, 'Particle level selection') # hardcoded label
     nevents = hist.GetBinContent(2)
     # fill further bins
     for i in range(3, chist.GetNbinsX()+1):
@@ -67,8 +67,8 @@ def make_relative_fail( hist ):
     # fill first bin
     rhist.SetBinContent(1, 1-hist.GetBinContent(2)/hist.GetBinContent(1))
     rhist.SetBinError(1,0)
-    #rhist.GetXaxis().SetBinLabel(1, 'Fail 2 loose leptons') # hardcoded label
-    rhist.GetXaxis().SetBinLabel(1, 'Fail particle level selection') # hardcoded label
+    rhist.GetXaxis().SetBinLabel(1, 'Fail 2 loose leptons') # hardcoded label
+    #rhist.GetXaxis().SetBinLabel(1, 'Fail particle level selection') # hardcoded label
     # fill other bins
     nevents = hist.GetBinContent(2)
     for i in range(2, rhist.GetNbinsX()+1):
@@ -111,7 +111,7 @@ if __name__=='__main__':
     # make a color list
     colors = ([
       ROOT.kAzure-6,
-      ROOT.kAzure-7,
+      ROOT.kAzure-8,
       ROOT.kAzure-4,
       ROOT.kAzure+6,
       ROOT.kViolet,

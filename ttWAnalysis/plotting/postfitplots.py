@@ -66,11 +66,13 @@ def runPostFitShapesFromWorkspace( workspace, datacard, fitresultfile=None ):
   # input arguments:
   # - workspace: a root workspace, typically obtained from a datacard
   #   with the text2workspace command.
-  # - datacard: the datacard corresponding to the workspace
-  # - fitresultfile: a FitDiagnostics result file;
-  #   if it is specified, PostFitShapesFromWorkspace will make 
-  #   both prefit and postfit histograms,
-  #   if not, only prefit histograms.
+  # - datacard: the datacard corresponding to the workspace.
+  # - fitresultfile: a FitDiagnostics result file.
+  #   Note: if it is specified, PostFitShapesFromWorkspace will make 
+  #   both prefit and postfit histograms; if not, only prefit histograms.
+  #   Note: can also be a MultiDimFit result file, but the naming convention
+  #   in both types of files is different. Maybe add as an argument later,
+  #   for now just assume the distinction can be made based on the file name.
   # output:
   # - an output file is created containing pre- and/or postfit histograms.
   #   name: same as provided workspace but with suffix "_postfitshapes".
@@ -83,6 +85,13 @@ def runPostFitShapesFromWorkspace( workspace, datacard, fitresultfile=None ):
   #   - '<channelname>_postfit' with the different processes for that channel; 
   #     use only for nominal, not total uncertainty.
   #   - similar entries for prefit
+  
+  # switch between naming convention for FitDiagnostics and MultiDimFit files
+  fitobj = 'fit_s' # in FitDiagnostics file
+  if( fitresultfile is not None and 'multidimfit' in fitresultfile.lower() ):
+      fitobj = 'fit_mdf' # in MultiDimFit file
+
+  # make the command
   shapesfile = workspace.replace('.root','')+'_postfitshapes.root'
   pfcmd = 'PostFitShapesFromWorkspace'
   pfcmd += ' -d '+datacard
@@ -90,7 +99,7 @@ def runPostFitShapesFromWorkspace( workspace, datacard, fitresultfile=None ):
   pfcmd += ' -o '+shapesfile
   pfcmd += ' -m 125'
   if fitresultfile is not None:
-    pfcmd += ' -f '+fitresultfile+':fit_s'
+    pfcmd += ' -f {}:{}'.format(fitresultfile, fitobj)
     pfcmd += ' --postfit'
     pfcmd += ' --sampling'
   pfcmd += ' --print'
@@ -120,10 +129,10 @@ if __name__=="__main__":
                       help='A ROOT workspace containing all required histograms.')
   parser.add_argument('-d', '--datacard', required=True, type=os.path.abspath,
                       help='The datacard corresponding to the provided workspace.')
-  parser.add_argument('-v', '--variables', required=True, type=os.path.abspath,
-                      help='Path to json file holding variable definition.')
   parser.add_argument('-o', '--outputdir', required=True, type=os.path.abspath,
                       help='Output directory for the plots (and intermediate files).')
+  parser.add_argument('-v', '--variables', default=None,
+                      help='Path to json file holding variable definition.')
   parser.add_argument('-y', '--year', default=None,
                       help='Data-taking year (only used for lumi label in plot).')
   parser.add_argument('-r', '--region', default=None,
@@ -134,7 +143,7 @@ if __name__=="__main__":
                       help='A ROOT workspace with stat-only uncertainties.')
   parser.add_argument('--statdatacard', default=None, type=apt.path_or_none,
                       help='The datacard corresponding to the provided workspace.')
-  parser.add_argument('--tags', default=None,
+  parser.add_argument('--extrainfos', default=None,
                       help='Comma-separated list of additional info to display on plot.')
   parser.add_argument('--colormap', default=None,
                       help='Name of the color map to use.')
@@ -162,10 +171,12 @@ if __name__=="__main__":
     raise Exception('ERROR: input file {} does not exist.'.format(args.workspace))
 
   # parse the variables
-  varlist = read_variables(args.variables)
-  if len(varlist)!=1:
-    raise Exception('ERROR: found {} variables while 1 was expected.'.format(len(varlist)))
-  variable = varlist[0]
+  variable = None
+  if args.variables is not None:
+    varlist = read_variables(args.variables)
+    if len(varlist)!=1:
+      raise Exception('ERROR: found {} variables while 1 was expected.'.format(len(varlist)))
+    variable = varlist[0]
 
   # parse the provided list of signal processes
   signals = None
@@ -177,8 +188,8 @@ if __name__=="__main__":
     regroup_processes_dict = regroupdicts.get_regroup_process_dict(groupid=args.region)
 
   # parse extra labels to display on plot
-  extratags = []
-  if args.tags is not None: extratags = args.tags.split(',')
+  extrainfos = []
+  if args.extrainfos is not None: extrainfos = args.extrainfos.split(',')
 
   # make the output directory
   if not os.path.exists(args.outputdir): os.makedirs(args.outputdir)
@@ -197,8 +208,9 @@ if __name__=="__main__":
   processdict = infodicts.get_process_dict()
  
   # check the fit result file and datacard
-  if( args.fitresultfile is not None and not os.path.exists(args.fitresultfile) ):
-    raise Exception('ERROR: fitresultfile {} does not exist.'.format(args.fitresultfile))
+  if( args.fitresultfile is not None ):
+    if not os.path.exists(args.fitresultfile):
+      raise Exception('ERROR: fitresultfile {} does not exist.'.format(args.fitresultfile))
   if not os.path.exists(args.datacard):
     raise Exception('ERROR: datacard {} does not exist'.format(args.datacard))
   
@@ -273,7 +285,8 @@ if __name__=="__main__":
   # find workspace with stat-only uncertainties to get the total statistical uncertainty
   simhiststaterror = None
   dostat = False
-  if( os.path.exists(args.statworkspace) and os.path.exists(args.statdatacard) ):
+  if( args.statworkspace is not None and os.path.exists(args.statworkspace)
+      and args.statdatacard is not None and os.path.exists(args.statdatacard) ):
     dostat = True
     # note: it appears best to always take prefit statistical uncertainty,
     #       as the final uncertainty on the signal seems to be incorporated in the 
@@ -306,6 +319,8 @@ if __name__=="__main__":
   figname = os.path.basename(args.workspace).replace('.root','')
   figname = figname.replace('dc_combined_','')
   figname = figname.replace('datacard_','')
+  if mode=='prefit': figname += '_prefit'
+  if mode=='postfit': figname += '_postfit'
   figname = os.path.join(args.outputdir,figname)
 
   # modify histogram titles
@@ -327,22 +342,26 @@ if __name__=="__main__":
   canvaswidth = None
   canvasheight = None
   p1legendbox = None
-  if isinstance(variable,DoubleHistogramVariable): variablemode = 'double'
-  if variablemode=='single':
-    xaxtitle = variable.axtitle
-    unit = variable.unit
-    if( variable.iscategorical and variable.xlabels is not None ):
-      binlabels = variable.xlabels
+  if variable is None:
+    xaxtitle = 'Fit variable'
+    unit = None
+  else:
+    if isinstance(variable,DoubleHistogramVariable): variablemode = 'double'
+    if variablemode=='single':
+      xaxtitle = variable.axtitle
+      unit = variable.unit
+      if( variable.iscategorical and variable.xlabels is not None ):
+        binlabels = variable.xlabels
+        labelsize = 15
+    elif variablemode=='double':
+      xaxtitle = variable.primary.axtitle
+      unit = variable.primary.unit
+      primarybinlabels = variable.primary.getbinlabels()
+      secondarybinlabels = variable.secondary.getbinlabels(extended=True)
+      binlabels = (primarybinlabels, secondarybinlabels)
       labelsize = 15
-  elif variablemode=='double':
-    xaxtitle = variable.primary.axtitle
-    unit = variable.primary.unit
-    primarybinlabels = variable.primary.getbinlabels()
-    secondarybinlabels = variable.secondary.getbinlabels(extended=True)
-    binlabels = (primarybinlabels, secondarybinlabels)
-    labelsize = 15
-    canvaswidth = 900
-    p1legendbox = [0.5, 0.8, 0.9, 0.9]
+      canvaswidth = 900
+      p1legendbox = [0.5, 0.8, 0.9, 0.9]
 
   # set plot properties
   if( xaxtitle is not None and unit is not None ):
@@ -360,7 +379,6 @@ if __name__=="__main__":
   cmapname = 'default'
   if args.colormap is not None: cmapname = args.colormap
   colormap = colors.getcolormap(style=cmapname)
-  extrainfos = []
   if args.year is not None: extrainfos.append( args.year )
   if args.region is not None: extrainfos.append( regionname )
 

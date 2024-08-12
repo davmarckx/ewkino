@@ -155,8 +155,15 @@ if __name__=='__main__':
         except:
             print('Could not read toys test statistics, skipping this instance.')
             continue
-        # calculate mean and variance (just for printing)
+        # calculate mean and variance
         ttoys = np.array(ttoys)
+        ttoys_mean = np.mean(ttoys)
+        ttoys_std = np.std(ttoys)
+        # remove some numerical outliers
+        # (this is done to improve the stability of the numerical integration,
+        #  at the cost of a small bias which should be negligible if the threshold is high enough)
+        ttoys = ttoys[np.nonzero(ttoys < ttoys_mean + 10*ttoys_std)]
+        # recalculate mean and variance (just for printing)
         ttoys_mean = np.mean(ttoys)
         ttoys_std = np.std(ttoys)
         print('Mean: {}, std: {}'.format(ttoys_mean, ttoys_std))
