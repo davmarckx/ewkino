@@ -1,0 +1,13 @@
+[
+{
+  "name": "_nJetsNBJetsCat",
+  "variable": "_nJetsNBJetsCat",
+  "nbins": "14",
+  "xlow": "-0.5",
+  "xhigh": "13.5",
+  "axtitle": "Number of (b-tagged) jets category",
+  "unit": "",
+  "iscategorical": "true",
+  "xlabels": ["0b0j","1j","2j","3j",">3j","1b1j","2j", "3j", "4j", ">4j", ">1b2j", "3j", "4j",">4j"]
+}
+]
