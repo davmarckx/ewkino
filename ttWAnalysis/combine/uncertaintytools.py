@@ -51,7 +51,7 @@ def get_systematics_to_disable( processes, pnonorm=None,
 
   # remove overlap between pdf and qcdscale envelope types (you have to choose between ShapeEnv/RMS and ShapeVar)
   rmforall.append('pdfShapeEnv*')
-  #rmforall.append('pdfShapeRMS*')
+  rmforall.append('pdfShapeRMS*')
   rmforall.append('qcdScalesShapeEnv*')
 
   # remove norm uncertainties for specified processes
@@ -80,17 +80,17 @@ def get_systematics_to_disable( processes, pnonorm=None,
     else:
       rmspecific[p].append('efakerate*')
       rmspecific[p].append('mfakerate*')
-    if ( p=='ZZ' ):
+    if ( p=='ZZ' or p=='TX' or p=='Multiboson'):
       rmspecific[p].append('pdfShapeVar*')
 
   # remove specific nJets uncertainty except for chargeflips
   # (also remove for chargeflips since it was not yet correctly initialized)
-  rmforall.append('njetscf*')
+  #rmforall.append('njetscf*')
 
   # remove individual qcd and pdf variations
   # (if not done so before)
   #rmforall.append('qcdScalesShapeVar*')
-  rmforall.append('pdfShapeVar*')
+  #rmforall.append('pdfShapeVar*')
 
   # remove overlap between JEC sources
   rmforall.append('JEC')
@@ -149,7 +149,7 @@ def remove_systematics_default( processinfo, year=None, region=None ):
 
   # define processes for which normalization systematics should be removed
   # (because they will get dedicated normalization uncertainties later on)
-  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG','Multiboson']
+  pnonorm = ['WZ','ZZ','TTZ','TTG','ZG']#,'Multiboson']#multiboson removed
   pnonorm += ['TTH']
   pnonorm += ['TX', 'TTX']
   if 'Nonprompt' in processinfo.plist: pnonorm.append('Nonprompt')
@@ -232,7 +232,7 @@ def add_systematics_default( processinfo, year=None ):
     'ZG': 1.3, # synced with Oviedo (?)
     'TTG': 1.3, # synced with Oviedo (?)
     'TTH': 1.1, # synced with Oviedo (?)
-    'Multiboson': 1.5, # synced with Oviedo (?)
+    #'Multiboson': 1.5, # synced with Oviedo (?)
     'TTX': 1.5, # for future iterations
     'TX': 1.5, # for future iterations
   })

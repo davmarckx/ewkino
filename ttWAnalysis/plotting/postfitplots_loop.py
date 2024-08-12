@@ -22,7 +22,7 @@ for r in ['signalregion_dilepton_inclusive']: regions.append(r)
 #for r in ['cfcontrolregion']: regions.append(r)
 
 years = []
-#years = ['2016PreVFP','2016PostVFP','2017','2018']
+years = ['2016PreVFP','2016PostVFP','2017','2018']
 #years = ['2016PreVFP']
 years.append('run2')
 

@@ -610,7 +610,7 @@ void fillSystematicsHistograms(
 	// read normalization factors (only needed for simulation, not for data)
 	if( !treeReader.isData() ){
 	    // read b-tagging shape reweighting normalization factors from txt file
-	    std::string txtInputFile = "../btagging/output_JECFlavorSplitv3/";
+	    std::string txtInputFile = "../btagging/output_JECFlavorSplitv4/";
 	    // (hard-coded for now, maybe replace by argument later)
 	    txtInputFile += year + "/" + inputFileName;
 	    txtInputFile = stringTools::replace(txtInputFile, ".root", ".txt");

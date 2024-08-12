@@ -14,7 +14,7 @@ import argparse
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION = '/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13'
+CMSSW_VERSION = '~/CMSSW_10_2_16_UL3'
 #CMSSW_VERSION = '/user/llambrec/CMSSW_11_3_X_combine/CMSSW_11_3_4/'
 
 sys.path.append(os.path.abspath('../../Tools/python'))
@@ -148,5 +148,6 @@ if __name__=='__main__':
       script_name = 'local_combine_inclusive.sh'
       ct.initJobScript(script_name, cmssw_version=CMSSW_VERSION)
       with open( script_name, 'a' ) as script:
+        script.write('ulimit -S -s unlimited\n')
         for c in commands: script.write(c+'\n')
       os.system('bash {}'.format(script_name))

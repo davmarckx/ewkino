@@ -266,7 +266,7 @@ def get_multidimfit_commands(datacarddir, card,
   ss_command += ' --algo singles --saveWorkspace --saveFitResult'
   ss_command += ' --cminDefaultMinimizerStrategy 0'
   ss_command += ' --robustFit=1'
-  if defaultpoi: ss_command += ' --rMin 0 --rMax 5'
+  if defaultpoi: ss_command += ' --rMin 0 --rMax 3'
   else:
     ss_command += ' --redefineSignalPOIs {}'.format(pois[0])
     for poi in pois[1:]: ss_command += ',{}'.format(poi)
@@ -511,7 +511,7 @@ def get_impacts_commands( datacarddir, card,
   command = 'combineTool.py -M Impacts -d '+absworkspace
   command += ' -m 100'
   command += ' --rMin 0 --rMax 5'
-  #command += ' --cminDefaultMinimizerStrategy 0'
+  command += ' --cminDefaultMinimizerStrategy 0'
   command += ' --robustFit=1'
   if not (defaultpoi or autopoi): command += ' --redefineSignalPOIs {}'.format(','.join(pois))
   if( not usedata and expectsignal ): command += ' -t -1 --expectSignal 1'

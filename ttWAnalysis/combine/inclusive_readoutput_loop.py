@@ -11,7 +11,7 @@ if __name__=='__main__':
   print('Running on following directories:')
   print(datacarddirs)
 
-  method = 'fitdiagnostics'#'multidimfit'
+  method = 'multidimfit'
 
   commands = []
   for datacarddir in datacarddirs:
@@ -31,6 +31,7 @@ if __name__=='__main__':
       cmd2 += ' --channelfile ' + outtxtfile
       cmd2 += ' --outputfile ' + outpngfile
       cmd2 += ' --showvalues'
+      if 'perchannel' in dirtag: cmd2 += ' --plotInclusive'
       commands.append(cmd1)
       commands.append(cmd2)
 

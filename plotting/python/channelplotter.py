@@ -53,7 +53,7 @@ def plotchannels(channels, outfile,
 		showvalues=True, font=None, fontsize=None,
 		xaxtitle=None, yaxtitle=None, lumi=None,
 		xaxcentral=None, xaxlinecoords=[], yaxlinecoords=[],
-		xaxrange=None, legendbox=None,
+		xaxrange=None, legendbox=None,inclusiveChannels=None,
 		extracmstext=''):
     ### make the plot of different channels
     ### arguments:
@@ -99,6 +99,8 @@ def plotchannels(channels, outfile,
     nchannels = len(channels)
     points = ROOT.TGraphAsymmErrors(nchannels)
     points_statonly = ROOT.TGraphAsymmErrors(nchannels)
+    points_incl = ROOT.TGraphAsymmErrors(nchannels)
+    points_incl_statonly = ROOT.TGraphAsymmErrors(nchannels)
     labels = []
     mg = ROOT.TMultiGraph()
     mg.Add(points)
@@ -116,7 +118,7 @@ def plotchannels(channels, outfile,
 	    systup = math.sqrt(totup**2-statup**2)
 	else:
 	    msg = 'WARNING in channelplotter: stat-only up error > total up error'
-            msg += ' for channel {} ({})'.format(channel[0],label)
+            msg += ' for channel {} ({}): {}, {}'.format(channel[0],label,statup,totup)
             print(msg)
             systup = totup
             statup = 0
@@ -124,7 +126,7 @@ def plotchannels(channels, outfile,
 	    systdown = math.sqrt(totdown**2-statdown**2)
 	else:
 	    msg = 'WARNING in channelplotter: stat-only down error > total down error'
-            msg += ' for channel {} ({})'.format(channel[0],label)
+            msg += ' for channel {} ({}): {}, {}'.format(channel[0],label,statdown,totdown)
             print(msg)
             systdown = totdown
             statdown = 0
@@ -134,6 +136,20 @@ def plotchannels(channels, outfile,
 	
 	points_statonly.SetPoint(cnum, central, cnum+1)
         points_statonly.SetPointError(cnum, statdown, statup, 0.5, 0.5)
+
+        #[['all', 'all', 1.127, 0.059, 0.059, 1.127, 1.873], ['controlregions', 'CRs', 0.0, 0.0, 0.283, 0.0, 0.801], ['ee', 'ee', 1.341, 0.146, 0.149, 0.232, 0.239], ['em', 'em', 1.377, 0.12, 0.122, 0.194, 0.197], ['me', 'me', 1.153, 0.113, 0.116, 0.172, 0.179], ['mm', 'mm', 1.238, 0.093, 0.095, 0.146, 0.15], ['signalregions', 'SRs', 1.151, 0.096, 0.099, 0.156, 0.159], ['trilepton', '3L', 1.0, 0.154, 0.156, 0.0, 0.0]]
+        if inclusiveChannels != None:
+          for cnum_incl,channel_incl in enumerate(inclusiveChannels):
+           if channel_incl[1] == label:
+             points_incl.SetPoint(cnum, channel_incl[2], cnum+1)
+             points_incl.SetPointError(cnum, channel_incl[5], channel_incl[6], 0.0, 0.0)
+
+             points_incl_statonly.SetPoint(cnum, channel_incl[2], cnum+1)
+             points_incl_statonly.SetPointError(cnum, channel_incl[3], channel_incl[4], 0.0, 0.0)
+             break
+           # if we arrive here in the end, no matching label is found from the inclusive measurement so we fill with points outside the plot
+           points_incl.SetPoint(cnum, 9, cnum+1)
+           points_incl_statonly.SetPoint(cnum, 9, cnum+1)
 
 	if showvalues:
 	    centraltxt = '{:.2f}'.format(central)
@@ -157,7 +173,14 @@ def plotchannels(channels, outfile,
     points_statonly.SetFillStyle(1001)
     points_statonly.SetFillColor(ROOT.kCyan-4)
     points_statonly.SetMarkerStyle(20)
-    
+
+    # set style for reference values of TOP-21-011
+    points_incl.SetMarkerStyle(22)
+    points_incl.SetMarkerColor(ROOT.kRed)
+    points_incl_statonly.SetMarkerStyle(22)
+    points_incl_statonly.SetMarkerColor(ROOT.kRed)
+    points_incl_statonly.SetLineColor(ROOT.kRed)
+
     # draw first time to have well-defined axes
     mg.Draw("A2")
     pad1.Update()
@@ -180,6 +203,11 @@ def plotchannels(channels, outfile,
     yax.SetTickLength(0)
     mg.SetMaximum(len(channels)+legendnrows)
     
+    if inclusiveChannels != None:
+      points_incl.Draw()
+      points_incl_statonly.Draw()
+
+
     # unit line
     sm = ROOT.TLine(xaxcentral,0.5,xaxcentral,nchannels+0.5)
     # style 1: gray band
@@ -210,6 +238,7 @@ def plotchannels(channels, outfile,
     leg.AddEntry(points,'Measurement',"p")
     leg.AddEntry(points_statonly, 'Stat.', "f")
     leg.AddEntry(points, 'Total', "f")
+    if inclusiveChannels != None: leg.AddEntry(points_incl,'TOP-21-011',"p")
     leg.SetNColumns(3)
 
     # draw objects
@@ -217,6 +246,9 @@ def plotchannels(channels, outfile,
     if docentral: sm.Draw()
     for vertline in vertlines: vertline.Draw()
     for horline in horlines: horline.Draw()
+    if inclusiveChannels != None:
+      points_incl.Draw("same P")
+      points_incl_statonly.Draw("same P")
     pad1.Update()
     c1.Update()
     for cnum,label in enumerate(labels):

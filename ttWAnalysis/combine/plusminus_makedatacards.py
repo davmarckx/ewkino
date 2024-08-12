@@ -31,6 +31,9 @@ regions = ({
     'trileptoncontrolregion': '_nJetsNBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
+    #'npcontrolregion_dilepton_me': '_eventBDT',
+    #'npcontrolregion_dilepton_em': '_eventBDT',
+    #'npcontrolregion_dilepton_ee': '_eventBDT',
     'cfjetscontrolregion': '_nJets'
 })
 
@@ -51,6 +54,10 @@ for year in years:
   for region,variable in regions.items():
     # find input file
     inputfile = os.path.join(topdir,year,region,inputfiletag)
+    if 'signalregion' in region:
+        inputfile = inputfile.replace('.root','_rebinned.root')
+    if 'npcontrolregion' in region:
+        inputfile = inputfile.replace('.root','_rebinned_lastbins.root')
     if not os.path.exists(inputfile):
       raise Exception('ERROR: file {} does not exist.'.format(inputfile))
     # define output file

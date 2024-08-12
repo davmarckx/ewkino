@@ -28,7 +28,7 @@ loc = {
   },
   'sig': {
     'samplelist': '../samplelists/particlelevel/samplelist_{}_TTW_particlelevel.txt',
-    'inputdir': '/pnfs/iihe/cms/store/user/llambrec/noskim_ttw_signal_nanoaodsettings'
+    'inputdir': '/pnfs/iihe/cms/store/user/llambrec/dileptonskim_ttw_signal'
   }
 }
 
@@ -36,7 +36,7 @@ nevents = -1
 
 runmode = 'condor'
 
-outputdir = 'output_JECFlavorSplitv3'
+outputdir = 'output_JECFlavorSplitv4'
 
 for year in years:
   for sampletype, sampleloc in loc.items():

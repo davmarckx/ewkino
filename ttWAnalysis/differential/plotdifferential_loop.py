@@ -14,7 +14,7 @@ if __name__=='__main__':
   write_roots = False
 
   # basic command
-  basiccmd = 'python plotdifferential.py --year run2 --processes TTW2018'
+  basiccmd = 'python plotdifferential.py --year run2 --processes TTW'
   basiccmd += ' --variables {}'.format(variables)
 
   # loop over configurations

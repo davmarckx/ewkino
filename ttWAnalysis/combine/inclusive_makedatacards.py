@@ -7,7 +7,7 @@ import os
 sys.path.append(os.path.abspath('../../jobSubmission'))
 import condorTools as ct
 from jobSettings import CMSSW_VERSION
-CMSSW_VERSION="/user/llambrec/CMSSW_10_2_X_combine/CMSSW_10_2_13/"
+CMSSW_VERSION="~/CMSSW_10_2_16_UL3"
 sys.path.append(os.path.abspath('../../Tools/python'))
 from variabletools import read_variables
 # settings
@@ -35,6 +35,10 @@ regions = ({
     'signalregion_trilepton': '_eventBDT',
     'trileptoncontrolregion': '_nJetsNBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
+    #'npcontrolregion_dilepton_mm': '_eventBDT',
+    #'npcontrolregion_dilepton_me': '_eventBDT',
+    #'npcontrolregion_dilepton_em': '_eventBDT',
+    #'npcontrolregion_dilepton_ee': '_eventBDT',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
     'cfjetscontrolregion': '_nJets' 
   },
@@ -44,6 +48,10 @@ regions = ({
     'signalregion_trilepton': '_eventBDT',
     'trileptoncontrolregion': '_nJetsNBJetsCat',
     'fourleptoncontrolregion': '_nJetsNZCat',
+    #'npcontrolregion_dilepton_mm': '_eventBDT',
+    #'npcontrolregion_dilepton_me': '_eventBDT',
+    #'npcontrolregion_dilepton_em': '_eventBDT',
+    #'npcontrolregion_dilepton_ee': '_eventBDT',
     'npcontrolregion_dilepton_inclusive': '_eventBDT',
     'cfjetscontrolregion': '_nJets'
   }
@@ -71,6 +79,11 @@ for year in years:
     for region,variable in config.items():#change back here
       # find input file
       inputfile = os.path.join(topdir,year,region,inputfiletag)
+      if 'signalregion_tri' in region:
+        inputfile = inputfile.replace('.root','_rebinned.root')
+      if 'npcontrolregion' in region and not 'inclusive' in region:
+        print("rebin np region")
+        inputfile = inputfile.replace('.root','_rebinned_lastbins.root')
       if not os.path.exists(inputfile):
         raise Exception('ERROR: file {} does not exist.'.format(inputfile))
       # define output file

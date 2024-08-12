@@ -38,7 +38,7 @@ if __name__=='__main__':
     print('Will submit impact plot generation for the following workspaces ({}):'.format(len(workspaces)))
     for w in workspaces: print('  - {}'.format(w))
     print('Continue? (y/n)')
-    go = input()#raw_input
+    go = raw_input()#raw_input
     if go!='y': sys.exit()
 
     for w in workspaces:

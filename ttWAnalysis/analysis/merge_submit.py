@@ -13,7 +13,7 @@ topdir = sys.argv[1]
 
 regions = ['auto']
 
-years = ['2017']#'2016PreVFP',"2016PostVFP","2017","2018"]
+years = ['2016PreVFP',"2016PostVFP","2017","2018"]
 
 npmodes = []
 #npmodes.append( 'npfromsim' )
